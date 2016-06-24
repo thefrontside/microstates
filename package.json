@@ -1,0 +1,43 @@
+{
+  "name": "microstates",
+  "version": "0.0.1",
+  "description": "Immutable, Composable, Data Structures",
+  "main": "./lib/microstates.js",
+  "files": [
+    "lib",
+    "src"
+  ],
+  "jsnext:main": "./src/microstates.js",
+  "scripts": {
+    "prepublish": "babel --optional runtime src/ --out-dir lib/",
+    "test": "mocha test/index.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+ssh://git@github.com/cowboyd/microstates.js.git"
+  },
+  "keywords": [
+    "blood",
+    "microstates",
+    "immutable"
+  ],
+  "author": "Charles Lowell <cowboyd@frontside.io>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/cowboyd/microstates.js/issues"
+  },
+  "homepage": "https://github.com/cowboyd/microstates.js#readme",
+  "dependencies": {
+    "babel-runtime": "^5.8.25"
+  },
+  "devDependencies": {
+    "babel": "^5.8.23",
+    "chai": "^3.4.1",
+    "mocha": "^2.3.3",
+    "moment": "^2.13.0",
+    "require-all": "^2.0.0",
+    "smooth": "^0.1.2",
+    "smooth.js": "0.0.1",
+    "xlsx": "^0.8.0"
+  }
+}
