@@ -26,5 +26,11 @@ build/Release
 # https://www.npmjs.org/doc/misc/npm-faq.html#should-i-check-my-node_modules-folder-into-git
 node_modules
 
+# Editors
+.vscode
+
 /lib
 
+tmp
+dist
+.DS_Store

@@ -1,8 +1,8 @@
 import { describe, beforeEach, it } from 'mocha';
 import { expect } from 'chai';
 
-import NumberState from '../src/number';
-import MicroState from '../src/microstate';
+import { NumberState } from 'microstates';
+import { MicroState } from 'microstates';
 
 describe("NumberState", function() {
   let state;

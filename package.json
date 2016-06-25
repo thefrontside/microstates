@@ -2,15 +2,21 @@
   "name": "microstates",
   "version": "0.0.1",
   "description": "Immutable, Composable, Data Structures",
-  "main": "./lib/microstates.js",
+  "main": "dist/commonjs/microstates/index.js",
   "files": [
-    "lib",
-    "src"
+    "src",
+    "dist/amd",
+    "dist/commonjs",
+    "dist/global",
+    "dist/css",
+    "README.md"
   ],
   "jsnext:main": "./src/microstates.js",
   "scripts": {
-    "prepublish": "babel --optional runtime src/ --out-dir lib/",
-    "test": "mocha test/index.js"
+    "start": "broccoli serve",
+    "prebuild": "rimraf dist tmp",
+    "build": "broccoli build dist",
+    "test": "npm run build && testem ci -f testem.js"
   },
   "repository": {
     "type": "git",
@@ -27,17 +33,25 @@
     "url": "https://github.com/cowboyd/microstates.js/issues"
   },
   "homepage": "https://github.com/cowboyd/microstates.js#readme",
-  "dependencies": {
-    "babel-runtime": "^5.8.25"
-  },
   "devDependencies": {
-    "babel": "^5.8.23",
+    "broccoli": "0.16.9",
+    "broccoli-amd-loader": "0.1.0",
+    "broccoli-babel-transpiler": "5.5.0",
+    "broccoli-cli": "1.0.0",
+    "broccoli-concat": "2.2.0",
+    "broccoli-funnel": "1.0.2",
+    "broccoli-inject-livereload": "0.2.0",
+    "broccoli-merge-trees": "1.1.1",
+    "broccoli-multi-builder": "0.2.8",
+    "broccoli-sane-watcher": "1.1.4",
+    "broccoli-string-replace": "0.1.1",
+    "broccoli-test-builder": "0.2.0",
     "chai": "^3.4.1",
+    "jquery": "3.0.0",
     "mocha": "^2.3.3",
-    "moment": "^2.13.0",
-    "require-all": "^2.0.0",
-    "smooth": "^0.1.2",
-    "smooth.js": "0.0.1",
-    "xlsx": "^0.8.0"
+    "require-all": "2.0.0",
+    "rimraf": "2.5.2",
+    "testem": "1.9.1",
+    "tiny-lr": "0.2.1"
   }
 }
