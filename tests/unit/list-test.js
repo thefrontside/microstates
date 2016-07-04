@@ -1,12 +1,12 @@
 import { describe, beforeEach, it } from 'mocha';
 import { expect } from 'chai';
 
-import List from '../src/list';
+import { ListState } from 'microstates';
 
 describe("List", function() {
   let list;
   beforeEach(function() {
-    list = new List([1,2,3]);
+    list = new ListState([1,2,3]);
   });
   it("has a length", function() {
     expect(list.length).to.equal(3);
@@ -27,7 +27,7 @@ describe("List", function() {
     });
 
     it("returns an instance of List", function() {
-      expect(list).to.be.instanceOf(List);
+      expect(list).to.be.instanceOf(ListState);
     });
     it("works", function() {
       expect(list.valueOf()).to.deep.equal([1,5,5]);
@@ -39,7 +39,7 @@ describe("List", function() {
       list = list.pop();
     });
     it("returns an instance of List", function() {
-      expect(list).to.be.instanceOf(List);
+      expect(list).to.be.instanceOf(ListState);
     });
     it("works", function() {
       expect(list.valueOf()).to.deep.equal([1,2]);
@@ -51,7 +51,7 @@ describe("List", function() {
       list = list.push(10, 15);
     });
     it("returns an instance of list", function() {
-      expect(list).to.be.instanceOf(List);
+      expect(list).to.be.instanceOf(ListState);
     });
     it("works", function() {
       expect(list.valueOf()).to.deep.equal([1,2,3,10,15]);
@@ -63,7 +63,7 @@ describe("List", function() {
       list = list.reverse();
     });
     it("returns an instance of list", function() {
-      expect(list).to.be.instanceOf(List);
+      expect(list).to.be.instanceOf(ListState);
     });
     it("works", function() {
       expect(list.valueOf()).to.deep.equal([3,2,1]);
@@ -75,7 +75,7 @@ describe("List", function() {
       list = list.shift();
     });
     it("returns an instance of list", function() {
-      expect(list).to.be.instanceOf(List);
+      expect(list).to.be.instanceOf(ListState);
     });
     it("works", function() {
       expect(list.valueOf()).to.deep.equal([2,3]);
@@ -95,7 +95,7 @@ describe("List", function() {
       });
     });
     it("returns an instance of list", function() {
-      expect(list).to.be.instanceOf(List);
+      expect(list).to.be.instanceOf(ListState);
     });
     it("works", function() {
       expect(list.valueOf()).to.deep.equal([3,2,1]);
@@ -107,7 +107,7 @@ describe("List", function() {
       list = list.unshift(20,30);
     });
     it("returns an instance of list", function() {
-      expect(list).to.be.instanceOf(List);
+      expect(list).to.be.instanceOf(ListState);
     });
     it("works", function() {
       expect(list.valueOf()).to.deep.equal([20,30,1,2,3]);
@@ -119,7 +119,7 @@ describe("List", function() {
       list = list.concat(1,23);
     });
     it("returns an instance of list", function() {
-      expect(list).to.be.instanceOf(List);
+      expect(list).to.be.instanceOf(ListState);
     });
     it("works", function() {
       expect(list.valueOf()).to.deep.equal([1,2,3, 1, 23]);
@@ -131,7 +131,7 @@ describe("List", function() {
       list = list.map(i => i * 2);
     });
     it("returns an instance of list", function() {
-      expect(list).to.be.instanceOf(List);
+      expect(list).to.be.instanceOf(ListState);
     });
     it("works", function() {
       expect(list.valueOf()).to.deep.equal([2,4,6]);

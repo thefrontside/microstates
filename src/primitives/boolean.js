@@ -5,7 +5,11 @@ export default Primitive.extend('BooleanState', {
     return  { value: !!value };
   },
 
-  toggle() {
-    return this.replace(!this.value);
+  transitions: {
+    toggle(current) {
+      return {
+        value: !current
+      };
+    }
   }
 });

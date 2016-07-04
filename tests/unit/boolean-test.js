@@ -1,8 +1,8 @@
 import { describe, beforeEach, it } from 'mocha';
 import { expect } from 'chai';
 
-import BooleanState from '../src/boolean';
-import MicroState from '../src/microstate';
+import { BooleanState } from 'microstates';
+import { MicroState } from 'microstates';
 
 describe("BooleanState", function() {
   it("is a microstate", function() {

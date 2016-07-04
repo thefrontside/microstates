@@ -1,4 +1,4 @@
-import MicroState from './microstate';
+import MicroState from '../microstate';
 
 export default MicroState.extend('Primitive', {
   valueOf() {
