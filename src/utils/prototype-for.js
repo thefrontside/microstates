@@ -13,7 +13,7 @@ export default function prototypeFor(prototype, attrs) {
 
       let descriptor = getOwnPropertyDescriptor(attrs, name);
 
-      if (descriptor.get && typeof descriptor.get === 'function') {
+      if (isGetter(descriptor)) {
 
         defineProperty(prototype, name, descriptor);
 
@@ -25,11 +25,11 @@ export default function prototypeFor(prototype, attrs) {
         // property is a special method
         defineProperty(prototype, name, descriptor);
 
-      } else if (descriptor.value && MicroState.isPrototypeOf(descriptor.value)) {
+      } else if (isMicrostate(descriptor)) {
         // property is a substate      
         // TODO: apply substate
 
-      } else if (descriptor.value && typeof descriptor.value === 'function') {
+      } else if (isMethod(descriptor)) {
         // TODO: implement what happens with functions (helper?)
         defineProperty(prototype, name, descriptor);
       }
@@ -71,4 +71,16 @@ export default function prototypeFor(prototype, attrs) {
         return this;
       }
     };
+  }
+
+  function isGetter(descriptor) {
+    return descriptor.get && typeof descriptor.get === 'function';
+  }
+
+  function isMicrostate(descriptor) {
+    return descriptor.value && MicroState.isPrototypeOf(descriptor.value);
+  }
+
+  function isMethod(descriptor) {
+    return descriptor.value && typeof descriptor.value === 'function';
   }
