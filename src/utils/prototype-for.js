@@ -26,7 +26,7 @@ export default function prototypeFor(prototype, attrs) {
         defineProperty(prototype, name, descriptor);
 
       } else if (isMicrostate(descriptor)) {
-        // property is a substate      
+        // property is a substate
         // TODO: apply substate
 
       } else if (isMethod(descriptor)) {
@@ -49,28 +49,28 @@ export default function prototypeFor(prototype, attrs) {
 
     getOwnPropertyNames(transitions).forEach(function(name){
       let descriptor = getOwnPropertyDescriptor(transitions, name);
-      defineProperty(prototype, name, makeTransitionDescriptor(descriptor.value));
+      defineProperty(prototype, name, {
+        value: transitionHandler(descriptor.value)
+      });
     });
   }
 
-  function makeTransitionDescriptor(transition) {
-    return {
-      value: function() {
-        let result = transition.call(this, this.value, ...arguments);
-        if (result instanceof this.constructor){
-        // transition returned new microstate - use it
-        return result;
-        } else if (typeof result === 'object') {
-        // transition returned an object - merge it
-        let next = new this.constructor();
-        return Object.assign(next, this, result);
-        } 
-        // transition returned a value of different type than current value
-        // return previous value
-        console.error('transition returned incompatible value', name, result);
-        return this;
-      }
-    };
+  function transitionHandler(callback) {
+    return function() {
+      let result = callback.call(this, this.value, ...arguments);
+      if (result instanceof this.constructor){
+      // transition returned new microstate - use it
+      return result;
+      } else if (typeof result === 'object') {
+      // transition returned an object - merge it
+      let next = new this.constructor();
+      return Object.assign(next, this, result);
+      } 
+      // transition returned a value of different type than current value
+      // return previous value
+      console.error('transition returned incompatible value', name, result);
+      return this;
+    }
   }
 
   function isGetter(descriptor) {
