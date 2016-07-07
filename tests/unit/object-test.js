@@ -136,10 +136,10 @@ describe("Object Microstate", function() {
 
     beforeEach(function(){
       TodoItem = MicroState.extend('TodoItem', {
-        constructor(name = '') {
+        constructor(name = '', isComplete = false) {
           return { 
             name,
-            isComplete: false
+            isComplete
           };
         },
         name: StringState,
@@ -147,12 +147,18 @@ describe("Object Microstate", function() {
       });
     })
 
-    it("can be instantiated with sub states", function(){
+    it("can be instantiated with sub states using substate default values", function(){
       let item = new TodoItem();
 
       expect(item.name.valueOf()).to.be.empty;
       expect(item.isComplete.valueOf()).to.be.false;
+    });
 
+    it("can be instantiated with sub states receiving defaults", function(){
+      let item = new TodoItem('write some tests', true);
+
+      expect(item.name.valueOf()).to.equal('write some tests');
+      expect(item.isComplete.valueOf()).to.be.true;
     });
 
   });
