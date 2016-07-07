@@ -1,3 +1,4 @@
+import assign from './utils/assign';
 import prototypeFor from './utils/prototype-for';
 
 const { defineProperty } = Object;
@@ -14,15 +15,16 @@ export default class MicroState {
         defineProperty(this, 'constructor', { value: Class });
       }
     };
-    
+
     defineProperty(Class, 'name', {value: name });
 
-    Class.prototype = prototypeFor(Object.create(Super.prototype, attrs.prototype || {}), attrs);
+    let ancestor = Object.create(Super.prototype, attrs.prototype || {});
+    Class.prototype = prototypeFor(ancestor, attrs);
 
     return Class;
   }
 
   constructor(attrs = {}) {
-    Object.assign(this, attrs);
+    assign(this, attrs);
   }
 };

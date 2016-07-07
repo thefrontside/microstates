@@ -1,4 +1,3 @@
-import assign from './assign';
 import MicroState from '../microstate';
 
 const { getOwnPropertyNames, getOwnPropertyDescriptor, defineProperty } = Object;
@@ -30,7 +29,7 @@ export default function prototypeFor(prototype, attrs) {
       } else if (isMicrostate(descriptor)) {
         // property is a substate
         // TODO: apply substate
-
+        defineSubstate(prototype, name, descriptor.value);
       } else if (isMethod(descriptor)) {
         // TODO: implement what happens with functions (helper?)
         defineProperty(prototype, name, descriptor);
@@ -41,7 +40,7 @@ export default function prototypeFor(prototype, attrs) {
 
     function defineTransitions(prototype, transitions) {
       // property is transitions hash
-      transitions = assign({}, transitions, {
+      transitions = Object.assign({}, transitions, {
         replace(current, ...args) {
           // TODO: check here that replace is done with a value that matches current type
           return merge(this, constructor(...args));
@@ -53,6 +52,18 @@ export default function prototypeFor(prototype, attrs) {
         defineProperty(prototype, name, {
           value: transitionHandler(descriptor.value)
         });
+      });
+    }
+
+    function defineSubstate (prototype, name, Substate) {
+      let hidden = `__${name}`;
+      defineProperty(prototype, name, {
+        get() {
+          return this[hidden] || Substate;
+        },
+        set() {
+          return this[hidden] = new Substate(...arguments);
+        }
       });
     }
 
