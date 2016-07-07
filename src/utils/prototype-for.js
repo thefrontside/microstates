@@ -59,7 +59,7 @@ export default function prototypeFor(prototype, attrs) {
       let hidden = `__${name}`;
       defineProperty(prototype, name, {
         get() {
-          return this[hidden] || Substate;
+          return this[hidden];
         },
         set() {
           return this[hidden] = new Substate(...arguments);
