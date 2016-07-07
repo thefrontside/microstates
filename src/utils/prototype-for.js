@@ -5,6 +5,8 @@ const { getOwnPropertyNames, getOwnPropertyDescriptor, defineProperty } = Object
 
 export default function prototypeFor(prototype, attrs) {
 
+    const constructor =  attrs.constructor || prototype.constructor;
+
     return getOwnPropertyNames(attrs).reduce(function(prototype, name) {
 
       if (name === 'constructor' || name === 'prototype') {
@@ -37,40 +39,50 @@ export default function prototypeFor(prototype, attrs) {
       return prototype;
     }, prototype);
 
-  }
-
-  function defineTransitions(prototype, transitions) {
-    // property is transitions hash
-    transitions = assign({}, transitions, {
-      replace(current, ...args) {
-        return new this.constructor(...args);
-      }
-    });
-
-    getOwnPropertyNames(transitions).forEach(function(name){
-      let descriptor = getOwnPropertyDescriptor(transitions, name);
-      defineProperty(prototype, name, {
-        value: transitionHandler(descriptor.value)
+    function defineTransitions(prototype, transitions) {
+      // property is transitions hash
+      transitions = assign({}, transitions, {
+        replace(current, ...args) {
+          // TODO: check here that replace is done with a value that matches current type
+          return merge(this, constructor(...args));
+        }
       });
-    });
+
+      getOwnPropertyNames(transitions).forEach(function(name){
+        let descriptor = getOwnPropertyDescriptor(transitions, name);
+        defineProperty(prototype, name, {
+          value: transitionHandler(descriptor.value)
+        });
+      });
+    }
+
   }
 
   function transitionHandler(callback) {
     return function() {
       let result = callback.call(this, this.value, ...arguments);
+
       if (result instanceof this.constructor){
-      // transition returned new microstate - use it
-      return result;
+        // transition returned new microstate - use it
+        // TODO: remove this
+        // this condition should never happen because returning an instance will be come a special
+        // case reached only by top most context
+        return result;
       } else if (typeof result === 'object') {
-      // transition returned an object - merge it
-      let next = new this.constructor();
-      return Object.assign(next, this, result);
+        // transition returned an object - merge it
+        return merge(this, result);
       } 
       // transition returned a value of different type than current value
       // return previous value
+
       console.error('transition returned incompatible value', name, result);
       return this;
     }
+  }
+
+  function merge(target, attrs) {
+    let next = new target.constructor();
+    return Object.assign(next, this, attrs);
   }
 
   function isGetter(descriptor) {
