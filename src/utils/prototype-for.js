@@ -50,50 +50,87 @@ export default function prototypeFor(prototype, attrs) {
       getOwnPropertyNames(transitions).forEach(function(name){
         let descriptor = getOwnPropertyDescriptor(transitions, name);
         defineProperty(prototype, name, {
-          value: transitionHandler(descriptor.value)
+          value: function() {
+            return merge(this, descriptor.value.call(this, this.value, ...arguments));
+          }
         });
       });
     }
 
     function defineSubstate (prototype, name, Substate) {
       let hidden = `__${name}`;
+      defineProperty(prototype, hidden, {
+        writable: true,
+        configurable: false,
+        enumerable: false
+      });
       defineProperty(prototype, name, {
+        enumerable: true,
+        configurable: false,
         get() {
           return this[hidden];
         },
-        set() {
-          return this[hidden] = new Substate(...arguments);
+        set(substate) {
+
+          if (!(substate instanceof Substate)) {
+            substate = new Substate(...arguments);
+          }
+
+          let context = this;
+
+          defineProperty(substate, '__merge', {
+            value: function(attrs) {
+              return merge(context, {
+                [name]: attrs
+              });
+            },
+            configurable: true
+          });
+
+          return this[hidden] = substate;
         }
       });
     }
 
   }
-
-  function transitionHandler(callback) {
-    return function() {
-      let result = callback.call(this, this.value, ...arguments);
-
-      if (result instanceof this.constructor){
-        // transition returned new microstate - use it
-        // TODO: remove this
-        // this condition should never happen because returning an instance will be come a special
-        // case reached only by top most context
-        return result;
-      } else if (typeof result === 'object') {
-        // transition returned an object - merge it
-        return merge(this, result);
-      } 
-      // transition returned a value of different type than current value
-      // return previous value
-
-      console.error('transition returned incompatible value', name, result);
-      return this;
-    }
-  }
-
+  
   function merge(target, attrs) {
+    if (attrs instanceof target.constructor){
+      return attrs;
+    }
+
+    if (target.__merge) {
+      return target.__merge(attrs);
+    }
+
     let next = new target.constructor();
-    return Object.assign(next, this, attrs);
+
+    let keys = Object.keys(attrs);
+    let seen = []
+
+    getOwnPropertyNames(next).forEach(function(name){
+      let descriptor = getOwnPropertyDescriptor(next, name);
+      if (descriptor.hasOwnProperty('value') && descriptor.writable) {
+        next[name] = attrs[name] || target[name];
+        seen.push(name);
+      }
+    });
+    getOwnPropertyNames(next.constructor.prototype).forEach(function(name){
+      let descriptor = getOwnPropertyDescriptor(next.constructor.prototype, name);
+      if (isMicrostate(descriptor)) {
+        next[name] = attrs[name] || target[name];
+        seen.push(name);
+      }
+    });
+
+    keys.forEach(function(name){
+      if (seen.indexOf(name) === -1) {
+        next[name] = attrs[name];
+        seen.push(name);
+      }
+    });
+
+    return next;
   }
 
   function isGetter(descriptor) {

@@ -5,7 +5,7 @@ import { MicroState, StringState, BooleanState } from 'microstates';
 
 describe("Object Microstate", function() {
 
-  describe("TodoList", function(){
+  describe("Simple TodoList", function(){
     let TodoList;
     let list;
     beforeEach(function() {
@@ -160,6 +160,68 @@ describe("Object Microstate", function() {
       expect(item.name.valueOf()).to.equal('write some tests');
       expect(item.isComplete.valueOf()).to.be.true;
     });
+
+    describe('transitioning substate', function(){
+      let item;
+
+      beforeEach(function(){
+        item = new TodoItem('say hello');
+      });
+
+      it('returns new parent state', function(){
+        let completed = item.isComplete.replace(true);
+
+        expect(completed).to.not.equal(item);
+        expect(completed.name).to.equal(item.name);
+        expect(completed.isComplete).to.not.equal(item.isCompleted);
+
+      });
+    });
+
+  });
+
+  describe("Nested complex TodoItem", function(){
+    let TodoItem;
+    let StatusState;
+
+    beforeEach(function(){
+      StatusState = MicroState.extend('Status', {
+        constructor(status = 'new') {
+          return { status }
+        },
+        get isNew() {
+          return this.status === 'new';
+        },
+        get isComplete() {
+          return this.status === 'complete';
+        },
+        transitions: {
+          complete() {
+            return this.replace('complete');
+          }
+        }
+      });
+
+      TodoItem = MicroState.extend('TodoItem', {
+        constructor(name = '', status) {
+          return { 
+            name,
+            status
+          };
+        },
+        name: StringState,
+        status: StatusState
+      });
+    });
+
+    it('can be initialized by providing default value to a complex object', function(){
+      let item = new TodoItem('say hello to Robbie', 'complete');
+
+      expect(item.name.valueOf()).to.equal('say hello to Robbie');
+      expect(item.status.isComplete).to.be.true;
+    });
+
+
 
   });
 
