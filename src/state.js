@@ -1,6 +1,7 @@
 import assign from './assign';
+import Metadata from './metadata';
 
-export default class State {
+class Opaque {
   constructor(value) {
     if (value instanceof Object) {
       assign(this, value.valueOf());
@@ -12,23 +13,31 @@ export default class State {
     Object.freeze(this);
   }
 
-  set(value) {
-    return new this.constructor(value);
-  }
-
-  assign(attrs) {
-    return this.set(assign({}, this.valueOf(), attrs));
-  }
-
-  put(key, value) {
-    return this.assign({ [key]: value });
-  }
-
-  delete(key) {
-    let value = this.valueOf();
-    let keys = Object.keys(value).filter(k => k !== key);
-    return this.set(keys.reduce((remaining, key)=> {
-      return assign(remaining, { [key]: value[key]});
-    }, {}));
+  static extend(properties) {
+    let Type = class State extends this {};
+    let metadata = new Metadata(Type, this, properties);
+    Type.metadata = metadata;
+    Type.prototype = metadata.prototype;
+    return Type;
   }
 }
+
+export default Opaque.extend({
+  transitions: {
+    set(current, value) {
+      return new this.constructor(value);
+    },
+    assign(current, attrs) {
+      return assign({}, current, attrs);
+    },
+    put(current, key, value) {
+      return assign({}, current, { [key]: value});
+    },
+    delete(current, key) {
+      let keys = Object.keys(current).filter(k => k !== key);
+      return keys.reduce((next, key)=> {
+        return assign(next, { [key]: current[key] });
+      }, {});
+    }
+  }
+});
