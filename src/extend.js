@@ -1,7 +1,28 @@
 import assign from './assign';
 import ComputedProperty from './computed-property';
 
-export default class Metadata {
+export default function extend(Super, properties) {
+  let Type = class State extends Super {};
+  let metadata = new Metadata(Type, Super, properties);
+  Type.metadata = metadata;
+  Type.prototype = metadata.prototype;
+  Type.prototype.constructor = Type;
+  return Type;
+}
+
+export function contextualize(state, container, path) {
+  let metadata = state.constructor.metadata;
+  return Object.create(state, mapObject(metadata.transitions, function(name, method) {
+    return {
+      value: function(...args) {
+        let result = state[name].call(state, ...args);
+        return container.put(path, result);
+      }
+    };
+  }));
+}
+
+class Metadata {
   constructor(type, supertype, properties) {
     this.type = type;
     this.supertype = supertype;
@@ -10,18 +31,17 @@ export default class Metadata {
 
   get prototype() {
     return cache(this, 'prototype', ()=> {
-      return Object.create(this.supertype.prototype, this.transitions);
+      return Object.create(this.supertype.prototype, this.ownTransitions);
     });
   }
 
-  get transitions() {
-    return cache(this, 'transitions', ()=> {
-      return mapObject(this.properties.transitions, function(method) {
+  get ownTransitions() {
+    return cache(this, 'ownTransitions', ()=> {
+      return mapObject(this.properties.transitions, function(name, method) {
         return new ComputedProperty(function() {
           return function(...args) {
-            let state = this;
-            let result = method.call(state, state.valueOf(), ...args);
             let Type = this.constructor;
+            let result = method.call(this, this.valueOf(), ...args);
             if (result instanceof Type) {
               return result;
             } else {
@@ -30,6 +50,16 @@ export default class Metadata {
           };
         });
       });
+    });
+  }
+
+  get transitions() {
+    return cache(this, 'transitions', ()=> {
+      let transitions = {};
+      for (let metadata = this; metadata; metadata = metadata.supertype.metadata) {
+        assign(transitions, metadata.ownTransitions);
+      }
+      return transitions;
     });
   }
 }
@@ -44,7 +74,7 @@ export default class Metadata {
  */
 function mapObject(object = {}, fn) {
   return Object.getOwnPropertyNames(object).reduce(function(result, name) {
-    return assign(result, { [name]: fn(object[name])});
+    return assign(result, { [name]: fn(name, object[name])});
   }, {});
 }
 
