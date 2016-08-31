@@ -1,5 +1,6 @@
 import assign from './assign';
 import extend from './extend';
+import { reduceObject } from './object-utils';
 
 class Opaque {
   constructor(value) {
@@ -19,16 +20,15 @@ export default Opaque.extend({
       return new this.constructor(value);
     },
     assign(current, attrs) {
-      return assign({}, current, attrs);
+      return attrs;
     },
     put(current, key, value) {
-      return assign({}, current, { [key]: value});
+      return { [key]: value };
     },
     delete(current, key) {
-      let keys = Object.keys(current).filter(k => k !== key);
-      return keys.reduce((next, key)=> {
-        return assign(next, { [key]: current[key] });
-      }, {});
+      return this.set(reduceObject(current, (attrs, name, value)=> {
+        return name === key ? attrs : assign(attrs, { [name]: value });
+      }));
     }
   }
 });

@@ -42,6 +42,8 @@ const Metadata = cached(class Metadata {
           let result = method.call(this, this.valueOf(), ...args);
           if (result instanceof Type) {
             return result;
+          } else if (result instanceof Object) {
+            return new Type(assign({}, this.valueOf(), result.valueOf()));
           } else {
             return new Type(result.valueOf());
           }
