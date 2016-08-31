@@ -1,18 +1,18 @@
 import assign from './assign';
 import ComputedProperty from './computed-property';
-import { eachProperty, mapObject } from './object-utils';
+import { eachProperty, reduceObject, mapObject } from './object-utils';
 
 const { keys, defineProperty, getOwnPropertyDescriptors } = Object;
 
 const Metadata = cached(class Metadata {
-  constructor(type, supertype, properties) {
+  constructor(type, supertype, definition) {
     this.type = type;
     this.supertype = supertype;
-    this.properties = properties;
+    this.definition = definition;
   }
 
   construct(Opaque, state, value) {
-    keys(value).forEach((key)=> {
+    keys(value || {}).forEach((key)=> {
       defineProperty(state, key, new ValueProperty(Opaque, state, key, value));
     });
 
@@ -20,11 +20,22 @@ const Metadata = cached(class Metadata {
   }
 
   get prototype() {
-    return Object.create(this.supertype.prototype, this.ownTransitions);
+    let descriptors = assign({}, this.ownProperties, this.ownTransitions);
+    return Object.create(this.supertype.prototype, descriptors);
+  }
+
+  get ownProperties() {
+    return reduceObject(this.definition, function(properties, name, value) {
+      if (name === 'transitions') {
+        return properties;
+      } else {
+        return assign(properties, { [name]: { value } });
+      }
+    });
   }
 
   get ownTransitions() {
-    return mapObject(this.properties.transitions, function(name, method) {
+    return mapObject(this.definition.transitions, function(name, method) {
       return new ComputedProperty(function() {
         return function(...args) {
           let Type = this.constructor;
@@ -104,8 +115,8 @@ class ValueOfMethod extends ComputedProperty {
       let result;
       return function() {
         if (result) { return result; }
-        let unboxed = value.valueOf();
-        result = Object.keys(unboxed).reduce(function(valueOf, key) {
+        let unboxed = value == null ? value : value.valueOf();
+        result = Object.keys(unboxed || {}).reduce(function(valueOf, key) {
           let prop = unboxed[key];
           if (prop instanceof Opaque) {
             return assign({}, valueOf, { [key]: prop.valueOf() });

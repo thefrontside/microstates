@@ -106,6 +106,39 @@ describe("The Basic Opaque State", function() {
       });
     });
 
+    describe("with pre-defined properties", function() {
+      const Thing = State.extend({
+        one: 1,
+        two: 2
+      });
+      let thing;
+      beforeEach(function() {
+        thing = new Thing();
+      });
+
+      it("has those properties by default", function() {
+        expect(thing.one).to.equal(1);
+        expect(thing.two).to.equal(2);
+      });
+
+      describe("assigning to one of the values", function() {
+        let next;
+        beforeEach(function() {
+          next = thing.assign({ one: 'one'});
+        });
+
+        it("changes the value of the one property", function() {
+          expect(next.one).to.equal('one');
+        });
+        it("leaves the unassigned value alone", function() {
+          expect(next.two).to.equal(2);
+        });
+        it("does not change the original (of course)", function() {
+          expect(thing.one).to.equal(1);
+        });
+      });
+    });
+
     describe("trying to manipulate properties directly on a state", function() {
       let edit, add, remove;
       beforeEach(function() {
@@ -119,6 +152,5 @@ describe("The Basic Opaque State", function() {
         expect(remove).to.be.instanceof(TypeError);
       });
     });
-
   });
 });
