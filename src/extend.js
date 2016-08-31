@@ -1,7 +1,65 @@
 import assign from './assign';
 import ComputedProperty from './computed-property';
+import { eachProperty, mapObject } from './object-utils';
 
-const { keys, defineProperty } = Object;
+const { keys, defineProperty, getOwnPropertyDescriptors } = Object;
+
+const Metadata = cached(class Metadata {
+  constructor(type, supertype, properties) {
+    this.type = type;
+    this.supertype = supertype;
+    this.properties = properties;
+  }
+
+  construct(Opaque, state, value) {
+    keys(value).forEach((key)=> {
+      defineProperty(state, key, new ValueProperty(Opaque, state, key, value));
+    });
+
+    Object.defineProperty(state, 'valueOf', new ValueOfMethod(Opaque, value));
+  }
+
+  get prototype() {
+    return Object.create(this.supertype.prototype, this.ownTransitions);
+  }
+
+  get ownTransitions() {
+    return mapObject(this.properties.transitions, function(name, method) {
+      return new ComputedProperty(function() {
+        return function(...args) {
+          let Type = this.constructor;
+          let result = method.call(this, this.valueOf(), ...args);
+          if (result instanceof Type) {
+            return result;
+          } else {
+            return new Type(result.valueOf());
+          }
+        };
+      });
+    });
+  }
+
+  get transitions() {
+    let transitions = {};
+    for (let metadata = this; metadata; metadata = metadata.supertype.metadata) {
+      assign(transitions, metadata.ownTransitions);
+    }
+    return transitions;
+  }
+
+});
+
+function contextualize(state, container, key) {
+  let metadata = state.constructor.metadata;
+  return Object.create(state, mapObject(metadata.transitions, function(name) {
+    return new ComputedProperty(function() {
+      return function(...args) {
+        let result = state[name].call(state, ...args);
+        return container.put(key, result);
+      };
+    });
+  }));
+}
 
 export default function extend(Super, properties) {
   let Type = class State extends Super {};
@@ -12,66 +70,17 @@ export default function extend(Super, properties) {
   return Type;
 }
 
-function contextualize(state, container, path) {
-  let metadata = state.constructor.metadata;
-  return Object.create(state, mapObject(metadata.transitions, function(name, method) {
-    return {
-      value: function(...args) {
-        let result = state[name].call(state, ...args);
-        return container.put(path, result);
-      }
-    };
-  }));
-}
+function cached(constructor) {
+  let prototype = constructor.prototype;
 
-class Metadata {
-  constructor(type, supertype, properties) {
-    this.type = type;
-    this.supertype = supertype;
-    this.properties = properties;
-  }
-
-  get prototype() {
-    return cache(this, 'prototype', ()=> {
-      return Object.create(this.supertype.prototype, this.ownTransitions);
-    });
-  }
-
-  get ownTransitions() {
-    return cache(this, 'ownTransitions', ()=> {
-      return mapObject(this.properties.transitions, function(name, method) {
-        return new ComputedProperty(function() {
-          return function(...args) {
-            let Type = this.constructor;
-            let result = method.call(this, this.valueOf(), ...args);
-            if (result instanceof Type) {
-              return result;
-            } else {
-              return new Type(result.valueOf());
-            }
-          };
-        });
-      });
-    });
-  }
-
-  get transitions() {
-    return cache(this, 'transitions', ()=> {
-      let transitions = {};
-      for (let metadata = this; metadata; metadata = metadata.supertype.metadata) {
-        assign(transitions, metadata.ownTransitions);
-      }
-      return transitions;
-    });
-  }
-
-  construct(Opaque, state, value) {
-    keys(value).forEach((key)=> {
-      defineProperty(state, key, new ValueProperty(Opaque, state, key, value));
-    });
-
-    Object.defineProperty(state, 'valueOf', new ValueOfMethod(Opaque, value));
-  }
+  eachProperty(getOwnPropertyDescriptors(prototype), function(key, descriptor) {
+    if (descriptor.get) {
+      defineProperty(prototype, key, new ComputedProperty(function() {
+        return descriptor.get.call(this);
+      }));
+    }
+  });
+  return constructor;
 }
 
 class ValueProperty extends ComputedProperty {
@@ -108,42 +117,4 @@ class ValueOfMethod extends ComputedProperty {
       };
     });
   }
-}
-
-
-
-/**
- * Maps over the keys of an object converting the values of those keys into new
- * objects. E.g.
- *
- * > mapObject({first: 1, second: 2}, (value)=> value *2)
- *
- *   {first: 2, second: 4}
- */
-function mapObject(object = {}, fn) {
-  return Object.getOwnPropertyNames(object).reduce(function(result, name) {
-    return assign(result, { [name]: fn(name, object[name])});
-  }, {});
-}
-
-
-/**
- * Caches the value of a computation as an object property.
- *
- * Metadata like the prototype and the transition property descriptors are
- * computed lazily in order to make reasoning about them easier. However, we
- * don't want there to be a new object calculated every time that we
- * ask for an object's prototype. This function can be called within a
- * lazy getter, and it will _overwrite_ that getter with the computed
- * value so that subsequent property gets will just return the
- * computed value directly.
- */
-function cache(object, propertyName, compute) {
-  let value = compute();
-  Object.defineProperty(object, propertyName, {
-    value,
-    enumerable: false,
-    writeable: false
-  });
-  return value;
 }

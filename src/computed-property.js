@@ -13,9 +13,10 @@ export default class ComputedProperty {
   get enumerable() { return false; }
 
   constructor(compute) {
-    this.get = ()=> {
-      let value = compute();
-      this.get = ()=> value;
+    let property = this;
+    this.get = function() {
+      let value = compute.call(this);
+      property.get = ()=> value;
       return value;
     };
   }
