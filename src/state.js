@@ -69,14 +69,3 @@ class ValueProperty extends ComputedProperty {
     });
   }
 }
-
-class NestedTransition extends ComputedProperty {
-  constructor(container, key) {
-    super(function() {
-      return function(...args) {
-        let result = this.super[key](...args);
-        return container.put(key, result);
-      };
-    });
-  }
-}
