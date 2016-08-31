@@ -1,29 +1,10 @@
 import assign from './assign';
-import extend, { contextualize } from './extend';
-
-const { keys, defineProperty } = Object;
+import extend from './extend';
 
 class Opaque {
   constructor(value) {
-    if (value instanceof Object) {
-      keys(value).forEach((key)=> {
-        defineProperty(this, key, new ValueProperty(this, key, value));
-      });
-    }
-    Object.defineProperty(this, 'valueOf', {
-      value() {
-        let unboxed = value.valueOf();
-        return Object.keys(unboxed).reduce(function(valueOf, key) {
-          let prop = unboxed[key];
-          if (prop instanceof Opaque) {
-            return assign({}, valueOf, { [key]: prop.valueOf() });
-          } else {
-            return valueOf;
-          }
-        }, unboxed);
-      },
-      enumerable: false
-    });
+    let metadata = this.constructor.metadata;
+    metadata.construct(Opaque, this, value);
     Object.freeze(this);
   }
 
@@ -51,21 +32,3 @@ export default Opaque.extend({
     }
   }
 });
-
-
-import ComputedProperty from './computed-property';
-
-class ValueProperty extends ComputedProperty {
-  enumerable() { return true; }
-
-  constructor(container, key, attributes) {
-    super(function() {
-      let value = attributes[key];
-      if (value instanceof Opaque) {
-        return contextualize(value, container, key);
-      } else {
-        return value;
-      }
-    });
-  }
-}

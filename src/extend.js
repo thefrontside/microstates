@@ -1,6 +1,8 @@
 import assign from './assign';
 import ComputedProperty from './computed-property';
 
+const { keys, defineProperty } = Object;
+
 export default function extend(Super, properties) {
   let Type = class State extends Super {};
   let metadata = new Metadata(Type, Super, properties);
@@ -10,7 +12,7 @@ export default function extend(Super, properties) {
   return Type;
 }
 
-export function contextualize(state, container, path) {
+function contextualize(state, container, path) {
   let metadata = state.constructor.metadata;
   return Object.create(state, mapObject(metadata.transitions, function(name, method) {
     return {
@@ -62,7 +64,53 @@ class Metadata {
       return transitions;
     });
   }
+
+  construct(Opaque, state, value) {
+    keys(value).forEach((key)=> {
+      defineProperty(state, key, new ValueProperty(Opaque, state, key, value));
+    });
+
+    Object.defineProperty(state, 'valueOf', new ValueOfMethod(Opaque, value));
+  }
 }
+
+class ValueProperty extends ComputedProperty {
+  enumerable() { return true; }
+
+  constructor(Opaque, container, key, attributes) {
+    super(function() {
+      let value = attributes[key];
+      if (value instanceof Opaque) {
+        return contextualize(value, container, key);
+      } else {
+        return value;
+      }
+    });
+  }
+}
+
+class ValueOfMethod extends ComputedProperty {
+  constructor(Opaque, value) {
+    super(function() {
+      let result;
+      return function() {
+        if (result) { return result; }
+        let unboxed = value.valueOf();
+        result = Object.keys(unboxed).reduce(function(valueOf, key) {
+          let prop = unboxed[key];
+          if (prop instanceof Opaque) {
+            return assign({}, valueOf, { [key]: prop.valueOf() });
+          } else {
+            return valueOf;
+          }
+        }, unboxed);
+        return result;
+      };
+    });
+  }
+}
+
+
 
 /**
  * Maps over the keys of an object converting the values of those keys into new
