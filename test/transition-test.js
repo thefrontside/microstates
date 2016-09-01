@@ -8,6 +8,8 @@ describe("Transitions", function() {
     let switchboard;
     beforeEach(function() {
       const Switchboard = State.extend({
+        left: false,
+        right: false,
         transitions: {
           toggleLeft(current) {
             return { left: !current.left };
@@ -17,8 +19,9 @@ describe("Transitions", function() {
           }
         }
       });
-      switchboard = new Switchboard({left: false, right: false});
+      switchboard = new Switchboard();
     });
+
     it("applies the 'patch', and leaves the other properties in place", function() {
       expect(switchboard.toggleLeft().valueOf()).to.deep.equal({left: true, right: false});
     });

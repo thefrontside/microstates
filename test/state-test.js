@@ -121,6 +121,10 @@ describe("The Basic Opaque State", function() {
         expect(thing.two).to.equal(2);
       });
 
+      it("has those values in its valueOf()", function() {
+        expect(thing.valueOf()).to.deep.equal({one: 1, two: 2});
+      });
+
       describe("assigning to one of the values", function() {
         let next;
         beforeEach(function() {

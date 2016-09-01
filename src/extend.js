@@ -5,22 +5,37 @@ import { eachProperty, reduceObject, mapObject } from './object-utils';
 const { keys, defineProperty, getOwnPropertyDescriptors } = Object;
 
 const Metadata = cached(class Metadata {
-  constructor(type, supertype, definition) {
+  constructor(Microstate, type, supertype, definition) {
     this.type = type;
     this.supertype = supertype;
     this.definition = definition;
+    this.Microstate = Microstate;
   }
 
-  construct(Opaque, state, value) {
-    keys(value || {}).forEach((key)=> {
-      defineProperty(state, key, new ValueProperty(Opaque, state, key, value));
+  construct(state, value) {
+    value = value == null ? {} : value;
+    if (keys(this.ownProperties).length > 0) {
+      value = this.merge(this.ownProperties, value);
+    }
+    keys(value).forEach((key)=> {
+      defineProperty(state, key, new ValueProperty(this.Microstate, state, key, value));
     });
 
-    Object.defineProperty(state, 'valueOf', new ValueOfMethod(Opaque, value));
+    Object.defineProperty(state, 'valueOf', new ValueOfMethod(this.Microstate, value));
+  }
+
+  merge(state, attrs) {
+    return reduceObject(attrs, (merged, name, value)=> {
+      let current = state[name];
+      let next = current instanceof this.Microstate
+            ? new current.constructor(value.valueOf())
+            : value;
+      return assign({}, merged, { [name]: next });
+    }, state.valueOf());
   }
 
   get prototype() {
-    let descriptors = assign({}, this.ownProperties, this.ownTransitions);
+    let descriptors = assign({}, this.ownTransitions);
     return Object.create(this.supertype.prototype, descriptors);
   }
 
@@ -29,12 +44,14 @@ const Metadata = cached(class Metadata {
       if (name === 'transitions') {
         return properties;
       } else {
-        return assign(properties, { [name]: { value } });
+        return assign(properties, { [name]: value });
       }
     });
   }
 
   get ownTransitions() {
+    let metadata = this;
+    let Opaque = this.Microstate;
     return mapObject(this.definition.transitions, function(name, method) {
       return new ComputedProperty(function() {
         return function(...args) {
@@ -43,7 +60,7 @@ const Metadata = cached(class Metadata {
           if (result instanceof Type) {
             return result;
           } else if (result instanceof Object) {
-            return new Type(assign({}, this.valueOf(), result.valueOf()));
+            return new Type(metadata.merge(this, result));
           } else {
             return new Type(result.valueOf());
           }
@@ -74,13 +91,23 @@ function contextualize(state, container, key) {
   }));
 }
 
-export default function extend(Super, properties) {
+export default function extend(Microstate, Super, properties) {
   let Type = class State extends Super {};
-  let metadata = new Metadata(Type, Super, properties);
+  let metadata = new Metadata(Microstate, Type, Super, properties);
   Type.metadata = metadata;
   Type.prototype = metadata.prototype;
   Type.prototype.constructor = Type;
   return Type;
+}
+
+function merge(Microstate, state, properties) {
+  return reduceObject(properties, (merged, name, value)=> {
+    let current = state[name];
+    let next = current instanceof Microstate
+          ? new current.constructor(value)
+          : value;
+    return assign({}, merged, { [name]: next });
+  }, state.valueOf());
 }
 
 function cached(constructor) {
@@ -117,8 +144,9 @@ class ValueOfMethod extends ComputedProperty {
       let result;
       return function() {
         if (result) { return result; }
-        let unboxed = value == null ? value : value.valueOf();
-        result = Object.keys(unboxed || {}).reduce(function(valueOf, key) {
+        let unboxed = value.valueOf();
+
+        result = Object.keys(unboxed).reduce(function(valueOf, key) {
           let prop = unboxed[key];
           if (prop instanceof Opaque) {
             return assign({}, valueOf, { [key]: prop.valueOf() });
@@ -126,6 +154,7 @@ class ValueOfMethod extends ComputedProperty {
             return valueOf;
           }
         }, unboxed);
+
         return result;
       };
     });

@@ -4,22 +4,26 @@ import { expect } from 'chai';
 import State from '../src/state';
 
 describe("Composition", function() {
+  let _true, _false, switchboard;
 
-  const Switch = State.extend({
-    transitions: {
-      toggle(current) {
-        return !current;
+  beforeEach(function() {
+    const Switch = State.extend({
+      transitions: {
+        toggle(current) {
+          return !current;
+        }
       }
-    }
+    });
+
+    _true = new Switch(true);
+    _false = new Switch(false);
+
+    switchboard = new State({
+      left: _true,
+      right: _false
+    });
   });
 
-  let _true = new Switch(true);
-  let _false = new Switch(false);
-
-  let switchboard = new State({
-    left: _true,
-    right: _false
-  });
 
   it("starts out with the left true and the right false", function() {
     expect(switchboard.valueOf()).to.deep.equal({
@@ -46,6 +50,37 @@ describe("Composition", function() {
     });
     it("did not change _true", function() {
       expect(_true.valueOf()).to.equal(true);
+    });
+  });
+
+  describe("transitions that merge into nested states", function() {
+    let Switch, Switchboard, switchboard;
+    beforeEach(function() {
+      Switch = State.extend({
+        transitions: {
+          toggle(current) { return !current; }
+        }
+      });
+      Switchboard = State.extend({
+        left: new Switch(false),
+        right: new Switch(false)
+      });
+      switchboard = new Switchboard();
+    });
+
+    it("preserves the microstate nature of nested properties upon assignement", function() {
+      expect(switchboard.assign({right: true}).right).to.be.instanceOf(Switch);
+    });
+
+    describe("constructing a new instance", function() {
+      let next;
+      beforeEach(function() {
+        next = new Switchboard({left: false, right: true});
+      });
+      it("keeps the sub property as a substate", function() {
+        expect(next.left).to.be.instanceOf(Switch);
+        expect(next.right).to.be.instanceOf(Switch);
+      });
     });
   });
 });

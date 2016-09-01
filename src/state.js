@@ -5,12 +5,12 @@ import { reduceObject } from './object-utils';
 class Opaque {
   constructor(value) {
     let metadata = this.constructor.metadata;
-    metadata.construct(Opaque, this, value);
+    metadata.construct(this, value);
     Object.freeze(this);
   }
 
   static extend(properties) {
-    return extend(this, properties);
+    return extend(Opaque, this, properties);
   }
 }
 
