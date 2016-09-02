@@ -57,8 +57,8 @@ const Metadata = cached(class Metadata {
    *     two: "Another String"
    *   }
    * @method merge
-   * @param state - a hash potentially containing microstates
-   * @param attrs - a hash of simple JavaScript values.
+   * @param {object} state - a hash potentially containing microstates
+   * @param {object} attrs - a hash of simple JavaScript values.
    */
   merge(state, attrs) {
     return reduceObject(attrs, (merged, name, value)=> {
@@ -70,6 +70,19 @@ const Metadata = cached(class Metadata {
     }, state.valueOf());
   }
 
+  /**
+   * Tests if any object is a microstate.
+   *
+   * Microstates get special treament throughout the process of
+   * transitions, and so you need a way to check if an object is a
+   * microstate. When metadata is created for a microstate
+   * constructor, a reference to the very root of the microstate tree
+   * is captured in order to make this check easy.
+   *
+   * @method isMicrostate
+   * @param {object} object - the object to check
+   * @returns {boolean} if `object` is a microstate
+   */
   isMicrostate(object) {
     return object instanceof this.Microstate;
   }
