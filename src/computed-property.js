@@ -52,9 +52,6 @@ import assign from './assign';
  * @see https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object/defineProperty#Description
  */
 export default class ComputedProperty {
-  get writeable() { return false; }
-
-  get enumerable() { return false; }
 
   constructor(compute, attributes = {}) {
     let property = this;
@@ -66,3 +63,9 @@ export default class ComputedProperty {
     assign(this, attributes);
   }
 }
+
+ComputedProperty.prototype.writeable = false;
+
+ComputedProperty.prototype.configurable = false;
+
+ComputedProperty.prototype.enumerable = false;
