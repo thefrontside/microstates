@@ -1,3 +1,4 @@
+import assign from './assign';
 /**
  * Property Descriptor that computes its value once and then permanently caches
  * the result.
@@ -12,12 +13,13 @@ export default class ComputedProperty {
 
   get enumerable() { return false; }
 
-  constructor(compute) {
+  constructor(compute, attributes = {}) {
     let property = this;
     this.get = function() {
       let value = compute.call(this);
       property.get = ()=> value;
       return value;
     };
+    assign(this, attributes);
   }
 }

@@ -83,4 +83,60 @@ describe("Composition", function() {
       });
     });
   });
+
+  describe("deep, deep, nesting", function() {
+    let Zero, One, Two, Three, zero;
+    beforeEach(function() {
+      Three = State.extend({});
+      Two = State.extend({
+        three: new Three(3)
+      });
+      One = State.extend({
+        two: new Two()
+      });
+      Zero = State.extend({
+        one: new One()
+      });
+      zero = new Zero();
+    });
+    it("serializes its value", function() {
+      expect(zero.valueOf()).to.deep.equal({
+        one: {
+          two: {
+            three: 3
+          }
+        }
+      });
+    });
+    describe("constructed with a single JSON object", function() {
+      beforeEach(function() {
+        zero = new Zero({one: {two: {three: 'Go'}}});
+      });
+      it("reserializes to the same value", function() {
+        expect(zero.valueOf()).to.deep.equal({one: {two: {three: 'Go'}}});
+      });
+      it("can transition properly", function() {
+        expect(zero.one.two.three.set('Go Loco').valueOf()).to.deep.equal({
+          one: {
+            two: {
+              three: 'Go Loco'
+            }
+          }
+        });
+      });
+    });
+
+    describe("invoking a transition on a sub-object", function() {
+      let next;
+      beforeEach(function() {
+        let three = zero.one.two.three;
+        next = three.set(5);
+      });
+      it("returns an instance of the root state corresponding to the transition", function() {
+        expect(next).to.be.instanceOf(Zero);
+        expect(next.valueOf()).to.deep.equal({one: {two: {three: 5}}});
+      });
+    });
+
+  });
 });

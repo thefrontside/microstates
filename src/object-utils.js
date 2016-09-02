@@ -22,7 +22,7 @@ export function reduceObject(object, fn, result = {}) {
 }
 
 export function eachProperty(object, fn) {
-  Object.getOwnPropertyNames(object).forEach(function(name) {
+  Object.keys(object).forEach(function(name) {
     fn(name, object[name]);
   });
 }

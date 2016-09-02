@@ -18,10 +18,10 @@ const Metadata = cached(class Metadata {
       value = this.merge(this.ownProperties, value);
     }
     keys(value).forEach((key)=> {
-      defineProperty(state, key, new ValueProperty(this.Microstate, state, key, value));
+      defineProperty(state, key, new ValueProperty(this, state, key, value));
     });
 
-    Object.defineProperty(state, 'valueOf', new ValueOfMethod(this.Microstate, value));
+    Object.defineProperty(state, 'valueOf', new ValueOfMethod(this, value));
   }
 
   merge(state, attrs) {
@@ -32,6 +32,10 @@ const Metadata = cached(class Metadata {
             : value;
       return assign({}, merged, { [name]: next });
     }, state.valueOf());
+  }
+
+  isMicrostate(object) {
+    return object instanceof this.Microstate;
   }
 
   get prototype() {
@@ -51,7 +55,6 @@ const Metadata = cached(class Metadata {
 
   get ownTransitions() {
     let metadata = this;
-    let Opaque = this.Microstate;
     return mapObject(this.definition.transitions, function(name, method) {
       return new ComputedProperty(function() {
         return function(...args) {
@@ -79,16 +82,33 @@ const Metadata = cached(class Metadata {
 
 });
 
-function contextualize(state, container, key) {
+function contextualize(state, holder, key) {
   let metadata = state.constructor.metadata;
-  return Object.create(state, mapObject(metadata.transitions, function(name) {
+
+  let transitions = mapObject(metadata.transitions, function(name) {
     return new ComputedProperty(function() {
       return function(...args) {
-        let result = state[name].call(state, ...args);
-        return container.put(key, result);
+        let transition = metadata.transitions[name].get.call(state);
+        let result = transition.call(state, ...args);
+        return holder.put(key, result);
       };
     });
-  }));
+  });
+
+  let attributes = mapObject(state, function(name) {
+    let descriptor = new ComputedProperty(function() {
+      let value = state[name];
+      if (metadata.isMicrostate(value)) {
+        return contextualize(value, this, name);
+      } else {
+        return value;
+      }
+    }, {enumerable: true});
+
+    return descriptor;
+  });
+
+  return Object.create(state, assign(attributes, transitions));
 }
 
 export default function extend(Microstate, Super, properties) {
@@ -100,14 +120,42 @@ export default function extend(Microstate, Super, properties) {
   return Type;
 }
 
-function merge(Microstate, state, properties) {
-  return reduceObject(properties, (merged, name, value)=> {
-    let current = state[name];
-    let next = current instanceof Microstate
-          ? new current.constructor(value)
-          : value;
-    return assign({}, merged, { [name]: next });
-  }, state.valueOf());
+class ValueProperty extends ComputedProperty {
+  enumerable() { return true; }
+
+  constructor(metadata, container, key, attributes) {
+    super(function() {
+      let value = attributes[key];
+      if (metadata.isMicrostate(value)) {
+        return contextualize(value, container, key);
+      } else {
+        return value;
+      }
+    });
+  }
+}
+
+class ValueOfMethod extends ComputedProperty {
+  constructor(metadata, value) {
+    super(function() {
+      let result;
+      return function() {
+        if (result) { return result; }
+        let unboxed = value.valueOf();
+
+        result = Object.keys(unboxed).reduce(function(valueOf, key) {
+          let prop = unboxed[key];
+          if (metadata.isMicrostate(prop)) {
+            return assign({}, valueOf, { [key]: prop.valueOf() });
+          } else {
+            return valueOf;
+          }
+        }, unboxed);
+
+        return result;
+      };
+    });
+  }
 }
 
 function cached(constructor) {
@@ -121,42 +169,4 @@ function cached(constructor) {
     }
   });
   return constructor;
-}
-
-class ValueProperty extends ComputedProperty {
-  enumerable() { return true; }
-
-  constructor(Opaque, container, key, attributes) {
-    super(function() {
-      let value = attributes[key];
-      if (value instanceof Opaque) {
-        return contextualize(value, container, key);
-      } else {
-        return value;
-      }
-    });
-  }
-}
-
-class ValueOfMethod extends ComputedProperty {
-  constructor(Opaque, value) {
-    super(function() {
-      let result;
-      return function() {
-        if (result) { return result; }
-        let unboxed = value.valueOf();
-
-        result = Object.keys(unboxed).reduce(function(valueOf, key) {
-          let prop = unboxed[key];
-          if (prop instanceof Opaque) {
-            return assign({}, valueOf, { [key]: prop.valueOf() });
-          } else {
-            return valueOf;
-          }
-        }, unboxed);
-
-        return result;
-      };
-    });
-  }
 }
