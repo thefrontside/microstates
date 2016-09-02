@@ -24,10 +24,46 @@ const Metadata = cached(class Metadata {
     Object.defineProperty(state, 'valueOf', new ValueOfMethod(this, value));
   }
 
+  /**
+   * Merges in a set of JavaScript values into a set of microstate
+   * properties.
+   *
+   * Microstates accept simple POJOs both in their constructors and when
+   * merging in values from a state transition. However, the properties
+   * of a microstate can be composed of other microstates, and so when
+   * merging in properties into a microstate, we don't want to
+   * overwrite them with their POJO equivalents. Instead, we want to pass
+   * the pojo equivalents to the microstate constructor if they occupy
+   * the same slot. So, if we had a hash with some microstates:
+   *
+   *   {
+   *     one: [Bool: true]
+   *     two: "Plain String"
+   *   }
+   *
+   * and we wanted to merge in the hash:
+   *
+   *   {
+   *     one: false,
+   *     two: "Another String"
+   *   }
+   *
+   * when we use this method, we'll end up with the `false` value from
+   * the second hash getting passed to the constructor of the `Bool`
+   * microstate, so we'll end up with:
+   *
+   *   {
+   *     one: [Bool: false],
+   *     two: "Another String"
+   *   }
+   * @method merge
+   * @param state - a hash potentially containing microstates
+   * @param attrs - a hash of simple JavaScript values.
+   */
   merge(state, attrs) {
     return reduceObject(attrs, (merged, name, value)=> {
       let current = state[name];
-      let next = current instanceof this.Microstate
+      let next = this.isMicrostate(current)
             ? new current.constructor(value.valueOf())
             : value;
       return assign({}, merged, { [name]: next });
