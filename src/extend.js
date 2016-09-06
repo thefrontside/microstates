@@ -4,6 +4,17 @@ import { eachProperty, reduceObject, mapObject } from './object-utils';
 
 const { keys, defineProperty, getOwnPropertyDescriptors } = Object;
 
+/**
+ * Holds the transition methods, the properties and the prototype for
+ * a microstate constructor. In actuality, most of what makes a
+ * microstate a microstate is contained in this class, including the
+ * constructor.
+ *
+ * @constructor Metadata
+ * @param {function} Microstate - the root constructor
+ * @param {function} type - the root constructor
+ * @param {object|boolean|number|string|function} value - the represented value
+ */
 const Metadata = cached(class Metadata {
   constructor(Microstate, type, supertype, definition) {
     this.type = type;
@@ -12,16 +23,48 @@ const Metadata = cached(class Metadata {
     this.Microstate = Microstate;
   }
 
+  /**
+   * The Microstate constructor actually delegates to the metadata,
+   * and so this is the where most of the construction logic takes
+   * place.
+   *
+   * It "decorates" the state with properties corresponding to the
+   * properties of `value` which is the value that the microstate
+   * wraps. So, if value is
+   *
+   *   {
+   *     hello: 'World',
+   *     how: 'are you?'
+   *   }
+   *
+   * then a `hello` property and a `how` property will be defined on
+   * the state instance coresponding to their values in the `value`
+   * param.
+   *
+   * @param {Microstate} state - the state being constructed.
+   * @param {object|function|number|boolean} value - the boxed value
+   * @see ValueProperty
+   * @see ValueOfMethod
+   */
   construct(state, value) {
     value = value == null ? {} : value;
+
+    //TODO: this should probaby collect all properties, not just own
+    // properties
+    //
+    // merge in any existing properties on the prototype into this
+    // state instance.
     if (keys(this.ownProperties).length > 0) {
       value = this.merge(this.ownProperties, value);
     }
+
+    // add a lazily computed property for each property of `value`
     keys(value).forEach((key)=> {
       defineProperty(state, key, new ValueProperty(this, state, key, value));
     });
 
-    Object.defineProperty(state, 'valueOf', new ValueOfMethod(this, value));
+    // add the `valueOf`
+    defineProperty(state, 'valueOf', new ValueOfMethod(this, value));
   }
 
   /**
@@ -73,7 +116,7 @@ const Metadata = cached(class Metadata {
   /**
    * Tests if any object is a microstate.
    *
-   * Microstates get special treament throughout the process of
+   * Microstates get special treatment throughout the process of
    * transitions, and so you need a way to check if an object is a
    * microstate. When metadata is created for a microstate
    * constructor, a reference to the very root of the microstate tree
@@ -87,6 +130,14 @@ const Metadata = cached(class Metadata {
     return object instanceof this.Microstate;
   }
 
+  /**
+   * Defines a microstate prototype.
+   *
+   * This collects all of the transitions defined for the microstate
+   * and pops them onto a new object that will serve as the prototype.
+   *
+   * @type {object}
+   */
   get prototype() {
     let descriptors = assign({}, this.ownTransitions);
     return Object.create(this.supertype.prototype, descriptors);
@@ -134,10 +185,10 @@ const Metadata = cached(class Metadata {
 function contextualize(state, holder, key) {
   let metadata = state.constructor.metadata;
 
-  let transitions = mapObject(metadata.transitions, function(name) {
+  let transitions = mapObject(metadata.transitions, function(name, descriptor) {
     return new ComputedProperty(function() {
       return function(...args) {
-        let transition = metadata.transitions[name].get.call(state);
+        let transition = descriptor.get.call(state);
         let result = transition.call(state, ...args);
         return holder.put(key, result);
       };
