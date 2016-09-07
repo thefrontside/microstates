@@ -1,24 +1,16 @@
 import assign from './assign';
-import Metadata from './metadata';
+import extend from './extend';
+import { reduceObject } from './object-utils';
 
 class Opaque {
   constructor(value) {
-    if (value instanceof Object) {
-      assign(this, value.valueOf());
-    }
-    Object.defineProperty(this, 'valueOf', {
-      value() { return value.valueOf(); },
-      enumerable: false
-    });
+    let metadata = this.constructor.metadata;
+    metadata.construct(this, value);
     Object.freeze(this);
   }
 
   static extend(properties) {
-    let Type = class State extends this {};
-    let metadata = new Metadata(Type, this, properties);
-    Type.metadata = metadata;
-    Type.prototype = metadata.prototype;
-    return Type;
+    return extend(Opaque, this, properties);
   }
 }
 
@@ -28,16 +20,15 @@ export default Opaque.extend({
       return new this.constructor(value);
     },
     assign(current, attrs) {
-      return assign({}, current, attrs);
+      return attrs;
     },
     put(current, key, value) {
-      return assign({}, current, { [key]: value});
+      return { [key]: value };
     },
     delete(current, key) {
-      let keys = Object.keys(current).filter(k => k !== key);
-      return keys.reduce((next, key)=> {
-        return assign(next, { [key]: current[key] });
-      }, {});
+      return this.set(reduceObject(current, (attrs, name, value)=> {
+        return name === key ? attrs : assign(attrs, { [name]: value });
+      }));
     }
   }
 });
