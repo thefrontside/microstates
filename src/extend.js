@@ -1,8 +1,9 @@
 import assign from './assign';
 import ComputedProperty from './computed-property';
 import { eachProperty, reduceObject, mapObject } from './object-utils';
+import box from './box';
 
-const { keys, defineProperty, getOwnPropertyDescriptors } = Object;
+const { keys, defineProperty, defineProperties, getOwnPropertyDescriptors } = Object;
 
 /**
  * Holds the transition methods, the properties and the prototype for
@@ -47,70 +48,36 @@ const Metadata = cached(class Metadata {
    * @see ValueOfMethod
    */
   construct(state, value) {
-    value = value == null ? {} : value;
-
-    //TODO: this should probaby collect all properties, not just own
-    // properties
-    //
-    // merge in any existing properties on the prototype into this
-    // state instance.
-    if (keys(this.ownProperties).length > 0) {
-      value = this.merge(this.ownProperties, value);
-    }
-
-    // add a lazily computed property for each property of `value`
-    keys(value).forEach((key)=> {
-      defineProperty(state, key, new ValueProperty(this, state, key, value));
+    let constants = mapObject(this.constants, (key, descriptor)=> {
+      return new ChildProperty(this, state, key, ()=> descriptor.value );
     });
 
-    // add the `valueOf`
-    defineProperty(state, 'valueOf', new ValueOfMethod(this, value));
+    let values = mapObject(value || {}, (key)=> {
+      return new ChildProperty(this, state, key, () => {
+        if (this.constants.hasOwnProperty(key)) {
+          let constant = this.constants[key].value;
+          return this.isMicrostate(constant) ? constant.set(value[key].valueOf()) : value[key];
+        } else {
+          return value[key];
+        }
+      });
+    });
+
+    let descriptors = assign(constants, values);
+
+    defineProperties(state, descriptors);
+    defineProperty(state, 'valueOf', new ValueOfMethod(state, value, descriptors));
   }
 
-  /**
-   * Merges in a set of JavaScript values into a set of microstate
-   * properties.
-   *
-   * Microstates accept simple POJOs both in their constructors and when
-   * merging in values from a state transition. However, the properties
-   * of a microstate can be composed of other microstates, and so when
-   * merging in properties into a microstate, we don't want to
-   * overwrite them with their POJO equivalents. Instead, we want to pass
-   * the pojo equivalents to the microstate constructor if they occupy
-   * the same slot. So, if we had a hash with some microstates:
-   *
-   *   {
-   *     one: [Bool: true]
-   *     two: "Plain String"
-   *   }
-   *
-   * and we wanted to merge in the hash:
-   *
-   *   {
-   *     one: false,
-   *     two: "Another String"
-   *   }
-   *
-   * when we use this method, we'll end up with the `false` value from
-   * the second hash getting passed to the constructor of the `Bool`
-   * microstate, so we'll end up with:
-   *
-   *   {
-   *     one: [Bool: false],
-   *     two: "Another String"
-   *   }
-   * @method merge
-   * @param {object} state - a hash potentially containing microstates
-   * @param {object} attrs - a hash of simple JavaScript values.
-   */
-  merge(state, attrs) {
-    return reduceObject(attrs, (merged, name, value)=> {
-      let current = state[name];
-      let next = this.isMicrostate(current)
-            ? new current.constructor(value.valueOf())
-            : value;
-      return assign({}, merged, { [name]: next });
-    }, state.valueOf());
+  get constants() {
+    let properties = Object.getOwnPropertyDescriptors(this.definition);
+    return reduceObject(properties, (descriptors, name, descriptor)=> {
+      if (name !== 'transitions') {
+        return assign(descriptors, {[name]: descriptor});
+      } else {
+        return descriptors;
+      }
+    });
   }
 
   /**
@@ -143,16 +110,6 @@ const Metadata = cached(class Metadata {
     return Object.create(this.supertype.prototype, descriptors);
   }
 
-  get ownProperties() {
-    return reduceObject(this.definition, function(properties, name, value) {
-      if (name === 'transitions') {
-        return properties;
-      } else {
-        return assign(properties, { [name]: value });
-      }
-    });
-  }
-
   get ownTransitions() {
     let metadata = this;
     return mapObject(this.definition.transitions, function(name, method) {
@@ -163,7 +120,15 @@ const Metadata = cached(class Metadata {
           if (result instanceof Type) {
             return result;
           } else if (result instanceof Object) {
-            return new Type(metadata.merge(this, result));
+            let merged = mapObject(result, (key, value)=> {
+              var child = this[key];
+              if (child) {
+                return new child.constructor(value.valueOf());
+              } else {
+                return value;
+              }
+            });
+            return new Type(assign({}, this, merged));
           } else {
             return new Type(result.valueOf());
           }
@@ -197,12 +162,7 @@ function contextualize(state, holder, key) {
 
   let attributes = mapObject(state, function(name) {
     let descriptor = new ComputedProperty(function() {
-      let value = state[name];
-      if (metadata.isMicrostate(value)) {
-        return contextualize(value, this, name);
-      } else {
-        return value;
-      }
+      return contextualize(state[name], this, name);
     }, {enumerable: true});
 
     return descriptor;
@@ -220,39 +180,38 @@ export default function extend(Microstate, Super, properties) {
   return Type;
 }
 
-class ValueProperty extends ComputedProperty {
-  enumerable() { return true; }
+class ChildProperty extends ComputedProperty {
+  get enumerable() { return true; }
 
-  constructor(metadata, container, key, attributes) {
+  constructor(metadata, state, name, resolve) {
     super(function() {
-      let value = attributes[key];
-      if (metadata.isMicrostate(value)) {
-        return contextualize(value, container, key);
-      } else {
-        return value;
-      }
+      let child = resolve();
+      let substate = metadata.isMicrostate(child) ? child : box(child);
+      return contextualize(substate, state, name);
     });
   }
 }
 
 class ValueOfMethod extends ComputedProperty {
-  constructor(metadata, value) {
+  constructor(state, value, descriptors) {
     super(function() {
-      let result;
+      let valueOf = compute();
+      function compute() {
+        if (keys(descriptors).length > 0) {
+          let properties = keys(descriptors).reduce((result, key)=> {
+            return assign(result, {
+              [key]: new ComputedProperty(function() {
+                return state[key].valueOf();
+              }, { enumerable: true })
+            });
+          }, {});
+          return Object.create(typeof value === 'undefined' ? null : value, properties);
+        } else {
+          return value;
+        }
+      }
       return function() {
-        if (result) { return result; }
-        let unboxed = value.valueOf();
-
-        result = Object.keys(unboxed).reduce(function(valueOf, key) {
-          let prop = unboxed[key];
-          if (metadata.isMicrostate(prop)) {
-            return assign({}, valueOf, { [key]: prop.valueOf() });
-          } else {
-            return valueOf;
-          }
-        }, unboxed);
-
-        return result;
+        return valueOf;
       };
     });
   }
@@ -263,10 +222,16 @@ function cached(constructor) {
 
   eachProperty(getOwnPropertyDescriptors(prototype), function(key, descriptor) {
     if (descriptor.get) {
-      defineProperty(prototype, key, new ComputedProperty(function() {
-        return descriptor.get.call(this);
-      }));
+      defineProperty(prototype, key, {
+        get() {
+          let value = descriptor.get.call(this);
+          let { writeable, enumerable } = descriptor;
+          defineProperty(this, key, { value, writeable, enumerable });
+          return value;
+        }
+      });
     }
   });
   return constructor;
+
 }

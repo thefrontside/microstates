@@ -23,7 +23,9 @@ export function reduceObject(object, fn, result = {}) {
 }
 
 export function eachProperty(object, fn) {
-  Object.keys(object).forEach(function(name) {
-    fn(name, object[name]);
-  });
+  if (typeof object === 'object') {
+    Object.keys(object).forEach(function(name) {
+      fn(name, object[name]);
+    });
+  }
 }
