@@ -165,5 +165,30 @@ describe("The Basic Opaque State", function() {
         expect(remove).to.be.instanceof(TypeError);
       });
     });
+
+    describe("overloading valueOf", function() {
+      let Speaker, LolSpeaker, said, lols;
+      beforeEach(function(){
+        Speaker = State.extend({
+          message: 'hello world'
+        });
+
+        LolSpeaker = Speaker.extend({
+          valueOf() {
+            return {
+              message: `hehe ${this.message} hehe`
+            };
+          }
+        });
+
+        said = new Speaker().valueOf();
+        lols = new LolSpeaker().valueOf();
+      });
+
+      it.only('has different valueOf', function(){
+        expect(said.valueOf()).to.deep.equal({ meesage: 'hello world' }); 
+        expect(lols.valueOf()).to.deep.equal({ message: 'hehe hello world hehe'});
+      });
+    });
   });
 });
