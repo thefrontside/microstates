@@ -47,12 +47,12 @@ const Metadata = cached(class Metadata {
    * @see ValueProperty
    * @see ValueOfMethod
    */
-  construct(state, value) {
+  construct(state, value = {}) {
     let constants = mapObject(this.constants, (key, descriptor)=> {
       return new ChildProperty(this, state, key, ()=> descriptor.value );
     });
 
-    let values = mapObject(value || {}, (key)=> {
+    let values = mapObject(value, (key)=> {
       return new ChildProperty(this, state, key, () => {
         if (this.constants.hasOwnProperty(key)) {
           let constant = this.constants[key].value;
@@ -66,13 +66,13 @@ const Metadata = cached(class Metadata {
     let descriptors = assign(constants, values);
 
     defineProperties(state, descriptors);
-    defineProperty(state, 'valueOf', new ValueOfMethod(state, value, descriptors));
+    defineProperty(state, 'valueOf', new ValueOfMethod(this, state, value, descriptors));
   }
 
   get constants() {
     let properties = Object.getOwnPropertyDescriptors(this.definition);
     return reduceObject(properties, (descriptors, name, descriptor)=> {
-      if (name !== 'transitions') {
+      if (name !== 'transitions' && name !== 'valueOf') {
         return assign(descriptors, {[name]: descriptor});
       } else {
         return descriptors;
@@ -193,26 +193,34 @@ class ChildProperty extends ComputedProperty {
 }
 
 class ValueOfMethod extends ComputedProperty {
-  constructor(state, value, descriptors) {
+  constructor(metadata, state, value, descriptors) {
     super(function() {
-      let valueOf = compute();
-      function compute() {
-        if (keys(descriptors).length > 0) {
-          let properties = keys(descriptors).reduce((result, key)=> {
-            return assign(result, {
-              [key]: new ComputedProperty(function() {
-                return state[key].valueOf();
-              }, { enumerable: true })
-            });
-          }, {});
-          return Object.create(typeof value === 'undefined' ? null : value, properties);
-        } else {
-          return value;
+
+      if (metadata.definition.hasOwnProperty('valueOf')) {
+        let valueOf = metadata.definition.valueOf.call(state, value);
+        return function() {
+          return valueOf;
+        };
+      } else {
+        let valueOf = compute();
+        function compute() {
+          if (keys(descriptors).length > 0) {
+            let properties = keys(descriptors).reduce((result, key)=> {
+              return assign(result, {
+                [key]: new ComputedProperty(function() {
+                  return state[key].valueOf();
+                }, { enumerable: true })
+              });
+            }, {});
+            return Object.create(typeof value === 'undefined' ? null : value, properties);
+          } else {
+            return value;
+          }
         }
+        return function() {
+          return valueOf;
+        };
       }
-      return function() {
-        return valueOf;
-      };
     });
   }
 }

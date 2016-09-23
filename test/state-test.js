@@ -169,24 +169,18 @@ describe("The Basic Opaque State", function() {
     describe("overloading valueOf", function() {
       let Speaker, LolSpeaker, said, lols;
       beforeEach(function(){
-        Speaker = State.extend({
-          message: 'hello world'
-        });
-
-        LolSpeaker = Speaker.extend({
-          valueOf() {
+        LolSpeaker = State.extend({
+          valueOf(value) {
             return {
-              message: `hehe ${this.message} hehe`
+              message: `hehe ${value.message} hehe`
             };
           }
         });
 
-        said = new Speaker().valueOf();
-        lols = new LolSpeaker().valueOf();
+        lols = new LolSpeaker({message: 'hello world'});
       });
 
-      it.only('has different valueOf', function(){
-        expect(said.valueOf()).to.deep.equal({ meesage: 'hello world' }); 
+      it('has different valueOf', function(){
         expect(lols.valueOf()).to.deep.equal({ message: 'hehe hello world hehe'});
       });
     });
