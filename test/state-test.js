@@ -208,7 +208,29 @@ describe("The Basic Opaque State", function() {
           b: {c: '<li>Bob</li>'}
         });
       });
-      
     });
   });
+
+  describe("exporting properties from prototypes", function() {
+      let Speaker, LolSpeaker;
+      beforeEach(function(){
+        Speaker = State.extend({
+          message: 'hello world'
+        });
+
+        LolSpeaker = Speaker.extend({
+          valueOf(value) {
+            return {
+              message: `hehe ${value.message} hehe`
+            };
+          }
+        });
+      });
+
+      it.skip('has different valueOf', function(){
+        expect(new Speaker().valueOf()).to.deep.equal({ message: 'hello world' }); 
+        expect(new LolSpeaker().valueOf()).to.deep.equal({ message: 'hehe hello world hehe'});
+      });
+  });
+
 });

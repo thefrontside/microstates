@@ -195,8 +195,8 @@ class ChildProperty extends ComputedProperty {
 class ValueOfMethod extends ComputedProperty {
   constructor(metadata, state, value, descriptors) {
     /**
-     * function returns the value that computed property will cache
-     * (iow, this return value is the value of this computed property)
+     * super receives a function that will return the valueOf this microstate.
+     * The returned value is cached by ComputedProperty.
      */
     super(function() {
       let valueOf = compute();
