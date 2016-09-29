@@ -184,5 +184,31 @@ describe("The Basic Opaque State", function() {
         expect(lols.valueOf()).to.deep.equal({ message: 'hehe hello world hehe'});
       });
     });
+
+    describe('access to deeply nested microstates', function() {
+      let AState, BState;
+      beforeEach(function() {
+
+        BState = State.extend({
+          c: new State('Bob'),
+          valueOf(value) {
+            return {
+              c: `<li>${value.c}</li>`
+            };
+          }
+        });
+
+        AState = State.extend({
+          b: new BState()
+        });
+
+      });
+      it('uses customized valueOf', function() {
+        expect(new AState().valueOf()).to.deep.equal({
+          b: {c: '<li>Bob</li>'}
+        });
+      });
+      
+    });
   });
 });

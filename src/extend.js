@@ -194,29 +194,39 @@ class ChildProperty extends ComputedProperty {
 
 class ValueOfMethod extends ComputedProperty {
   constructor(metadata, state, value, descriptors) {
+    /**
+     * function returns the value that computed property will cache
+     * (iow, this return value is the value of this computed property)
+     */
     super(function() {
-
+      let valueOf = compute();
+      function compute() {
+        if (keys(descriptors).length > 0) {
+          let properties = keys(descriptors).reduce((result, key)=> {
+            return assign(result, {
+              [key]: new ComputedProperty(function() {
+                return state[key].valueOf();
+              }, { enumerable: true })
+            });
+          }, {});
+          return Object.create(typeof value === 'undefined' ? null : value, properties);
+        } else {
+          return value;
+        }
+      }
       if (metadata.definition.hasOwnProperty('valueOf')) {
-        let valueOf = metadata.definition.valueOf.call(state, value);
+        /**
+         * Class has a custom valueOf method. This custom valueOf method
+         * should receive the fully expanded value of this microstate.
+         */
+        let customValueOf = metadata.definition.valueOf.call(state, valueOf);
         return function() {
-          return valueOf;
+          return customValueOf;
         };
       } else {
-        let valueOf = compute();
-        function compute() {
-          if (keys(descriptors).length > 0) {
-            let properties = keys(descriptors).reduce((result, key)=> {
-              return assign(result, {
-                [key]: new ComputedProperty(function() {
-                  return state[key].valueOf();
-                }, { enumerable: true })
-              });
-            }, {});
-            return Object.create(typeof value === 'undefined' ? null : value, properties);
-          } else {
-            return value;
-          }
-        }
+        /**
+         * Without custom valueOf just return result of unboxing of value
+         */
         return function() {
           return valueOf;
         };
