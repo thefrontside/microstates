@@ -56,9 +56,11 @@ export default class ComputedProperty {
   constructor(compute, attributes = {}) {
     let property = this;
     this.get = function() {
-      let value = compute.call(this);
-      property.get = ()=> value;
-      return value;
+      if (!property.isComputed) {
+        property.cache = compute.call(this);
+        property.isComputed = true;
+      }
+      return property.cache;
     };
     assign(this, attributes);
   }

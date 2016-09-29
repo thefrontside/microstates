@@ -26,8 +26,12 @@ describe("The Basic Opaque State", function() {
       state = new State(object);
     });
 
-    it("has that object as its primitive value", function() {
-      expect(state.valueOf()).to.eq(object);
+    it("has an equivalent object as its valueOf()", function() {
+      expect(state.valueOf()).to.deep.equal(object);
+    });
+
+    it('maintains the valueOf across subsequent invocations', function() {
+      expect(state.valueOf()).to.equal(state.valueOf());
     });
 
     it("has the enumerable keys of the object value", function() {
@@ -35,8 +39,10 @@ describe("The Basic Opaque State", function() {
     });
 
     it("has the same property values as the object value", function() {
-      expect(state.ohai).to.equal('There');
-      expect(state.hello).to.equal('World');
+      expect(state.ohai).to.be.instanceof(State);
+      expect(state.hello).to.be.instanceof(State);
+      expect(state.ohai.valueOf()).to.equal('There');
+      expect(state.hello.valueOf()).to.equal('World');
     });
 
     describe("setting the value to a new object", function() {
@@ -52,7 +58,7 @@ describe("The Basic Opaque State", function() {
         expect(next.hello).to.equal(undefined);
       });
       it("has the properties of the new object", function() {
-        expect(next.totally).to.equal('different');
+        expect(next.totally.valueOf()).to.equal('different');
       });
       it("has the enumerable keys of the new object", function() {
         expect(Object.keys(next)).to.deep.equal(['totally']);
@@ -64,11 +70,11 @@ describe("The Basic Opaque State", function() {
         next = state.assign({ how: 'do you do?'});
       });
       it("maintains the list of old properties", function() {
-        expect(next.ohai).to.equal('There');
-        expect(next.hello).to.equal('World');
+        expect(next.ohai.valueOf()).to.equal('There');
+        expect(next.hello.valueOf()).to.equal('World');
       });
       it("adds the new property", function() {
-        expect(next.how).to.equal('do you do?');
+        expect(next.how.valueOf()).to.equal('do you do?');
       });
       it("has the new enumerable key", function() {
         expect(Object.keys(next)).to.deep.equal(['ohai', 'hello', 'how']);
@@ -80,11 +86,11 @@ describe("The Basic Opaque State", function() {
         next = state.put('how', 'do you do?');
       });
       it("maintains the list of old properties", function() {
-        expect(next.ohai).to.equal('There');
-        expect(next.hello).to.equal('World');
+        expect(next.ohai.valueOf()).to.equal('There');
+        expect(next.hello.valueOf()).to.equal('World');
       });
       it("adds the new property", function() {
-        expect(next.how).to.equal('do you do?');
+        expect(next.how.valueOf()).to.equal('do you do?');
       });
       it("has the new enumerable key", function() {
         expect(Object.keys(next)).to.deep.equal(['ohai', 'hello', 'how']);
@@ -99,7 +105,7 @@ describe("The Basic Opaque State", function() {
         expect(next.ohai).to.equal(undefined);
       });
       it("maintains the other properties", function() {
-        expect(next.hello).to.equal('World');
+        expect(next.hello.valueOf()).to.equal('World');
       });
       it("only has the remaining property name in its enumerable ", function() {
         expect(Object.keys(next)).to.deep.equal(['hello']);
@@ -107,18 +113,21 @@ describe("The Basic Opaque State", function() {
     });
 
     describe("with pre-defined properties", function() {
-      const Thing = State.extend({
-        one: 1,
-        two: 2
-      });
-      let thing;
+
+      let Thing, thing, value;
       beforeEach(function() {
+        Thing = State.extend({
+          one: 1,
+          two: 2
+        });
         thing = new Thing();
       });
 
       it("has those properties by default", function() {
-        expect(thing.one).to.equal(1);
-        expect(thing.two).to.equal(2);
+        expect(thing.one).to.be.instanceOf(State);
+        expect(thing.two).to.be.instanceOf(State);
+        expect(thing.one.valueOf()).to.equal(1);
+        expect(thing.two.valueOf()).to.equal(2);
       });
 
       it("has those values in its valueOf()", function() {
@@ -128,17 +137,17 @@ describe("The Basic Opaque State", function() {
       describe("assigning to one of the values", function() {
         let next;
         beforeEach(function() {
-          next = thing.assign({ one: 'one'});
+          next = thing.assign({ one: 'one'}).valueOf();
         });
 
         it("changes the value of the one property", function() {
-          expect(next.one).to.equal('one');
+          expect(next.one.valueOf()).to.equal('one');
         });
         it("leaves the unassigned value alone", function() {
-          expect(next.two).to.equal(2);
+          expect(next.two.valueOf()).to.equal(2);
         });
         it("does not change the original (of course)", function() {
-          expect(thing.one).to.equal(1);
+          expect(thing.one.valueOf()).to.equal(1);
         });
       });
     });
