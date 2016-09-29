@@ -233,4 +233,25 @@ describe("The Basic Opaque State", function() {
       });
   });
 
+  describe("inheriting valueOf", function() {
+    let Taras; 
+    beforeEach(function(){
+      let Person = State.extend({
+        valueOf(value) {
+          return {
+            name: `${value.firstName} ${value.lastName}`
+          };
+        }
+      }).extend({});
+
+      Taras = new Person({
+        firstName: 'Taras',
+        lastName: 'Mankovski'
+      });
+    });
+    it.skip('inherits valueOf from parent', function(){
+      expect(Taras.valueOf()).to.deep.equal({ name: 'Taras Mankovski' });
+    });
+  });
+
 });
