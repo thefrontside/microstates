@@ -165,5 +165,93 @@ describe("The Basic Opaque State", function() {
         expect(remove).to.be.instanceof(TypeError);
       });
     });
+
+    describe("overloading valueOf", function() {
+      let Speaker, LolSpeaker, said, lols;
+      beforeEach(function(){
+        LolSpeaker = State.extend({
+          valueOf(value) {
+            return {
+              message: `hehe ${value.message} hehe`
+            };
+          }
+        });
+
+        lols = new LolSpeaker({message: 'hello world'});
+      });
+
+      it('has different valueOf', function(){
+        expect(lols.valueOf()).to.deep.equal({ message: 'hehe hello world hehe'});
+      });
+    });
+
+    describe('access to deeply nested microstates', function() {
+      let AState, BState;
+      beforeEach(function() {
+
+        BState = State.extend({
+          c: new State('Bob'),
+          valueOf(value) {
+            return {
+              c: `<li>${value.c}</li>`
+            };
+          }
+        });
+
+        AState = State.extend({
+          b: new BState()
+        });
+
+      });
+      it('uses customized valueOf', function() {
+        expect(new AState().valueOf()).to.deep.equal({
+          b: {c: '<li>Bob</li>'}
+        });
+      });
+    });
   });
+
+  describe("exporting properties from prototypes", function() {
+      let Speaker, LolSpeaker;
+      beforeEach(function(){
+        Speaker = State.extend({
+          message: 'hello world'
+        });
+
+        LolSpeaker = Speaker.extend({
+          valueOf(value) {
+            return {
+              message: `hehe ${value.message} hehe`
+            };
+          }
+        });
+      });
+
+      it.skip('has different valueOf', function(){
+        expect(new Speaker().valueOf()).to.deep.equal({ message: 'hello world' }); 
+        expect(new LolSpeaker().valueOf()).to.deep.equal({ message: 'hehe hello world hehe'});
+      });
+  });
+
+  describe("inheriting valueOf", function() {
+    let Taras; 
+    beforeEach(function(){
+      let Person = State.extend({
+        valueOf(value) {
+          return {
+            name: `${value.firstName} ${value.lastName}`
+          };
+        }
+      }).extend({});
+
+      Taras = new Person({
+        firstName: 'Taras',
+        lastName: 'Mankovski'
+      });
+    });
+    it.skip('inherits valueOf from parent', function(){
+      expect(Taras.valueOf()).to.deep.equal({ name: 'Taras Mankovski' });
+    });
+  });
+
 });

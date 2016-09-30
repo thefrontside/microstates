@@ -47,12 +47,12 @@ const Metadata = cached(class Metadata {
    * @see ValueProperty
    * @see ValueOfMethod
    */
-  construct(state, value) {
+  construct(state, value = {}) {
     let constants = mapObject(this.constants, (key, descriptor)=> {
       return new ChildProperty(this, state, key, ()=> descriptor.value );
     });
 
-    let values = mapObject(value || {}, (key)=> {
+    let values = mapObject(value, (key)=> {
       return new ChildProperty(this, state, key, () => {
         if (this.constants.hasOwnProperty(key)) {
           let constant = this.constants[key].value;
@@ -66,13 +66,13 @@ const Metadata = cached(class Metadata {
     let descriptors = assign(constants, values);
 
     defineProperties(state, descriptors);
-    defineProperty(state, 'valueOf', new ValueOfMethod(state, value, descriptors));
+    defineProperty(state, 'valueOf', new ValueOfMethod(this, state, value, descriptors));
   }
 
   get constants() {
     let properties = Object.getOwnPropertyDescriptors(this.definition);
     return reduceObject(properties, (descriptors, name, descriptor)=> {
-      if (name !== 'transitions') {
+      if (name !== 'transitions' && name !== 'valueOf') {
         return assign(descriptors, {[name]: descriptor});
       } else {
         return descriptors;
@@ -193,7 +193,11 @@ class ChildProperty extends ComputedProperty {
 }
 
 class ValueOfMethod extends ComputedProperty {
-  constructor(state, value, descriptors) {
+  constructor(metadata, state, value, descriptors) {
+    /**
+     * super receives a function that will return the valueOf this microstate.
+     * The returned value is cached by ComputedProperty.
+     */
     super(function() {
       let valueOf = compute();
       function compute() {
@@ -210,9 +214,23 @@ class ValueOfMethod extends ComputedProperty {
           return value;
         }
       }
-      return function() {
-        return valueOf;
-      };
+      if (metadata.definition.hasOwnProperty('valueOf')) {
+        /**
+         * Class has a custom valueOf method. This custom valueOf method
+         * should receive the fully expanded value of this microstate.
+         */
+        let customValueOf = metadata.definition.valueOf.call(state, valueOf);
+        return function() {
+          return customValueOf;
+        };
+      } else {
+        /**
+         * Without custom valueOf just return result of unboxing of value
+         */
+        return function() {
+          return valueOf;
+        };
+      }
     });
   }
 }
