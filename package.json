@@ -1,34 +1,80 @@
 {
-  "name": "microstates",
-  "version": "0.0.1",
-  "description": "Immutable, Composable, Data Structures",
-  "files": [
-    "src"
-  ],
-  "jsnext:main": "./src/microstates.js",
+  "name": "ts-library-starter",
+  "version": "0.1.0",
+  "description": "Example git project that is used for typescript libraries as a starter pack",
+  "main": "dist/main.js",
+  "typings": "dist/main.d.ts",
+  "jam": {
+    "main": "./dist/main.browser.js"
+  },
+  "browser": {
+    "dist/main.js": "./dist/main.browser.js"
+  },
   "scripts": {
-    "test": "mocha test/index.js"
+    "prebuild": "npm install",
+    "build": "webpack || echo not ok",
+    "test": "jest",
+    "test:watch": "npm test -- --watch",
+    "coverage": "npm test -- --coverage --no-cache",
+    "coverage:watch": "npm run coverage -- --watch",
+    "prerelease": "npm run build && npm test",
+    "release": "standard-version && npm pack"
   },
   "repository": {
     "type": "git",
-    "url": "git+ssh://git@github.com/cowboyd/microstates.js.git"
+    "url": "git+https://github.com/DxCx/ts-library-starter.git"
   },
   "keywords": [
-    "blood",
-    "microstates",
-    "immutable"
+    "example",
+    "typescript",
+    "library",
+    "starter",
+    "webpack",
+    "browserify",
+    "dts-bundle",
+    "package",
+    "tslint",
+    "jest",
+    "babel",
+    "tsloader",
+    "boilerplate",
+    "awesome-typescript-loader"
   ],
-  "author": "Charles Lowell <cowboyd@frontside.io>",
+  "author": "Hagai Cohen",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/cowboyd/microstates.js/issues"
+    "url": "https://github.com/DxCx/ts-library-starter/issues"
   },
-  "homepage": "https://github.com/cowboyd/microstates.js#readme",
+  "homepage": "https://github.com/DxCx/ts-library-starter#readme",
   "devDependencies": {
-    "babel": "^5.8.23",
-    "chai": "^3.4.1",
-    "jquery": "3.0.0",
-    "mocha": "^2.3.3",
-    "require-all": "^2.0.0"
+    "@types/jest": "^0.9.31",
+    "@types/node": "^6.0.38",
+    "awesome-typescript-loader": "^2.2.1",
+    "babel-core": "^6.14.0",
+    "babel-loader": "^6.2.5",
+    "babel-polyfill": "^6.13.0",
+    "babel-preset-es2015": "^6.14.0",
+    "browserify": "^13.1.0",
+    "delete-empty": "^0.1.3",
+    "dts-bundle": "^0.5.0",
+    "jest": "^15.1.1",
+    "standard-version": "^2.4.0",
+    "tslint": "^3.15.1",
+    "tslint-loader": "^2.1.5",
+    "typescript": "2.0.0",
+    "typescript-babel-jest": "^0.1.2",
+    "webpack": "2.1.0-beta.22",
+    "webpack-node-externals": "^1.4.3"
+  },
+  "dependencies": {},
+  "jest": {
+    "scriptPreprocessor": "node_modules/typescript-babel-jest",
+    "testEnvironment": "node",
+    "testRegex": ".*\\.spec\\.ts$",
+    "moduleFileExtensions": [
+      "ts",
+      "js",
+      "json"
+    ]
   }
 }

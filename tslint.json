@@ -1,0 +1,6 @@
+{
+	"extends": "tslint:recommended",
+	"rules": {
+		"use-strict": true
+	}
+}
