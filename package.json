@@ -40,9 +40,11 @@
   },
   "dependencies": {
     "@types/prop-types": "^15.5.1",
+    "@types/ramda": "^0.24.7",
     "graphql": "^0.10.5",
     "ioo": "^0.1.7",
-    "object.getownpropertydescriptors": "^2.0.3"
+    "object.getownpropertydescriptors": "^2.0.3",
+    "ramda": "^0.24.1"
   },
   "jest": {
     "transform": {

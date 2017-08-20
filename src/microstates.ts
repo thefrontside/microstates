@@ -1,5 +1,6 @@
 import traverseState from './utils/traverseState';
 import traverseActions from './utils/traverseActions';
+import { IMicrostate, IObserver } from './Interfaces';
 
 export default function microstates(Class, initial = {}) {
   if (typeof Class !== 'function') {
@@ -8,12 +9,36 @@ export default function microstates(Class, initial = {}) {
     );
   }
 
-  let state = traverseState(Class, [], initial);
+  let observer;
 
-  let actions = traverseActions(Class, [], initial);
+  let unsubscribe = () => (observer = null);
+
+  let subscribe = (_observer: IObserver) => {
+    observer = _observer;
+    return {
+      unsubscribe,
+    };
+  };
+
+  let onChange = newState => {
+    if (observer) {
+      observer.next(microstate(Class, newState));
+    } else {
+      return microstate(Class, newState);
+    }
+  };
+
+  let microstate = (Class, initial) => {
+    let state = traverseState(Class, [], initial);
+    let actions = traverseActions(Class, [], state, onChange);
+    return {
+      state,
+      actions,
+    };
+  };
 
   return {
-    state,
-    actions,
+    ...microstate(Class, initial),
+    subscribe,
   };
 }

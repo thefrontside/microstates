@@ -207,4 +207,44 @@ describe('microstates', () => {
       });
     });
   });
+  describe('transitions', () => {
+    describe('observable', () => {
+      let actions, subscribe, observable, unsubscribe;
+      class Widget {
+        name = String;
+      }
+      class State {
+        counter = Number;
+        items = Array;
+      }
+      beforeEach(() => {
+        let ms = microstates(State, {});
+        actions = ms.actions;
+        subscribe = ms.subscribe;
+        observable = {
+          next: jest.fn(),
+        };
+        unsubscribe = subscribe(observable).unsubscribe;
+      });
+      it('returns a subscribe function', () => {
+        expect(typeof subscribe).toBe('function');
+      });
+      it('returns an unsubscribe function', () => {
+        expect(typeof unsubscribe).toBe('function');
+      });
+      it('receives new state when action is called', () => {
+        actions.counter.increment();
+        actions.items.push('hello world');
+        expect(observable.next.mock.calls.length).toBe(2);
+        expect(observable.next.mock.calls[0][0].state).toEqual({
+          counter: 1,
+          items: [],
+        });
+        expect(observable.next.mock.calls[1][0].state).toEqual({
+          counter: 0,
+          items: ['hello world'],
+        });
+      });
+    });
+  });
 });
