@@ -1,9 +1,19 @@
-export type IState = Array<any> | {};
+export type IState = Array<any> | IStateObject;
+
+export type IActions = Array<IAction> | IActionHash;
+
+export interface IActionHash {
+  [name: string]: IAction;
+}
 
 export type IClass = { new (): any };
 
 export interface IActionsObject {
   [name: string]: IAction;
+}
+
+export interface IStateObject {
+  [name: string]: IState;
 }
 
 export type IAction = (current: any, ...args: Array<any>) => any;
@@ -30,9 +40,9 @@ export interface IUnsubscribe {
 }
 
 export interface IMicrostate {
-  state: {};
-  actions: {};
+  state: IState;
+  actions: IActions;
   subscribe?: (observer: IObserver) => IUnsubscribe;
 }
 
-export type IOnChange = (newState: IState) => IState | void;
+export type IOnChange = (newState: IStateObject) => IMicrostate | void;

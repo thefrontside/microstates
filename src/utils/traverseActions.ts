@@ -1,11 +1,12 @@
 import {
+  IAction,
+  IActionsObject,
   IClass,
   IDescriptor,
   IDescriptorHash,
   IOnChange,
   IPath,
   IState,
-  IAction,
 } from '../Interfaces';
 import wrapStaticDescriptors from './wrapStaticDescriptors';
 import mapInstanceProps from './mapInstanceProps';
@@ -21,7 +22,7 @@ export default function traverseActions(
   path: IPath,
   state: IState,
   onChange: IOnChange
-): {} {
+): IActionsObject {
   return mapInstanceProps(Class, (descriptor, name) => {
     let descendant = [...path, name];
     switch (descriptor.value) {

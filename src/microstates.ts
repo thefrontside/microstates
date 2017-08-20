@@ -20,7 +20,7 @@ export default function microstates(Class: IClass, initial: IState = {}): IMicro
     };
   };
 
-  let onChange = (newState: {}) => {
+  let onChange = (newState: IState) => {
     if (observer) {
       observer.next(microstate(Class, newState));
     } else {
@@ -28,7 +28,7 @@ export default function microstates(Class: IClass, initial: IState = {}): IMicro
     }
   };
 
-  let microstate = (Class: IClass, initial: {}) => {
+  let microstate = (Class: IClass, initial: {}): IMicrostate => {
     let state = traverseState(Class, [], initial);
     let actions = traverseActions(Class, [], state, onChange);
     return {
