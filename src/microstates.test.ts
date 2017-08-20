@@ -15,11 +15,11 @@ describe('microstates', () => {
   });
   describe('primitives', () => {
     class State {
-      static string = String;
-      static number = Number;
-      static boolean = Boolean;
-      static array = Array;
-      static object = Object;
+      string = String;
+      number = Number;
+      boolean = Boolean;
+      array = Array;
+      object = Object;
     }
 
     describe('state', () => {
@@ -140,20 +140,20 @@ describe('microstates', () => {
   });
   describe('composition', () => {
     class Session {
-      static token = String;
+      token = String;
     }
     class User {
-      static firstName = String;
-      static lastName = String;
-      static age = Number;
+      firstName = String;
+      lastName = String;
+      age = Number;
     }
     class Authentication {
-      static session = Session;
-      static user = User;
-      static isAuthenticated = Boolean;
+      session = Session;
+      user = User;
+      isAuthenticated = Boolean;
     }
     class State {
-      static authentication = Authentication;
+      authentication = Authentication;
     }
     describe('state', () => {
       it('decends into composed states', () => {

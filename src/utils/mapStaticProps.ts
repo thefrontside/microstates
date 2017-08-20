@@ -10,7 +10,7 @@ export default function mapStaticProps(
   callback: (descriptor: IDescriptor, name: string) => any,
   attributes = {}
 ) {
-  let descriptors = getOwnPropertyDescriptors(Class);
+  let descriptors = getOwnPropertyDescriptors(new Class());
   let props = filterObject(descriptors, (descriptor, name) => {
     return typeof descriptor.value === 'function';
   });
