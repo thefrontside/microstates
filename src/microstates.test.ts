@@ -143,8 +143,7 @@ describe('microstates', () => {
       token = String;
     }
     class User {
-      firstName = String;
-      lastName = String;
+      name = String;
       age = Number;
     }
     class Authentication {
@@ -164,8 +163,7 @@ describe('microstates', () => {
               token: '',
             },
             user: {
-              firstName: '',
-              lastName: '',
+              name: '',
               age: 0,
             },
             isAuthenticated: false,
@@ -180,9 +178,8 @@ describe('microstates', () => {
               token: 'VERY SECRET',
             },
             user: {
-              firstName: 'Taras',
-              lastName: 'Mankovski',
-              age: 35,
+              name: 'Peter Griffin',
+              age: 62,
             },
           },
         });
@@ -193,9 +190,8 @@ describe('microstates', () => {
               token: 'VERY SECRET',
             },
             user: {
-              firstName: 'Taras',
-              lastName: 'Mankovski',
-              age: 35,
+              name: 'Peter Griffin',
+              age: 62,
             },
           },
         });
