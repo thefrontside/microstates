@@ -203,6 +203,29 @@ describe('microstates', () => {
           },
         });
       });
+      describe('support for computed properties', () => {
+        class User {
+          firstName = String;
+          lastName = String;
+          get fullName() {
+            return `${this.firstName} ${this.lastName}`;
+          }
+        }
+        class State {
+          user = User;
+        }
+        let { state, actions } = microstates(State, {
+          user: { firstName: 'Peter', lastName: 'Griffin' },
+        });
+        it('computed fullName', () => {
+          expect(state.user.fullName).toBe('Peter Griffin');
+        });
+        it('recomputes on transition', () => {
+          let { state: newState } = actions.user.lastName.concat(' Sir');
+          expect(newState.user.fullName).toBe('Peter Griffin Sir');
+          expect(state.user.fullName).toBe('Peter Griffin');
+        });
+      });
     });
     describe('actions', () => {
       let { actions } = microstates(State);
