@@ -156,8 +156,8 @@ describe('microstates', () => {
       static authentication = Authentication;
     }
     describe('state', () => {
-      let { state } = microstates(State);
       it('decends into composed states', () => {
+        let { state } = microstates(State);
         expect(state).toEqual({
           authentication: {
             session: {
@@ -169,6 +169,34 @@ describe('microstates', () => {
               age: 0,
             },
             isAuthenticated: false,
+          },
+        });
+      });
+      it('restores state', () => {
+        let { state } = microstates(State, {
+          authentication: {
+            isAuthenticated: true,
+            session: {
+              token: 'VERY SECRET',
+            },
+            user: {
+              firstName: 'Taras',
+              lastName: 'Mankovski',
+              age: 35,
+            },
+          },
+        });
+        expect(state).toEqual({
+          authentication: {
+            isAuthenticated: true,
+            session: {
+              token: 'VERY SECRET',
+            },
+            user: {
+              firstName: 'Taras',
+              lastName: 'Mankovski',
+              age: 35,
+            },
           },
         });
       });
