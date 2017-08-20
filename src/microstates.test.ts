@@ -197,5 +197,14 @@ describe('microstates', () => {
         });
       });
     });
+    describe('actions', () => {
+      let { actions } = microstates(State);
+      it('descends into composed states', () => {
+        expect(typeof actions.authentication.isAuthenticated.toggle).toEqual('function');
+        expect(typeof actions.authentication.session.token.concat).toEqual('function');
+        expect(typeof actions.authentication.user.name.concat).toEqual('function');
+        expect(typeof actions.authentication.user.age.increment).toEqual('function');
+      });
+    });
   });
 });
