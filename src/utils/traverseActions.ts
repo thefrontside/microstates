@@ -1,6 +1,6 @@
 import { IClass, IOnChange, IPath, IState, IActionsObject } from '../Interfaces';
 import { lensPath, set, view } from 'ramda';
-import mapStaticProps from './mapStaticProps';
+import mapInstanceProps from './mapInstanceProps';
 import wrapProps from './wrapProps';
 import string from '../primitives/string';
 import number from '../primitives/number';
@@ -14,7 +14,7 @@ export default function traverseActions(
   state: IState,
   onChange: IOnChange
 ): {} {
-  return mapStaticProps(Class, (descriptor, name) => {
+  return mapInstanceProps(Class, (descriptor, name) => {
     let descendant = [...path, name];
     switch (descriptor.value) {
       case String:

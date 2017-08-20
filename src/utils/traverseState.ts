@@ -1,9 +1,9 @@
 import { IClass, IState, IPath } from '../Interfaces';
 import { get } from 'ioo';
-import mapStaticProps from './mapStaticProps';
+import mapInstanceProps from './mapInstanceProps';
 
 export default function traverseState(Class: IClass, path: IPath, state: IState): {} {
-  return mapStaticProps(
+  return mapInstanceProps(
     Class,
     (descriptor, name) => {
       let descendant = [...path, name];
