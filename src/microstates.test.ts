@@ -1,3 +1,4 @@
+import MicrostateString from './primitives/string';
 import 'jest';
 
 import microstates from './microstates';
@@ -169,6 +170,12 @@ describe('microstates', () => {
             isAuthenticated: false,
           },
         });
+      });
+      it('composted states are instances of their class', () => {
+        let { state } = microstates(State);
+        expect(state.authentication).toBeInstanceOf(Authentication);
+        expect(state.authentication.session).toBeInstanceOf(Session);
+        expect(state.authentication.user).toBeInstanceOf(User);
       });
       it('restores state', () => {
         let { state } = microstates(State, {

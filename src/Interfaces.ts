@@ -1,6 +1,6 @@
-export type IState = Array<any> | IStateObject;
+export type IState = any | Array<any> | IStateObject;
 
-export type IActions = Array<IAction> | IActionHash;
+export type IActions = Array<IAction> | IActionHash | IAction;
 
 export interface IActionHash {
   [name: string]: IAction;
@@ -9,7 +9,7 @@ export interface IActionHash {
 export type IClass = { new (): any };
 
 export interface IActionsObject {
-  [name: string]: IAction;
+  [name: string]: IActions;
 }
 
 export interface IStateObject {
@@ -40,8 +40,8 @@ export interface IUnsubscribe {
 }
 
 export interface IMicrostate {
-  state: IState;
-  actions: IActions;
+  state: IStateObject;
+  actions: IActionsObject;
   subscribe?: (observer: IObserver) => IUnsubscribe;
 }
 

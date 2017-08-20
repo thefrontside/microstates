@@ -17,6 +17,6 @@ export default function wrapDescriptorProps(
       Object.defineProperty(object, name, cached);
       return object;
     },
-    new Class()
+    {}
   );
 }

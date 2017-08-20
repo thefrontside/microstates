@@ -1,8 +1,8 @@
 import traverseState from './utils/traverseState';
 import traverseActions from './utils/traverseActions';
-import { IClass, IMicrostate, IObserver, IState } from './Interfaces';
+import { IClass, IMicrostate, IObserver, IState, IStateObject } from './Interfaces';
 
-export default function microstates(Class: IClass, initial: IState = {}): IMicrostate {
+export default function microstates(Class: IClass, initial: IStateObject = {}): IMicrostate {
   if (typeof Class !== 'function') {
     throw new Error(
       `microstates() expects first argument to be a class, instead received ${typeof Class}`

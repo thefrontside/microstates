@@ -1,8 +1,12 @@
-import { IClass, IState, IPath } from '../Interfaces';
+import { IClass, IStateObject, IPath } from '../Interfaces';
 import { get } from 'ioo';
 import mapInstanceProps from './mapInstanceProps';
 
-export default function traverseState(Class: IClass, path: IPath, state: IState): IState {
+export default function traverseState(
+  Class: IClass,
+  path: IPath,
+  state: IStateObject
+): IStateObject {
   return mapInstanceProps(
     Class,
     (descriptor, name) => {

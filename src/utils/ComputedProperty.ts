@@ -55,10 +55,10 @@ export default class ComputedProperty {
   configurable = false;
   enumerable = false;
   isComputed = false;
-  cache = null;
-  get = null;
+  cache: any = null;
+  get: () => any = null;
 
-  constructor(compute, attributes = {}) {
+  constructor(compute: () => any, attributes = {}) {
     let property = this;
     this.get = function() {
       if (!property.isComputed) {
