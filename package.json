@@ -5,11 +5,7 @@
   "main": "dist/main.js",
   "typings": "dist/main.d.ts",
   "homepage": "https://github.com/cowboyd/microstates.js#readme",
-  "keywords": [
-    "blood",
-    "microstates",
-    "immutable"
-  ],
+  "keywords": ["blood", "microstates", "immutable"],
   "scripts": {
     "prebuild": "npm install",
     "build": "tsc",
@@ -30,7 +26,8 @@
     "url": "https://github.com/cowboyd/microstates/issues"
   },
   "devDependencies": {
-    "@types/graphql": "^0.10.2",
+    "@types/prop-types": "^15.5.1",
+    "@types/ramda": "^0.24.7",
     "@types/jest": "^20.0.6",
     "@types/node": "^6.0.38",
     "jest": "^20.0.4",
@@ -39,9 +36,6 @@
     "typescript": "2.4.0"
   },
   "dependencies": {
-    "@types/prop-types": "^15.5.1",
-    "@types/ramda": "^0.24.7",
-    "graphql": "^0.10.5",
     "ioo": "^0.1.7",
     "object.getownpropertydescriptors": "^2.0.3",
     "ramda": "^0.24.1"
@@ -51,11 +45,6 @@
       ".(ts|tsx)": "<rootDir>/node_modules/ts-jest/preprocessor.js"
     },
     "testRegex": "(/__tests__/.*|\\.(test|spec))\\.(ts|tsx|js)$",
-    "moduleFileExtensions": [
-      "ts",
-      "tsx",
-      "js",
-      "json"
-    ]
+    "moduleFileExtensions": ["ts", "tsx", "js", "json"]
   }
 }
