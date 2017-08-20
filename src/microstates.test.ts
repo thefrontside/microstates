@@ -215,7 +215,7 @@ describe('microstates', () => {
       }
       class State {
         counter = Number;
-        items = Array;
+        widget = Widget;
       }
       beforeEach(() => {
         let ms = microstates(State, {});
@@ -237,7 +237,15 @@ describe('microstates', () => {
         expect(observable.next.mock.calls.length).toBe(1);
         expect(observable.next.mock.calls[0][0].state).toEqual({
           counter: 1,
-          items: [],
+          widget: { name: '' },
+        });
+      });
+      it('transitions composed states', () => {
+        actions.widget.name.concat('Peter');
+        expect(observable.next.mock.calls.length).toBe(1);
+        expect(observable.next.mock.calls[0][0].state).toEqual({
+          counter: 0,
+          widget: { name: 'Peter' },
         });
       });
       it('after unsubscribe nothing is emitted', () => {
