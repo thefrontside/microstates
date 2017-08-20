@@ -1,11 +1,11 @@
-import { get } from 'ioo';
-import mapStaticProps from './utils/mapStaticProps';
 import wrapProps from './utils/wrapProps';
 import * as string from './primitives/string';
 import * as number from './primitives/number';
 import * as boolean from './primitives/boolean';
 import * as object from './primitives/object';
 import * as array from './primitives/array';
+import mapStaticProps from './utils/mapStaticProps';
+import traverseState from './utils/traverseState';
 
 export default function microstates(Class, initial = {}) {
   if (typeof Class !== 'function') {
@@ -14,24 +14,7 @@ export default function microstates(Class, initial = {}) {
     );
   }
 
-  let state = mapStaticProps(
-    Class,
-    (descriptor, name) => {
-      switch (descriptor.value) {
-        case String:
-          return get([name], initial) || '';
-        case Number:
-          return get([name], initial) || 0;
-        case Boolean:
-          return get([name], initial) || false;
-        case Object:
-          return get([name], initial) || {};
-        case Array:
-          return get([name], initial) || [];
-      }
-    },
-    { enumerable: true }
-  );
+  let state = traverseState(Class, [], initial);
 
   let actions = mapStaticProps(Class, (descriptor, name) => {
     switch (descriptor.value) {

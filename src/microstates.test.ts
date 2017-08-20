@@ -138,4 +138,40 @@ describe('microstates', () => {
       });
     });
   });
+  describe('composition', () => {
+    class Session {
+      static token = String;
+    }
+    class User {
+      static firstName = String;
+      static lastName = String;
+      static age = Number;
+    }
+    class Authentication {
+      static session = Session;
+      static user = User;
+      static isAuthenticated = Boolean;
+    }
+    class State {
+      static authentication = Authentication;
+    }
+    describe('state', () => {
+      let { state } = microstates(State);
+      it('decends into composed states', () => {
+        expect(state).toEqual({
+          authentication: {
+            session: {
+              token: '',
+            },
+            user: {
+              firstName: '',
+              lastName: '',
+              age: 0,
+            },
+            isAuthenticated: false,
+          },
+        });
+      });
+    });
+  });
 });
