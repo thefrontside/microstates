@@ -1,3 +1,4 @@
-export default {
-  concat: (current: string, ...args: Array<string>) => String.apply(current, args),
-};
+export default class MicrostateString extends String {
+  static concat = (current: string, ...args: Array<string>) =>
+    String.prototype.concat.apply(current, args);
+}

@@ -9,9 +9,9 @@ export default function wrapProps(
 ) {
   return reduceObject(
     props,
-    (object, descriptor, name: string) => {
+    (object, action, name: string) => {
       let cached = new ComputedProperty(() => {
-        return callback(descriptor, name);
+        return callback(action, name);
       }, attributes);
       Object.defineProperty(object, name, cached);
       return object;

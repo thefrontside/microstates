@@ -1,12 +1,20 @@
-import { IClass, IOnChange, IPath, IState, IActionsObject } from '../Interfaces';
-import { lensPath, set, view } from 'ramda';
+import {
+  IClass,
+  IDescriptor,
+  IDescriptorHash,
+  IOnChange,
+  IPath,
+  IState,
+  IAction,
+} from '../Interfaces';
+import wrapStaticDescriptors from './wrapStaticDescriptors';
 import mapInstanceProps from './mapInstanceProps';
-import wrapProps from './wrapProps';
-import string from '../primitives/string';
-import number from '../primitives/number';
-import boolean from '../primitives/boolean';
-import object from '../primitives/object';
-import array from '../primitives/array';
+import MicrostateString from '../primitives/string';
+import MicrostateNumber from '../primitives/number';
+import MicrostateBoolean from '../primitives/boolean';
+import MicrostateObject from '../primitives/object';
+import MicrostateArray from '../primitives/array';
+import ComputedProperty from './ComputedProperty';
 
 export default function traverseActions(
   Class: IClass,
@@ -18,38 +26,17 @@ export default function traverseActions(
     let descendant = [...path, name];
     switch (descriptor.value) {
       case String:
-        return wrapActions(string, descendant, state, onChange);
+        return wrapStaticDescriptors(MicrostateString, descendant, state, onChange);
       case Number:
-        return wrapActions(number, descendant, state, onChange);
+        return wrapStaticDescriptors(MicrostateNumber, descendant, state, onChange);
       case Boolean:
-        return wrapActions(boolean, descendant, state, onChange);
+        return wrapStaticDescriptors(MicrostateBoolean, descendant, state, onChange);
       case Object:
-        return wrapActions(object, descendant, state, onChange);
+        return wrapStaticDescriptors(MicrostateObject, descendant, state, onChange);
       case Array:
-        return wrapActions(array, descendant, state, onChange);
+        return wrapStaticDescriptors(MicrostateArray, descendant, state, onChange);
       default:
         return traverseActions(descriptor.value, descendant, state, onChange);
     }
   });
-}
-
-export function wrapActions(
-  actions: IActionsObject,
-  path: IPath,
-  state: IState,
-  onChange: IOnChange
-) {
-  return wrapProps(
-    actions as IActionsObject,
-    (action, name) => {
-      return (...args: Array<any>) => {
-        let lens = lensPath(path);
-        let current = view(lens, state);
-        let next = action(current, ...args);
-        let newState = set(lens, next, state);
-        return onChange(newState);
-      };
-    },
-    { enumerable: true }
-  );
 }

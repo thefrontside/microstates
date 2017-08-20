@@ -3,8 +3,10 @@ export type IState = Array<any> | {};
 export type IClass = { new (): any };
 
 export interface IActionsObject {
-  [name: string]: (current: any, ...args: Array<any>) => any;
+  [name: string]: IAction;
 }
+
+export type IAction = (current: any, ...args: Array<any>) => any;
 export interface IDescriptor {
   configurable: boolean;
   enumerable: boolean;
@@ -12,6 +14,10 @@ export interface IDescriptor {
   writable: boolean;
   get: () => any;
   set: (value: any) => any;
+}
+
+export interface IDescriptorHash {
+  [name: string]: IDescriptor;
 }
 
 export type IPath = Array<number | string>;

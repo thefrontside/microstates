@@ -1,6 +1,6 @@
-export default {
-  assign: (current: {}, props: {}) => ({
+export default class MicrostateObject extends Object {
+  static assign = (current: {}, props: {}) => ({
     ...current,
     ...props,
-  }),
-};
+  });
+}

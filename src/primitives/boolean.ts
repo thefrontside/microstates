@@ -1,3 +1,3 @@
-export default {
-  toggle: (current: boolean) => !current,
-};
+export default class MicrostateBoolean extends Boolean {
+  static toggle = (current: boolean) => !current;
+}
