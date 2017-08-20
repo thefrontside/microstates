@@ -1,3 +1,3 @@
-export function toggle(current) {
-  return !current;
-}
+export default {
+  toggle: (current: boolean) => !current,
+};

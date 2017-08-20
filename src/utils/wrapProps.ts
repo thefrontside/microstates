@@ -1,8 +1,9 @@
+import { IActionsObject } from '../Interfaces';
 import { reduceObject } from 'ioo';
 import ComputedProperty from './ComputedProperty';
 
 export default function wrapProps(
-  props,
+  props: IActionsObject,
   callback: (value: any, name: string) => any,
   attributes = {}
 ) {

@@ -1,17 +1,17 @@
 import traverseState from './utils/traverseState';
 import traverseActions from './utils/traverseActions';
-import { IMicrostate, IObserver } from './Interfaces';
+import { IClass, IMicrostate, IObserver, IState } from './Interfaces';
 
-export default function microstates(Class, initial = {}) {
+export default function microstates(Class: IClass, initial: IState = {}): IMicrostate {
   if (typeof Class !== 'function') {
     throw new Error(
       `microstates() expects first argument to be a class, instead received ${typeof Class}`
     );
   }
 
-  let observer;
+  let observer: IObserver;
 
-  let unsubscribe = () => (observer = null);
+  let unsubscribe = (): void => (observer = null);
 
   let subscribe = (_observer: IObserver) => {
     observer = _observer;
@@ -20,7 +20,7 @@ export default function microstates(Class, initial = {}) {
     };
   };
 
-  let onChange = newState => {
+  let onChange = (newState: {}) => {
     if (observer) {
       observer.next(microstate(Class, newState));
     } else {
@@ -28,7 +28,7 @@ export default function microstates(Class, initial = {}) {
     }
   };
 
-  let microstate = (Class, initial) => {
+  let microstate = (Class: IClass, initial: {}) => {
     let state = traverseState(Class, [], initial);
     let actions = traverseActions(Class, [], state, onChange);
     return {

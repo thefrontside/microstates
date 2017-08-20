@@ -1,15 +1,11 @@
-export function sum(current, ...args) {
-  return args.reduce((accumulator, value) => accumulator + value, current);
-}
+export default {
+  sum: (current: number, ...args: Array<number>) =>
+    args.reduce((accumulator, value) => accumulator + value, current),
 
-export function subtract(current, ...args) {
-  return args.reduce((accumulator, value) => accumulator - value, current);
-}
+  subtract: (current: number, ...args: Array<number>) =>
+    args.reduce((accumulator, value) => accumulator - value, current),
 
-export function increment(current, step = 1) {
-  return current + step;
-}
+  increment: (current: number, step = 1) => current + step,
 
-export function decrement(current, step = 1) {
-  return current - step;
-}
+  decrement: (current: number, step = 1) => current - step,
+};

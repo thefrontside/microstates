@@ -1,3 +1,3 @@
-export function concat(current, ...args) {
-  return String.apply(current, args);
-}
+export default {
+  concat: (current: string, ...args: Array<string>) => String.apply(current, args),
+};

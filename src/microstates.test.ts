@@ -208,15 +208,32 @@ describe('microstates', () => {
     });
   });
   describe('transitions', () => {
+    class Widget {
+      name = String;
+    }
+    class State {
+      counter = Number;
+      widget = Widget;
+    }
+    describe('in place', () => {
+      let state, actions;
+      beforeEach(() => {
+        let ms = microstates(State, {});
+        actions = ms.actions;
+        state = ms.state;
+      });
+      it('returns a new state and actions', () => {
+        let result = actions.counter.increment();
+        expect(result.state).toEqual({
+          counter: 1,
+          widget: {
+            name: '',
+          },
+        });
+      });
+    });
     describe('observable', () => {
       let actions, subscribe, observable, unsubscribe;
-      class Widget {
-        name = String;
-      }
-      class State {
-        counter = Number;
-        widget = Widget;
-      }
       beforeEach(() => {
         let ms = microstates(State, {});
         actions = ms.actions;

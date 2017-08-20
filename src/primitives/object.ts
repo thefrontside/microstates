@@ -1,6 +1,6 @@
-export function assign(current, props) {
-  return {
+export default {
+  assign: (current: {}, props: {}) => ({
     ...current,
     ...props,
-  };
-}
+  }),
+};
