@@ -234,16 +234,16 @@ describe('microstates', () => {
       });
       it('receives new state when action is called', () => {
         actions.counter.increment();
-        actions.items.push('hello world');
-        expect(observable.next.mock.calls.length).toBe(2);
+        expect(observable.next.mock.calls.length).toBe(1);
         expect(observable.next.mock.calls[0][0].state).toEqual({
           counter: 1,
           items: [],
         });
-        expect(observable.next.mock.calls[1][0].state).toEqual({
-          counter: 0,
-          items: ['hello world'],
-        });
+      });
+      it('after unsubscribe nothing is emitted', () => {
+        unsubscribe();
+        actions.counter.increment();
+        expect(observable.next.mock.calls.length).toBe(0);
       });
     });
   });
