@@ -1,6 +1,8 @@
+import { lensPath, set, view } from 'ramda';
+
 import traverseState from './utils/traverseState';
 import traverseActions from './utils/traverseActions';
-import { IClass, IMicrostate, IObserver, IState, IStateObject } from './Interfaces';
+import { IAction, IClass, IMicrostate, IObserver, IPath, IState, IStateObject } from './Interfaces';
 
 export default function microstates(Class: IClass, initial: IStateObject = {}): IMicrostate {
   if (typeof Class !== 'function') {
@@ -20,25 +22,34 @@ export default function microstates(Class: IClass, initial: IStateObject = {}): 
     };
   };
 
-  let onChange = (newState: IState) => {
-    if (observer) {
-      observer.next(microstate(Class, newState));
-    } else {
-      return microstate(Class, newState);
-    }
-  };
+  let actions = traverseActions(Class, [], onChange);
 
-  let microstate = (Class: IClass, initial: {}): IMicrostate => {
+  function transition(Class: IClass, initial: {}): IMicrostate {
     let state = traverseState(Class, [], initial);
-    let actions = traverseActions(Class, [], state, onChange);
     return {
       state,
       actions,
     };
-  };
+  }
+
+  function onChange(action: IAction, path: IPath, args: Array<any>) {
+    let lens = lensPath(path);
+    let current = view(lens, state);
+    let next = action(current, ...args);
+    let newState = set(lens, next, state);
+
+    if (observer) {
+      observer.next(transition(Class, newState));
+    } else {
+      return transition(Class, newState);
+    }
+  }
+
+  let { state } = transition(Class, initial);
 
   return {
-    ...microstate(Class, initial),
+    state,
+    actions,
     subscribe,
   };
 }

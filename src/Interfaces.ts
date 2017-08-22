@@ -45,4 +45,4 @@ export interface IMicrostate {
   subscribe?: (observer: IObserver) => IUnsubscribe;
 }
 
-export type IOnChange = (newState: IStateObject) => IMicrostate | void;
+export type IOnChange = (action: IAction, path: IPath, args: Array<any>) => IMicrostate | void;

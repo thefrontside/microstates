@@ -20,24 +20,23 @@ import ComputedProperty from './ComputedProperty';
 export default function traverseActions(
   Class: IClass,
   path: IPath,
-  state: IState,
   onChange: IOnChange
 ): IActionsObject {
   return mapInstanceProps(Class, (descriptor, name) => {
     let descendant = [...path, name];
     switch (descriptor.value) {
       case String:
-        return wrapStaticDescriptors(MicrostateString, descendant, state, onChange);
+        return wrapStaticDescriptors(MicrostateString, descendant, onChange);
       case Number:
-        return wrapStaticDescriptors(MicrostateNumber, descendant, state, onChange);
+        return wrapStaticDescriptors(MicrostateNumber, descendant, onChange);
       case Boolean:
-        return wrapStaticDescriptors(MicrostateBoolean, descendant, state, onChange);
+        return wrapStaticDescriptors(MicrostateBoolean, descendant, onChange);
       case Object:
-        return wrapStaticDescriptors(MicrostateObject, descendant, state, onChange);
+        return wrapStaticDescriptors(MicrostateObject, descendant, onChange);
       case Array:
-        return wrapStaticDescriptors(MicrostateArray, descendant, state, onChange);
+        return wrapStaticDescriptors(MicrostateArray, descendant, onChange);
       default:
-        return traverseActions(descriptor.value, descendant, state, onChange);
+        return traverseActions(descriptor.value, descendant, onChange);
     }
   });
 }

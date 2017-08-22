@@ -88,6 +88,10 @@ describe('microstates', () => {
 
     describe('actions', () => {
       let { actions } = microstates(State);
+      it('do not change between transitions', () => {
+        let { actions: newActions } = actions.string.concat('hello');
+        expect(newActions).toBe(actions);
+      });
       describe('string', () => {
         it('is an object', () => {
           expect(actions.string).toBeInstanceOf(Object);
