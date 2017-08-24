@@ -1,14 +1,5 @@
 import reduceActionDescriptors from './reduceActionDescriptors';
-import {
-  IActionsObject,
-  IClass,
-  IDescriptor,
-  IDescriptorHash,
-  IOnChange,
-  IPath,
-  IState,
-  IAction,
-} from '../Interfaces';
+import { IClass, IOnChange, IPath } from '../Interfaces';
 import getCallableDescriptors from './getCallableDescriptors';
 
 export default function createActions(Class: IClass, path: IPath, onChange: IOnChange) {

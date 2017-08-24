@@ -1,8 +1,8 @@
 export type IState = any | Array<any> | IStateObject;
 
-export type IActions = Array<IAction> | IActionHash | IAction;
+export type IActions = Array<IAction> | IActionMap | IAction;
 
-export interface IActionHash {
+export interface IActionMap {
   [name: string]: IAction;
 }
 
@@ -26,7 +26,7 @@ export interface IDescriptor {
   set: (value: any) => any;
 }
 
-export interface IDescriptorHash {
+export interface IDescriptorMap {
   [name: string]: IDescriptor;
 }
 
@@ -46,3 +46,12 @@ export interface IMicrostate {
 }
 
 export type IOnChange = (action: IAction, path: IPath, args: Array<any>) => IMicrostate | void;
+
+export interface IAttributeOverrides {
+  configurable?: boolean;
+  enumerable?: boolean;
+  value?: any;
+  writable?: boolean;
+  get?: () => any;
+  set?: (value: any) => any;
+}

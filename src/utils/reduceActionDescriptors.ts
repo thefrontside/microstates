@@ -1,12 +1,11 @@
 import defineComputedProperty from './defineComputedProperty';
-import ComputedProperty from './ComputedProperty';
 import { reduceObject } from 'ioo';
-import { IAction, IDescriptorHash } from '../Interfaces';
+import { IAction, IAttributeOverrides, IDescriptorMap } from '../Interfaces';
 
 export default function reduceActionDescriptors(
-  descriptors: IDescriptorHash,
+  descriptors: IDescriptorMap,
   callback: (action: IAction, name: string) => any,
-  attributes: {}
+  attributes: IAttributeOverrides
 ) {
   return reduceObject(
     descriptors,
