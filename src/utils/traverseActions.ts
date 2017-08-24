@@ -1,15 +1,6 @@
-import {
-  IAction,
-  IActionsObject,
-  IClass,
-  IDescriptor,
-  IDescriptorHash,
-  IOnChange,
-  IPath,
-  IState,
-} from '../Interfaces';
-import wrapStaticDescriptors from './wrapStaticDescriptors';
-import mapInstanceProps from './mapInstanceProps';
+import { IActionsObject, IClass, IDescriptor, IOnChange, IPath } from '../Interfaces';
+import createActions from './createActions';
+import reduceCallableInstanceDescriptors from './reduceCallableInstanceDescriptors';
 import MicrostateString from '../primitives/string';
 import MicrostateNumber from '../primitives/number';
 import MicrostateBoolean from '../primitives/boolean';
@@ -22,19 +13,19 @@ export default function traverseActions(
   path: IPath,
   onChange: IOnChange
 ): IActionsObject {
-  return mapInstanceProps(Class, (descriptor, name) => {
+  return reduceCallableInstanceDescriptors(Class, (descriptor: IDescriptor, name: string) => {
     let descendant = [...path, name];
     switch (descriptor.value) {
       case String:
-        return wrapStaticDescriptors(MicrostateString, descendant, onChange);
+        return createActions(MicrostateString, descendant, onChange);
       case Number:
-        return wrapStaticDescriptors(MicrostateNumber, descendant, onChange);
+        return createActions(MicrostateNumber, descendant, onChange);
       case Boolean:
-        return wrapStaticDescriptors(MicrostateBoolean, descendant, onChange);
+        return createActions(MicrostateBoolean, descendant, onChange);
       case Object:
-        return wrapStaticDescriptors(MicrostateObject, descendant, onChange);
+        return createActions(MicrostateObject, descendant, onChange);
       case Array:
-        return wrapStaticDescriptors(MicrostateArray, descendant, onChange);
+        return createActions(MicrostateArray, descendant, onChange);
       default:
         return traverseActions(descriptor.value, descendant, onChange);
     }
