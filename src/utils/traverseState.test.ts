@@ -11,7 +11,10 @@ describe('traverseState', () => {
     object = Object;
   }
 
-  let state = traverseState(State, [], {});
+  let state;
+  beforeEach(() => {
+    state = traverseState(State, [], {});
+  });
 
   describe('state', () => {
     describe('string', () => {
@@ -51,6 +54,25 @@ describe('traverseState', () => {
 
       it('is empty', () => {
         expect(state.array).toEqual([]);
+      });
+
+      describe('array composition', () => {
+        class Product {
+          title = String;
+        }
+
+        let traverseProducts = traverseState(
+          class {
+            products = [Product];
+          },
+          []
+        );
+
+        it('deserializes a single object', () => {
+          let { products } = traverseProducts({ products: [{ title: 'MacBook' }] });
+          expect(products[0]).toBeInstanceOf(Product);
+          expect(products[0]).toEqual({ title: 'MacBook' });
+        });
       });
     });
 

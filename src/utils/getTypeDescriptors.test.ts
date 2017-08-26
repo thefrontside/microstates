@@ -1,10 +1,12 @@
 import 'jest';
 
-import getCallableDescriptors from './getCallableDescriptors';
+import getTypeDescriptors from './getTypeDescriptors';
 
 describe('getCallableDescriptors', () => {
+  const ArrayOfStrings = [String];
   class Item {
     string = String;
+    array = ArrayOfStrings;
     say() {
       return 'hello';
     }
@@ -19,8 +21,8 @@ describe('getCallableDescriptors', () => {
     }
   }
   let item = new Item();
-  let classDescriptors = getCallableDescriptors(Item);
-  let instanceDescriptors = getCallableDescriptors(item);
+  let classDescriptors = getTypeDescriptors(Item);
+  let instanceDescriptors = getTypeDescriptors(item);
   describe('from class', () => {
     it('returns descriptors for static methods', () => {
       expect(classDescriptors).toEqual({
@@ -38,6 +40,12 @@ describe('getCallableDescriptors', () => {
       expect(instanceDescriptors).toEqual({
         string: {
           value: String,
+          configurable: true,
+          enumerable: true,
+          writable: true,
+        },
+        array: {
+          value: ArrayOfStrings,
           configurable: true,
           enumerable: true,
           writable: true,

@@ -8,6 +8,8 @@ export interface IActionMap {
 
 export type IClass = { new (): any };
 
+export type IStateType = IClass | Array<IClass>;
+
 export interface IActionsObject {
   [name: string]: IActions;
 }
@@ -30,7 +32,7 @@ export interface IDescriptorMap {
   [name: string]: IDescriptor;
 }
 
-export type IPath = Array<number | string>;
+export type IPath = Array<PropertyKey>;
 export interface IObserver {
   next: (ms: IMicrostate) => void;
 }

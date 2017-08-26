@@ -1,27 +1,27 @@
 import defineComputedProperty from './defineComputedProperty';
 import { IClass, IDescriptor } from '../Interfaces';
-import { reduceObject } from 'ioo';
+import { reduceObject, filterObject } from 'ioo';
 import ComputedProperty from './ComputedProperty';
-import getCallableDescriptors from './getCallableDescriptors';
+import getTypeDescriptors from './getTypeDescriptors';
 
-export default function reduceCallableInstanceDescriptors(
+export default function reduceTypeInstanceDescriptors(
   Class: IClass,
   callback: (descriptor: IDescriptor, name: string) => any,
   attributes = {}
 ) {
   let instance = new Class();
   return reduceObject(
-    getCallableDescriptors(instance),
-    (object, action, name: string) => {
+    getTypeDescriptors(instance),
+    (accumulator, descriptor, name: string) => {
       defineComputedProperty(
-        object,
+        accumulator,
         name,
         function() {
-          return callback(action, name);
+          return callback(descriptor, name);
         },
         attributes
       );
-      return object;
+      return accumulator;
     },
     instance
   );

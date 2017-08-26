@@ -1,31 +1,19 @@
 import { IClass, IStateObject, IPath } from '../Interfaces';
-import { get } from 'ioo';
-import reduceCallableInstanceDescriptors from './reduceCallableInstanceDescriptors';
+import { curry } from 'ramda';
+import reduceTypeInstanceDescriptors from './reduceTypeInstanceDescriptors';
+import matchStateType from './matchStateType';
 
-export default function traverseState(
+export default curry(function traverseState(
   Class: IClass,
   path: IPath,
   state: IStateObject
 ): IStateObject {
-  return reduceCallableInstanceDescriptors(
+  return reduceTypeInstanceDescriptors(
     Class,
     (descriptor, name) => {
-      let descendant = [...path, name];
-      switch (descriptor.value) {
-        case String:
-          return get(descendant, state) || '';
-        case Number:
-          return get(descendant, state) || 0;
-        case Boolean:
-          return get(descendant, state) || false;
-        case Object:
-          return get(descendant, state) || {};
-        case Array:
-          return get(descendant, state) || [];
-        default:
-          return traverseState(descriptor.value, descendant, state);
-      }
+      let { value: type } = descriptor;
+      return matchStateType(type, [...path, name], state);
     },
     { enumerable: true }
   );
-}
+});

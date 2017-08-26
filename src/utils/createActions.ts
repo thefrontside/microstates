@@ -1,10 +1,10 @@
 import reduceActionDescriptors from './reduceActionDescriptors';
 import { IClass, IOnChange, IPath } from '../Interfaces';
-import getCallableDescriptors from './getCallableDescriptors';
+import getTypeDescriptors from './getTypeDescriptors';
 
 export default function createActions(Class: IClass, path: IPath, onChange: IOnChange) {
   return reduceActionDescriptors(
-    getCallableDescriptors(Class),
+    getTypeDescriptors(Class),
     (action, name: string) => {
       return (...args: Array<any>) => {
         return onChange(action, path, args);

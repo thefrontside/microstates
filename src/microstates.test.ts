@@ -14,6 +14,7 @@ describe('microstates', () => {
       );
     });
   });
+
   describe('primitives', () => {
     class State {
       string = String;
@@ -24,13 +25,18 @@ describe('microstates', () => {
     }
 
     describe('initial', () => {
-      let { state } = microstates(State, {
-        string: 'abc',
-        number: 10,
-        boolean: true,
-        array: ['a', 'b', 'c'],
-        object: { hello: 'world' },
+      let state;
+      beforeEach(() => {
+        let ms = microstates(State, {
+          string: 'abc',
+          number: 10,
+          boolean: true,
+          array: ['a', 'b', 'c'],
+          object: { hello: 'world' },
+        });
+        state = ms.state;
       });
+
       it('uses initial value provided', () => {
         expect(state).toEqual({
           string: 'abc',
@@ -41,64 +47,14 @@ describe('microstates', () => {
         });
       });
     });
+  });
 
-    describe('actions', () => {
-      let { actions } = microstates(State);
-      it('do not change between transitions', () => {
-        let { actions: newActions } = actions.string.concat('hello');
-        expect(newActions).toBe(actions);
-      });
-      describe('string', () => {
-        it('is an object', () => {
-          expect(actions.string).toBeInstanceOf(Object);
-        });
-        it('has concat', () => {
-          expect(typeof actions.string.concat).toEqual('function');
-        });
-      });
-      describe('number', () => {
-        it('is an object', () => {
-          expect(actions.number).toBeInstanceOf(Object);
-        });
-        it('has increment', () => {
-          expect(typeof actions.number.increment).toEqual('function');
-        });
-        it('has decrement', () => {
-          expect(typeof actions.number.decrement).toEqual('function');
-        });
-        it('has sum', () => {
-          expect(typeof actions.number.sum).toEqual('function');
-        });
-        it('has subtract', () => {
-          expect(typeof actions.number.subtract).toEqual('function');
-        });
-      });
-      describe('boolean', () => {
-        it('is an object', () => {
-          expect(actions.boolean).toBeInstanceOf(Object);
-        });
-        it('has toggle', () => {
-          expect(typeof actions.boolean.toggle).toEqual('function');
-        });
-      });
-      describe('object', () => {
-        it('is an object', () => {
-          expect(actions.object).toBeInstanceOf(Object);
-        });
-        it('has assign', () => {
-          expect(typeof actions.object.assign).toEqual('function');
-        });
-      });
-      describe('array', () => {
-        it('is an array', () => {
-          expect(actions.array).toBeInstanceOf(Object);
-        });
-        it('has push', () => {
-          expect(typeof actions.array.push).toEqual('function');
-        });
-      });
+  describe('actions', () => {
+    it('do not change between transitions', () => {
+      // TODO(taras): add this test back;
     });
   });
+
   describe('composition', () => {
     class Session {
       token = String;
@@ -115,6 +71,7 @@ describe('microstates', () => {
     class State {
       authentication = Authentication;
     }
+
     describe('state', () => {
       it('decends into composed states', () => {
         let { state } = microstates(State);
@@ -131,12 +88,33 @@ describe('microstates', () => {
           },
         });
       });
+
       it('composted states are instances of their class', () => {
         let { state } = microstates(State);
         expect(state.authentication).toBeInstanceOf(Authentication);
         expect(state.authentication.session).toBeInstanceOf(Session);
         expect(state.authentication.user).toBeInstanceOf(User);
       });
+
+      describe.only('composed arrays', () => {
+        let newState;
+        beforeEach(() => {
+          class Product {
+            title = String;
+          }
+          let { state, actions } = microstates(
+            class {
+              products = [Product];
+            },
+            { products: [{ title: 'MacBook' }] }
+          );
+          newState = actions.products[0].title.concat(' Pro').state;
+        });
+        it('transitions array', () => {
+          expect(newState.products[0].title).toEqual('MacBook Pro');
+        });
+      });
+
       it('restores state', () => {
         let { state } = microstates(State, {
           authentication: {
@@ -163,6 +141,7 @@ describe('microstates', () => {
           },
         });
       });
+
       describe('support for computed properties', () => {
         class User {
           firstName = String;
@@ -174,12 +153,20 @@ describe('microstates', () => {
         class State {
           user = User;
         }
-        let { state, actions } = microstates(State, {
-          user: { firstName: 'Peter', lastName: 'Griffin' },
+
+        let state, actions;
+        beforeEach(() => {
+          let ms = microstates(State, {
+            user: { firstName: 'Peter', lastName: 'Griffin' },
+          });
+          state = ms.state;
+          actions = ms.actions;
         });
+
         it('computed fullName', () => {
           expect(state.user.fullName).toBe('Peter Griffin');
         });
+
         it('recomputes on transition', () => {
           let { state: newState } = actions.user.lastName.concat(' Sir');
           expect(newState.user.fullName).toBe('Peter Griffin Sir');
@@ -187,8 +174,15 @@ describe('microstates', () => {
         });
       });
     });
+
     describe('actions', () => {
-      let { actions } = microstates(State);
+      let actions;
+
+      beforeEach(() => {
+        let ms = microstates(State);
+        actions = ms.actions;
+      });
+
       it('descends into composed states', () => {
         expect(typeof actions.authentication.isAuthenticated.toggle).toEqual('function');
         expect(typeof actions.authentication.session.token.concat).toEqual('function');
@@ -197,14 +191,17 @@ describe('microstates', () => {
       });
     });
   });
+
   describe('transitions', () => {
     class Widget {
       name = String;
     }
+
     class State {
       counter = Number;
       widget = Widget;
     }
+
     describe('in place', () => {
       let state, actions;
       beforeEach(() => {
@@ -212,6 +209,7 @@ describe('microstates', () => {
         actions = ms.actions;
         state = ms.state;
       });
+
       it('returns a new state and actions', () => {
         let result = actions.counter.increment();
         expect(result.state).toEqual({
@@ -222,6 +220,7 @@ describe('microstates', () => {
         });
       });
     });
+
     describe('observable', () => {
       let actions, subscribe, observable, unsubscribe;
       beforeEach(() => {
@@ -233,12 +232,15 @@ describe('microstates', () => {
         };
         unsubscribe = subscribe(observable).unsubscribe;
       });
+
       it('returns a subscribe function', () => {
         expect(typeof subscribe).toBe('function');
       });
+
       it('returns an unsubscribe function', () => {
         expect(typeof unsubscribe).toBe('function');
       });
+
       it('receives new state when action is called', () => {
         actions.counter.increment();
         expect(observable.next.mock.calls.length).toBe(1);
@@ -247,6 +249,7 @@ describe('microstates', () => {
           widget: { name: '' },
         });
       });
+
       it('transitions composed states', () => {
         actions.widget.name.concat('Peter');
         expect(observable.next.mock.calls.length).toBe(1);
@@ -255,6 +258,7 @@ describe('microstates', () => {
           widget: { name: 'Peter' },
         });
       });
+
       it('after unsubscribe nothing is emitted', () => {
         unsubscribe();
         actions.counter.increment();
