@@ -1,7 +1,7 @@
-import MicrostateString from './primitives/string';
+import MicrostateString from '../src/primitives/string';
 import 'jest';
 
-import microstates from './microstates';
+import microstates from '../src/microstates';
 import * as getOwnPropertyDescriptors from 'object.getownpropertydescriptors';
 
 describe('microstates', () => {

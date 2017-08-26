@@ -1,6 +1,6 @@
 import 'jest';
 
-import getTypeDescriptors from './getTypeDescriptors';
+import getTypeDescriptors from '../../src/utils/getTypeDescriptors';
 
 describe('getCallableDescriptors', () => {
   const ArrayOfStrings = [String];

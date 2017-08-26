@@ -1,7 +1,7 @@
-import MicrostateArray from '../primitives/array';
+import MicrostateArray from '../../src/primitives/array';
 import 'jest';
 
-import traverseActions from './traverseActions';
+import traverseActions from '../../src/utils/traverseActions';
 
 describe('actions', () => {
   class State {

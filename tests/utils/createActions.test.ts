@@ -1,6 +1,6 @@
 import 'jest';
 
-import createActions from './createActions';
+import createActions from '../../src/utils/createActions';
 
 describe('createActions', () => {
   class Item {

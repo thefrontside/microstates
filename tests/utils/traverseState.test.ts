@@ -1,6 +1,6 @@
 import 'jest';
 
-import traverseState from './traverseState';
+import traverseState from '../../src/utils/traverseState';
 
 describe('traverseState', () => {
   class State {
