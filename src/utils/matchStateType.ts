@@ -1,16 +1,11 @@
+import stateArrayProxyFactory from './stateArrayProxyFactory';
 import { IPath, IStateObject, IStateType } from '../Interfaces';
 import { get } from 'ioo';
 import traverseState from './traverseState';
 
 export default function matchStateType(type: IStateType, path: IPath, state: IStateObject): any {
   if (Array.isArray(type)) {
-    let data = get(path, state) || [];
-    let [composedType] = type;
-    return new Proxy(data, {
-      get(target, property) {
-        return matchStateType(composedType, [...path, property], state);
-      },
-    });
+    return stateArrayProxyFactory(type, path, state);
   }
 
   switch (type) {

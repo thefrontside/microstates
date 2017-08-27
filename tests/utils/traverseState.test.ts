@@ -56,7 +56,7 @@ describe('traverseState', () => {
         expect(state.array).toEqual([]);
       });
 
-      describe('array composition', () => {
+      describe('composition', () => {
         class Product {
           title = String;
         }
