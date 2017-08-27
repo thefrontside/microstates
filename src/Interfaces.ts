@@ -10,10 +10,6 @@ export type IClass = { new (): any };
 
 export type IStateType = IClass | Array<IClass>;
 
-export interface IActionsObject {
-  [name: string]: IActions;
-}
-
 export interface IStateObject {
   [name: string]: IState;
 }

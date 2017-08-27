@@ -1,5 +1,5 @@
 import actionArrayProxyFactory from './actionArrayProxyFactory';
-import { IClass, IOnChange, IPath } from '../Interfaces';
+import { IClass, IOnChange, IPath, IActions } from '../Interfaces';
 import MicrostateString from '../primitives/string';
 import MicrostateNumber from '../primitives/number';
 import MicrostateBoolean from '../primitives/boolean';
@@ -7,9 +7,8 @@ import MicrostateObject from '../primitives/object';
 import MicrostateArray from '../primitives/array';
 import createActions from './createActions';
 import traverseActions from './traverseActions';
-import { reduceObject } from 'ioo';
 
-export default function matchActionType(type: IClass, path: IPath, onChange: IOnChange): Object {
+export default function matchActionType(type: IClass, path: IPath, onChange: IOnChange): IActions {
   if (Array.isArray(type)) {
     return actionArrayProxyFactory(type, path, onChange);
   }
