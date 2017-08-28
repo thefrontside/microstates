@@ -74,7 +74,7 @@ describe('microstates', () => {
     });
   });
 
-  describe('primitives', () => {
+  describe('primitive values', () => {
     class State {
       string = String;
       number = Number;
@@ -260,6 +260,17 @@ describe('microstates', () => {
       counter = Number;
       widget = Widget;
     }
+
+    describe.only('set action', () => {
+      let actions;
+      beforeEach(() => {
+        let ms = microstates(State);
+        actions = ms.actions;
+      });
+      it('composed state has set action', () => {
+        expect(actions.widget.set.isMicrostateAction).toEqual(isMicrostateAction);
+      });
+    });
 
     describe('in place', () => {
       let state, actions;

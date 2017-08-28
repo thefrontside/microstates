@@ -1,17 +1,20 @@
-import reduceActionDescriptors from './reduceActionDescriptors';
-import { IClass, IOnChange, IPath } from '../Interfaces';
 import getTypeDescriptors from './getTypeDescriptors';
-import { isMicrostateAction } from '../constants';
+import markMicrostateAction from './markMicrostateAction';
+import reduceActionDescriptors from './reduceActionDescriptors';
+import { IAction, IClass, IOnChange, IPath } from '../Interfaces';
+import getSetDescriptor from './getSetDescriptor';
 
-export default function createActions(Class: IClass, path: IPath, onChange: IOnChange) {
+export default function createActions(type: IClass, path: IPath, onChange: IOnChange) {
+  let typeDescriptors = {
+    ...getTypeDescriptors(type),
+    ...getSetDescriptor(type),
+  };
   return reduceActionDescriptors(
-    getTypeDescriptors(Class),
+    typeDescriptors,
     (action, name: string) => {
-      let fn = (...args: Array<any>) => {
+      return markMicrostateAction((...args: Array<any>) => {
         return onChange(action, path, args);
-      };
-      fn['isMicrostateAction'] = isMicrostateAction;
-      return fn;
+      });
     },
     { enumerable: true }
   );

@@ -39,7 +39,7 @@ export interface IUnsubscribe {
 
 export interface IMicrostate {
   state: IStateObject;
-  actions: IActionsObject;
+  actions: IActions;
   subscribe?: (observer: IObserver) => IUnsubscribe;
 }
 

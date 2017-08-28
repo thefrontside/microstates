@@ -1,3 +1,4 @@
+import getSetDescriptor from './getSetDescriptor';
 import defineComputedProperty from './defineComputedProperty';
 import { IClass, IDescriptor } from '../Interfaces';
 import { reduceObject, filterObject } from 'ioo';
@@ -10,7 +11,7 @@ export default function reduceTypeInstanceDescriptors(
   attributes = {}
 ) {
   let instance = new Class();
-  return reduceObject(
+  instance = reduceObject(
     getTypeDescriptors(instance),
     (accumulator, descriptor, name: string) => {
       defineComputedProperty(
@@ -25,4 +26,6 @@ export default function reduceTypeInstanceDescriptors(
     },
     instance
   );
+  Object.defineProperties(instance, getSetDescriptor(Class, { enumerable: false }));
+  return instance;
 }
