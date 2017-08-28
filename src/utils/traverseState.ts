@@ -1,6 +1,6 @@
 import { IClass, IStateObject, IPath } from '../Interfaces';
 import { curry } from 'ramda';
-import reduceTypeInstanceDescriptors from './reduceTypeInstanceDescriptors';
+import reduceTypeToCachedTree from './reduceTypeToCachedTree';
 import matchStateType from './matchStateType';
 
 export default curry(function traverseState(
@@ -16,7 +16,7 @@ export default curry(function traverseState(
     case Object:
       return matchStateType(type, path, state);
     default:
-      return reduceTypeInstanceDescriptors(
+      return reduceTypeToCachedTree(
         type,
         (descriptor, name) => {
           let { value: type } = descriptor;

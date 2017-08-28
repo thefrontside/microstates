@@ -1,3 +1,4 @@
+import MicrostateObject from '../src/primitives/object';
 import MicrostateBoolean from '../src/primitives/boolean';
 import 'jest';
 import * as getOwnPropertyDescriptors from 'object.getownpropertydescriptors';
@@ -397,25 +398,71 @@ describe('microstates', () => {
           });
           it('does not throw on reducer type', () => {
             expect(() => {
-              ms.actions.set({ foo: 'bar' });
+              ms.actions.set(new MicrostateObject({ foo: 'bar' }));
             }).not.toThrow();
           });
         });
 
         describe('composed', () => {
-          let ms;
-          beforeEach(() => {
-            ms = microstates(
-              class Foo {
-                string = String;
-                number = Number;
-              }
-            );
+          describe('shallow', () => {
+            let ms;
+            beforeEach(() => {
+              ms = microstates(
+                class Foo {
+                  string = String;
+                  number = Number;
+                }
+              );
+            });
+            it('does not throw on null', () => {
+              expect(() => {
+                ms.actions.set(null);
+              }).not.toThrow();
+            });
+            it("throws an exception set doesn't match type", () => {
+              expect(() => {
+                ms.actions.set('');
+              }).toThrowError(/set expected Foo, got String/);
+              expect(() => {
+                ms.actions.set(new MicrostateString('foo'));
+              }).toThrowError(/set expected Foo, got MicrostateString/);
+            });
           });
-          it('does not throw on null', () => {
-            expect(() => {
-              ms.actions.set(null);
-            }).not.toThrow();
+          describe('deep', () => {
+            describe('nested composed', () => {
+              let ms, sub;
+              beforeEach(() => {
+                class Baz {
+                  name = String;
+                }
+                class Foo {
+                  name = String;
+                  baz = Baz;
+                }
+                ms = microstates(
+                  class State {
+                    foo = Foo;
+                  }
+                );
+                sub = microstates(Foo, { name: 'Foo', baz: { name: 'Baz' } });
+              });
+              it('does not throw when set correct state', () => {
+                expect(() => {
+                  ms.actions.foo.set(sub.state);
+                }).not.toThrow();
+              });
+              it('returns new state', () => {
+                let { state } = ms.actions.foo.set(sub.state);
+                expect(state).toEqual({
+                  foo: {
+                    name: 'Foo',
+                    baz: {
+                      name: 'Baz',
+                    },
+                  },
+                });
+              });
+            });
           });
         });
       });
