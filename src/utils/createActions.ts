@@ -1,21 +1,23 @@
+import actionFactory from './actionFactory';
+import getReducerType from './getReducerType';
 import getTypeDescriptors from './getTypeDescriptors';
 import markMicrostateAction from './markMicrostateAction';
 import reduceActionDescriptors from './reduceActionDescriptors';
 import { IAction, IClass, IOnChange, IPath } from '../Interfaces';
-import getSetDescriptor from './getSetDescriptor';
+import setAction from './setAction';
+
+import traverseActions from './traverseActions';
+import defineComputedProperty from './defineComputedProperty';
 
 export default function createActions(type: IClass, path: IPath, onChange: IOnChange) {
-  let typeDescriptors = {
-    ...getTypeDescriptors(type),
-    ...getSetDescriptor(type),
-  };
-  return reduceActionDescriptors(
-    typeDescriptors,
-    (action, name: string) => {
-      return markMicrostateAction((...args: Array<any>) => {
-        return onChange(action, path, args);
-      });
-    },
-    { enumerable: true }
+  let actions = reduceActionDescriptors(
+    getTypeDescriptors(getReducerType(type)),
+    action => actionFactory(action, path, onChange),
+    {
+      enumerable: true,
+    }
   );
+  return defineComputedProperty(actions, 'set', () => setAction(type, path, onChange), {
+    enumerable: true,
+  });
 }

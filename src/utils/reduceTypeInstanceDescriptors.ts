@@ -1,4 +1,3 @@
-import getSetDescriptor from './getSetDescriptor';
 import defineComputedProperty from './defineComputedProperty';
 import { IClass, IDescriptor } from '../Interfaces';
 import { reduceObject, filterObject } from 'ioo';
@@ -26,6 +25,5 @@ export default function reduceTypeInstanceDescriptors(
     },
     instance
   );
-  Object.defineProperties(instance, getSetDescriptor(Class, { enumerable: false }));
   return instance;
 }
