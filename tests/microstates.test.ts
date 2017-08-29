@@ -20,64 +20,6 @@ describe('microstates', () => {
     });
   });
 
-  describe('primitive root', () => {
-    describe('string', () => {
-      it('can be without default', () => {
-        let { state, actions } = microstates(String);
-        expect(state).toBe('');
-        expect(actions.concat.isMicrostateAction).toBe(isMicrostateAction);
-      });
-      it('can have default', () => {
-        let { state } = microstates(String, true);
-        expect(state).toBe(true);
-      });
-    });
-    describe('number', () => {
-      it('can be without default', () => {
-        let { state, actions } = microstates(Number);
-        expect(state).toBe(0);
-        expect(actions.sum.isMicrostateAction).toBe(isMicrostateAction);
-      });
-      it('can have default', () => {
-        let { state } = microstates(Number, 42);
-        expect(state).toBe(42);
-      });
-    });
-    describe('boolean', () => {
-      it('can be without default', () => {
-        let { state, actions } = microstates(Boolean);
-        expect(state).toBe(false);
-        expect(actions.toggle.isMicrostateAction).toBe(isMicrostateAction);
-      });
-      it('can have default', () => {
-        let { state } = microstates(Boolean, true);
-        expect(state).toBe(true);
-      });
-    });
-    describe('object', () => {
-      it('can be without default', () => {
-        let { state, actions } = microstates(Object);
-        expect(state).toEqual({});
-        expect(actions.assign.isMicrostateAction).toBe(isMicrostateAction);
-      });
-      it('can have default', () => {
-        let { state } = microstates(Object, { foo: 'bar' });
-        expect(state).toEqual({ foo: 'bar' });
-      });
-    });
-    describe('array', () => {
-      it('can be without default', () => {
-        let { state, actions } = microstates(Array);
-        expect(state).toEqual([]);
-        expect(actions.push.isMicrostateAction).toBe(isMicrostateAction);
-      });
-      it('can have default', () => {
-        let { state } = microstates(Array, ['foo']);
-        expect(state).toEqual(['foo']);
-      });
-    });
-  });
-
   describe('primitive values', () => {
     class State {
       string = String;
@@ -278,131 +220,6 @@ describe('microstates', () => {
         expect(ms.actions.widget.set.isMicrostateAction).toEqual(isMicrostateAction);
       });
       describe('class matching', () => {
-        describe('string', () => {
-          let ms;
-          beforeEach(() => {
-            ms = microstates(String);
-          });
-          it('does not throw on null', () => {
-            expect(() => {
-              ms.actions.set(null);
-            }).not.toThrow();
-          });
-          it("throws an exception set doesn't match type", () => {
-            expect(() => {
-              ms.actions.set(0);
-            }).toThrowError(/set expected String, got Number/);
-            expect(() => {
-              ms.actions.set(new MicrostateNumber(42));
-            }).toThrowError(/set expected String, got MicrostateNumber/);
-          });
-          it('does not throw on reducer type', () => {
-            expect(() => {
-              ms.actions.set(new MicrostateString('hello'));
-            }).not.toThrow();
-          });
-        });
-
-        describe('number', () => {
-          let ms;
-          beforeEach(() => {
-            ms = microstates(Number);
-          });
-          it('does not throw on null', () => {
-            expect(() => {
-              ms.actions.set(null);
-            }).not.toThrow();
-          });
-          it("throws an exception set doesn't match type", () => {
-            expect(() => {
-              ms.actions.set('');
-            }).toThrowError(/set expected Number, got String/);
-            expect(() => {
-              ms.actions.set(new MicrostateString('foo'));
-            }).toThrowError(/set expected Number, got MicrostateString/);
-          });
-          it('does not throw on reducer type', () => {
-            expect(() => {
-              ms.actions.set(new MicrostateNumber('hello'));
-            }).not.toThrow();
-          });
-        });
-
-        describe('boolean', () => {
-          let ms;
-          beforeEach(() => {
-            ms = microstates(Boolean);
-          });
-          it('does not throw on null', () => {
-            expect(() => {
-              ms.actions.set(null);
-            }).not.toThrow();
-          });
-          it("throws an exception set doesn't match type", () => {
-            expect(() => {
-              ms.actions.set('');
-            }).toThrowError(/set expected Boolean, got String/);
-            expect(() => {
-              ms.actions.set(new MicrostateString('foo'));
-            }).toThrowError(/set expected Boolean, got MicrostateString/);
-          });
-          it('does not throw on reducer type', () => {
-            expect(() => {
-              ms.actions.set(new MicrostateBoolean(true));
-            }).not.toThrow();
-          });
-        });
-
-        describe('array', () => {
-          let ms;
-          beforeEach(() => {
-            ms = microstates(Array);
-          });
-          it('does not throw on null', () => {
-            expect(() => {
-              ms.actions.set(null);
-            }).not.toThrow();
-          });
-          it("throws an exception set doesn't match type", () => {
-            expect(() => {
-              ms.actions.set('');
-            }).toThrowError(/set expected Array, got String/);
-            expect(() => {
-              ms.actions.set(new MicrostateString('foo'));
-            }).toThrowError(/set expected Array, got MicrostateString/);
-          });
-          it('does not throw on reducer type', () => {
-            expect(() => {
-              ms.actions.set(MicrostateArray.from(['hello']));
-            }).not.toThrow();
-          });
-        });
-
-        describe('object', () => {
-          let ms;
-          beforeEach(() => {
-            ms = microstates(Object);
-          });
-          it('does not throw on null', () => {
-            expect(() => {
-              ms.actions.set(null);
-            }).not.toThrow();
-          });
-          it("throws an exception set doesn't match type", () => {
-            expect(() => {
-              ms.actions.set('');
-            }).toThrowError(/set expected Object, got String/);
-            expect(() => {
-              ms.actions.set(new MicrostateString('foo'));
-            }).toThrowError(/set expected Object, got MicrostateString/);
-          });
-          it('does not throw on reducer type', () => {
-            expect(() => {
-              ms.actions.set(new MicrostateObject({ foo: 'bar' }));
-            }).not.toThrow();
-          });
-        });
-
         describe('composed', () => {
           describe('shallow', () => {
             let ms;
@@ -429,6 +246,19 @@ describe('microstates', () => {
             });
           });
           describe('deep', () => {
+            // describe('nested in array', () => {
+            //   let ms;
+            //   beforeEach(() => {
+            //     class Product {
+            //       name = String
+            //       related = Product
+            //     }
+            //     class State {
+            //       products = [Product]
+            //     }
+            //     ms = microstates(State, { products: [ { name: 'foo' }, { name: 'bar' }]});
+            //   });
+            // });
             describe('nested composed', () => {
               let ms, sub;
               beforeEach(() => {
