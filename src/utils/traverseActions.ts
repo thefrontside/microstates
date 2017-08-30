@@ -5,6 +5,7 @@ import reduceTypeToCachedTree from './reduceTypeToCachedTree';
 
 import matchActionType from './matchActionType';
 import setAction from './setAction';
+import mergeAction from './mergeAction';
 
 export default function traverseActions(type: ISchema, path: IPath, onChange: IOnChange): IActions {
   if (isPrimitive(type) || Array.isArray(type)) {
@@ -14,7 +15,11 @@ export default function traverseActions(type: ISchema, path: IPath, onChange: IO
       return matchActionType(descriptor.value, [...path, name], onChange);
     });
 
-    return defineComputedProperty(actions, 'set', () => setAction(type, path, onChange), {
+    let withSet = defineComputedProperty(actions, 'set', () => setAction(type, path, onChange), {
+      enumerable: true,
+    });
+
+    return defineComputedProperty(actions, 'merge', () => mergeAction(type, path, onChange), {
       enumerable: true,
     });
   }

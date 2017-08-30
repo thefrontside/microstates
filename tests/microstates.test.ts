@@ -306,6 +306,51 @@ describe('microstates', () => {
       });
     });
 
+    describe('merge', () => {
+      it(`is available on composed state's actions`, () => {
+        let { state, actions } = microstates(class Foo {});
+        expect(actions.merge).toBeDefined();
+      });
+      describe('merging composed state', () => {
+        let initial, merged;
+        beforeEach(() => {
+          class Product {
+            name = String;
+          }
+          class User {
+            name = String;
+          }
+          class Session {
+            token = String;
+          }
+          class Authentication {
+            isAuthenticated = Boolean;
+            session = Session;
+          }
+          class State {
+            products = [Product];
+            authentication = Authentication;
+            currentUser = User;
+          }
+          initial = microstates(State, {
+            currentUser: { name: 'Anonymous' },
+            products: [{ name: 'MacBook' }],
+          });
+          let authentication = microstates(State, {
+            authentication: { isAuthenticated: true, session: { token: 'ABC' } },
+            currentUser: { name: 'Peter Griffin' },
+          });
+          merged = initial.actions.merge(authentication.state);
+        });
+        it('merges state', () => {
+          expect(merged.state.products[0].name).toBe('MacBook');
+          expect(merged.state.authentication.isAuthenticated).toBeTruthy();
+          expect(merged.state.authentication.session.token).toBe('ABC');
+          expect(merged.state.currentUser.name).toBe('Peter Griffin');
+        });
+      });
+    });
+
     describe('in place', () => {
       let state, actions;
       beforeEach(() => {
