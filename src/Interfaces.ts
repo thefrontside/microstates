@@ -6,7 +6,7 @@ export interface IActionMap {
   [name: string]: IAction;
 }
 
-export type IClass = { new (): any };
+export type IClass = { new (): any; name: String };
 
 export type ISchema = IClass | Array<IClass>;
 

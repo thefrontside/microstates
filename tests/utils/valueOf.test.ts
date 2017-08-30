@@ -1,7 +1,6 @@
 import 'jest';
 
 import microstates from '../../src/microstates';
-import valueOf from '../../src/utils/valueOf';
 
 describe('valueOf', () => {
   describe('on parameterized array', () => {
@@ -67,7 +66,7 @@ describe('valueOf', () => {
         ms = microstates(Thing, { name: 'MacBook', related: [{ name: 'iPhone' }] });
       });
       it('deserializes circular reference in parameterized array', () => {
-        expect(valueOf(ms.state)).toEqual({
+        expect(ms.state.valueOf()).toEqual({
           name: 'MacBook',
           related: [{ name: 'iPhone' }],
         });
@@ -83,7 +82,7 @@ describe('valueOf', () => {
         ms = microstates(Thing, { name: 'MacBook', related: { name: 'iPhone' } });
       });
       it('deserializes circular reference to an object', () => {
-        expect(valueOf(ms.state)).toEqual({
+        expect(ms.state.valueOf()).toEqual({
           name: 'MacBook',
           related: { name: 'iPhone' },
         });
