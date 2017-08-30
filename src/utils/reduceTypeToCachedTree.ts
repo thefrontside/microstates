@@ -1,11 +1,11 @@
 import defineComputedProperty from './defineComputedProperty';
-import { IAttributeOverrides, ISchema, IDescriptor } from '../Interfaces';
+import { IAttributeOverrides, IClass, IDescriptor } from '../Interfaces';
 import { reduceObject, filterObject } from 'ioo';
 import ComputedProperty from './ComputedProperty';
 import getTypeDescriptors from './getTypeDescriptors';
 
 export default function reduceTypeToCachedTree(
-  Class: ISchema,
+  Class: IClass,
   callback: (descriptor: IDescriptor, name: string) => any,
   attributes: IAttributeOverrides = {}
 ) {

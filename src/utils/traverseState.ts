@@ -3,6 +3,7 @@ import { ISchema, IStateObject, IPath } from '../Interfaces';
 import { curry } from 'ramda';
 import reduceTypeToCachedTree from './reduceTypeToCachedTree';
 import matchStateType from './matchStateType';
+import defineValueOf from './defineValueOf';
 
 export default curry(function traverseState(
   type: ISchema,
@@ -12,7 +13,7 @@ export default curry(function traverseState(
   if (isPrimitive(type) || Array.isArray(type)) {
     return matchStateType(type, path, state);
   } else {
-    return reduceTypeToCachedTree(
+    let composed = reduceTypeToCachedTree(
       type,
       (descriptor, name) => {
         let { value: type } = descriptor;
@@ -20,5 +21,6 @@ export default curry(function traverseState(
       },
       { enumerable: true }
     );
+    return defineValueOf(composed, path, state);
   }
 });

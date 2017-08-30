@@ -12,7 +12,7 @@ import {
   IStateObject,
 } from './Interfaces';
 
-export default function microstates(Class: ISchema, initial: any = null): IMicrostate {
+export default function microstates(Class: ISchema, initial: any = undefined): IMicrostate {
   if (!(typeof Class === 'function' || Array.isArray(Class))) {
     throw new Error(
       `microstates() expects first argument to be a class, instead received ${typeof Class}`

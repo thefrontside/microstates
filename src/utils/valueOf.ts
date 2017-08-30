@@ -6,10 +6,9 @@ export default function valueOf(value: any): any {
     return value;
   }
   let { constructor } = value;
-  if (Array.isArray(value)) {
-    return value.map(valueOf);
-  } else if (isPrimitive(constructor)) {
-    return constructor.prototype.valueOf(value);
+
+  if (value && value.valueOf && value.valueOf.call) {
+    return value.valueOf();
   } else {
     return reduceTypeInstanceDescriptors(
       constructor,
