@@ -7,7 +7,7 @@ export default function valueOf(value: any): any {
   }
   let { constructor } = value;
 
-  if (value && value.valueOf && value.valueOf.call) {
+  if (value.valueOf && value.valueOf.call) {
     return value.valueOf();
   } else {
     return reduceTypeInstanceDescriptors(
