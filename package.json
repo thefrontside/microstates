@@ -26,19 +26,21 @@
     "url": "https://github.com/cowboyd/microstates/issues"
   },
   "devDependencies": {
-    "@types/prop-types": "^15.5.1",
-    "@types/ramda": "^0.24.7",
     "@types/jest": "^20.0.6",
     "@types/node": "^6.0.38",
+    "@types/prop-types": "^15.5.1",
+    "@types/ramda": "^0.24.7",
     "jest": "^20.0.4",
     "standard-version": "^4.2.0",
     "ts-jest": "^20.0.10",
-    "typescript": "2.4.0"
+    "typescript": "2.4.0",
+    "rxjs": "^5.4.3"
   },
   "dependencies": {
     "ioo": "^0.1.7",
     "object.getownpropertydescriptors": "^2.0.3",
-    "ramda": "^0.24.1"
+    "ramda": "^0.24.1",
+    "symbol-observable": "^1.0.4"
   },
   "jest": {
     "transform": {

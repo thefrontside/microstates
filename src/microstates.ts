@@ -1,4 +1,5 @@
 import { lensPath, set, view } from 'ramda';
+import symbolObservable from 'symbol-observable';
 
 import traverseState from './utils/traverseState';
 import traverseActions from './utils/traverseActions';
@@ -22,12 +23,10 @@ export default function microstates(Class: ISchema, initial: any = undefined): I
 
   let observer: IObserver;
 
-  let unsubscribe = (): void => (observer = null);
-
   let subscribe = (_observer: IObserver) => {
     observer = _observer;
     return {
-      unsubscribe,
+      unsubscribe: (): void => (observer = null),
     };
   };
 
@@ -55,6 +54,10 @@ export default function microstates(Class: ISchema, initial: any = undefined): I
   return {
     state,
     actions,
-    subscribe,
+    [symbolObservable]() {
+      return {
+        subscribe,
+      };
+    },
   };
 }

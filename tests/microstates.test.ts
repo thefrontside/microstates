@@ -1,13 +1,9 @@
-import MicrostateObject from '../src/primitives/object';
-import MicrostateBoolean from '../src/primitives/boolean';
 import 'jest';
-import * as getOwnPropertyDescriptors from 'object.getownpropertydescriptors';
-
+import symbolObservable from 'symbol-observable';
+import { Observable } from 'rxjs';
 import microstates from '../src/microstates';
 import MicrostateString from '../src/primitives/string';
 import { isMicrostateAction } from '../src/constants';
-import MicrostateNumber from '../src/primitives/number';
-import MicrostateArray from '../src/primitives/array';
 
 describe('microstates', () => {
   describe('arguments', () => {
@@ -367,27 +363,30 @@ describe('microstates', () => {
     });
 
     describe('observable', () => {
-      let actions, subscribe, observable, unsubscribe;
+      let ms, msObservable, observable, subscribe, subscription;
       beforeEach(() => {
-        let ms = microstates(State, {});
-        actions = ms.actions;
-        subscribe = ms.subscribe;
+        ms = microstates(State, {});
         observable = {
           next: jest.fn(),
         };
-        unsubscribe = subscribe(observable).unsubscribe;
+        msObservable = Observable.from(ms);
+        subscription = msObservable.subscribe(observable);
+      });
+
+      it('has Observable symbol', () => {
+        expect(ms[symbolObservable]).toBeDefined();
       });
 
       it('returns a subscribe function', () => {
-        expect(typeof subscribe).toBe('function');
+        expect(typeof msObservable.subscribe).toBe('function');
       });
 
       it('returns an unsubscribe function', () => {
-        expect(typeof unsubscribe).toBe('function');
+        expect(typeof subscription.unsubscribe).toBe('function');
       });
 
       it('receives new state when action is called', () => {
-        actions.counter.increment();
+        ms.actions.counter.increment();
         expect(observable.next.mock.calls.length).toBe(1);
         expect(observable.next.mock.calls[0][0]).toEqual({
           counter: 1,
@@ -396,7 +395,7 @@ describe('microstates', () => {
       });
 
       it('transitions composed states', () => {
-        actions.widget.name.concat('Peter');
+        ms.actions.widget.name.concat('Peter');
         expect(observable.next.mock.calls.length).toBe(1);
         expect(observable.next.mock.calls[0][0]).toEqual({
           counter: 0,
@@ -405,8 +404,8 @@ describe('microstates', () => {
       });
 
       it('after unsubscribe nothing is emitted', () => {
-        unsubscribe();
-        actions.counter.increment();
+        subscription.unsubscribe();
+        ms.actions.counter.increment();
         expect(observable.next.mock.calls.length).toBe(0);
       });
     });
