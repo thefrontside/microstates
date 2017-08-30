@@ -52,8 +52,8 @@ describe('array', () => {
       let { state, actions } = microstates([Item]);
       let newState = actions.push({ name: 'MacBook' });
       it('allows to push item and returns Item', () => {
-        expect(newState.state[0]).toBeInstanceOf(Item);
-        expect(newState.state[0]).toEqual({ name: 'MacBook' });
+        expect(newState[0]).toBeInstanceOf(Item);
+        expect(newState[0]).toEqual({ name: 'MacBook' });
       });
     });
     describe('set', () => {

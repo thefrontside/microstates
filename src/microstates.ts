@@ -4,12 +4,13 @@ import traverseState from './utils/traverseState';
 import traverseActions from './utils/traverseActions';
 import {
   IAction,
-  ISchema,
   IMicrostate,
   IObserver,
   IPath,
+  ISchema,
   IState,
   IStateObject,
+  IStateType,
 } from './Interfaces';
 
 export default function microstates(Class: ISchema, initial: any = undefined): IMicrostate {
@@ -32,12 +33,8 @@ export default function microstates(Class: ISchema, initial: any = undefined): I
 
   let actions = traverseActions(Class, [], onChange);
 
-  function transition(Class: ISchema, initial: {}): IMicrostate {
-    let state = traverseState(Class, [], initial);
-    return {
-      state,
-      actions,
-    };
+  function transition(Class: ISchema, initial: {}): IState {
+    return traverseState(Class, [], initial);
   }
 
   function onChange(action: IAction, path: IPath, args: Array<any>) {
@@ -53,7 +50,7 @@ export default function microstates(Class: ISchema, initial: any = undefined): I
     }
   }
 
-  let { state } = transition(Class, initial);
+  let state = transition(Class, initial);
 
   return {
     state,

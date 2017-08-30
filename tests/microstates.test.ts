@@ -117,7 +117,7 @@ describe('microstates', () => {
             },
             { products: [{ title: 'MacBook' }] }
           );
-          newState = actions.products[0].title.concat(' Pro').state;
+          newState = actions.products[0].title.concat(' Pro');
         });
         it('transitions array', () => {
           expect(newState.products[0].title).toEqual('MacBook Pro');
@@ -177,7 +177,7 @@ describe('microstates', () => {
         });
 
         it('recomputes on transition', () => {
-          let { state: newState } = actions.user.lastName.concat(' Sir');
+          let newState = actions.user.lastName.concat(' Sir');
           expect(newState.user.fullName).toBe('Peter Griffin Sir');
           expect(state.user.fullName).toBe('Peter Griffin');
         });
@@ -261,7 +261,7 @@ describe('microstates', () => {
                 newState = ms.actions.products.set(newProducts.state);
               });
               it('replaced existing products', () => {
-                expect(newState.state.products).toEqual([
+                expect(newState.products).toEqual([
                   { name: 'baz', related: [] },
                   { name: 'zoo', related: [] },
                 ]);
@@ -290,8 +290,7 @@ describe('microstates', () => {
                 }).not.toThrow();
               });
               it('returns new state', () => {
-                let { state } = ms.actions.foo.set(sub.state);
-                expect(state).toEqual({
+                expect(ms.actions.foo.set(sub.state)).toEqual({
                   foo: {
                     name: 'Foo',
                     baz: {
@@ -343,25 +342,22 @@ describe('microstates', () => {
           merged = initial.actions.merge(authentication.state);
         });
         it('merges state', () => {
-          expect(merged.state.products[0].name).toBe('MacBook');
-          expect(merged.state.authentication.isAuthenticated).toBeTruthy();
-          expect(merged.state.authentication.session.token).toBe('ABC');
-          expect(merged.state.currentUser.name).toBe('Peter Griffin');
+          expect(merged.products[0].name).toBe('MacBook');
+          expect(merged.authentication.isAuthenticated).toBeTruthy();
+          expect(merged.authentication.session.token).toBe('ABC');
+          expect(merged.currentUser.name).toBe('Peter Griffin');
         });
       });
     });
 
     describe('in place', () => {
-      let state, actions;
+      let ms;
       beforeEach(() => {
-        let ms = microstates(State, {});
-        actions = ms.actions;
-        state = ms.state;
+        ms = microstates(State, {});
       });
 
-      it('returns a new state and actions', () => {
-        let result = actions.counter.increment();
-        expect(result.state).toEqual({
+      it('returns a new state', () => {
+        expect(ms.actions.counter.increment()).toEqual({
           counter: 1,
           widget: {
             name: '',
@@ -393,7 +389,7 @@ describe('microstates', () => {
       it('receives new state when action is called', () => {
         actions.counter.increment();
         expect(observable.next.mock.calls.length).toBe(1);
-        expect(observable.next.mock.calls[0][0].state).toEqual({
+        expect(observable.next.mock.calls[0][0]).toEqual({
           counter: 1,
           widget: { name: '' },
         });
@@ -402,7 +398,7 @@ describe('microstates', () => {
       it('transitions composed states', () => {
         actions.widget.name.concat('Peter');
         expect(observable.next.mock.calls.length).toBe(1);
-        expect(observable.next.mock.calls[0][0].state).toEqual({
+        expect(observable.next.mock.calls[0][0]).toEqual({
           counter: 0,
           widget: { name: 'Peter' },
         });
