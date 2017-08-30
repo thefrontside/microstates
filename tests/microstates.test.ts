@@ -246,19 +246,27 @@ describe('microstates', () => {
             });
           });
           describe('deep', () => {
-            // describe('nested in array', () => {
-            //   let ms;
-            //   beforeEach(() => {
-            //     class Product {
-            //       name = String
-            //       related = Product
-            //     }
-            //     class State {
-            //       products = [Product]
-            //     }
-            //     ms = microstates(State, { products: [ { name: 'foo' }, { name: 'bar' }]});
-            //   });
-            // });
+            describe('nested in array', () => {
+              let ms, newProducts, newState;
+              beforeEach(() => {
+                class Product {
+                  name = String;
+                  related = [Product];
+                }
+                class State {
+                  products = [Product];
+                }
+                ms = microstates(State, { products: [{ name: 'foo' }, { name: 'bar' }] });
+                newProducts = microstates([Product], [{ name: 'baz' }, { name: 'zoo' }]);
+                newState = ms.actions.products.set(newProducts.state);
+              });
+              it('replaced existing products', () => {
+                expect(newState.state.products).toEqual([
+                  { name: 'baz', related: [] },
+                  { name: 'zoo', related: [] },
+                ]);
+              });
+            });
             describe('nested composed', () => {
               let ms, sub;
               beforeEach(() => {

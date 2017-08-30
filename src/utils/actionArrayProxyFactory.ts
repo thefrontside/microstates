@@ -1,11 +1,11 @@
-import { IClass, IOnChange, IPath } from '../Interfaces';
+import { ISchema, IOnChange, IPath } from '../Interfaces';
 import createActions from './createActions';
 import traverseActions from './traverseActions';
 import isNumeric from './isNumeric';
 import MicrostateArray from '../primitives/array';
 
 export default function actionArrayProxyFactory(
-  type: Array<IClass>,
+  type: Array<ISchema>,
   path: IPath,
   onChange: IOnChange
 ) {

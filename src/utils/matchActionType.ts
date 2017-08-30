@@ -1,10 +1,10 @@
 import isPrimitive from './isPrimitive';
 import actionArrayProxyFactory from './actionArrayProxyFactory';
-import { IClass, IOnChange, IPath, IActions } from '../Interfaces';
+import { ISchema, IOnChange, IPath, IActions } from '../Interfaces';
 import createActions from './createActions';
 import traverseActions from './traverseActions';
 
-export default function matchActionType(type: IClass, path: IPath, onChange: IOnChange): IActions {
+export default function matchActionType(type: ISchema, path: IPath, onChange: IOnChange): IActions {
   if (Array.isArray(type)) {
     return actionArrayProxyFactory(type, path, onChange);
   }

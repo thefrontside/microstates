@@ -2,10 +2,18 @@ import { lensPath, set, view } from 'ramda';
 
 import traverseState from './utils/traverseState';
 import traverseActions from './utils/traverseActions';
-import { IAction, IClass, IMicrostate, IObserver, IPath, IState, IStateObject } from './Interfaces';
+import {
+  IAction,
+  ISchema,
+  IMicrostate,
+  IObserver,
+  IPath,
+  IState,
+  IStateObject,
+} from './Interfaces';
 
-export default function microstates(Class: IClass, initial: any = null): IMicrostate {
-  if (typeof Class !== 'function') {
+export default function microstates(Class: ISchema, initial: any = null): IMicrostate {
+  if (!(typeof Class === 'function' || Array.isArray(Class))) {
     throw new Error(
       `microstates() expects first argument to be a class, instead received ${typeof Class}`
     );
@@ -24,7 +32,7 @@ export default function microstates(Class: IClass, initial: any = null): IMicros
 
   let actions = traverseActions(Class, [], onChange);
 
-  function transition(Class: IClass, initial: {}): IMicrostate {
+  function transition(Class: ISchema, initial: {}): IMicrostate {
     let state = traverseState(Class, [], initial);
     return {
       state,

@@ -1,4 +1,4 @@
-import { IClass, IDescriptor } from '../Interfaces';
+import { IDescriptor } from '../Interfaces';
 import * as getOwnPropertyDescriptors from 'object.getownpropertydescriptors';
 import { filterObject } from 'ioo';
 

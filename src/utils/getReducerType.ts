@@ -1,11 +1,11 @@
-import { IClass } from '../Interfaces';
+import { ISchema } from '../Interfaces';
 import MicrostateString from '../primitives/string';
 import MicrostateNumber from '../primitives/number';
 import MicrostateBoolean from '../primitives/boolean';
 import MicrostateObject from '../primitives/object';
 import MicrostateArray from '../primitives/array';
 
-export default function getReducerType(type: IClass) {
+export default function getReducerType(type: ISchema) {
   switch (type) {
     case String:
       return MicrostateString;

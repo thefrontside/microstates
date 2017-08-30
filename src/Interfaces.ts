@@ -8,7 +8,9 @@ export interface IActionMap {
 
 export type IClass = { new (): any };
 
-export type IStateType = IClass | Array<IClass>;
+export type ISchema = IClass | Array<IClass>;
+
+export type IStateType = ISchema | Array<ISchema>;
 
 export interface IStateObject {
   [name: string]: IState;

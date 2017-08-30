@@ -1,6 +1,6 @@
-import { IClass } from '../Interfaces';
+import { ISchema } from '../Interfaces';
 import getReducerType from './getReducerType';
 
-export default function isPrimitive(constructor: IClass) {
+export default function isPrimitive(constructor: ISchema) {
   return getReducerType(constructor) !== constructor;
 }
