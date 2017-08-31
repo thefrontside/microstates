@@ -23,22 +23,12 @@ describe('number', () => {
     beforeEach(() => {
       ms = microstates(Number);
     });
-    it('does not throw on null', () => {
+    it('does not throw', () => {
       expect(() => {
         ms.actions.set(null);
-      }).not.toThrow();
-    });
-    it("throws an exception set doesn't match type", () => {
-      expect(() => {
         ms.actions.set('');
-      }).toThrowError(/set expected Number, got String/);
-      expect(() => {
-        ms.actions.set(new MicrostateString('foo'));
-      }).toThrowError(/set expected Number, got MicrostateString/);
-    });
-    it('does not throw on reducer type', () => {
-      expect(() => {
         ms.actions.set(new MicrostateNumber('hello'));
+        ms.actions.set(new MicrostateString('foo'));
       }).not.toThrow();
     });
   });

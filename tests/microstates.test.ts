@@ -227,18 +227,11 @@ describe('microstates', () => {
                 }
               );
             });
-            it('does not throw on null', () => {
-              expect(() => {
-                ms.actions.set(null);
-              }).not.toThrow();
+            it('sending null clears the current content', () => {
+              expect(ms.actions.set(null)).toEqual({ string: '', number: 0 });
             });
-            it("throws an exception set doesn't match type", () => {
-              expect(() => {
-                ms.actions.set('');
-              }).toThrowError(/set expected Foo, got String/);
-              expect(() => {
-                ms.actions.set(new MicrostateString('foo'));
-              }).toThrowError(/set expected Foo, got MicrostateString/);
+            it('receives {}', () => {
+              expect(ms.actions.set({})).toEqual({ string: '', number: 0 });
             });
           });
           describe('deep', () => {
@@ -253,8 +246,7 @@ describe('microstates', () => {
                   products = [Product];
                 }
                 ms = microstates(State, { products: [{ name: 'foo' }, { name: 'bar' }] });
-                newProducts = microstates([Product], [{ name: 'baz' }, { name: 'zoo' }]);
-                newState = ms.actions.products.set(newProducts.state);
+                newState = ms.actions.products.set([{ name: 'baz' }, { name: 'zoo' }]);
               });
               it('replaced existing products', () => {
                 expect(newState.products).toEqual([

@@ -26,18 +26,8 @@ describe('array', () => {
       it('does not throw on null', () => {
         expect(() => {
           ms.actions.set(null);
-        }).not.toThrow();
-      });
-      it("throws an exception set doesn't match type", () => {
-        expect(() => {
           ms.actions.set('');
-        }).toThrowError(/set expected Array, got String/);
-        expect(() => {
           ms.actions.set(new MicrostateString('foo'));
-        }).toThrowError(/set expected Array, got MicrostateString/);
-      });
-      it('does not throw on reducer type', () => {
-        expect(() => {
           ms.actions.set(MicrostateArray.from(['hello']));
         }).not.toThrow();
       });

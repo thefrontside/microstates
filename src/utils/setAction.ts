@@ -7,18 +7,7 @@ import isSameType from './isSameType';
 export default function setAction(type: ISchema, path: IPath, onChange: IOnChange) {
   return actionFactory(
     (current: any, newState: any) => {
-      // console.log({ current, newState });
-      if (newState === null) {
-        return newState;
-      }
-
-      let { constructor } = newState;
-
-      if (isSameType(type, constructor)) {
-        return newState.valueOf();
-      } else {
-        throw new Error(`set expected ${type.name}, got ${constructor.name}`);
-      }
+      return newState;
     },
     path,
     onChange
