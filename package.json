@@ -7,14 +7,14 @@
   "homepage": "https://github.com/cowboyd/microstates.js#readme",
   "keywords": ["blood", "microstates", "immutable"],
   "scripts": {
-    "prebuild": "yarn",
+    "prebuild": "npm install",
     "build": "tsc",
     "test": "jest",
-    "test:watch": "yarn test -- --watch",
-    "coverage": "yarn test -- --coverage --no-cache",
-    "coverage:watch": "yarn run coverage -- --watch",
-    "prerelease": "yarn run build && yarn test",
-    "release": "standard-version && yarn pack"
+    "test:watch": "npm test -- --watch",
+    "coverage": "npm test -- --coverage --no-cache",
+    "coverage:watch": "npm run coverage -- --watch",
+    "prerelease": "npm run build && npm test",
+    "release": "standard-version && npm pack"
   },
   "repository": {
     "type": "git",
