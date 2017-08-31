@@ -7,7 +7,11 @@ import isSameType from './isSameType';
 export default function setAction(type: ISchema, path: IPath, onChange: IOnChange) {
   return actionFactory(
     (current: any, newState: any) => {
-      return newState;
+      if (newState == null) {
+        return newState;
+      } else {
+        return newState.valueOf();
+      }
     },
     path,
     onChange

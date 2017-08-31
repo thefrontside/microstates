@@ -299,7 +299,7 @@ describe('microstates', () => {
         expect(actions.merge).toBeDefined();
       });
       describe('merging composed state', () => {
-        let initial, merged;
+        let merged;
         beforeEach(() => {
           class Product {
             name = String;
@@ -319,15 +319,14 @@ describe('microstates', () => {
             authentication = Authentication;
             currentUser = User;
           }
-          initial = microstates(State, {
+          let state = microstates(State, {
             currentUser: { name: 'Anonymous' },
             products: [{ name: 'MacBook' }],
           });
-          let authentication = microstates(State, {
+          merged = state.actions.merge({
             authentication: { isAuthenticated: true, session: { token: 'ABC' } },
             currentUser: { name: 'Peter Griffin' },
           });
-          merged = initial.actions.merge(authentication.state);
         });
         it('merges state', () => {
           expect(merged.products[0].name).toBe('MacBook');
