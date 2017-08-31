@@ -13,7 +13,7 @@ export default function stateArrayProxyFactory(
   let data = value || [];
 
   return new Proxy(data, {
-    get(target, property) {
+    get(target, property: string) {
       if (property === 'length') {
         return data.length;
       } else if (property === 'valueOf') {

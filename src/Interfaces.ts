@@ -30,7 +30,7 @@ export interface IDescriptorMap {
   [name: string]: IDescriptor;
 }
 
-export type IPath = Array<PropertyKey>;
+export type IPath = Array<string | number>;
 export interface IObserver {
   next: (ms: IMicrostate) => void;
 }

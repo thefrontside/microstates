@@ -7,14 +7,14 @@
   "homepage": "https://github.com/cowboyd/microstates.js#readme",
   "keywords": ["blood", "microstates", "immutable"],
   "scripts": {
-    "prebuild": "npm install",
+    "prebuild": "yarn",
     "build": "tsc",
     "test": "jest",
-    "test:watch": "npm test -- --watch",
-    "coverage": "npm test -- --coverage --no-cache",
-    "coverage:watch": "npm run coverage -- --watch",
-    "prerelease": "npm run build && npm test",
-    "release": "standard-version && npm pack"
+    "test:watch": "yarn test -- --watch",
+    "coverage": "yarn test -- --coverage --no-cache",
+    "coverage:watch": "yarn run coverage -- --watch",
+    "prerelease": "yarn run build && yarn test",
+    "release": "standard-version && yarn pack"
   },
   "repository": {
     "type": "git",
@@ -27,18 +27,17 @@
   },
   "devDependencies": {
     "@types/jest": "^20.0.6",
-    "@types/node": "^6.0.38",
+    "@types/node": "^8.0.26",
     "@types/prop-types": "^15.5.1",
     "@types/ramda": "^0.24.7",
     "jest": "^20.0.4",
     "standard-version": "^4.2.0",
     "ts-jest": "^20.0.10",
-    "typescript": "2.4.0",
+    "typescript": "taras/typescript#3aa198e8880a4714a13dae20a3205a089718386e",
     "rxjs": "^5.4.3"
   },
   "dependencies": {
     "ioo": "^0.1.7",
-    "object.getownpropertydescriptors": "^2.0.3",
     "ramda": "^0.24.1",
     "symbol-observable": "^1.0.4"
   },
