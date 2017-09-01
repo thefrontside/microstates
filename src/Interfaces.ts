@@ -1,3 +1,11 @@
+import MicrostateBoolean from './primitives/boolean';
+import MicrostateArray from './primitives/array';
+import { isPrimitive } from 'util';
+import MicrostateString from './primitives/string';
+import MicrostateNumber from './primitives/number';
+import MicrostateObject from './primitives/object';
+import MicrostateParameterizedArray from './primitives/parameterizedArray';
+
 export type IState = any | Array<any> | IStateObject;
 
 export type IActions = Array<IAction> | IActionMap | IAction;
@@ -54,4 +62,32 @@ export interface IAttributeOverrides {
   writable?: boolean;
   get?: () => any;
   set?: (value: any) => any;
+}
+
+export interface ITransitionMap {
+  [name: string]: (current: any, ...args: Array<any>) => any;
+}
+
+export type IMicrostateType =
+  | MicrostateString
+  | MicrostateNumber
+  | MicrostateObject
+  | MicrostateArray
+  | MicrostateBoolean
+  | MicrostateParameterizedArray;
+
+export interface ITypeTree {
+  isPrimitive: boolean;
+  isComposed: boolean;
+  isParameterized: boolean;
+  isList: boolean;
+  properties: ITypeTreeProperties | null;
+  transitions: ITransitionMap;
+  schemaType: IClass;
+  type: IMicrostateType;
+  of: Array<IClass> | null;
+}
+
+export interface ITypeTreeProperties {
+  [name: string]: ITypeTree;
 }
