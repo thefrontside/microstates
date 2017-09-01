@@ -31,13 +31,14 @@
     "@types/prop-types": "^15.5.1",
     "@types/ramda": "^0.24.7",
     "jest": "^20.0.4",
+    "rxjs": "^5.4.3",
     "standard-version": "^4.2.0",
     "ts-jest": "^20.0.10",
-    "typescript": "taras/typescript#3aa198e8880a4714a13dae20a3205a089718386e",
-    "rxjs": "^5.4.3"
+    "typescript": "^2.5.0"
   },
   "dependencies": {
     "ioo": "^0.1.7",
+    "object.getownpropertydescriptors": "^2.0.3",
     "ramda": "^0.24.1",
     "symbol-observable": "^1.0.4"
   },
