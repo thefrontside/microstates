@@ -1,6 +1,7 @@
 import 'jest';
 
 import traverseState from '../../src/utils/traverseState';
+import TypeTree from '../../src/utils/TypeTree';
 
 describe('traverseState', () => {
   class State {
@@ -10,14 +11,24 @@ describe('traverseState', () => {
     array = Array;
     object = Object;
   }
-
-  let state;
-  beforeEach(() => {
-    state = traverseState(State, [], {});
-  });
+  let tree = new TypeTree(State);
 
   describe('state', () => {
+    describe('root', () => {
+      let state;
+      beforeEach(() => {
+        state = traverseState(tree, [], {});
+      });
+      it('is instance of State', () => {
+        expect(state).toBeInstanceOf(State);
+      });
+    });
+
     describe('string', () => {
+      let state;
+      beforeEach(() => {
+        state = traverseState(tree, [], {});
+      });
       it('is a string', () => {
         expect(typeof state.string).toEqual('string');
       });
@@ -28,6 +39,10 @@ describe('traverseState', () => {
     });
 
     describe('number', () => {
+      let state;
+      beforeEach(() => {
+        state = traverseState(tree, [], {});
+      });
       it('is a number', () => {
         expect(typeof state.number).toEqual('number');
       });
@@ -38,6 +53,10 @@ describe('traverseState', () => {
     });
 
     describe('boolean', () => {
+      let state;
+      beforeEach(() => {
+        state = traverseState(tree, [], {});
+      });
       it('is a boolean', () => {
         expect(typeof state.boolean).toEqual('boolean');
       });
@@ -48,6 +67,11 @@ describe('traverseState', () => {
     });
 
     describe('array', () => {
+      let state;
+      beforeEach(() => {
+        state = traverseState(tree, [], {});
+      });
+
       it('is a array', () => {
         expect(Array.isArray(state.array)).toBeTruthy();
       });
@@ -55,28 +79,36 @@ describe('traverseState', () => {
       it('is empty', () => {
         expect(state.array).toEqual([]);
       });
+    });
 
-      describe('composition', () => {
-        class Product {
-          title = String;
-        }
+    describe('parameterized array', () => {
+      let state;
+      class Product {
+        title = String;
+      }
+      class State {
+        products = [Product];
+      }
 
-        let traverseProducts = traverseState(
-          class {
-            products = [Product];
-          },
-          []
-        );
+      let tree = new TypeTree(State);
+      beforeEach(() => {
+        state = traverseState(tree, [], { products: [{ title: 'MacBook' }] });
+      });
 
-        it('deserializes a single object', () => {
-          let { products } = traverseProducts({ products: [{ title: 'MacBook' }] });
-          expect(products[0]).toBeInstanceOf(Product);
-          expect(products[0]).toEqual({ title: 'MacBook' });
-        });
+      it('returns a Product', () => {
+        expect(state.products[0]).toBeInstanceOf(Product);
+      });
+
+      it('returned product has value', () => {
+        expect(state).toHaveProperty('products.0.title', 'MacBook');
       });
     });
 
     describe('object', () => {
+      let state;
+      beforeEach(() => {
+        state = traverseState(tree, [], {});
+      });
       it('is a object', () => {
         expect(typeof state.object).toEqual('object');
       });

@@ -1,26 +1,38 @@
-import isPrimitive from './isPrimitive';
-import { ISchema, IStateObject, IPath } from '../Interfaces';
-import { curry } from 'ramda';
-import reduceTypeToCachedTree from './reduceTypeToCachedTree';
-import matchStateType from './matchStateType';
-import defineValueOf from './defineValueOf';
+// import { ITypeTree, IStateObject, IPath } from '../Interfaces';
+// import { curry } from 'ramda';
+// import mapForState from './mapForState';
 
-export default curry(function traverseState(
-  type: ISchema,
-  path: IPath,
-  state: IStateObject
-): IStateObject {
-  if (isPrimitive(type) || Array.isArray(type)) {
-    return matchStateType(type, path, state);
-  } else {
-    let composed = reduceTypeToCachedTree(
-      type,
-      (descriptor, name) => {
-        let { value: type } = descriptor;
-        return matchStateType(type, [...path, name], state);
-      },
-      { enumerable: true }
-    );
-    return defineValueOf(composed, path, state);
-  }
-});
+// /**
+//  * traverseState returns value for given tree at
+//  */
+// export default curry(function traverseState(
+//   tree: ITypeTree,
+//   path: IPath,
+//   state: IStateObject
+// ): IStateObject {
+//   return mapForState(tree, (node, path: IPath) => {
+//     if (node.isPrimitive) {
+//       return node.transitions.initialize(null, get(path, state));
+//     }
+
+//     if (node.isList && node.isParameterized) {
+
+//     }
+
+//     return traverseState(node, [...path, propName], state);
+//   });
+// });
+
+// if (isPrimitive(type) || Array.isArray(type)) {
+//   return matchStateType(type, path, state);
+// } else {
+//   let composed = reduceTypeToCachedTree(
+//     type,
+//     (descriptor, name) => {
+//       let { value: type } = descriptor;
+//       return matchStateType(type, [...path, name], state);
+//     },
+//     { enumerable: true }
+//   );
+//   return defineValueOf(composed, path, state);
+// }

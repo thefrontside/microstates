@@ -1,8 +1,4 @@
-import { lensPath, set, view } from 'ramda';
-import symbolObservable from 'symbol-observable';
-
-import traverseState from './utils/traverseState';
-import traverseActions from './utils/traverseActions';
+import { lensPath, set, view, curry, __ } from 'ramda';
 import {
   IAction,
   IMicrostate,
@@ -12,7 +8,11 @@ import {
   IState,
   IStateObject,
   IStateType,
+  ITypeTree,
 } from './Interfaces';
+import TypeTree from './utils/TypeTree';
+import mapState from './utils/mapState';
+import mapTransitions from './utils/mapTransitions';
 
 export default function microstates(Class: ISchema, initial: any = undefined): IMicrostate {
   if (!(typeof Class === 'function' || Array.isArray(Class))) {
@@ -21,43 +21,31 @@ export default function microstates(Class: ISchema, initial: any = undefined): I
     );
   }
 
-  let observer: IObserver;
+  let tree = new TypeTree(Class);
 
-  let subscribe = (_observer: IObserver) => {
-    observer = _observer;
-    return {
-      unsubscribe: (): void => (observer = null),
-    };
-  };
-
-  let actions = traverseActions(Class, [], onChange);
-
-  function transition(Class: ISchema, initial: {}): IState {
-    return traverseState(Class, [], initial);
-  }
-
-  function onChange(action: IAction, path: IPath, args: Array<any>) {
+  let getValue = curry(function getValue(initialize: IAction, path: IPath, state: any) {
     let lens = lensPath(path);
-    let current = view(lens, state);
-    let next = action(current, ...args);
-    let newState = set(lens, next, state);
+    let value = view(lens, state);
 
-    if (observer) {
-      observer.next(transition(Class, newState));
-    } else {
-      return transition(Class, newState);
-    }
-  }
+    return value || initialize(value);
+  });
 
-  let state = transition(Class, initial);
+  let onTransition = curry((transition: IAction, path: IPath, state: any) => {
+    return (...args: Array<any>) => {
+      let lens = lensPath(path);
+      let current = view(lens, state);
+      let next = transition(current, ...args);
+      let newState = set(lens, next, state);
+
+      return mapState(tree, [], getValue(__, __, newState));
+    };
+  });
+
+  let state = mapState(tree, [], getValue(__, __, initial));
+  let transitions = mapTransitions(tree, [], onTransition(__, __, state));
 
   return {
     state,
-    actions,
-    [symbolObservable]() {
-      return {
-        subscribe,
-      };
-    },
+    transitions,
   };
 }

@@ -49,7 +49,7 @@ export interface IUnsubscribe {
 
 export interface IMicrostate {
   state: IStateObject;
-  actions: IActions;
+  transitions: IActions;
   subscribe?: (observer: IObserver) => IUnsubscribe;
 }
 
@@ -77,15 +77,17 @@ export type IMicrostateType =
   | MicrostateParameterizedArray;
 
 export interface ITypeTree {
+  name: string;
+  path: IPath;
   isPrimitive: boolean;
   isComposed: boolean;
   isParameterized: boolean;
   isList: boolean;
   properties: ITypeTreeProperties | null;
   transitions: ITransitionMap;
-  schemaType: IClass;
+  schemaType: ISchema;
   type: IMicrostateType;
-  of: Array<IClass> | null;
+  of: Array<ITypeTree>;
 }
 
 export interface ITypeTreeProperties {

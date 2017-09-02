@@ -2,18 +2,17 @@ import MicrostateString from '../../src/primitives/string';
 import MicrostateBoolean from '../../src/primitives/boolean';
 import 'jest';
 import microstates from '../../src/microstates';
-import { isMicrostateAction } from '../../src/constants';
 
 describe('boolean', () => {
   describe('as root', () => {
     it('can be created without default', () => {
-      let { state, actions } = microstates(Boolean);
-      expect(state).toBe(false);
-      expect(actions.toggle.isMicrostateAction).toBe(isMicrostateAction);
+      let ms = microstates(Boolean, true);
+      expect(ms.state).toBe(false);
     });
     it('can be created with a default', () => {
-      let { state } = microstates(Boolean, true);
-      expect(state).toBe(true);
+      let ms = microstates(Boolean, true);
+      console.log(ms);
+      expect(ms.state).toBe(true);
     });
   });
 
