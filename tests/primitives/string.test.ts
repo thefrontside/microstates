@@ -1,19 +1,27 @@
 import 'jest';
 import microstates from '../../src/microstates';
-import { isMicrostateAction } from '../../src/constants';
 import MicrostateNumber from '../../src/primitives/number';
 import MicrostateString from '../../src/primitives/string';
 
 describe('string', () => {
   describe('as root', () => {
-    it('can created without default', () => {
-      let { state, actions } = microstates(String);
-      expect(state).toBe('');
-      expect(actions.concat.isMicrostateAction).toBe(isMicrostateAction);
+    describe('without initial', () => {
+      let ms;
+      beforeEach(() => {
+        ms = microstates(String);
+      });
+      it('can created without default', () => {
+        expect(ms.state).toBe('');
+      });
     });
-    it('can be created with default', () => {
-      let { state } = microstates(String, true);
-      expect(state).toBe(true);
+    describe('with initial', () => {
+      let ms;
+      beforeEach(() => {
+        ms = microstates(String, true);
+      });
+      it('can be created with default', () => {
+        expect(ms.state).toBe(true);
+      });
     });
   });
 
@@ -24,10 +32,10 @@ describe('string', () => {
     });
     it('does not throw', () => {
       expect(() => {
-        ms.actions.set(null);
-        ms.actions.set(0);
-        ms.actions.set(new MicrostateNumber(42));
-        ms.actions.set(new MicrostateString('hello'));
+        ms.transitions.set(null);
+        ms.transitions.set(0);
+        ms.transitions.set(new MicrostateNumber(42));
+        ms.transitions.set(new MicrostateString('hello'));
       }).not.toThrow();
     });
   });

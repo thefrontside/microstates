@@ -12,6 +12,12 @@ export default function mapTransitions(
   if (tree.isComposed && tree.isList) {
     return new Proxy([], {
       get(target, property: string) {
+        // console.log('getting transition', {
+        //   property,
+        //   path,
+        //   tree,
+        //   transition: tree.transitions[property],
+        // });
         if (tree.transitions[property]) {
           return callback(tree.transitions[property], []);
         } else if (isNumeric(property)) {
@@ -48,11 +54,8 @@ export default function mapTransitions(
   }
 
   return reduceObject(tree.transitions, (accumulator, transition, propName: string) => {
-    return defineComputedProperty(
-      accumulator,
-      propName,
-      () => callback(transition, [...tree.path]),
-      { enumerable: true }
-    );
+    return defineComputedProperty(accumulator, propName, () => callback(transition, path), {
+      enumerable: true,
+    });
   });
 }

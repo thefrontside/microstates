@@ -2,18 +2,27 @@ import 'jest';
 import MicrostateString from '../../src/primitives/string';
 import MicrostateObject from '../../src/primitives/object';
 import microstates from '../../src/microstates';
-import { isMicrostateAction } from '../../src/constants';
 
 describe('object', () => {
   describe('as root', () => {
-    it('can be created without default', () => {
-      let { state, actions } = microstates(Object);
-      expect(state).toEqual({});
-      expect(actions.assign.isMicrostateAction).toBe(isMicrostateAction);
+    describe('without initial value', () => {
+      let ms;
+      beforeEach(() => {
+        ms = microstates(Object);
+      });
+      it('can be created without default', () => {
+        expect(ms.state).toEqual({});
+      });
     });
-    it('can be created with default', () => {
-      let { state } = microstates(Object, { foo: 'bar' });
-      expect(state).toEqual({ foo: 'bar' });
+
+    describe('with initial', () => {
+      let ms;
+      beforeEach(() => {
+        ms = microstates(Object, { foo: 'bar' });
+      });
+      it('can be created with default', () => {
+        expect(ms.state).toEqual({ foo: 'bar' });
+      });
     });
   });
 
@@ -24,10 +33,10 @@ describe('object', () => {
     });
     it('does not throw on null', () => {
       expect(() => {
-        ms.actions.set(null);
-        ms.actions.set('');
-        ms.actions.set(new MicrostateString('foo'));
-        ms.actions.set(new MicrostateObject({ foo: 'bar' }));
+        ms.transitions.set(null);
+        ms.transitions.set('');
+        ms.transitions.set(new MicrostateString('foo'));
+        ms.transitions.set(new MicrostateObject({ foo: 'bar' }));
       }).not.toThrow();
     });
   });

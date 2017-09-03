@@ -21,13 +21,25 @@ export default function microstates(Class: ISchema, initial: any = undefined): I
     );
   }
 
+  // console.log({ initial });
+
   let tree = new TypeTree(Class);
 
   let getValue = curry(function getValue(initialize: IAction, path: IPath, state: any) {
     let lens = lensPath(path);
     let value = view(lens, state);
 
-    return value || initialize(value);
+    // console.log({
+    //   value,
+    //   path,
+    // });
+    // console.log(new Error().stack);
+
+    if (initialize) {
+      return value || initialize(value);
+    } else {
+      return value;
+    }
   });
 
   let onTransition = curry((transition: IAction, path: IPath, state: any) => {
@@ -36,6 +48,17 @@ export default function microstates(Class: ISchema, initial: any = undefined): I
       let current = view(lens, state);
       let next = transition(current, ...args);
       let newState = set(lens, next, state);
+
+      // console.log({
+      //   transition,
+      //   path,
+      //   current,
+      //   next,
+      //   newState,
+      //   state,
+      // });
+
+      // console.log(new Error().stack);
 
       return mapState(tree, [], getValue(__, __, newState));
     };

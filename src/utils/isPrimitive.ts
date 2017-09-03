@@ -7,6 +7,9 @@ import MicrostateObject from '../primitives/object';
 import MicrostateArray from '../primitives/array';
 
 export default function isPrimitive(type: ISchema) {
+  if (Array.isArray(type) && type.length > 0) {
+    return false;
+  }
   switch (getReducerType(type)) {
     case MicrostateString:
     case MicrostateNumber:

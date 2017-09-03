@@ -6,7 +6,6 @@ import MicrostatesNumber from '../../src/primitives/number';
 import MicrostateBoolean from '../../src/primitives/boolean';
 import MicrostateObject from '../../src/primitives/object';
 import MicrostateArray from '../../src/primitives/array';
-import MicrostateParameterizedArray from '../../src/primitives/parameterizedArray';
 
 let has = (subject, property, value) =>
   it(`has ${property} as ${value}`, () => expect(subject[property]).toEqual(value));
@@ -87,7 +86,7 @@ describe('TypeTree', () => {
         has(array, 'isParameterized', false);
         has(array, 'isList', true);
         has(array, 'properties', null);
-        has(array, 'schemaType', Array);
+        has(array, 'schemaType', type);
         has(array, 'type', MicrostateArray);
         has(array, 'of', null);
         it('has transitions', () => {
@@ -226,22 +225,28 @@ describe('TypeTree', () => {
       });
     });
     describe('arrays', () => {
+      let tree;
       class Item {
         name = String;
       }
-      let tree = new TypeTree([Item]);
+      beforeEach(() => {
+        tree = new TypeTree([Item]);
+      });
+
       it('supports [<Type>] syntax', () => {
         has(tree, 'isComposed', true);
-        has(tree, 'isPrimivite', false);
+        has(tree, 'isPrimitive', false);
         has(tree, 'isParameterized', true);
         has(tree, 'isList', true);
         has(tree, 'properties', null);
         has(tree, 'schemaType', [Item]);
-        has(tree, 'type', MicrostateParameterizedArray);
+        has(tree, 'type', MicrostateArray);
       });
       it('parameterized types converted to TypeTrees in `of` property', () => {
-        let tree = new TypeTree([Item]);
         expect(tree.of[0]).toBeInstanceOf(TypeTree);
+      });
+      it('has push transition', () => {
+        expect(tree.transitions.push).toBeDefined();
       });
     });
   });

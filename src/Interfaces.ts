@@ -4,7 +4,6 @@ import { isPrimitive } from 'util';
 import MicrostateString from './primitives/string';
 import MicrostateNumber from './primitives/number';
 import MicrostateObject from './primitives/object';
-import MicrostateParameterizedArray from './primitives/parameterizedArray';
 
 export type IState = any | Array<any> | IStateObject;
 
@@ -73,8 +72,7 @@ export type IMicrostateType =
   | MicrostateNumber
   | MicrostateObject
   | MicrostateArray
-  | MicrostateBoolean
-  | MicrostateParameterizedArray;
+  | MicrostateBoolean;
 
 export interface ITypeTree {
   name: string;

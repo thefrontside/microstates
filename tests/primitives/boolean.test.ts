@@ -5,14 +5,23 @@ import microstates from '../../src/microstates';
 
 describe('boolean', () => {
   describe('as root', () => {
-    it('can be created without default', () => {
-      let ms = microstates(Boolean, true);
-      expect(ms.state).toBe(false);
+    describe('without initial', () => {
+      let ms;
+      beforeEach(() => {
+        ms = microstates(Boolean);
+      });
+      it('can be created without default', () => {
+        expect(ms.state).toBe(false);
+      });
     });
-    it('can be created with a default', () => {
-      let ms = microstates(Boolean, true);
-      console.log(ms);
-      expect(ms.state).toBe(true);
+    describe('with initial', () => {
+      let ms;
+      beforeEach(() => {
+        ms = microstates(Boolean, true);
+      });
+      it('can be created with a default', () => {
+        expect(ms.state).toBe(true);
+      });
     });
   });
 
@@ -23,10 +32,10 @@ describe('boolean', () => {
     });
     it('does not throw', () => {
       expect(() => {
-        ms.actions.set(null);
-        ms.actions.set('');
-        ms.actions.set(new MicrostateString('foo'));
-        ms.actions.set(new MicrostateBoolean(true));
+        ms.transitions.set(null);
+        ms.transitions.set('');
+        ms.transitions.set(new MicrostateString('foo'));
+        ms.transitions.set(new MicrostateBoolean(true));
       }).not.toThrow();
     });
   });

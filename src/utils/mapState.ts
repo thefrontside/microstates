@@ -5,48 +5,64 @@ import defineComputedProperty from './defineComputedProperty';
 export default function mapState(
   tree: ITypeTree,
   path: IPath,
-  callback: (transition: IAction, path: IPath) => any
+  callback: (initialize: IAction, path: IPath) => any
 ): any {
   if (tree.isComposed && tree.isList) {
     let value = callback(tree.transitions.initialize, path);
-    // console.log('getting from array', {
-    //   callback,
+    // console.log('reading state in array', {
     //   value,
     //   path,
-    //   nodePath: tree.path,
+    //   tree,
     // });
     return new Proxy(value, {
       get(target, property: string) {
+        // console.log('getting value from array', {
+        //   property,
+        //   value,
+        //   path,
+        //   tree,
+        // });
         if (property === 'length') {
-          return target.length;
+          return callback((current, newState) => newState || 0, [...path, 'length']);
         } else if (property === 'valueOf') {
-          return () => value;
+          return () => callback(null, path);
         } else if (value.hasOwnProperty(property)) {
           let [of] = tree.of;
-          // console.log('array at', [...tree.path, parseInt(property)]);
+          // console.log('getting array item at', [...tree.path, parseInt(property)]);
           return mapState(of, [...tree.path, parseInt(property)], callback);
         } else {
-          return value[property];
+          return target[property];
         }
       },
     });
   }
   if (tree.isComposed && !tree.isList) {
-    // console.log('composing state with', tree);
-    return reduceObject(
+    // console.log('composing state with', tree, path);
+    let composed = reduceObject(
       tree.properties,
       (accumulator, node: ITypeTree, propName: string) =>
         defineComputedProperty(
           accumulator,
           propName,
-          () => mapState(node, [...path, ...tree.path, propName], callback),
+          () => mapState(node, [...path, propName], callback),
           {
             enumerable: true,
           }
         ),
       tree.transitions.initialize(null)
     );
+
+    return Object.defineProperty(composed, 'valueOf', {
+      enumerable: false,
+      configurable: false,
+      writable: false,
+      value() {
+        return callback(null, path);
+      },
+    });
   }
+
+  // console.log('getting from tree', path, tree);
 
   return callback(tree.transitions.initialize, path);
 }

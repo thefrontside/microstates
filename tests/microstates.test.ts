@@ -213,14 +213,13 @@ describe('microstates', () => {
       describe('class matching', () => {
         describe('composed', () => {
           describe('shallow', () => {
+            class Foo {
+              string = String;
+              number = Number;
+            }
             let ms;
             beforeEach(() => {
-              ms = microstates(
-                class Foo {
-                  string = String;
-                  number = Number;
-                }
-              );
+              ms = microstates(Foo);
             });
             it('sending null clears the current content', () => {
               expect(ms.transitions.set(null)).toEqual({ string: '', number: 0 });
@@ -231,7 +230,7 @@ describe('microstates', () => {
           });
           describe('deep', () => {
             describe('nested in array', () => {
-              let ms, newProducts, newState;
+              let ms, newState;
               beforeEach(() => {
                 class Product {
                   name = String;
@@ -240,8 +239,11 @@ describe('microstates', () => {
                 class State {
                   products = [Product];
                 }
-                ms = microstates(State, { products: [{ name: 'foo' }, { name: 'bar' }] });
-                newState = ms.actions.products.set([{ name: 'baz' }, { name: 'zoo' }]);
+                ms = microstates(State, { products: [{ name: 'foo' }] });
+                newState = ms.transitions.products.set([{ name: 'baz' }, { name: 'zoo' }]);
+              });
+              it('has two products', () => {
+                expect(newState.products).toHaveProperty('length', 2);
               });
               it('replaced existing products', () => {
                 expect(newState.products).toEqual([
@@ -290,7 +292,8 @@ describe('microstates', () => {
 
     describe('merge', () => {
       it(`is available on composed state's actions`, () => {
-        let ms = microstates(class Foo {});
+        class Foo {}
+        let ms = microstates(Foo);
         expect(ms.merge).toBeDefined();
       });
       describe('merging composed state', () => {

@@ -3,22 +3,21 @@ import 'jest';
 import mapForState from '../../src/utils/mapState';
 import TypeTree from '../../src/utils/TypeTree';
 
-describe('mapForState', () => {
+describe('mapState', () => {
   describe('primitive', () => {
-    let callback = jest.fn().mockReturnValue('');
-    let node = new TypeTree(String);
-    let state = mapForState(node, [], callback);
-    it('invoked callback', () => {
-      expect(callback.mock.calls).toHaveProperty('length', 1);
-    });
-    it('passed node to the callback', () => {
-      expect(callback.mock.calls[0][0]).toBe(node);
-    });
-    it('passed undefined to second argument', () => {
-      expect(callback.mock.calls[0][1]).toBeUndefined();
-    });
-    it('returns value', () => {
-      expect(state).toBe('');
+    describe('string', () => {
+      let callback = jest.fn().mockReturnValue('foo');
+      let node = new TypeTree(String);
+      let state = mapForState(node, [], callback);
+      it('invoked callback', () => {
+        expect(callback.mock.calls).toHaveProperty('length', 1);
+      });
+      it('passed path to second argumetn', () => {
+        expect(callback.mock.calls[0][1]).toEqual([]);
+      });
+      it('returns value', () => {
+        expect(state).toBe('foo');
+      });
     });
   });
   describe('composed', () => {

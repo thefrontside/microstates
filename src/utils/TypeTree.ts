@@ -13,7 +13,6 @@ import isPrimitive from './isPrimitive';
 import getReducerType from './getReducerType';
 import { reduceObject } from 'ioo';
 import defineComputedProperty from './defineComputedProperty';
-import MicrostateParameterizedArray from '../primitives/parameterizedArray';
 import MicrostateArray from '../primitives/array';
 import { mergeDeepRight } from 'ramda';
 
@@ -31,9 +30,6 @@ export default class TypeTree implements ITypeTree {
   public transitions: ITypeTree['transitions'] = {};
 
   constructor(type: ISchema, path: IPath = []) {
-    if (Array.isArray(type) && type.length === 0) {
-      type = Array;
-    }
     let [name] = path.slice(-1);
     this.name = name as string;
     this.path = path;
@@ -41,8 +37,8 @@ export default class TypeTree implements ITypeTree {
     this.isComposed = !this.isPrimitive;
     this.schemaType = type;
     this.type = getReducerType(type);
-    this.isParameterized = this.type === MicrostateParameterizedArray;
-    this.isList = this.type === MicrostateParameterizedArray || this.type === MicrostateArray;
+    this.isList = this.type === MicrostateArray;
+    this.isParameterized = this.isList && Array.isArray(type) && type.length > 0;
 
     this.transitions = reduceObject(
       getTypeDescriptors(this.type),
@@ -56,14 +52,17 @@ export default class TypeTree implements ITypeTree {
 
     this.transitions = {
       ...this.transitions,
-      set: (current: any, state: any) => (state && state.valueOf ? state.valueOf() : state),
+      set: function set(current: any, state: any) {
+        return state && state.valueOf ? state.valueOf() : state;
+      },
     };
 
     if (this.isComposed || getReducerType(type) === MicrostateObject) {
       this.transitions = {
         ...this.transitions,
-        merge: (current, state) =>
-          mergeDeepRight(current, state && state.valueOf ? state.valueOf() : state),
+        merge: function merge(current, state) {
+          return mergeDeepRight(current, state && state.valueOf ? state.valueOf() : state);
+        },
       };
     }
 
@@ -75,7 +74,9 @@ export default class TypeTree implements ITypeTree {
       if (!this.transitions.initialize) {
         this.transitions = {
           ...this.transitions,
-          initialize: (current, ...args) => new (type as IClass)(...args),
+          initialize: function initialize(current, ...args) {
+            return new (type as IClass)(...args);
+          },
         };
       }
 
