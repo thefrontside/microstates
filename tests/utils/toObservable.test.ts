@@ -1,12 +1,12 @@
 import 'jest';
 
-import ObservableMicrostate from '../../src/utils/ObservableMicrostate';
+import toObservable from '../../src/toObservable';
 
-describe('ObservableMicrostate', () => {
+describe('toObservable', () => {
   describe('instance', () => {
     let observable;
     beforeEach(() => {
-      observable = new ObservableMicrostate(Boolean);
+      observable = toObservable(Boolean);
     });
     it('has transitions object', () => {
       expect(observable.transitions).toBeDefined();
@@ -23,7 +23,7 @@ describe('ObservableMicrostate', () => {
       observer = {
         next: jest.fn(),
       };
-      observable = new ObservableMicrostate(Boolean);
+      observable = toObservable(Boolean);
       subscription = observable.subscribe(observer);
     });
     it('received a subscription', () => {
@@ -47,7 +47,7 @@ describe('ObservableMicrostate', () => {
       observer = {
         next: jest.fn(),
       };
-      observable = new ObservableMicrostate(Boolean);
+      observable = toObservable(Boolean);
       subscription = observable.subscribe(observer);
     });
     describe('transition', () => {

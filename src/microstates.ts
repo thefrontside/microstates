@@ -4,15 +4,12 @@ import mapState from './utils/mapState';
 import mapTransitions from './utils/mapTransitions';
 import getValue from './utils/getValueFactory';
 import onTransition from './utils/onTransitionFactory';
+import validate from './utils/validate';
 
-export default function microstates(Class: ISchema, initial: any = undefined): IMicrostate {
-  if (!(typeof Class === 'function' || Array.isArray(Class))) {
-    throw new Error(
-      `microstates() expects first argument to be a class, instead received ${typeof Class}`
-    );
-  }
+export default function microstates(Type: ISchema, initial: any = undefined): IMicrostate {
+  validate(Type, `microstates`);
 
-  let tree = new TypeTree(Class);
+  let tree = new TypeTree(Type);
 
   let state = mapState(tree, [], getValue(initial));
 
