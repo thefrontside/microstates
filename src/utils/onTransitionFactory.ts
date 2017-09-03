@@ -1,16 +1,16 @@
-import { lensPath, set, view, curry, __ } from 'ramda';
+import { lensPath, set, view } from 'ramda';
 import { ITransition } from '../Interfaces';
-import { IPath } from 'ioo/dist/Interfaces';
+import { IPath } from '../Interfaces';
 
-export default function onTransitionFactory(callback: (newState: any) => any | void, state: any) {
-  return curry((transition: ITransition, path: IPath, state: any) => {
-    return (...args: Array<any>) => {
-      let lens = lensPath(path);
-      let current = view(lens, state);
-      let next = transition(current, ...args);
-      let newState = set(lens, next, state);
-
-      return callback(newState);
+export default function onTransitionFactory(callback: (newState: any) => any | void) {
+  return function reducerFactory(transition: ITransition, path: IPath) {
+    return function reducer(...args: Array<any>) {
+      return callback((state: any) => {
+        let lens = lensPath(path);
+        let current = view(lens, state);
+        let next = transition(current, ...args);
+        return set(lens, next, state);
+      });
     };
-  })(__, __, state);
+  };
 }

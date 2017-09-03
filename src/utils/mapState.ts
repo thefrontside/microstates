@@ -1,12 +1,12 @@
 import { reduceObject } from 'ioo';
-import { ITransition, IPath, ITypeTree } from '../Interfaces';
+import { IPath, IState, ITransition, ITypeTree } from '../Interfaces';
 import defineComputedProperty from './defineComputedProperty';
 
 export default function mapState(
   tree: ITypeTree,
   path: IPath,
   callback: (initialize: ITransition, path: IPath) => any
-): any {
+): IState {
   if (tree.isComposed && tree.isList) {
     let value = callback(tree.transitions.initialize, path);
     return new Proxy(value, {
@@ -17,7 +17,6 @@ export default function mapState(
           return () => callback(null, path);
         } else if (value.hasOwnProperty(property)) {
           let [of] = tree.of;
-          // console.log('getting array item at', [...tree.path, parseInt(property)]);
           return mapState(of, [...tree.path, parseInt(property)], callback);
         } else {
           return target[property];
@@ -26,7 +25,6 @@ export default function mapState(
     });
   }
   if (tree.isComposed && !tree.isList) {
-    // console.log('composing state with', tree, path);
     let composed = reduceObject(
       tree.properties,
       (accumulator, node: ITypeTree, propName: string) =>
@@ -50,8 +48,6 @@ export default function mapState(
       },
     });
   }
-
-  // console.log('getting from tree', path, tree);
 
   return callback(tree.transitions.initialize, path);
 }

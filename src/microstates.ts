@@ -19,9 +19,9 @@ export default function microstates(Class: ISchema, initial: any = undefined): I
   let transitions = mapTransitions(
     tree,
     [],
-    onTransition(function onTransitionHandler(newState: any) {
-      return mapState(tree, [], getValue(newState));
-    }, state)
+    onTransition(function onTransitionHandler(compute) {
+      return mapState(tree, [], getValue(compute(state)));
+    })
   );
 
   return {
