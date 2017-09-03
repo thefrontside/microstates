@@ -19,7 +19,7 @@ export default function mapTransitions(
         //   transition: tree.transitions[property],
         // });
         if (tree.transitions[property]) {
-          return callback(tree.transitions[property], []);
+          return callback(tree.transitions[property], path);
         } else if (isNumeric(property)) {
           let [of] = tree.of;
           return mapTransitions(of, [...tree.path, parseInt(property)], callback);
