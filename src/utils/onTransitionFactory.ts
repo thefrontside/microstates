@@ -1,8 +1,8 @@
-import { lensPath, set, view, curry } from 'ramda';
+import { lensPath, set, view, curry, __ } from 'ramda';
 import { ITransition } from '../Interfaces';
 import { IPath } from 'ioo/dist/Interfaces';
 
-export default function onTransitionFactory(callback: (newState: any) => any | void) {
+export default function onTransitionFactory(callback: (newState: any) => any | void, state: any) {
   return curry((transition: ITransition, path: IPath, state: any) => {
     return (...args: Array<any>) => {
       let lens = lensPath(path);
@@ -12,5 +12,5 @@ export default function onTransitionFactory(callback: (newState: any) => any | v
 
       return callback(newState);
     };
-  });
+  })(__, __, state);
 }

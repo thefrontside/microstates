@@ -3,7 +3,6 @@ import symbolObservable from 'symbol-observable';
 import { Observable } from 'rxjs';
 import microstates from '../src/microstates';
 import MicrostateString from '../src/primitives/string';
-import { isMicrostateAction } from '../src/constants';
 
 describe('microstates', () => {
   describe('arguments', () => {
@@ -364,7 +363,7 @@ describe('microstates', () => {
       });
     });
 
-    // describe('observable', () => {
+    // describe.only('observable', () => {
     //   let ms, msObservable, observable, subscribe, subscription;
     //   beforeEach(() => {
     //     ms = microstates(State, {});
