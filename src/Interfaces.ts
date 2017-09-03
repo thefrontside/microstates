@@ -30,10 +30,10 @@ export interface IStateObject {
 export type ITransition = (current: any, ...args: Array<any>) => any;
 
 export interface IDescriptor {
-  configurable: boolean;
-  enumerable: boolean;
-  value: any;
-  writable: boolean;
+  configurable?: boolean;
+  enumerable?: boolean;
+  value?: any;
+  writable?: boolean;
   get?: () => any;
   set?: (value: any) => any;
 }
