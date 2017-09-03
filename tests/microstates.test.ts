@@ -362,53 +362,5 @@ describe('microstates', () => {
         });
       });
     });
-
-    // describe.only('observable', () => {
-    //   let ms, msObservable, observable, subscribe, subscription;
-    //   beforeEach(() => {
-    //     ms = microstates(State, {});
-    //     observable = {
-    //       next: jest.fn(),
-    //     };
-    //     msObservable = Observable.from(ms);
-    //     subscription = msObservable.subscribe(observable);
-    //   });
-
-    //   it('has Observable symbol', () => {
-    //     expect(ms[symbolObservable]).toBeDefined();
-    //   });
-
-    //   it('returns a subscribe function', () => {
-    //     expect(typeof msObservable.subscribe).toBe('function');
-    //   });
-
-    //   it('returns an unsubscribe function', () => {
-    //     expect(typeof subscription.unsubscribe).toBe('function');
-    //   });
-
-    //   it('receives new state when action is called', () => {
-    //     ms.actions.counter.increment();
-    //     expect(observable.next.mock.calls.length).toBe(1);
-    //     expect(observable.next.mock.calls[0][0]).toEqual({
-    //       counter: 1,
-    //       widget: { name: '' },
-    //     });
-    //   });
-
-    //   it('transitions composed states', () => {
-    //     ms.actions.widget.name.concat('Peter');
-    //     expect(observable.next.mock.calls.length).toBe(1);
-    //     expect(observable.next.mock.calls[0][0]).toEqual({
-    //       counter: 0,
-    //       widget: { name: 'Peter' },
-    //     });
-    //   });
-
-    //   it('after unsubscribe nothing is emitted', () => {
-    //     subscription.unsubscribe();
-    //     ms.actions.counter.increment();
-    //     expect(observable.next.mock.calls.length).toBe(0);
-    //   });
-    // });
   });
 });
