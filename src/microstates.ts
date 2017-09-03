@@ -1,14 +1,9 @@
 import { lensPath, set, view, curry, __ } from 'ramda';
 import {
-  IAction,
+  ITransition,
   IMicrostate,
-  IObserver,
   IPath,
-  ISchema,
-  IState,
-  IStateObject,
-  IStateType,
-  ITypeTree,
+  ISchema
 } from './Interfaces';
 import TypeTree from './utils/TypeTree';
 import mapState from './utils/mapState';
@@ -21,19 +16,11 @@ export default function microstates(Class: ISchema, initial: any = undefined): I
     );
   }
 
-  // console.log({ initial });
-
   let tree = new TypeTree(Class);
 
-  let getValue = curry(function getValue(initialize: IAction, path: IPath, state: any) {
+  let getValue = curry(function getValue(initialize: ITransition, path: IPath, state: any) {
     let lens = lensPath(path);
     let value = view(lens, state);
-
-    // console.log({
-    //   value,
-    //   path,
-    // });
-    // console.log(new Error().stack);
 
     if (initialize) {
       return value || initialize(value);
@@ -42,23 +29,12 @@ export default function microstates(Class: ISchema, initial: any = undefined): I
     }
   });
 
-  let onTransition = curry((transition: IAction, path: IPath, state: any) => {
+  let onTransition = curry((transition: ITransition, path: IPath, state: any) => {
     return (...args: Array<any>) => {
       let lens = lensPath(path);
       let current = view(lens, state);
       let next = transition(current, ...args);
       let newState = set(lens, next, state);
-
-      // console.log({
-      //   transition,
-      //   path,
-      //   current,
-      //   next,
-      //   newState,
-      //   state,
-      // });
-
-      // console.log(new Error().stack);
 
       return mapState(tree, [], getValue(__, __, newState));
     };

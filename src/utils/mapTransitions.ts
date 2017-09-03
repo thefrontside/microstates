@@ -1,23 +1,16 @@
-import { Packet } from '_debugger';
 import { reduceObject } from 'ioo';
 import isNumeric from './isNumeric';
-import { IAction, ITypeTree, IPath } from '../Interfaces';
+import { ITransition, ITypeTree, IPath } from '../Interfaces';
 import defineComputedProperty from './defineComputedProperty';
 
 export default function mapTransitions(
   tree: ITypeTree,
   path: IPath,
-  callback: (transition: IAction, path: IPath) => any
+  callback: (transition: ITransition, path: IPath) => any
 ): any {
   if (tree.isComposed && tree.isList) {
     return new Proxy([], {
       get(target, property: string) {
-        // console.log('getting transition', {
-        //   property,
-        //   path,
-        //   tree,
-        //   transition: tree.transitions[property],
-        // });
         if (tree.transitions[property]) {
           return callback(tree.transitions[property], path);
         } else if (isNumeric(property)) {

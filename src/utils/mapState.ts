@@ -1,27 +1,16 @@
 import { reduceObject } from 'ioo';
-import { IAction, IPath, ITypeTree } from '../Interfaces';
+import { ITransition, IPath, ITypeTree } from '../Interfaces';
 import defineComputedProperty from './defineComputedProperty';
 
 export default function mapState(
   tree: ITypeTree,
   path: IPath,
-  callback: (initialize: IAction, path: IPath) => any
+  callback: (initialize: ITransition, path: IPath) => any
 ): any {
   if (tree.isComposed && tree.isList) {
     let value = callback(tree.transitions.initialize, path);
-    // console.log('reading state in array', {
-    //   value,
-    //   path,
-    //   tree,
-    // });
     return new Proxy(value, {
       get(target, property: string) {
-        // console.log('getting value from array', {
-        //   property,
-        //   value,
-        //   path,
-        //   tree,
-        // });
         if (property === 'length') {
           return callback((current, newState) => newState || 0, [...path, 'length']);
         } else if (property === 'valueOf') {

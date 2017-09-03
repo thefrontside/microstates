@@ -2,10 +2,7 @@ import MicrostateObject from '../primitives/object';
 import getTypeDescriptors from './getTypeDescriptors';
 import {
   IClass,
-  IMicrostate,
-  IMicrostateType,
   ISchema,
-  IStateType,
   ITypeTree,
   IPath,
 } from '../Interfaces';
