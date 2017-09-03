@@ -275,7 +275,7 @@ describe('microstates', () => {
                 }).not.toThrow();
               });
               it('returns new state', () => {
-                expect(ms.transition.foo.set(sub.state)).toEqual({
+                expect(ms.transitions.foo.set(sub.state)).toEqual({
                   foo: {
                     name: 'Foo',
                     baz: {
@@ -294,7 +294,7 @@ describe('microstates', () => {
       it(`is available on composed state's actions`, () => {
         class Foo {}
         let ms = microstates(Foo);
-        expect(ms.merge).toBeDefined();
+        expect(ms.transitions.merge).toBeDefined();
       });
       describe('merging composed state', () => {
         let merged;
