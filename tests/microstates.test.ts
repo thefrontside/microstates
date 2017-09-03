@@ -144,37 +144,50 @@ describe('microstates', () => {
         });
       });
 
-      // describe('support for computed properties', () => {
-      //   class User {
-      //     firstName = String;
-      //     lastName = String;
-      //     get fullName() {
-      //       return `${this.firstName} ${this.lastName}`;
-      //     }
-      //   }
-      //   class State {
-      //     user = User;
-      //   }
+      describe('support for computed properties', () => {
+        class User {
+          firstName = String;
+          lastName = String;
+          get fullName() {
+            return `${this.firstName} ${this.lastName}`;
+          }
+        }
+        class State {
+          user = User;
+        }
 
-      //   let state, actions;
-      //   beforeEach(() => {
-      //     let ms = microstates(State, {
-      //       user: { firstName: 'Peter', lastName: 'Griffin' },
-      //     });
-      //     state = ms.state;
-      //     actions = ms.actions;
-      //   });
+        describe('from initial', () => {
+          let ms, state;
+          beforeEach(() => {
+            ms = microstates(State, {
+              user: { firstName: 'Peter', lastName: 'Griffin' },
+            });
+            state = ms.state;
+          });
 
-      //   it('computed fullName', () => {
-      //     expect(state.user.fullName).toBe('Peter Griffin');
-      //   });
+          it('computed fullName', () => {
+            expect(state.user.fullName).toBe('Peter Griffin');
+          });
+        });
 
-      //   it('recomputes on transition', () => {
-      //     let newState = actions.user.lastName.concat(' Sir');
-      //     expect(newState.user.fullName).toBe('Peter Griffin Sir');
-      //     expect(state.user.fullName).toBe('Peter Griffin');
-      //   });
-      // });
+        describe('after transition', () => {
+          let ms, newState;
+          beforeEach(() => {
+            ms = microstates(State, {
+              user: { firstName: 'Peter', lastName: 'Griffin' },
+            });
+            newState = ms.transitions.user.lastName.concat(' Sir');
+          });
+
+          it('recomputes on transition', () => {
+            expect(newState.user.fullName).toBe('Peter Griffin Sir');
+          });
+
+          it('original is unchanged', () => {
+            expect(ms.state.user.fullName).toBe('Peter Griffin');
+          });
+        });
+      });
     });
 
     describe('transitions', () => {
