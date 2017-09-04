@@ -2,7 +2,7 @@ import 'jest';
 
 import getTypeDescriptors from '../../src/utils/getTypeDescriptors';
 
-describe('getCallableDescriptors', () => {
+describe('getTypeDescriptors', () => {
   const ArrayOfStrings = [String];
   class Item {
     string = String;

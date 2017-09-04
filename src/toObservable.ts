@@ -1,4 +1,3 @@
-import { Observable } from 'rxjs/Rx';
 import { ISchema } from './Interfaces';
 import validate from './utils/validate';
 import ObservableMicrostate from './utils/ObservableMicrostate';

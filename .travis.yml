@@ -6,9 +6,8 @@ node_js:
   - "6"
 
 install:
-  - npm config set spin=false
-  - npm install -g coveralls
-  - npm install
+  - yarn global add coveralls
+  - yarn
 
 script:
   - npm test
@@ -17,3 +16,5 @@ script:
 
 # Allow Travis tests to run in containers.
 sudo: false
+
+cache: yarn

@@ -10,7 +10,7 @@ export default class ObservableMicrostate {
   private tree: ITypeTree;
   private state: IState;
   private initial: any;
-  private observer: { next?: (state) => void };
+  private observer: { next?: (state: any) => void };
 
   constructor(Type: ISchema, initial: any = undefined) {
     this.tree = new TypeTree(Type);
@@ -18,14 +18,14 @@ export default class ObservableMicrostate {
     this.transitions = mapTransitions(this.tree, [], onTransition(this.onTransition));
   }
 
-  private onTransition = compute => {
+  private onTransition = (compute: (state: any) => any) => {
     if (this.observer) {
       this.state = mapState(this.tree, [], getValue(compute(this.state)));
       this.observer.next(this.state);
     }
   };
 
-  public subscribe(observer) {
+  public subscribe(observer: any) {
     this.observer = observer;
     observer.next(this.state);
     return this;

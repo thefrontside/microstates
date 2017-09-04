@@ -1,6 +1,7 @@
-import { lensPath, set, view } from 'ramda';
-import { ITransition } from '../Interfaces';
-import { IPath } from '../Interfaces';
+import * as lensPath from 'ramda/src/lensPath';
+import * as set from 'ramda/src/set';
+import * as view from 'ramda/src/view';
+import { ITransition, IPath } from '../Interfaces';
 
 export default function onTransitionFactory(callback: (newState: any) => any | void) {
   return function reducerFactory(transition: ITransition, path: IPath) {

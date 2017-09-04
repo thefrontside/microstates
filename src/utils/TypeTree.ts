@@ -1,17 +1,12 @@
 import MicrostateObject from '../primitives/object';
 import getTypeDescriptors from './getTypeDescriptors';
-import {
-  IClass,
-  ISchema,
-  ITypeTree,
-  IPath,
-} from '../Interfaces';
+import { IClass, ISchema, ITypeTree, IPath } from '../Interfaces';
 import isPrimitive from './isPrimitive';
 import getReducerType from './getReducerType';
 import { reduceObject } from 'ioo';
 import defineComputedProperty from './defineComputedProperty';
 import MicrostateArray from '../primitives/array';
-import { mergeDeepRight } from 'ramda';
+import * as mergeDeepRight from 'ramda/src/mergeDeepRight';
 
 export default class TypeTree implements ITypeTree {
   public name: ITypeTree['name'];
