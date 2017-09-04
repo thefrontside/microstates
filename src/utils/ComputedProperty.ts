@@ -1,4 +1,3 @@
-import assign from './assign';
 /**
  * Property Descriptor that computes its value once and then permanently caches
  * the result.
@@ -52,8 +51,14 @@ import assign from './assign';
  * @see https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object/defineProperty#Description
  */
 export default class ComputedProperty {
+  writeable = false;
+  configurable = false;
+  enumerable = false;
+  isComputed = false;
+  cache: any = null;
+  get: () => any = null;
 
-  constructor(compute, attributes = {}) {
+  constructor(compute: () => any, attributes = {}) {
     let property = this;
     this.get = function() {
       if (!property.isComputed) {
@@ -62,12 +67,6 @@ export default class ComputedProperty {
       }
       return property.cache;
     };
-    assign(this, attributes);
+    Object.assign(this, attributes);
   }
 }
-
-ComputedProperty.prototype.writeable = false;
-
-ComputedProperty.prototype.configurable = false;
-
-ComputedProperty.prototype.enumerable = false;

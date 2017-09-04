@@ -1,34 +1,49 @@
 {
   "name": "microstates",
-  "version": "0.0.1",
-  "description": "Immutable, Composable, Data Structures",
-  "files": [
-    "src"
-  ],
-  "jsnext:main": "./src/microstates.js",
+  "version": "0.1.0",
+  "description": "Immutable. Composable. Lovable.",
+  "main": "dist/main.js",
+  "typings": "dist/main.d.ts",
+  "homepage": "https://github.com/cowboyd/microstates.js#readme",
+  "keywords": ["blood", "microstates", "immutable"],
   "scripts": {
-    "test": "mocha test/index.js"
+    "build": "tsc",
+    "test": "yarn run build && jest",
+    "test:watch": "yarn run build && yarn test -- --watch",
+    "coverage": "yarn test -- --coverage --no-cache",
+    "coverage:watch": "yarn run coverage -- --watch",
+    "prerelease": "yarn run build && yarn test",
+    "release": "standard-version && yarn pack"
   },
   "repository": {
     "type": "git",
     "url": "git+ssh://git@github.com/cowboyd/microstates.js.git"
   },
-  "keywords": [
-    "blood",
-    "microstates",
-    "immutable"
-  ],
-  "author": "Charles Lowell <cowboyd@frontside.io>",
+  "author": "Charles Lowell <charles@frontside.io>, Taras Mankovski <taras@thisdot.co>",
   "license": "MIT",
   "bugs": {
     "url": "https://github.com/cowboyd/microstates.js/issues"
   },
-  "homepage": "https://github.com/cowboyd/microstates.js#readme",
   "devDependencies": {
-    "babel": "^5.8.23",
-    "chai": "^3.4.1",
-    "jquery": "3.0.0",
-    "mocha": "^2.3.3",
-    "require-all": "^2.0.0"
+    "@types/jest": "^20.0.6",
+    "@types/node": "^8.0.26",
+    "@types/prop-types": "^15.5.1",
+    "@types/ramda": "types/npm-ramda#dist",
+    "jest": "^20.0.4",
+    "standard-version": "^4.2.0",
+    "ts-jest": "^20.0.10",
+    "typescript": "~2.4.0"
+  },
+  "dependencies": {
+    "ioo": "^0.1.7",
+    "ramda": "^0.24.1",
+    "symbol-observable": "^1.0.4"
+  },
+  "jest": {
+    "transform": {
+      ".(ts|tsx)": "<rootDir>/node_modules/ts-jest/preprocessor.js"
+    },
+    "testRegex": "(/tests/.*|\\.(test|spec))\\.(ts|tsx|js)$",
+    "moduleFileExtensions": ["ts", "tsx", "js", "json"]
   }
 }
