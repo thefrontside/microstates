@@ -62,5 +62,3 @@ export interface ITypeTree {
 export interface ITypeTreeProperties {
   [name: string]: ITypeTree;
 }
-
-export interface IPolymorphic<T> {}

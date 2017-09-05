@@ -1,4 +1,4 @@
-import { IClass, IPolymorphic, ISchema } from '../Interfaces';
+import { IClass, ISchema } from '../Interfaces';
 
 export default class Polymorphic {
   static match(o: any): IClass {
