@@ -12,8 +12,8 @@ describe('mapState', () => {
       it('invoked callback', () => {
         expect(callback.mock.calls).toHaveProperty('length', 1);
       });
-      it('passed path to second argumetn', () => {
-        expect(callback.mock.calls[0][1]).toEqual([]);
+      it('passed path to first argument', () => {
+        expect(callback.mock.calls[0][0]).toEqual([]);
       });
       it('returns value', () => {
         expect(state).toBe('foo');

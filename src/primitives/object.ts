@@ -1,5 +1,5 @@
 export default class MicrostateObject extends Object {
-  static initialize = (current: {}, newState: any) => newState || {};
+  static initialize = () => ({});
 
   static assign = (current: {}, props: {}) => ({
     ...current,
