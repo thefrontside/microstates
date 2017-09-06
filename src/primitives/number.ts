@@ -1,5 +1,5 @@
 export default class MicrostateNumber extends Number {
-  static initialize = (current: Number, newState: any) => newState | 0;
+  static initialize = () => 0;
 
   static sum = (current: number, ...args: Array<number>) =>
     args.reduce((accumulator, value) => accumulator + value, current);

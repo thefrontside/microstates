@@ -1,23 +1,21 @@
 import { reduceObject } from 'ioo';
-import { IPath, IState, ITransition, ITypeTree } from '../Interfaces';
+import { IPath, IState, ITransition, ITypeTree, CurriedGetValue } from '../Interfaces';
 import defineComputedProperty from './defineComputedProperty';
 
-export default function mapState(
-  tree: ITypeTree,
-  path: IPath,
-  callback: (initialize: ITransition, path: IPath) => any
-): IState {
+export default function mapState(tree: ITypeTree, path: IPath, getValue: CurriedGetValue): IState {
+  let { initialize } = tree.transitions;
+
   if (tree.isComposed && tree.isList) {
-    let value = callback(tree.transitions.initialize, path);
+    let value = getValue(path) || initialize();
     return new Proxy(value, {
       get(target, property: string) {
         if (property === 'length') {
-          return callback((current, newState) => newState || 0, [...path, 'length']);
+          return value.length;
         } else if (property === 'valueOf') {
-          return () => callback(null, path);
+          return () => getValue(path);
         } else if (value.hasOwnProperty(property)) {
           let [of] = tree.of;
-          return mapState(of, [...tree.path, parseInt(property)], callback);
+          return mapState(of, [...tree.path, parseInt(property)], getValue);
         } else {
           return target[property];
         }
@@ -31,12 +29,12 @@ export default function mapState(
         defineComputedProperty(
           accumulator,
           propName,
-          () => mapState(node, [...path, propName], callback),
+          () => mapState(node, [...path, propName], getValue),
           {
             enumerable: true,
           }
         ),
-      tree.transitions.initialize(null)
+      initialize()
     );
 
     return Object.defineProperty(composed, 'valueOf', {
@@ -44,10 +42,10 @@ export default function mapState(
       configurable: false,
       writable: false,
       value() {
-        return callback(null, path);
+        return getValue(path);
       },
     });
   }
 
-  return callback(tree.transitions.initialize, path);
+  return getValue(path) || initialize();
 }
