@@ -5,6 +5,7 @@ import mapTransitions from './mapTransitions';
 import onTransition from './onTransitionFactory';
 import * as view from 'ramda/src/view';
 import * as __ from 'ramda/src/__';
+import stateFor from './stateFor';
 
 export default class ObservableMicrostate {
   public transitions: ITransitions;
@@ -15,13 +16,13 @@ export default class ObservableMicrostate {
 
   constructor(Type: ISchema, initial: any = undefined) {
     this.tree = new TypeTree(Type);
-    this.state = mapState(this.tree, [], view(__, initial));
+    this.state = stateFor(this.tree, initial);
     this.transitions = mapTransitions(this.tree, [], onTransition(this.onTransition));
   }
 
   private onTransition = (compute: (state: any) => any) => {
     if (this.observer) {
-      this.state = mapState(this.tree, [], view(__, compute(this.state)));
+      this.state = stateFor(this.tree, compute(this.state));
       this.observer.next(this.state);
     }
   };
