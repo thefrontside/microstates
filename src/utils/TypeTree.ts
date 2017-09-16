@@ -1,12 +1,14 @@
-import MicrostateObject from '../primitives/object';
-import getTypeDescriptors from './getTypeDescriptors';
-import { IClass, ISchema, ITypeTree, IPath } from '../Interfaces';
-import isPrimitive from './isPrimitive';
-import getReducerType from './getReducerType';
 import { reduceObject } from 'ioo';
-import defineComputedProperty from './defineComputedProperty';
-import MicrostateArray from '../primitives/array';
 import * as mergeDeepRight from 'ramda/src/mergeDeepRight';
+
+import { IClass, IPath, ISchema, ITypeTree } from '../Interfaces';
+import MicrostateArray from '../primitives/array';
+import MicrostateObject from '../primitives/object';
+import defineComputedProperty from './defineComputedProperty';
+import getReducerType from './getReducerType';
+import getTypeDescriptors from './getTypeDescriptors';
+import isPrimitive from './isPrimitive';
+import transition from './transition';
 
 export default class TypeTree implements ITypeTree {
   public name: ITypeTree['name'];
@@ -37,8 +39,13 @@ export default class TypeTree implements ITypeTree {
       (accumulator, descriptor, name) => {
         return {
           ...accumulator,
-          [name]: descriptor.value,
+          [name]: name === 'initialize' ? descriptor.value : transition(descriptor.value),
         };
+      },
+      {
+        set: transition(function set(current: any, state: any) {
+          return state && state.valueOf ? state.valueOf() : state;
+        }),
       }
     );
 
@@ -52,9 +59,9 @@ export default class TypeTree implements ITypeTree {
     if (this.isComposed || getReducerType(type) === MicrostateObject) {
       this.transitions = {
         ...this.transitions,
-        merge: function merge(current, state) {
+        merge: transition(function merge(current, state) {
           return mergeDeepRight(current, state && state.valueOf ? state.valueOf() : state);
-        },
+        }),
       };
     }
 

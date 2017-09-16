@@ -1,5 +1,5 @@
 import { reduceObject } from 'ioo';
-import { IPath, IState, ITransition, ITypeTree, CurriedGetValue } from '../Interfaces';
+import { IPath, IState, ITransition, ITypeTree } from '../Interfaces';
 import defineComputedProperty from './defineComputedProperty';
 import * as lensPath from 'ramda/src/lensPath';
 

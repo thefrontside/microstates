@@ -1,5 +1,3 @@
-import { CurriedFunction1 } from 'ramda/src/$curriedFunctions';
-
 import MicrostateBoolean from './primitives/boolean';
 import MicrostateArray from './primitives/array';
 import MicrostateString from './primitives/string';
@@ -65,5 +63,3 @@ export interface ITypeTree {
 export interface ITypeTreeProperties {
   [name: string]: ITypeTree;
 }
-
-export type CurriedGetValue = CurriedFunction1<(string | number)[], any>;

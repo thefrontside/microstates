@@ -36,8 +36,8 @@ describe('mapTransitions', () => {
       it('invokes onTransition', () => {
         expect(onTransition.mock.calls.length).toBe(1);
       });
-      it('passes correct path', () => {
-        expect(onTransition.mock.calls[0][1]).toEqual([]);
+      it('passes argument', () => {
+        expect(onTransition.mock.calls[0][1]).toEqual({});
       });
     });
 
@@ -55,8 +55,8 @@ describe('mapTransitions', () => {
       it('invokes onTransition', () => {
         expect(onTransition.mock.calls.length).toBe(1);
       });
-      it('passes correct path', () => {
-        expect(onTransition.mock.calls[0][1]).toEqual([]);
+      it('passes argument', () => {
+        expect(onTransition.mock.calls[0][1]).toEqual({});
       });
     });
   });
@@ -78,8 +78,8 @@ describe('mapTransitions', () => {
     it('invokes onTransition', () => {
       expect(onTransition.mock.calls.length).toBe(1);
     });
-    it('passes passes path to onTransition', () => {
-      expect(onTransition.mock.calls[0][1]).toEqual(['string']);
+    it('passes argument', () => {
+      expect(onTransition.mock.calls[0][1]).toEqual('foo');
     });
   });
 
@@ -114,8 +114,8 @@ describe('mapTransitions', () => {
       it('called onTransition', () => {
         expect(onTransition.mock.calls.length).toEqual(1);
       });
-      it('received correct path', () => {
-        expect(onTransition.mock.calls[0][1]).toEqual(['number']);
+      it('recieved no argument', () => {
+        expect(onTransition.mock.calls[0][1]).toBeUndefined;
       });
     });
   });
@@ -142,8 +142,8 @@ describe('mapTransitions', () => {
       it('called onTransition', () => {
         expect(onTransition.mock.calls.length).toEqual(1);
       });
-      it('received correct path', () => {
-        expect(onTransition.mock.calls[0][1]).toEqual(['boolean']);
+      it('received no argument', () => {
+        expect(onTransition.mock.calls[0][1]).toBeUndefined();
       });
     });
   });
@@ -170,8 +170,8 @@ describe('mapTransitions', () => {
       it('called onTransition', () => {
         expect(onTransition.mock.calls.length).toEqual(1);
       });
-      it('received correct path', () => {
-        expect(onTransition.mock.calls[0][1]).toEqual(['object']);
+      it('received argument', () => {
+        expect(onTransition.mock.calls[0][1]).toEqual({});
       });
     });
   });
@@ -199,8 +199,8 @@ describe('mapTransitions', () => {
       it('called onTransition', () => {
         expect(onTransition.mock.calls.length).toEqual(1);
       });
-      it('received correct path', () => {
-        expect(onTransition.mock.calls[0][1]).toEqual(['array']);
+      it('received argument', () => {
+        expect(onTransition.mock.calls[0][1]).toEqual('foo');
       });
     });
   });
@@ -228,8 +228,8 @@ describe('mapTransitions', () => {
       it('invokes onTransition', () => {
         expect(onTransition.mock.calls.length).toBe(1);
       });
-      it('passes correct path', () => {
-        expect(onTransition.mock.calls[0][1]).toEqual(['item']);
+      it('received argument', () => {
+        expect(onTransition.mock.calls[0][1]).toEqual({});
       });
     });
     describe('deep composition', () => {
@@ -243,8 +243,8 @@ describe('mapTransitions', () => {
       it('invokes onTransition', () => {
         expect(onTransition.mock.calls.length).toBe(1);
       });
-      it('passes correct path', () => {
-        expect(onTransition.mock.calls[0][1]).toEqual(['item', 'related']);
+      it('received argument', () => {
+        expect(onTransition.mock.calls[0][1]).toEqual({});
       });
     });
   });
@@ -273,8 +273,8 @@ describe('mapTransitions', () => {
       it('invokes onTransition', () => {
         expect(onTransition.mock.calls.length).toBe(1);
       });
-      it('passes correct path', () => {
-        expect(onTransition.mock.calls[0][1]).toEqual(['items', 0]);
+      it('received argument', () => {
+        expect(onTransition.mock.calls[0][1]).toEqual({});
       });
     });
     describe('deep composition', () => {
@@ -288,8 +288,8 @@ describe('mapTransitions', () => {
       it('invokes onTransition', () => {
         expect(onTransition.mock.calls.length).toBe(1);
       });
-      it('passes correct path', () => {
-        expect(onTransition.mock.calls[0][1]).toEqual(['items', 0, 'related']);
+      it('received arguement', () => {
+        expect(onTransition.mock.calls[0][1]).toEqual({});
       });
     });
   });

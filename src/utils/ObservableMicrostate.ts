@@ -1,11 +1,7 @@
 import { IPath, ISchema, IState, ITransition, ITransitions, ITypeTree } from '../Interfaces';
 import TypeTree from './TypeTree';
-import mapState from './mapState';
-import mapTransitions from './mapTransitions';
-import onTransition from './onTransitionFactory';
-import * as view from 'ramda/src/view';
-import * as __ from 'ramda/src/__';
 import stateFor from './stateFor';
+import transitionsFor from './transitionsFor';
 
 export default class ObservableMicrostate {
   public transitions: ITransitions;
@@ -17,15 +13,17 @@ export default class ObservableMicrostate {
   constructor(Type: ISchema, initial: any = undefined) {
     this.tree = new TypeTree(Type);
     this.state = stateFor(this.tree, initial);
-    this.transitions = mapTransitions(this.tree, [], onTransition(this.onTransition));
+    let observable = this;
+    this.transitions = transitionsFor(
+      this.tree,
+      function onTransition(transition: (state: any, ...args: any[]) => any, ...args: any[]) {
+        if (this.observer) {
+          this.state = stateFor(this.tree, transition(this.state, ...args));
+          this.observer.next(this.state);
+        }
+      }.bind(this)
+    );
   }
-
-  private onTransition = (compute: (state: any) => any) => {
-    if (this.observer) {
-      this.state = stateFor(this.tree, compute(this.state));
-      this.observer.next(this.state);
-    }
-  };
 
   public subscribe(observer: any) {
     this.observer = observer;
