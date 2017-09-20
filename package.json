@@ -35,6 +35,7 @@
     "typescript": "~2.4.0"
   },
   "dependencies": {
+    "fn": "cowboyd/fn.js",
     "ioo": "^0.1.7",
     "ramda": "^0.24.1",
     "symbol-observable": "^1.0.4"
