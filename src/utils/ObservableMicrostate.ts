@@ -1,7 +1,7 @@
-import { IPath, ISchema, IState, ITransition, ITransitions, ITypeTree } from '../Interfaces';
-import TypeTree from './TypeTree';
+import { ISchema, IState, ITransitions, ITypeTree } from '../Interfaces';
+import mapTransitions from './mapTransitions';
 import stateFor from './stateFor';
-import transitionsFor from './transitionsFor';
+import TypeTree from './TypeTree';
 
 export default class ObservableMicrostate {
   public transitions: ITransitions;
@@ -14,8 +14,9 @@ export default class ObservableMicrostate {
     this.tree = new TypeTree(Type);
     this.state = stateFor(this.tree, initial);
     let observable = this;
-    this.transitions = transitionsFor(
+    this.transitions = mapTransitions(
       this.tree,
+      [],
       function onTransition(transition: (state: any, ...args: any[]) => any, ...args: any[]) {
         if (this.observer) {
           this.state = stateFor(this.tree, transition(this.state, ...args));
