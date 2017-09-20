@@ -41,19 +41,14 @@ export default class TypeTree implements ITypeTree {
           ...accumulator,
           [name]: name === 'initialize' ? descriptor.value : transition(descriptor.value),
         };
-      },
-      {
-        set: transition(function set(current: any, state: any) {
-          return state && state.valueOf ? state.valueOf() : state;
-        }),
       }
     );
 
     this.transitions = {
       ...this.transitions,
-      set: function set(current: any, state: any) {
+      set: transition(function set(current: any, state: any) {
         return state && state.valueOf ? state.valueOf() : state;
-      },
+      }),
     };
 
     if (this.isComposed || getReducerType(type) === MicrostateObject) {

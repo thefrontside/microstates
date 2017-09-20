@@ -1,8 +1,8 @@
 import { IMicrostate, ISchema } from './Interfaces';
-import TypeTree from './utils/TypeTree';
-import validate from './utils/validate';
 import stateFor from './utils/stateFor';
 import transitionsFor from './utils/transitionsFor';
+import TypeTree from './utils/TypeTree';
+import validate from './utils/validate';
 
 export default function microstates(Type: ISchema, initial: any = undefined): IMicrostate {
   validate(Type, `microstates`);

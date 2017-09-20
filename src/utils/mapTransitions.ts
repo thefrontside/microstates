@@ -1,8 +1,9 @@
 import { reduceObject } from 'ioo';
-import isNumeric from './isNumeric';
-import { ITransition, ITypeTree, IPath } from '../Interfaces';
-import defineComputedProperty from './defineComputedProperty';
 import * as lensPath from 'ramda/src/lensPath';
+
+import { IPath, ITypeTree } from '../Interfaces';
+import defineComputedProperty from './defineComputedProperty';
+import isNumeric from './isNumeric';
 
 export default function mapTransitions(
   tree: ITypeTree,
@@ -62,7 +63,7 @@ export default function mapTransitions(
       accumulator,
       propName,
       () =>
-        function primiviteValueTransition(...args: any[]) {
+        function primitiveValueTransition(...args: any[]) {
           return onTransition(transition(lensPath(path)), ...args);
         },
       {

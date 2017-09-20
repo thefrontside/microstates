@@ -1,7 +1,8 @@
 import 'jest';
-import MicrostateString from '../../src/primitives/string';
-import MicrostateObject from '../../src/primitives/object';
+
 import microstates from '../../src/microstates';
+import MicrostateObject from '../../src/primitives/object';
+import MicrostateString from '../../src/primitives/string';
 
 describe('object', () => {
   describe('as root', () => {
