@@ -1,8 +1,8 @@
-import MicrostateBoolean from './primitives/boolean';
 import MicrostateArray from './primitives/array';
-import MicrostateString from './primitives/string';
+import MicrostateBoolean from './primitives/boolean';
 import MicrostateNumber from './primitives/number';
 import MicrostateObject from './primitives/object';
+import MicrostateString from './primitives/string';
 
 export type IState = any | Array<any> | IStateObject;
 
