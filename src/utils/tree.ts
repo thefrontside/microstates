@@ -1,12 +1,13 @@
 import { reduceObject } from 'ioo';
 
-import transitionsFor from '../../dist/utils/transitions-for';
 import { IPath, ISchema, ITypeTree } from '../Interfaces';
+import defineComputedProperty from './defineComputedProperty';
 import getReducerType from './getReducerType';
 import isList from './is-list';
 import isParameterized from './is-parameterized';
 import isPrimitive from './isPrimitive';
 import propertiesFor from './properties-for';
+import transitionsFor from './transitions-for';
 
 export default class Tree {
   data: ITypeTree = null;
@@ -66,7 +67,7 @@ export default class Tree {
       children: {
         get() {
           return reduceObject(
-            propertiesFor(Type),
+            propertiesFor(getReducerType(Type)),
             (accumulator, type: ISchema, propName: string) => {
               return {
                 ...accumulator,
@@ -77,5 +78,24 @@ export default class Tree {
         },
       },
     });
+  }
+
+  static map(fn: (node: ITypeTree, path: IPath) => any, tree: Tree): any {
+    return reduceObject(
+      tree.children,
+      (accumulator, child: Tree, name: string) => {
+        return defineComputedProperty(
+          accumulator,
+          name,
+          function compute() {
+            return Tree.map(fn, child);
+          },
+          {
+            enumerable: true,
+          }
+        );
+      },
+      fn(tree.data, tree.data.path)
+    );
   }
 }

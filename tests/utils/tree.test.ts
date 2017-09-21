@@ -253,4 +253,119 @@ describe('Tree', () => {
       });
     });
   });
+  describe('map', () => {
+    it('is defined', () => {
+      expect(Tree.map).toBeDefined();
+    });
+    describe('callback', () => {
+      let describe_for = Type => {
+        let it_received = (property, expected) => {
+          it(`is object with ${property} equal to ${expected}`, () => {
+            expect(callback).toHaveProperty(`mock.calls.0.0.${property}`, expected);
+          });
+        };
+        let callback;
+        describe(`for ${Type.name}`, () => {
+          beforeEach(() => {
+            callback = jest.fn();
+            Tree.map(callback, Tree.from(Type));
+          });
+          it(`is called once`, () => {
+            expect(callback).toHaveBeenCalledTimes(1);
+          });
+          describe('first argument', () => {
+            it_received('isPrimitive', true);
+            it_received('name', undefined);
+            it('is an object with transitions object as first argument', () => {
+              expect(callback.mock.calls[0][0].transitions).toBeInstanceOf(Object);
+            });
+          });
+          describe('second argument', () => {
+            it('is an empty array', () => {
+              expect(callback.mock.calls[0][1]).toEqual([]);
+            });
+          });
+        });
+      };
+      describe_for(Number);
+      describe_for(String);
+      describe_for(Boolean);
+      describe_for(Object);
+      describe_for(Array);
+      describe('for shallow composed state', () => {
+        let callback;
+        beforeEach(() => {
+          callback = jest.fn();
+          class Person {
+            name = String;
+          }
+          Tree.map(callback, Tree.from(Person));
+        });
+        it('is called once', () => {
+          expect(callback).toHaveBeenCalledTimes(1);
+        });
+        describe('first argument', () => {
+          it('is an object with isPrimitive equal false', () => {
+            expect(callback).toHaveProperty('mock.calls.0.0.isPrimitive', false);
+          });
+          it('is an object with isComposed equal true', () => {
+            expect(callback).toHaveProperty('mock.calls.0.0.isComposed', true);
+          });
+          it('is has merge transition', () => {
+            expect(callback.mock.calls[0][0].transitions.merge).toBeDefined();
+          });
+        });
+        describe('second argument', () => {
+          let callback;
+          beforeEach(() => {
+            callback = jest.fn().mockImplementation(() => {});
+            class Person {
+              name = String;
+              parent = Person;
+            }
+            let tree = Tree.map(callback, Tree.from(Person));
+            tree.parent;
+            tree.parent.name;
+            tree.parent.parent;
+          });
+          it('was called three times', () => {
+            expect(callback).toHaveBeenCalledTimes(4);
+          });
+          it('recieved empty array on 1st call', () => {
+            expect(callback).toHaveProperty('mock.calls.0.1', []);
+          });
+          it('received [parent] on 2nd call', () => {
+            expect(callback).toHaveProperty('mock.calls.1.1', ['parent']);
+          });
+          it('received [parent, name] on 3nd call', () => {
+            expect(callback).toHaveProperty('mock.calls.2.1', ['parent', 'name']);
+          });
+          it('received [parent, parent] on 3th call', () => {
+            expect(callback).toHaveProperty('mock.calls.3.1', ['parent', 'parent']);
+          });
+        });
+      });
+      describe('for parameterized list', () => {
+        let callback;
+        beforeEach(() => {
+          callback = jest.fn();
+          Tree.map(callback, Tree.from([String]));
+        });
+        it('is called once', () => {
+          expect(callback).toHaveBeenCalledTimes(1);
+        });
+        describe('first argument', () => {
+          it('is an object with isPrimitive equal false', () => {
+            expect(callback).toHaveProperty('mock.calls.0.0.isPrimitive', false);
+          });
+          it('is an object with isList equal true', () => {
+            expect(callback).toHaveProperty('mock.calls.0.0.isList', true);
+          });
+          it('is an object with isParameterized equal true', () => {
+            expect(callback).toHaveProperty('mock.calls.0.0.isParameterized', true);
+          });
+        });
+      });
+    });
+  });
 });
