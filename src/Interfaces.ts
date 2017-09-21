@@ -53,7 +53,7 @@ export interface ITypeTree {
   isComposed: boolean;
   isParameterized: boolean;
   isList: boolean;
-  properties: ITypeTreeProperties | null;
+  properties?: ITypeTreeProperties | null;
   transitions: ITransitionMap;
   schemaType: ISchema;
   type: IMicrostateType;
