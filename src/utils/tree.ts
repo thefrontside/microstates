@@ -1,4 +1,5 @@
 import { reduceObject } from 'ioo';
+import * as has from 'lodash.has';
 
 import { IClass, IPath, ISchema, ITypeTree } from '../Interfaces';
 import defineComputedProperty from './defineComputedProperty';
@@ -80,8 +81,18 @@ export default class Tree {
       return new Proxy(node, {
         get(target, propName: string) {
           let [Type] = tree.data.schemaType as Array<IClass>;
-          let key = isList ? parseInt(propName) : propName;
-          return Tree.map(fn, Tree.from(Type, [...tree.data.path, key]));
+          if (!has(node, propName)) {
+            defineComputedProperty(
+              node,
+              propName,
+              function computeProxyNode() {
+                let key = isList ? parseInt(propName) : propName;
+                return Tree.map(fn, Tree.from(Type, [...tree.data.path, key]));
+              },
+              { enumerable: true }
+            );
+          }
+          return node[propName];
         },
       });
     }

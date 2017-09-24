@@ -5,11 +5,7 @@
   "main": "dist/main.js",
   "typings": "dist/main.d.ts",
   "homepage": "https://github.com/cowboyd/microstates.js#readme",
-  "keywords": [
-    "blood",
-    "microstates",
-    "immutable"
-  ],
+  "keywords": ["blood", "microstates", "immutable"],
   "scripts": {
     "build": "tsc",
     "test": "yarn run build && jest",
@@ -35,12 +31,12 @@
     "@types/ramda": "types/npm-ramda#dist",
     "jest": "^20.0.4",
     "lodash.get": "^4.4.2",
+    "lodash.has": "^4.5.2",
     "standard-version": "^4.2.0",
     "ts-jest": "^20.0.10",
     "typescript": "~2.4.0"
   },
   "dependencies": {
-    "fn": "cowboyd/fn.js",
     "ioo": "^0.1.7",
     "ramda": "^0.24.1",
     "symbol-observable": "^1.0.4"
@@ -50,11 +46,6 @@
       ".(ts|tsx)": "<rootDir>/node_modules/ts-jest/preprocessor.js"
     },
     "testRegex": "(/tests/.*|\\.(test|spec))\\.(ts|tsx|js)$",
-    "moduleFileExtensions": [
-      "ts",
-      "tsx",
-      "js",
-      "json"
-    ]
+    "moduleFileExtensions": ["ts", "tsx", "js", "json"]
   }
 }

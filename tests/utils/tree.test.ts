@@ -367,10 +367,9 @@ describe('Tree', () => {
         }
         describe('accessing deeply nested nodes', () => {
           let callback;
-          let tree;
           beforeEach(() => {
             callback = jest.fn().mockImplementation(node => (node.isList ? [] : {}));
-            tree = Tree.map(callback, Tree.from(State));
+            let tree = Tree.map(callback, Tree.from(State));
             tree.todos[0].tasks[1].isCompleted;
           });
           it('called callback 6 times', () => {
@@ -384,6 +383,22 @@ describe('Tree', () => {
           });
           it('called callback for todos.0.tasks.1.isCompleted', () => {
             expect(callback.mock.calls[5][1]).toEqual(['todos', 0, 'tasks', 1, 'isCompleted']);
+          });
+        });
+        describe('caching', () => {
+          let callback;
+          beforeEach(() => {
+            callback = jest.fn().mockImplementation(node => (node.isList ? [] : {}));
+            let tree = Tree.map(callback, Tree.from(State));
+            tree.todos[0];
+            tree.todos[0].tasks[1];
+            tree.todos[0].tasks[1].isCompleted;
+            tree;
+            tree.todos;
+            tree.todos[0].tasks;
+          });
+          it('called callback only six times', () => {
+            expect(callback).toHaveBeenCalledTimes(6);
           });
         });
       });
