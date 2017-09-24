@@ -4,7 +4,7 @@ import stateFor from './utils/stateFor';
 import TypeTree from './utils/TypeTree';
 import validate from './utils/validate';
 
-export default function microstates(Type: ISchema, initial: any = undefined): IMicrostate {
+export default function microstates(Type: ISchema, initial: any): IMicrostate {
   validate(Type, `microstates`);
 
   let tree = new TypeTree(Type);
