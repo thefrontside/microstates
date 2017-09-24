@@ -25,16 +25,16 @@
     "url": "https://github.com/cowboyd/microstates.js/issues"
   },
   "devDependencies": {
-    "@types/jest": "^20.0.6",
-    "@types/node": "^8.0.26",
+    "@types/jest": "^21.1.0",
+    "@types/node": "^8.0.30",
     "@types/prop-types": "^15.5.1",
     "@types/ramda": "types/npm-ramda#dist",
-    "jest": "^20.0.4",
+    "jest": "^21.1.0",
     "lodash.get": "^4.4.2",
     "lodash.has": "^4.5.2",
     "standard-version": "^4.2.0",
-    "ts-jest": "^20.0.10",
-    "typescript": "~2.4.0"
+    "ts-jest": "^21.0.1",
+    "typescript": "~2.5.0"
   },
   "dependencies": {
     "ioo": "^0.1.7",
