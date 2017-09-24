@@ -11,16 +11,15 @@ export default class Transitions {
     return Tree.map(function transitionsMap(node: ITypeTree, path: IPath) {
       return reduceObject(
         node.transitions,
-        (accumulator, transition, name: string) => {
-          return defineComputedProperty(
+        (accumulator, transition, name: string) =>
+          defineComputedProperty(
             accumulator,
             name,
             function computeTransition() {
               return fn(transition(lensPath(path)), path);
             },
             { enumerable: true }
-          );
-        },
+          ),
         new Transitions()
       );
     }, tree);
