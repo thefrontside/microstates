@@ -24,7 +24,6 @@ describe('Tree', () => {
       has(number, 'data.properties', undefined);
       has(number, 'data.schemaType', Number);
       has(number, 'data.type', MicrostatesNumber);
-      has(number, 'data.of', null);
       has(number, 'children', {});
       it('has transitions', () => {
         expect(number.data.transitions.set).toBeDefined();
@@ -41,7 +40,6 @@ describe('Tree', () => {
       has(string, 'data.properties', undefined);
       has(string, 'data.schemaType', String);
       has(string, 'data.type', MicrostateString);
-      has(string, 'data.of', null);
       it('has transitions', () => {
         expect(string.data.transitions.set).toBeDefined();
         expect(string.data.transitions.concat).toBeDefined();
@@ -57,7 +55,6 @@ describe('Tree', () => {
       has(boolean, 'data.properties', undefined);
       has(boolean, 'data.schemaType', Boolean);
       has(boolean, 'data.type', MicrostateBoolean);
-      has(boolean, 'data.of', null);
       it('has transitions', () => {
         expect(boolean.data.transitions.set).toBeDefined();
         expect(boolean.data.transitions.toggle).toBeDefined();
@@ -73,7 +70,6 @@ describe('Tree', () => {
       has(object, 'data.properties', undefined);
       has(object, 'data.schemaType', Object);
       has(object, 'data.type', MicrostateObject);
-      has(object, 'data.of', null);
       it('has transitions', () => {
         expect(object.data.transitions.set).toBeDefined();
         expect(object.data.transitions.assign).toBeDefined();
@@ -91,7 +87,6 @@ describe('Tree', () => {
         has(array, 'data.properties', undefined);
         has(array, 'data.schemaType', type);
         has(array, 'data.type', MicrostateArray);
-        has(array, 'data.of', null);
         it('has transitions', () => {
           expect(array.data.transitions.set).toBeDefined();
           expect(array.data.transitions.push).toBeDefined();
@@ -162,7 +157,6 @@ describe('Tree', () => {
         has(tree, 'data.schemaType', Item);
         has(tree, 'data.type', Item);
         has(tree, 'data.properties', undefined);
-        has(tree, 'data.of', null);
       });
       describe('with children', () => {
         class Item {
@@ -244,9 +238,6 @@ describe('Tree', () => {
         has(tree, 'data.properties', undefined);
         has(tree, 'data.schemaType', [Item]);
         has(tree, 'data.type', MicrostateArray);
-      });
-      it('parameterized types converted to Tree in `of` property', () => {
-        expect(tree.data.of[0]).toBeInstanceOf(Tree);
       });
       it('has push transition', () => {
         expect(tree.data.transitions.push).toBeDefined();
@@ -345,10 +336,10 @@ describe('Tree', () => {
           });
         });
       });
-      describe('for parameterized list', () => {
+      describe('shallow parameterized list', () => {
         let callback;
         beforeEach(() => {
-          callback = jest.fn();
+          callback = jest.fn().mockImplementation(node => (node.isList ? [] : {}));
           Tree.map(callback, Tree.from([String]));
         });
         it('is called once', () => {
@@ -363,6 +354,36 @@ describe('Tree', () => {
           });
           it('is an object with isParameterized equal true', () => {
             expect(callback).toHaveProperty('mock.calls.0.0.isParameterized', true);
+          });
+        });
+      });
+      describe('deep parameterized list', () => {
+        class Todo {
+          isCompleted = Boolean;
+          tasks = [Todo];
+        }
+        class State {
+          todos = [Todo];
+        }
+        describe('accessing deeply nested nodes', () => {
+          let callback;
+          let tree;
+          beforeEach(() => {
+            callback = jest.fn().mockImplementation(node => (node.isList ? [] : {}));
+            tree = Tree.map(callback, Tree.from(State));
+            tree.todos[0].tasks[1].isCompleted;
+          });
+          it('called callback 6 times', () => {
+            expect(callback).toHaveBeenCalledTimes(6);
+          });
+          it('called callback for todos.0', () => {
+            expect(callback.mock.calls[2][1]).toEqual(['todos', 0]);
+          });
+          it('called callback for todos.0.tasks.1', () => {
+            expect(callback.mock.calls[4][1]).toEqual(['todos', 0, 'tasks', 1]);
+          });
+          it('called callback for todos.0.tasks.1.isCompleted', () => {
+            expect(callback.mock.calls[5][1]).toEqual(['todos', 0, 'tasks', 1, 'isCompleted']);
           });
         });
       });

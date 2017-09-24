@@ -1,6 +1,6 @@
 import { reduceObject } from 'ioo';
 
-import { IPath, ISchema, ITypeTree } from '../Interfaces';
+import { IClass, IPath, ISchema, ITypeTree } from '../Interfaces';
 import defineComputedProperty from './defineComputedProperty';
 import getReducerType from './getReducerType';
 import isList from './is-list';
@@ -32,13 +32,6 @@ export default class Tree {
             isList: list,
             isParameterized: parameterized,
             transitions: transitionsFor(Type),
-            /**
-             * of evaluates to an array of Tree nodes. This is used for parameterized list
-             * to instantiated composed states.
-             */
-            get of() {
-              return list && parameterized ? [Tree.from(Type[0])] : null;
-            },
           };
         },
       },
@@ -81,13 +74,24 @@ export default class Tree {
   }
 
   static map(fn: (node: ITypeTree, path: IPath) => any, tree: Tree): any {
+    let node = fn(tree.data, tree.data.path);
+    let { isParameterized, isList } = tree.data;
+    if (isParameterized) {
+      return new Proxy(node, {
+        get(target, propName: string) {
+          let [Type] = tree.data.schemaType as Array<IClass>;
+          let key = isList ? parseInt(propName) : propName;
+          return Tree.map(fn, Tree.from(Type, [...tree.data.path, key]));
+        },
+      });
+    }
     return reduceObject(
       tree.children,
       (accumulator, child: Tree, name: string) => {
         return defineComputedProperty(
           accumulator,
           name,
-          function compute() {
+          function computeNode() {
             return Tree.map(fn, child);
           },
           {
@@ -95,7 +99,7 @@ export default class Tree {
           }
         );
       },
-      fn(tree.data, tree.data.path)
+      node
     );
   }
 }
