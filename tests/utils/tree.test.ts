@@ -222,15 +222,11 @@ describe('Tree', () => {
       });
     });
     describe('arrays', () => {
-      let tree;
       class Item {
         name = String;
       }
-      beforeEach(() => {
-        tree = Tree.from([Item]);
-      });
-
-      it('supports [<Type>] syntax', () => {
+      describe('supports [<Type>] syntax', () => {
+        let tree = Tree.from([Item]);
         has(tree, 'data.isComposed', true);
         has(tree, 'data.isPrimitive', false);
         has(tree, 'data.isParameterized', true);
@@ -238,9 +234,9 @@ describe('Tree', () => {
         has(tree, 'data.properties', undefined);
         has(tree, 'data.schemaType', [Item]);
         has(tree, 'data.type', MicrostateArray);
-      });
-      it('has push transition', () => {
-        expect(tree.data.transitions.push).toBeDefined();
+        it('has push transition', () => {
+          expect(tree.data.transitions.push).toBeDefined();
+        });
       });
     });
   });
