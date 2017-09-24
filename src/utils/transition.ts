@@ -1,10 +1,10 @@
 import { CurriedFunction3 } from 'ramda/src/$curriedFunctions';
-
-import { ITransition } from '../Interfaces';
-import * as view from 'ramda/src/view';
-import * as set from 'ramda/src/set';
 import { ManualLens } from 'ramda/src/$types';
 import * as curry from 'ramda/src/curry';
+import * as set from 'ramda/src/set';
+import * as view from 'ramda/src/view';
+
+import { ITransition } from '../Interfaces';
 
 export default curry(function transition(
   fn: ITransition,
