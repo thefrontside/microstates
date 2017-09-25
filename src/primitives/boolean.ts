@@ -1,6 +1,6 @@
 export default class MicrostateBoolean {
-  initialize() {
-    return false;
+  initialize(current = false) {
+    return current;
   }
 
   toggle(current: boolean) {

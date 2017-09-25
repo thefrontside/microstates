@@ -1,6 +1,6 @@
 export default class MicrostateObject {
-  initialize() {
-    return {};
+  initialize(current = {}) {
+    return current;
   }
 
   assign(current: {}, props: {}) {

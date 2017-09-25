@@ -1,6 +1,6 @@
 export default class MicrostateNumber {
-  initialize() {
-    return 0;
+  initialize(current = 0) {
+    return current;
   }
 
   sum(current: number, ...args: Array<number>) {

@@ -55,6 +55,21 @@ describe('microstates', () => {
     });
   });
   describe('transitions', () => {
+    describe('continuious', () => {
+      let ms;
+      beforeEach(() => {
+        ms = Microstates.from(Todo);
+        ms = ms.to(ms.transitions.title.set('Hello World'));
+        ms = ms.to(ms.transitions.owner.age.increment());
+      });
+      it('accumulated transitions', () => {
+        expect(ms.states).toEqual({
+          title: 'Hello World',
+          isCompleted: false,
+          owner: { details: {}, age: 1, pets: [] },
+        });
+      });
+    });
     describe('set', () => {
       describe('root', () => {
         function describe_root_set(value) {

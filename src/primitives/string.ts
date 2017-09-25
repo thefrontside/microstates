@@ -1,6 +1,6 @@
 export default class MicrostateString {
-  initialize() {
-    return '';
+  initialize(current = '') {
+    return current;
   }
 
   concat(current: string, ...args: Array<string>) {

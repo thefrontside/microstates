@@ -9,24 +9,30 @@ export default class Microstates {
   public transitions: ITransitionMap;
   public states: States;
 
-  constructor(params: { tree: Tree; transitions: ITransitionMap; states: States }) {
-    this.tree = params.tree;
-    this.transitions = params.transitions;
-    this.states = params.states;
-  }
-
-  static from(Type: ISchema, initial?: any): Microstates {
-    validate(Type, `microstates`);
-
-    let tree = Tree.from(Type);
-
-    let states = States.from(tree, initial);
-
-    let transitions = Transitions.map(
-      transition => (...args: any[]) => transition(states, ...args),
+  constructor(tree: Tree, value: any) {
+    this.tree = tree;
+    this.states = States.from(tree, value);
+    this.transitions = Transitions.map(
+      transition => (...args: any[]) => transition(this.states, ...args),
       tree
     );
+  }
 
-    return new Microstates({ tree, transitions, states });
+  /**
+   * Create new Microstates for same type tree but new value.
+   * @param value any
+   */
+  to(value: any): Microstates {
+    return new Microstates(this.tree, value);
+  }
+
+  /**
+   * Build Microstates for given type and value.
+   * @param Type Tree
+   * @param value any 
+   */
+  static from(Type: ISchema, value?: any): Microstates {
+    validate(Type, `microstates`);
+    return new Microstates(Tree.from(Type), value);
   }
 }

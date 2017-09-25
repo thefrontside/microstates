@@ -1,6 +1,6 @@
 export default class MicrostateArray {
-  initialize(): any[] {
-    return [];
+  initialize(current: any[] = []): any[] {
+    return current;
   }
 
   push(current: Array<any>, ...args: Array<any>) {

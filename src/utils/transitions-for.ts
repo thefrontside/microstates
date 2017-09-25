@@ -8,10 +8,10 @@ import getTypeDescriptors from './get-type-descriptors';
 import transition from './transition';
 
 export default function transitionsFor(Type: ISchema): ITransitionMap {
-  let reducerType = getReducerType(Type);
+  let type = getReducerType(Type);
 
   let transitions = reduceObject(
-    getTypeDescriptors(reducerType.prototype),
+    getTypeDescriptors(type.prototype),
     (accumulator, descriptor, name) => {
       return {
         ...accumulator,
@@ -25,8 +25,8 @@ export default function transitionsFor(Type: ISchema): ITransitionMap {
     }
   );
 
-  let isComposed = reducerType === Type;
-  if (isComposed || reducerType === MicrostateObject) {
+  let isComposed = type === Type;
+  if (isComposed || type === MicrostateObject) {
     transitions = {
       ...transitions,
       merge: transition(function merge(current, state) {
