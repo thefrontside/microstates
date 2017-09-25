@@ -1,6 +1,6 @@
 import 'jest';
 
-import microstates from '../../src/microstates';
+import Microstates from '../../src/microstates';
 import transitionsFor from '../../src/utils/transitions-for';
 
 describe('number', () => {
@@ -8,18 +8,18 @@ describe('number', () => {
     let ms;
     describe('without initial', () => {
       beforeEach(() => {
-        ms = microstates(Number);
+        ms = Microstates.from(Number);
       });
       it('can be created without default', () => {
-        expect(ms.state).toBe(0);
+        expect(ms.states).toBe(0);
       });
     });
     describe('with initial', () => {
       beforeEach(() => {
-        ms = microstates(Number, 42);
+        ms = Microstates.from(Number, 42);
       });
       it('can be created with default', () => {
-        expect(ms.state).toBe(42);
+        expect(ms.states).toBe(42);
       });
     });
   });
@@ -29,7 +29,7 @@ describe('number', () => {
     describe('set', () => {
       let ms;
       beforeEach(() => {
-        ms = microstates(Number);
+        ms = Microstates.from(Number);
       });
       it('is defined', () => {
         expect(transitions.set).toBeDefined();

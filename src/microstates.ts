@@ -1,23 +1,33 @@
-import { IMicrostate, ISchema } from './Interfaces';
-import State from './utils/state';
+import { ISchema } from './Interfaces';
+import States from './utils/state';
 import Transitions from './utils/transitions';
 import Tree from './utils/tree';
 import validate from './utils/validate';
 
-export default function microstates(Type: ISchema, initial?: any): IMicrostate {
-  validate(Type, `microstates`);
+export default class Microstates {
+  private tree: Tree;
+  public transitions: Transitions;
+  public states: States;
 
-  let tree = Tree.from(Type);
-  let state = State.from(tree, initial);
+  constructor(params: { tree: Tree; transitions: Transitions; states: States }) {
+    this.tree = params.tree;
+    this.transitions = params.transitions;
+    this.states = params.states;
+  }
 
-  let transitions = Transitions.map(transition => {
-    return (...args: any[]) => {
-      return transition(state, ...args);
-    };
-  }, tree);
+  static from(Type: ISchema, initial?: any): Microstates {
+    validate(Type, `microstates`);
 
-  return {
-    state,
-    transitions,
-  };
+    let tree = Tree.from(Type);
+
+    let states = States.from(tree, initial);
+
+    let transitions = Transitions.map(transition => {
+      return (...args: any[]) => {
+        return transition(states, ...args);
+      };
+    }, tree);
+
+    return new Microstates({ tree, transitions, states });
+  }
 }

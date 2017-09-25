@@ -1,6 +1,6 @@
 import 'jest';
 
-import microstates from '../../src/microstates';
+import Microstates from '../../src/microstates';
 import transitionsFor from '../../src/utils/transitions-for';
 
 describe('boolean', () => {
@@ -8,19 +8,19 @@ describe('boolean', () => {
     describe('without initial', () => {
       let ms;
       beforeEach(() => {
-        ms = microstates(Boolean);
+        ms = Microstates.from(Boolean);
       });
       it('can be created without default', () => {
-        expect(ms.state).toBe(false);
+        expect(ms.states).toBe(false);
       });
     });
     describe('with initial', () => {
       let ms;
       beforeEach(() => {
-        ms = microstates(Boolean, true);
+        ms = Microstates.from(Boolean, true);
       });
       it('can be created with a default', () => {
-        expect(ms.state).toBe(true);
+        expect(ms.states).toBe(true);
       });
     });
   });
@@ -30,7 +30,7 @@ describe('boolean', () => {
     describe('set', () => {
       let ms;
       beforeEach(() => {
-        ms = microstates(Boolean);
+        ms = Microstates.from(Boolean);
       });
       it('is defined', () => {
         expect(transitions.set).toBeDefined();

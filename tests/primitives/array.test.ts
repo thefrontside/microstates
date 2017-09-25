@@ -1,18 +1,18 @@
 import 'jest';
 
-import microstates from '../../src/microstates';
+import Microstates from '../../src/microstates';
 import transitionsFor from '../../src/utils/transitions-for';
 
 describe('array', () => {
   describe('primitive', () => {
     describe('root', () => {
       it('can be created without a default', () => {
-        let { state, transitions } = microstates(Array);
-        expect(state).toEqual([]);
+        let { states, transitions } = Microstates.from(Array);
+        expect(states).toEqual([]);
       });
       it('can created with a default', () => {
-        let { state } = microstates(Array, ['foo']);
-        expect(state).toEqual(['foo']);
+        let { states } = Microstates.from(Array, ['foo']);
+        expect(states).toEqual(['foo']);
       });
     });
 
@@ -21,7 +21,7 @@ describe('array', () => {
       describe('set', () => {
         let ms;
         beforeEach(() => {
-          ms = microstates(Array);
+          ms = Microstates.from(Array);
         });
         it('is present', () => {
           expect(transitions.set).toBeDefined();
