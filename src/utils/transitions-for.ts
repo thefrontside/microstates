@@ -11,7 +11,7 @@ export default function transitionsFor(Type: ISchema): ITransitionMap {
   let reducerType = getReducerType(Type);
 
   let transitions = reduceObject(
-    getTypeDescriptors(reducerType),
+    getTypeDescriptors(reducerType.prototype),
     (accumulator, descriptor, name) => {
       return {
         ...accumulator,
@@ -39,7 +39,7 @@ export default function transitionsFor(Type: ISchema): ITransitionMap {
     transitions = {
       ...transitions,
       initialize: function initialize(current: any, ...args: any[]) {
-        return new (Type as IClass)(...args);
+        return new (Type as ISchema)(...args);
       },
     };
   }

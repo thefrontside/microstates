@@ -1,5 +1,9 @@
-export default class MicrostateBoolean extends Boolean {
-  static initialize = () => false;
+export default class MicrostateBoolean {
+  initialize() {
+    return false;
+  }
 
-  static toggle = (current: boolean) => !current;
+  toggle(current: boolean) {
+    return !current;
+  }
 }

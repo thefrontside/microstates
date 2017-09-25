@@ -112,12 +112,14 @@ describe('Tree', () => {
         });
         describe('initialize', () => {
           class WithInitialize {
-            static initialize = () => {};
+            initialize() {
+              return {};
+            }
           }
           it('initialize transition is used when present', () => {
             expect(Tree.from(WithInitialize)).toHaveProperty(
               'data.transitions.initialize',
-              WithInitialize.initialize
+              WithInitialize.prototype.initialize
             );
           });
           describe('default', () => {

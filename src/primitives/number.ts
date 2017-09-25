@@ -1,13 +1,21 @@
-export default class MicrostateNumber extends Number {
-  static initialize = () => 0;
+export default class MicrostateNumber {
+  initialize() {
+    return 0;
+  }
 
-  static sum = (current: number, ...args: Array<number>) =>
-    args.reduce((accumulator, value) => accumulator + value, current);
+  sum(current: number, ...args: Array<number>) {
+    return args.reduce((accumulator, value) => accumulator + value, current);
+  }
 
-  static subtract = (current: number, ...args: Array<number>) =>
-    args.reduce((accumulator, value) => accumulator - value, current);
+  subtract(current: number, ...args: Array<number>) {
+    return args.reduce((accumulator, value) => accumulator - value, current);
+  }
 
-  static increment = (current: number, step = 1) => current + step;
+  increment(current: number, step = 1) {
+    return current + step;
+  }
 
-  static decrement = (current: number, step = 1) => current - step;
+  decrement(current: number, step = 1) {
+    return current - step;
+  }
 }

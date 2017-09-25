@@ -69,7 +69,7 @@ describe('transitionsFor', () => {
   describe('composed', () => {
     let transitions = transitionsFor(
       class {
-        static action() {}
+        action() {}
       }
     );
     it('has set transition', () => {

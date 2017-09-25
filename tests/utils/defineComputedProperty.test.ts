@@ -1,7 +1,6 @@
 import 'jest';
 
-import ComputedProperty from '../../src/utils/ComputedProperty';
-import defineComputedProperty from '../../src/utils/defineComputedProperty';
+import defineComputedProperty from '../../src/utils/define-computed-property';
 
 describe('defineComputedProperty', () => {
   interface MayHaveName {

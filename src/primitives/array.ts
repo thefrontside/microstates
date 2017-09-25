@@ -1,15 +1,17 @@
-export default class MicrostateArray extends Array {
-  static initialize = (): any[] => [];
+export default class MicrostateArray {
+  initialize(): any[] {
+    return [];
+  }
 
-  static push = (current: Array<any>, ...args: Array<any>) => [...current, ...args];
+  push(current: Array<any>, ...args: Array<any>) {
+    return [...current, ...args];
+  }
 
-  static filter = (
-    current: Array<any>,
-    callback: (value: any, index: number, array: any[]) => boolean
-  ) => Array.prototype.filter.call(current, callback);
+  filter(current: Array<any>, callback: (value: any, index: number, array: any[]) => boolean) {
+    return Array.prototype.filter.call(current, callback);
+  }
 
-  static map = (
-    current: Array<any>,
-    callback: (value: any, index: number, array: any[]) => any[]
-  ) => Array.prototype.map.call(current, callback);
+  map(current: Array<any>, callback: (value: any, index: number, array: any[]) => any[]) {
+    return Array.prototype.map.call(current, callback);
+  }
 }
