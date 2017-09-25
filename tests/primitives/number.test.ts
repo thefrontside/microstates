@@ -1,8 +1,7 @@
 import 'jest';
 
 import microstates from '../../src/microstates';
-import MicrostateString from '../../src/primitives/string';
-import MicrostateNumber from '../../src/primitives/number';
+import transitionsFor from '../../src/utils/transitions-for';
 
 describe('number', () => {
   describe('as root', () => {
@@ -25,18 +24,31 @@ describe('number', () => {
     });
   });
 
-  describe('set action', () => {
-    let ms;
-    beforeEach(() => {
-      ms = microstates(Number);
+  describe('transitions', () => {
+    let transitions = transitionsFor(Number);
+    describe('set', () => {
+      let ms;
+      beforeEach(() => {
+        ms = microstates(Number);
+      });
+      it('is defined', () => {
+        expect(transitions.set).toBeDefined();
+      });
+      it('does not throw', () => {
+        expect(() => {
+          ms.transitions.set(null);
+          ms.transitions.set('');
+        }).not.toThrow();
+      });
     });
-    it('does not throw', () => {
-      expect(() => {
-        ms.transitions.set(null);
-        ms.transitions.set('');
-        ms.transitions.set(new MicrostateNumber('hello'));
-        ms.transitions.set(new MicrostateString('foo'));
-      }).not.toThrow();
+    it('has initialize transition', () => {
+      expect(transitions.initialize).toBeDefined();
+    });
+    it('has number transitions', () => {
+      expect(transitions.sum).toBeDefined();
+      expect(transitions.subtract).toBeDefined();
+      expect(transitions.increment).toBeDefined();
+      expect(transitions.decrement).toBeDefined();
     });
   });
 });

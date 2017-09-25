@@ -1,7 +1,7 @@
-import MicrostateString from '../../src/primitives/string';
-import MicrostateBoolean from '../../src/primitives/boolean';
 import 'jest';
+
 import microstates from '../../src/microstates';
+import transitionsFor from '../../src/utils/transitions-for';
 
 describe('boolean', () => {
   describe('as root', () => {
@@ -25,18 +25,28 @@ describe('boolean', () => {
     });
   });
 
-  describe('set action', () => {
-    let ms;
-    beforeEach(() => {
-      ms = microstates(Boolean);
+  describe('transitions', () => {
+    let transitions = transitionsFor(Boolean);
+    describe('set', () => {
+      let ms;
+      beforeEach(() => {
+        ms = microstates(Boolean);
+      });
+      it('is defined', () => {
+        expect(transitions.set).toBeDefined();
+      });
+      it('does not throw', () => {
+        expect(() => {
+          ms.transitions.set(null);
+          ms.transitions.set(true);
+        }).not.toThrow();
+      });
     });
-    it('does not throw', () => {
-      expect(() => {
-        ms.transitions.set(null);
-        ms.transitions.set('');
-        ms.transitions.set(new MicrostateString('foo'));
-        ms.transitions.set(new MicrostateBoolean(true));
-      }).not.toThrow();
+    it('has initialize transition', () => {
+      expect(transitions.initialize).toBeDefined();
+    });
+    it('has toggle transition', () => {
+      expect(transitions.toggle).toBeDefined();
     });
   });
 });

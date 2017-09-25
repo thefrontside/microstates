@@ -1,7 +1,7 @@
 import 'jest';
 
 import microstates from '../../src/microstates';
-import MicrostateString from '../../src/primitives/string';
+import transitionsFor from '../../src/utils/transitions-for';
 
 describe('array', () => {
   describe('primitive', () => {
@@ -16,17 +16,28 @@ describe('array', () => {
       });
     });
 
-    describe('set action', () => {
-      let ms;
-      beforeEach(() => {
-        ms = microstates(Array);
+    describe('transitions', () => {
+      let transitions = transitionsFor(Array);
+      describe('set', () => {
+        let ms;
+        beforeEach(() => {
+          ms = microstates(Array);
+        });
+        it('is present', () => {
+          expect(transitions.set).toBeDefined();
+        });
+        it('does not throw on null', () => {
+          expect(() => {
+            ms.transitions.set(null);
+            ms.transitions.set('');
+          }).not.toThrow();
+        });
       });
-      it('does not throw on null', () => {
-        expect(() => {
-          ms.transitions.set(null);
-          ms.transitions.set('');
-          ms.transitions.set(new MicrostateString('foo'));
-        }).not.toThrow();
+      it('has initialize transition', () => {
+        expect(transitions.initialize).toBeDefined();
+      });
+      it('has push transition', () => {
+        expect(transitions.push).toBeDefined();
       });
     });
   });
