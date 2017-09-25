@@ -6,7 +6,7 @@ import MicrostateString from './primitives/string';
 
 export type IState = any | Array<any> | IStateObject;
 
-export type ITransitions = ITransitionMap | ITransition;
+export type ITransitions = ITransition | ITransitionMap;
 
 export type IPath = Array<string | number>;
 
@@ -17,7 +17,7 @@ export interface IMicrostate {
 
 export interface ITransitionMap {
   initialize?: (...args: any[]) => any;
-  [name: string]: (current: any, ...args: Array<any>) => any;
+  [name: string]: ITransitions;
 }
 
 export type ISchema = { new (): any; name: String };

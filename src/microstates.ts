@@ -1,4 +1,4 @@
-import { ISchema } from './Interfaces';
+import { ISchema, ITransitionMap } from './Interfaces';
 import States from './utils/state';
 import Transitions from './utils/transitions';
 import Tree from './utils/tree';
@@ -6,10 +6,10 @@ import validate from './utils/validate';
 
 export default class Microstates {
   private tree: Tree;
-  public transitions: Transitions;
+  public transitions: ITransitionMap;
   public states: States;
 
-  constructor(params: { tree: Tree; transitions: Transitions; states: States }) {
+  constructor(params: { tree: Tree; transitions: ITransitionMap; states: States }) {
     this.tree = params.tree;
     this.transitions = params.transitions;
     this.states = params.states;
