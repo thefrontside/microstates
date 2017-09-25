@@ -30,14 +30,15 @@
     "@types/prop-types": "^15.5.1",
     "@types/ramda": "types/npm-ramda#dist",
     "jest": "^21.1.0",
-    "lodash.get": "^4.4.2",
-    "lodash.has": "^4.5.2",
     "standard-version": "^4.2.0",
     "ts-jest": "^21.0.1",
     "typescript": "~2.5.0"
   },
   "dependencies": {
     "ioo": "^0.1.7",
+    "lodash.get": "^4.4.2",
+    "lodash.has": "^4.5.2",
+    "lodash.issymbol": "^4.0.1",
     "ramda": "^0.24.1",
     "symbol-observable": "^1.0.4"
   },

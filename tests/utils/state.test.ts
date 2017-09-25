@@ -3,19 +3,17 @@ import 'jest';
 import State from '../../src/utils/state';
 import Tree from '../../src/utils/tree';
 
-const describe_primitive = (Type, initial) => {
+const describe_primitive = (Type, initial, state) => {
   describe(`${Type.name}`, () => {
-    describe('callback', () => {
-      let callback;
-      beforeEach(() => {
-        callback = jest.fn();
-        State.map(callback, Tree.from(Type));
+    let tree = Tree.from(Type);
+    describe('initial', () => {
+      it('initializes', () => {
+        expect(State.from(tree)).toEqual(initial);
       });
-      it('called callback once', () => {
-        expect(callback).toHaveBeenCalledTimes(1);
-      });
-      it('received arguments', () => {
-        expect(callback).toHaveBeenCalledWith(initial, []);
+    });
+    describe('from state', () => {
+      it('uses value', () => {
+        expect(State.from(tree, state)).toEqual(state);
       });
     });
   });
@@ -26,29 +24,32 @@ describe('State', () => {
     expect(State.map).toBeDefined();
   });
   describe('map', () => {
-    describe_primitive(Number, 0);
-    describe_primitive(String, '');
-    describe_primitive(Boolean, false);
-    describe_primitive(Array, []);
-    describe_primitive([], []);
-    describe_primitive(Object, {});
+    describe_primitive(Number, 0, 5);
+    describe_primitive(String, '', 'foo');
+    describe_primitive(Boolean, false, true);
+    describe_primitive(Array, [], ['foo']);
+    describe_primitive([], [], ['bar']);
+    describe_primitive(Object, {}, { foo: 'bar' });
     describe('composed', () => {
       describe('type', () => {
         class Todo {}
-        describe('callback', () => {
-          let callback;
-          beforeEach(() => {
-            callback = jest.fn();
-            State.map(callback, Tree.from(Todo));
+        let tree = Tree.from(Todo);
+        describe('initial', () => {
+          let state = State.from(tree);
+          it('is instance of Todo', () => {
+            expect(state).toBeInstanceOf(Todo);
           });
-          it('called callback once', () => {
-            expect(callback).toHaveBeenCalledTimes(1);
+          it('initializes', () => {
+            expect(state).toEqual({});
           });
-          it('recieved initial value which is instance of Todo', () => {
-            expect(callback.mock.calls[0][0]).toBeInstanceOf(Todo);
+        });
+        describe('from state', () => {
+          let state = State.from(tree, { foo: 'bar' });
+          it('is instance of Todo', () => {
+            expect(state).toBeInstanceOf(Todo);
           });
-          it('recieved empty path as second argument', () => {
-            expect(callback.mock.calls[0][1]).toEqual([]);
+          it('restores value', () => {
+            expect(state).toEqual({});
           });
         });
       });
@@ -56,18 +57,24 @@ describe('State', () => {
         class Todo {
           isCompleted = Boolean;
         }
-        describe('callback', () => {
-          let callback;
-          beforeEach(() => {
-            callback = jest.fn();
-            let state = State.map(callback, Tree.from(Todo));
-            state.isCompleted;
+        let tree = Tree.from(Todo);
+        describe('initial', () => {
+          let state = State.from(tree);
+          it('is instance of Todo', () => {
+            expect(state).toBeInstanceOf(Todo);
           });
-          it('was called twice', () => {
-            expect(callback).toHaveBeenCalledTimes(2);
+          it('initializes', () => {
+            expect(state).toEqual({ isCompleted: false });
           });
-          it('called with initial boolean state for isCompleted', () => {
-            expect(callback).toHaveBeenLastCalledWith(false, ['isCompleted']);
+        });
+        describe('from state', () => {
+          let initial = { isCompleted: true };
+          let state = State.from(tree, initial);
+          it('is instance of Todo', () => {
+            expect(state).toBeInstanceOf(Todo);
+          });
+          it('restores value', () => {
+            expect(state).toEqual({ isCompleted: true });
           });
         });
       });
@@ -78,75 +85,80 @@ describe('State', () => {
         class Todo {
           owner = Person;
         }
-        describe('callback', () => {
-          let callback;
-          beforeEach(() => {
-            callback = jest.fn();
-            let state = State.map(callback, Tree.from(Todo));
-            state.owner.name;
-          });
-          it('was called thrice', () => {
-            expect(callback).toHaveBeenCalledTimes(3);
-          });
-          it('was called with arguments', () => {
-            expect(callback.mock.calls).toEqual([
-              [{ owner: Person }, []],
-              [{ name: String }, ['owner']],
-              ['', ['owner', 'name']],
-            ]);
-          });
-        });
-        describe('result', () => {
-          let state;
-          beforeEach(() => {
-            state = State.map(v => v, Tree.from(Todo));
-            state.owner.name;
-          });
-          it('is empty', () => {
-            expect(state).toEqual({ owner: { name: '' } });
-          });
-          it('has nodes as instances of classes', () => {
+        let tree = Tree.from(Todo);
+        describe('initial', () => {
+          let state = State.from(tree);
+          it('has nodes as instances', () => {
             expect(state).toBeInstanceOf(Todo);
             expect(state.owner).toBeInstanceOf(Person);
+          });
+          it('initializes', () => {
+            expect(state).toEqual({ owner: { name: '' } });
+          });
+        });
+        describe('from state', () => {
+          let state = State.from(tree, { owner: { name: 'peter' } });
+          it('has nodes as instances', () => {
+            expect(state).toBeInstanceOf(Todo);
+            expect(state.owner).toBeInstanceOf(Person);
+          });
+          it('restores value', () => {
+            expect(state).toEqual({ owner: { name: 'peter' } });
           });
         });
       });
       describe('parameterized', () => {
         class Todo {
+          isCompleted = Boolean;
           tasks = [Todo];
         }
-        describe('callback', () => {
-          let callback;
+        let tree = Tree.from(Todo);
+        describe('initial', () => {
+          let state;
           beforeEach(() => {
-            callback = jest.fn().mockImplementation(v => v);
-            let state = State.map(callback, Tree.from(Todo));
-            state.tasks[0].tasks[2];
+            state = State.from(tree);
           });
-          it('was called five times', () => {
-            expect(callback).toHaveBeenCalledTimes(5);
+          it('has nodes as instances', () => {
+            expect(state).toBeInstanceOf(Todo);
+            expect(state.tasks[0]).toBeInstanceOf(Todo);
           });
-          it('received path', () => {
-            expect(callback.mock.calls[0][1]).toEqual([]);
-            expect(callback.mock.calls[1][1]).toEqual(['tasks']);
-            expect(callback.mock.calls[2][1]).toEqual(['tasks', 0]);
-            expect(callback.mock.calls[3][1]).toEqual(['tasks', 0, 'tasks']);
-            expect(callback.mock.calls[4][1]).toEqual(['tasks', 0, 'tasks', 2]);
+          it('initializes', () => {
+            expect(simplify(state)).toEqual({ isCompleted: false, tasks: [] });
           });
         });
-        describe('caching', () => {
-          let callback;
+        describe('from state', () => {
+          let state;
           beforeEach(() => {
-            callback = jest.fn().mockImplementation(v => v);
-            let state = State.map(callback, Tree.from(Todo));
-            state.tasks[0].tasks[2];
-            state.tasks[0].tasks;
-            state.tasks[1];
+            state = State.from(tree, {
+              isCompleted: false,
+              tasks: [{ isCompleted: true }, { isCompleted: false }],
+            });
           });
-          it('was called six times', () => {
-            expect(callback).toHaveBeenCalledTimes(6);
+          it('has nodes as instances', () => {
+            expect(state).toBeInstanceOf(Todo);
+            expect(state.tasks[0]).toBeInstanceOf(Todo);
+            expect(state.tasks[1]).toBeInstanceOf(Todo);
+          });
+          it.skip('restores value', () => {
+            expect(simplify(state)).toEqual({
+              isCompleted: false,
+              tasks: [{ isCompleted: true, tasks: [] }, { isCompleted: false, tasks: [] }],
+            });
           });
         });
       });
     });
   });
 });
+
+/**
+ * jest uses pretty-format library which incorrectly interprets
+ * state objects as Immutable.js objects and attempts to use immutable.js
+ * apis on these objects. 
+ * 
+ * This function serializes state objects to object hashes and compares them
+ * without any immutable.js baggage.
+ */
+function simplify(value) {
+  return JSON.parse(JSON.stringify(value));
+}

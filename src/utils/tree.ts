@@ -1,5 +1,6 @@
 import { reduceObject } from 'ioo';
 import * as has from 'lodash.has';
+import * as isSymbol from 'lodash.issymbol';
 
 import { IClass, IPath, ISchema, ITypeTree } from '../Interfaces';
 import defineComputedProperty from './defineComputedProperty';
@@ -81,7 +82,7 @@ export default class Tree {
       return new Proxy(node, {
         get(target, propName: string) {
           let [Type] = tree.data.schemaType as Array<IClass>;
-          if (!has(node, propName)) {
+          if (!isSymbol(propName) && !has(node, propName)) {
             defineComputedProperty(
               node,
               propName,
