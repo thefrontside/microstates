@@ -20,9 +20,7 @@ export interface ITransitionMap {
   [name: string]: (current: any, ...args: Array<any>) => any;
 }
 
-export type IClass = { new (): any; name: String };
-
-export type ISchema = IClass | Array<IClass>;
+export type ISchema = { new (): any; name: String };
 
 export interface IStateObject {
   [name: string]: IState;
@@ -51,13 +49,11 @@ export interface ITypeTree {
   path: IPath;
   isPrimitive: boolean;
   isComposed: boolean;
-  isParameterized: boolean;
   isList: boolean;
   properties?: ITypeTreeProperties | null;
   transitions: ITransitionMap;
   schemaType: ISchema;
   type: IMicrostateType;
-  of: Array<ITypeTree>;
 }
 
 export interface ITypeTreeProperties {

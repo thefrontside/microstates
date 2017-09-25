@@ -19,7 +19,7 @@ describe('Tree', () => {
       has(number, 'data.path', []);
       has(number, 'data.isPrimitive', true);
       has(number, 'data.isComposed', false);
-      has(number, 'data.isParameterized', false);
+      has(number, 'data.isParameterized', undefined);
       has(number, 'data.isList', false);
       has(number, 'data.properties', undefined);
       has(number, 'data.schemaType', Number);
@@ -35,7 +35,7 @@ describe('Tree', () => {
       has(string, 'data.path', []);
       has(string, 'data.isPrimitive', true);
       has(string, 'data.isComposed', false);
-      has(string, 'data.isParameterized', false);
+      has(string, 'data.isParameterized', undefined);
       has(string, 'data.isList', false);
       has(string, 'data.properties', undefined);
       has(string, 'data.schemaType', String);
@@ -50,7 +50,7 @@ describe('Tree', () => {
       has(boolean, 'data.path', []);
       has(boolean, 'data.isPrimitive', true);
       has(boolean, 'data.isComposed', false);
-      has(boolean, 'data.isParameterized', false);
+      has(boolean, 'data.isParameterized', undefined);
       has(boolean, 'data.isList', false);
       has(boolean, 'data.properties', undefined);
       has(boolean, 'data.schemaType', Boolean);
@@ -65,7 +65,7 @@ describe('Tree', () => {
       has(object, 'data.path', []);
       has(object, 'data.isPrimitive', true);
       has(object, 'data.isComposed', false);
-      has(object, 'data.isParameterized', false);
+      has(object, 'data.isParameterized', undefined);
       has(object, 'data.isList', false);
       has(object, 'data.properties', undefined);
       has(object, 'data.schemaType', Object);
@@ -82,7 +82,7 @@ describe('Tree', () => {
         has(array, 'data.path', []);
         has(array, 'data.isPrimitive', true);
         has(array, 'data.isComposed', false);
-        has(array, 'data.isParameterized', false);
+        has(array, 'data.isParameterized', undefined);
         has(array, 'data.isList', true);
         has(array, 'data.properties', undefined);
         has(array, 'data.schemaType', type);
@@ -94,9 +94,6 @@ describe('Tree', () => {
       }
       describe('Array', () => {
         array_it(Array);
-      });
-      describe('[]', () => {
-        array_it([]);
       });
     });
   });
@@ -152,7 +149,7 @@ describe('Tree', () => {
         has(tree, 'data.path', []);
         has(tree, 'data.isPrimitive', false);
         has(tree, 'data.isComposed', true);
-        has(tree, 'data.isParameterized', false);
+        has(tree, 'data.isParameterized', undefined);
         has(tree, 'data.isList', false);
         has(tree, 'data.schemaType', Item);
         has(tree, 'data.type', Item);
@@ -203,7 +200,7 @@ describe('Tree', () => {
           expect(tree.children.child).toHaveProperty('data.path', ['child']);
           expect(tree.children.child).toHaveProperty('data.isPrimitive', false);
           expect(tree.children.child).toHaveProperty('data.isComposed', true);
-          expect(tree.children.child).toHaveProperty('data.isParameterized', false);
+          expect(tree.children.child).toHaveProperty('data.isParameterized', undefined);
           expect(tree.children.child).toHaveProperty('data.schemaType', Child);
           expect(tree.children.child).toHaveProperty('data.type', Child);
           expect(tree.children.child.children.name).toHaveProperty('data.isPrimitive', true);
@@ -219,24 +216,6 @@ describe('Tree', () => {
         expect(tree.children.item.children.item).toBeInstanceOf(Tree);
         expect(tree.children.item.children.item.data.type).toBe(Item);
         expect(tree.children.item.children.item.data.path).toEqual(['item', 'item']);
-      });
-    });
-    describe('arrays', () => {
-      class Item {
-        name = String;
-      }
-      describe('supports [<Type>] syntax', () => {
-        let tree = Tree.from([Item]);
-        has(tree, 'data.isComposed', true);
-        has(tree, 'data.isPrimitive', false);
-        has(tree, 'data.isParameterized', true);
-        has(tree, 'data.isList', true);
-        has(tree, 'data.properties', undefined);
-        has(tree, 'data.schemaType', [Item]);
-        has(tree, 'data.type', MicrostateArray);
-        it('has push transition', () => {
-          expect(tree.data.transitions.push).toBeDefined();
-        });
       });
     });
   });
@@ -329,72 +308,6 @@ describe('Tree', () => {
           });
           it('received [parent, parent] on 3th call', () => {
             expect(callback).toHaveProperty('mock.calls.3.1', ['parent', 'parent']);
-          });
-        });
-      });
-      describe('shallow parameterized list', () => {
-        let callback;
-        beforeEach(() => {
-          callback = jest.fn().mockImplementation(node => (node.isList ? [] : {}));
-          Tree.map(callback, Tree.from([String]));
-        });
-        it('is called once', () => {
-          expect(callback).toHaveBeenCalledTimes(1);
-        });
-        describe('first argument', () => {
-          it('is an object with isPrimitive equal false', () => {
-            expect(callback).toHaveProperty('mock.calls.0.0.isPrimitive', false);
-          });
-          it('is an object with isList equal true', () => {
-            expect(callback).toHaveProperty('mock.calls.0.0.isList', true);
-          });
-          it('is an object with isParameterized equal true', () => {
-            expect(callback).toHaveProperty('mock.calls.0.0.isParameterized', true);
-          });
-        });
-      });
-      describe('deep parameterized list', () => {
-        class Todo {
-          isCompleted = Boolean;
-          tasks = [Todo];
-        }
-        class State {
-          todos = [Todo];
-        }
-        describe('accessing deeply nested nodes', () => {
-          let callback;
-          beforeEach(() => {
-            callback = jest.fn().mockImplementation(node => (node.isList ? [] : {}));
-            let tree = Tree.map(callback, Tree.from(State));
-            tree.todos[0].tasks[1].isCompleted;
-          });
-          it('called callback 6 times', () => {
-            expect(callback).toHaveBeenCalledTimes(6);
-          });
-          it('called callback for todos.0', () => {
-            expect(callback.mock.calls[2][1]).toEqual(['todos', 0]);
-          });
-          it('called callback for todos.0.tasks.1', () => {
-            expect(callback.mock.calls[4][1]).toEqual(['todos', 0, 'tasks', 1]);
-          });
-          it('called callback for todos.0.tasks.1.isCompleted', () => {
-            expect(callback.mock.calls[5][1]).toEqual(['todos', 0, 'tasks', 1, 'isCompleted']);
-          });
-        });
-        describe('caching', () => {
-          let callback;
-          beforeEach(() => {
-            callback = jest.fn().mockImplementation(node => (node.isList ? [] : {}));
-            let tree = Tree.map(callback, Tree.from(State));
-            tree.todos[0];
-            tree.todos[0].tasks[1];
-            tree.todos[0].tasks[1].isCompleted;
-            tree;
-            tree.todos;
-            tree.todos[0].tasks;
-          });
-          it('called callback only six times', () => {
-            expect(callback).toHaveBeenCalledTimes(6);
           });
         });
       });

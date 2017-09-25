@@ -1,10 +1,10 @@
 import { reduceObject } from 'ioo';
 import * as mergeDeepRight from 'ramda/src/mergeDeepRight';
 
-import { IClass, ISchema, ITransitionMap } from '../Interfaces';
+import { ISchema, ITransitionMap } from '../Interfaces';
 import MicrostateObject from '../primitives/object';
-import getReducerType from './getReducerType';
-import getTypeDescriptors from './getTypeDescriptors';
+import getReducerType from './get-reducer-type';
+import getTypeDescriptors from './get-type-descriptors';
 import transition from './transition';
 
 export default function transitionsFor(Type: ISchema): ITransitionMap {

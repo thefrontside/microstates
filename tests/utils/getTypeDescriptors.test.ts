@@ -1,12 +1,10 @@
 import 'jest';
 
-import getTypeDescriptors from '../../src/utils/getTypeDescriptors';
+import getTypeDescriptors from '../../src/utils/get-type-descriptors';
 
 describe('getTypeDescriptors', () => {
-  const ArrayOfStrings = [String];
   class Item {
     string = String;
-    array = ArrayOfStrings;
     say() {
       return 'hello';
     }
@@ -40,12 +38,6 @@ describe('getTypeDescriptors', () => {
       expect(instanceDescriptors).toEqual({
         string: {
           value: String,
-          configurable: true,
-          enumerable: true,
-          writable: true,
-        },
-        array: {
-          value: ArrayOfStrings,
           configurable: true,
           enumerable: true,
           writable: true,

@@ -28,7 +28,6 @@ describe('State', () => {
     describe_primitive(String, '', 'foo');
     describe_primitive(Boolean, false, true);
     describe_primitive(Array, [], ['foo']);
-    describe_primitive([], [], ['bar']);
     describe_primitive(Object, {}, { foo: 'bar' });
     describe('composed', () => {
       describe('type', () => {
@@ -104,46 +103,6 @@ describe('State', () => {
           });
           it('restores value', () => {
             expect(state).toEqual({ owner: { name: 'peter' } });
-          });
-        });
-      });
-      describe('parameterized', () => {
-        class Todo {
-          isCompleted = Boolean;
-          tasks = [Todo];
-        }
-        let tree = Tree.from(Todo);
-        describe('initial', () => {
-          let state;
-          beforeEach(() => {
-            state = State.from(tree);
-          });
-          it('has nodes as instances', () => {
-            expect(state).toBeInstanceOf(Todo);
-            expect(state.tasks[0]).toBeInstanceOf(Todo);
-          });
-          it('initializes', () => {
-            expect(simplify(state)).toEqual({ isCompleted: false, tasks: [] });
-          });
-        });
-        describe('from state', () => {
-          let state;
-          beforeEach(() => {
-            state = State.from(tree, {
-              isCompleted: false,
-              tasks: [{ isCompleted: true }, { isCompleted: false }],
-            });
-          });
-          it('has nodes as instances', () => {
-            expect(state).toBeInstanceOf(Todo);
-            expect(state.tasks[0]).toBeInstanceOf(Todo);
-            expect(state.tasks[1]).toBeInstanceOf(Todo);
-          });
-          it.skip('restores value', () => {
-            expect(simplify(state)).toEqual({
-              isCompleted: false,
-              tasks: [{ isCompleted: true, tasks: [] }, { isCompleted: false, tasks: [] }],
-            });
           });
         });
       });

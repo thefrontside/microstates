@@ -1,9 +1,9 @@
 import { ISchema } from '../Interfaces';
-import MicrostateString from '../primitives/string';
-import MicrostateNumber from '../primitives/number';
-import MicrostateBoolean from '../primitives/boolean';
-import MicrostateObject from '../primitives/object';
 import MicrostateArray from '../primitives/array';
+import MicrostateBoolean from '../primitives/boolean';
+import MicrostateNumber from '../primitives/number';
+import MicrostateObject from '../primitives/object';
+import MicrostateString from '../primitives/string';
 
 export default function getReducerType(type: ISchema) {
   switch (type) {
@@ -17,9 +17,6 @@ export default function getReducerType(type: ISchema) {
       return MicrostateObject;
     case Array:
       return MicrostateArray;
-  }
-  if (Array.isArray(type)) {
-    return MicrostateArray;
   }
   return type;
 }

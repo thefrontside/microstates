@@ -1,17 +1,20 @@
 import { IMicrostate, ISchema } from './Interfaces';
-import mapTransitions from './utils/mapTransitions';
-import stateFor from './utils/stateFor';
-import TypeTree from './utils/TypeTree';
+import State from './utils/state';
+import Transitions from './utils/transitions';
+import Tree from './utils/tree';
 import validate from './utils/validate';
 
-export default function microstates(Type: ISchema, initial: any): IMicrostate {
+export default function microstates(Type: ISchema, initial?: any): IMicrostate {
   validate(Type, `microstates`);
 
-  let tree = new TypeTree(Type);
-  let state = stateFor(tree, initial);
-  let transitions = mapTransitions(tree, [], function onTransition(transition, ...args) {
-    return stateFor(tree, transition(state, ...args));
-  });
+  let tree = Tree.from(Type);
+  let state = State.from(tree, initial);
+
+  let transitions = Transitions.map(transition => {
+    return (...args: any[]) => {
+      return transition(state, ...args);
+    };
+  }, tree);
 
   return {
     state,

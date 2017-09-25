@@ -1,9 +1,8 @@
 import { reduceObject } from 'ioo';
 import * as lensPath from 'ramda/src/lensPath';
 
-import { ITransitionMap } from '../../dist/Interfaces';
-import { IPath, ITypeTree } from '../Interfaces';
-import defineComputedProperty from './defineComputedProperty';
+import { IPath, ITransitionMap, ITypeTree } from '../Interfaces';
+import defineComputedProperty from './define-computed-property';
 import Tree from './tree';
 
 export default class Transitions {

@@ -1,5 +1,5 @@
-import ComputedProperty from './ComputedProperty';
 import { IDescriptor } from '../Interfaces';
+import ComputedProperty from './computed-property';
 
 export default function defineComputedProperty(
   object: Object,

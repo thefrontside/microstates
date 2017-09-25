@@ -1,6 +1,7 @@
-import { IDescriptor } from '../Interfaces';
 import { filterObject } from 'ioo';
-import getOwnPropertyDescriptors from './getOwnPropertyDescriptors';
+
+import { IDescriptor } from '../Interfaces';
+import getOwnPropertyDescriptors from './get-own-property-descriptors';
 
 export default function getTypeDescriptors(Class: any) {
   return filterObject(getOwnPropertyDescriptors(Class), (descriptor: IDescriptor, name: string) => {

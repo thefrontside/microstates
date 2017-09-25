@@ -1,13 +1,10 @@
 import { reduceObject } from 'ioo';
-import * as has from 'lodash.has';
-import * as isSymbol from 'lodash.issymbol';
 
-import { IClass, IPath, ISchema, ITypeTree } from '../Interfaces';
-import defineComputedProperty from './defineComputedProperty';
-import getReducerType from './getReducerType';
+import { IPath, ISchema, ITypeTree } from '../Interfaces';
+import defineComputedProperty from './define-computed-property';
+import getReducerType from './get-reducer-type';
 import isList from './is-list';
-import isParameterized from './is-parameterized';
-import isPrimitive from './isPrimitive';
+import isPrimitive from './is-primitive';
 import propertiesFor from './properties-for';
 import transitionsFor from './transitions-for';
 
@@ -18,7 +15,6 @@ export default class Tree {
   static from(Type: ISchema, path: IPath = []): Tree {
     let primitive = isPrimitive(Type);
     let [name] = path.slice(-1);
-    let parameterized = isParameterized(Type);
     let list = isList(Type);
 
     return Object.create(Tree.prototype, {
@@ -32,7 +28,6 @@ export default class Tree {
             isPrimitive: primitive,
             isComposed: !primitive,
             isList: list,
-            isParameterized: parameterized,
             transitions: transitionsFor(Type),
           };
         },
@@ -76,27 +71,6 @@ export default class Tree {
   }
 
   static map(fn: (node: ITypeTree, path: IPath) => any, tree: Tree): any {
-    let node = fn(tree.data, tree.data.path);
-    let { isParameterized, isList } = tree.data;
-    if (isParameterized) {
-      return new Proxy(node, {
-        get(target, propName: string) {
-          let [Type] = tree.data.schemaType as Array<IClass>;
-          if (!isSymbol(propName) && !has(node, propName)) {
-            defineComputedProperty(
-              node,
-              propName,
-              function computeProxyNode() {
-                let key = isList ? parseInt(propName) : propName;
-                return Tree.map(fn, Tree.from(Type, [...tree.data.path, key]));
-              },
-              { enumerable: true }
-            );
-          }
-          return node[propName];
-        },
-      });
-    }
     return reduceObject(
       tree.children,
       (accumulator, child: Tree, name: string) => {
@@ -111,7 +85,7 @@ export default class Tree {
           }
         );
       },
-      node
+      fn(tree.data, tree.data.path)
     );
   }
 }
