@@ -22,11 +22,10 @@ export default class Microstates {
 
     let states = States.from(tree, initial);
 
-    let transitions = Transitions.map(transition => {
-      return (...args: any[]) => {
-        return transition(states, ...args);
-      };
-    }, tree);
+    let transitions = Transitions.map(
+      transition => (...args: any[]) => transition(states, ...args),
+      tree
+    );
 
     return new Microstates({ tree, transitions, states });
   }
