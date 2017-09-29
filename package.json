@@ -2,17 +2,15 @@
   "name": "microstates",
   "version": "0.1.0",
   "description": "Immutable. Composable. Lovable.",
-  "main": "dist/main.js",
-  "typings": "dist/main.d.ts",
+  "main": "src/index.js",
   "homepage": "https://github.com/cowboyd/microstates.js#readme",
   "keywords": ["blood", "microstates", "immutable"],
   "scripts": {
-    "build": "tsc",
-    "test": "yarn run build && jest",
-    "test:watch": "yarn run build && yarn test -- --watch",
+    "test": "jest",
+    "test:watch": "yarn test -- --watch",
     "coverage": "yarn test -- --coverage --no-cache",
     "coverage:watch": "yarn run coverage -- --watch",
-    "prerelease": "yarn run build && yarn test",
+    "prerelease": "yarn test",
     "release": "standard-version && yarn pack"
   },
   "repository": {
@@ -25,28 +23,21 @@
     "url": "https://github.com/cowboyd/microstates.js/issues"
   },
   "devDependencies": {
-    "@types/jest": "^21.1.0",
-    "@types/node": "^8.0.30",
-    "@types/prop-types": "^15.5.1",
-    "@types/ramda": "types/npm-ramda#dist",
+    "babel-cli": "6.26.0",
+    "babel-jest": "21.2.0",
+    "babel-preset-env": "1.6.0",
     "jest": "^21.1.0",
-    "standard-version": "^4.2.0",
-    "ts-jest": "^21.0.1",
-    "typescript": "~2.5.0"
+    "standard-version": "^4.2.0"
   },
   "dependencies": {
     "ioo": "^0.1.7",
     "lodash.get": "^4.4.2",
     "lodash.has": "^4.5.2",
     "lodash.issymbol": "^4.0.1",
-    "ramda": "^0.24.1",
-    "symbol-observable": "^1.0.4"
+    "ramda": "^0.24.1"
   },
   "jest": {
-    "transform": {
-      ".(ts|tsx)": "<rootDir>/node_modules/ts-jest/preprocessor.js"
-    },
-    "testRegex": "(/tests/.*|\\.(test|spec))\\.(ts|tsx|js)$",
-    "moduleFileExtensions": ["ts", "tsx", "js", "json"]
+    "testRegex": "(/tests/.*|\\.(test|spec))\\.(js)$",
+    "moduleFileExtensions": ["js", "json"]
   }
 }
