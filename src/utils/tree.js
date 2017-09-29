@@ -1,3 +1,4 @@
+import { Functor } from 'funcadelic';
 import { reduceObject } from 'ioo';
 
 import defineComputedProperty from './define-computed-property';
@@ -7,7 +8,7 @@ import isPrimitive from './is-primitive';
 import propertiesFor from './properties-for';
 import transitionsFor from './transitions-for';
 
-export default class Tree {
+class Tree {
   constructor() {
     this.data = null;
   }
@@ -85,3 +86,9 @@ export default class Tree {
     );
   }
 }
+
+Functor.instance(Tree, {
+  map() {},
+});
+
+export default Tree;
