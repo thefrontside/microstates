@@ -1,8 +1,7 @@
-import { reduceObject } from 'ioo';
+import { foldl, map } from 'funcadelic';
 import lensPath from 'ramda/src/lensPath';
 
 import defineComputedProperty from './define-computed-property';
-import Tree from './tree';
 
 export default class Transitions {
   /**
@@ -34,10 +33,9 @@ export default class Transitions {
      * @param tree Tree
      */
   static map(fn, tree) {
-    return Tree.map(function transitionsMap(node, path) {
-      return reduceObject(
-        node.transitions,
-        (accumulator, transition, name) =>
+    return map(function transitionsMap(node, path) {
+      return foldl(
+        (accumulator, { key: name, value: transition }) =>
           defineComputedProperty(
             accumulator,
             name,
@@ -46,7 +44,8 @@ export default class Transitions {
             },
             { enumerable: true }
           ),
-        new Transitions()
+        new Transitions(),
+        node.transitions
       );
     }, tree);
   }

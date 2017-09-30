@@ -19,10 +19,10 @@ const describe_primitive = (Type, initial, state) => {
   });
 };
 describe('State', () => {
-  it('has map', () => {
-    expect(State.map).toBeDefined();
-  });
   describe('map', () => {
+    it('is defined', () => {
+      expect(State.map).toBeDefined();
+    });
     describe_primitive(Number, 0, 5);
     describe_primitive(String, '', 'foo');
     describe_primitive(Boolean, false, true);

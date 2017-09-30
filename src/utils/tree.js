@@ -1,4 +1,4 @@
-import { Functor } from 'funcadelic';
+import { Foldable, foldl, foldr, Functor, map } from 'funcadelic';
 import { reduceObject } from 'ioo';
 
 import defineComputedProperty from './define-computed-property';
@@ -8,7 +8,7 @@ import isPrimitive from './is-primitive';
 import propertiesFor from './properties-for';
 import transitionsFor from './transitions-for';
 
-class Tree {
+class TypeTree {
   constructor() {
     this.data = null;
   }
@@ -16,7 +16,7 @@ class Tree {
     let primitive = isPrimitive(Type);
     let [name] = path.slice(-1);
     let list = isList(Type);
-    return Object.create(Tree.prototype, {
+    return Object.create(TypeTree.prototype, {
       data: {
         get() {
           return {
@@ -59,7 +59,7 @@ class Tree {
             propertiesFor(getReducerType(Type)),
             (accumulator, type, propName) => {
               return Object.assign({}, accumulator, {
-                [propName]: Tree.from(type, [...path, propName]),
+                [propName]: TypeTree.from(type, [...path, propName]),
               });
             }
           );
@@ -67,28 +67,42 @@ class Tree {
       },
     });
   }
-  static map(fn, tree) {
-    return reduceObject(
-      tree.children,
-      (accumulator, child, name) => {
-        return defineComputedProperty(
-          accumulator,
-          name,
-          function computeNode() {
-            return Tree.map(fn, child);
+}
+
+Foldable.instance(TypeTree, {
+  foldl(fn, initial = {}, tree) {
+    return foldl((memo, args) => fn(memo, args), initial, tree.children);
+  },
+  foldr(fn, initial = {}, tree) {
+    return foldr((memo, args) => fn(memo, args), initial, tree.children);
+  },
+});
+
+Functor.instance(TypeTree, {
+  /**
+   * Lazily invoke callback on every proprerty of given tree,
+   * the return value is assigned to property value.
+   * 
+   * @param {*} fn (TypeTree, path) => any
+   * @param {*} tree Tree
+   */
+  map(fn, tree) {
+    return foldl(
+      (memo, { key, value }) =>
+        defineComputedProperty(
+          memo,
+          key,
+          function computePropertyValue() {
+            return map(fn, value);
           },
           {
             enumerable: true,
           }
-        );
-      },
-      fn(tree.data, tree.data.path)
+        ),
+      fn(tree.data, tree.data.path),
+      tree
     );
-  }
-}
-
-Functor.instance(Tree, {
-  map() {},
+  },
 });
 
-export default Tree;
+export default TypeTree;

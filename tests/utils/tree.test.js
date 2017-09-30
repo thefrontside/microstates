@@ -1,5 +1,6 @@
 import 'jest';
 
+import { map } from 'funcadelic';
 import get from 'lodash.get';
 
 import MicrostateArray from '../../src/primitives/array';
@@ -11,7 +12,65 @@ import Tree from '../../src/utils/tree';
 
 let has = (subject, property, value) =>
   it(`has ${property} as ${value}`, () => expect(get(subject, property)).toEqual(value));
+
 describe('Tree', () => {
+  describe('map support', () => {
+    describe('from primitive', () => {
+      let callback;
+      beforeEach(() => {
+        callback = jest.fn();
+        map(callback, Tree.from(Number));
+      });
+      it('is invoked once', () => {
+        expect(callback).toHaveBeenCalled();
+      });
+      it('received tree data as first argument', () => {
+        expect(callback.mock.calls[0][0]).toHaveProperty('isPrimitive', true);
+        expect(callback.mock.calls[0][0]).toHaveProperty('transitions.increment');
+      });
+    });
+    describe('from composed', () => {
+      class Item {
+        name = String;
+        child = Item;
+      }
+      describe('root', () => {
+        let callback;
+        let tree;
+        beforeEach(() => {
+          callback = jest.fn().mockImplementation(node => (node.isPrimitive ? 'foo' : {}));
+          tree = map(callback, Tree.from(Item));
+        });
+        it('is invoked only once', () => {
+          expect(callback).toHaveBeenCalled();
+        });
+        it('received composed node', () => {
+          expect(callback.mock.calls[0][0]).toHaveProperty('isComposed', true);
+        });
+      });
+      describe('composed states', () => {
+        let callback;
+        let tree;
+        beforeEach(() => {
+          callback = jest.fn().mockImplementation(node => (node.isPrimitive ? 'foo' : {}));
+          tree = map(callback, Tree.from(Item));
+          tree.name;
+          tree.child;
+        });
+        it('was called 3 types', () => {
+          expect(callback).toHaveBeenCalledTimes(3);
+        });
+        it('sent string node to the callback', () => {
+          expect(callback.mock.calls[1][0]).toHaveProperty('schemaType', String);
+          expect(callback.mock.calls[1][1]).toEqual(['name']);
+        });
+        it('sent composed node to the callback', () => {
+          expect(callback.mock.calls[2][0]).toHaveProperty('schemaType', Item);
+          expect(callback.mock.calls[2][1]).toEqual(['child']);
+        });
+      });
+    });
+  });
   describe('primitives', () => {
     describe('number', () => {
       let number = Tree.from(Number);
@@ -158,13 +217,11 @@ describe('Tree', () => {
       });
       describe('with children', () => {
         class Item {
-          constructor() {
-            this.string = String;
-            this.number = Number;
-            this.boolean = Boolean;
-            this.object = Object;
-            this.array = Array;
-          }
+          string = String;
+          number = Number;
+          boolean = Boolean;
+          object = Object;
+          array = Array;
         }
         let tree = Tree.from(Item);
         it('have paths', () => {
@@ -191,15 +248,11 @@ describe('Tree', () => {
       });
       describe('composed properties', () => {
         class Child {
-          constructor() {
-            this.name = String;
-          }
+          name = String;
         }
         class Parent {
-          constructor() {
-            this.name = String;
-            this.child = Child;
-          }
+          name = String;
+          child = Child;
         }
         let tree = Tree.from(Parent);
         it('are present', () => {
@@ -215,9 +268,7 @@ describe('Tree', () => {
       });
       it('supports circular composed objects', () => {
         class Item {
-          constructor() {
-            this.item = Item;
-          }
+          item = Item;
         }
         let tree = Tree.from(Item);
         expect(tree.children.item).toBeInstanceOf(Tree);
@@ -229,9 +280,6 @@ describe('Tree', () => {
     });
   });
   describe('map', () => {
-    it('is defined', () => {
-      expect(Tree.map).toBeDefined();
-    });
     describe('callback', () => {
       let describe_for = Type => {
         let it_received = (property, expected) => {
@@ -242,8 +290,8 @@ describe('Tree', () => {
         let callback;
         describe(`for ${Type.name}`, () => {
           beforeEach(() => {
-            callback = jest.fn();
-            Tree.map(callback, Tree.from(Type));
+            callback = jest.fn().mockImplementation(node => {});
+            map(callback, Tree.from(Type));
           });
           it(`is called once`, () => {
             expect(callback).toHaveBeenCalledTimes(1);
@@ -272,11 +320,9 @@ describe('Tree', () => {
         beforeEach(() => {
           callback = jest.fn();
           class Person {
-            constructor() {
-              this.name = String;
-            }
+            name = String;
           }
-          Tree.map(callback, Tree.from(Person));
+          map(callback, Tree.from(Person));
         });
         it('is called once', () => {
           expect(callback).toHaveBeenCalledTimes(1);
@@ -297,12 +343,10 @@ describe('Tree', () => {
           beforeEach(() => {
             callback = jest.fn().mockImplementation(() => {});
             class Person {
-              constructor() {
-                this.name = String;
-                this.parent = Person;
-              }
+              name = String;
+              parent = Person;
             }
-            let tree = Tree.map(callback, Tree.from(Person));
+            let tree = map(callback, Tree.from(Person));
             tree.parent;
             tree.parent.name;
             tree.parent.parent;
