@@ -2,8 +2,8 @@ import 'jest';
 
 import { map } from 'funcadelic';
 
-import Transitions from '../../src/utils/transitions';
-import Tree from '../../src/utils/tree';
+import Transitions from '../src/transitions';
+import Tree from '../src/type-tree';
 
 describe('Transitions', () => {
   describe('node', () => {

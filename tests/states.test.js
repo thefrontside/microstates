@@ -1,7 +1,7 @@
 import 'jest';
 
-import State from '../../src/utils/state';
-import Tree from '../../src/utils/tree';
+import State from '../src/states';
+import Tree from '../src/type-tree';
 
 const describe_primitive = (Type, initial, state) => {
   describe(`${Type.name}`, () => {

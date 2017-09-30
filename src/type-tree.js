@@ -1,14 +1,14 @@
 import { Foldable, foldl, foldr, Functor, map } from 'funcadelic';
 import { reduceObject } from 'ioo';
 
-import defineComputedProperty from './define-computed-property';
-import getReducerType from './get-reducer-type';
-import isList from './is-list';
-import isPrimitive from './is-primitive';
-import propertiesFor from './properties-for';
-import transitionsFor from './transitions-for';
+import defineComputedProperty from './utils/define-computed-property';
+import getReducerType from './utils/get-reducer-type';
+import isList from './utils/is-list';
+import isPrimitive from './utils/is-primitive';
+import propertiesFor from './utils/properties-for';
+import transitionsFor from './utils/transitions-for';
 
-class TypeTree {
+export default class TypeTree {
   constructor() {
     this.data = null;
   }
@@ -104,5 +104,3 @@ Functor.instance(TypeTree, {
     );
   },
 });
-
-export default TypeTree;

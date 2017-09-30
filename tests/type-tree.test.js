@@ -3,12 +3,12 @@ import 'jest';
 import { map } from 'funcadelic';
 import get from 'lodash.get';
 
-import MicrostateArray from '../../src/primitives/array';
-import MicrostateBoolean from '../../src/primitives/boolean';
-import MicrostatesNumber from '../../src/primitives/number';
-import MicrostateObject from '../../src/primitives/object';
-import MicrostateString from '../../src/primitives/string';
-import Tree from '../../src/utils/tree';
+import MicrostateArray from '../src/primitives/array';
+import MicrostateBoolean from '../src/primitives/boolean';
+import MicrostatesNumber from '../src/primitives/number';
+import MicrostateObject from '../src/primitives/object';
+import MicrostateString from '../src/primitives/string';
+import Tree from '../src/type-tree';
 
 let has = (subject, property, value) =>
   it(`has ${property} as ${value}`, () => expect(get(subject, property)).toEqual(value));

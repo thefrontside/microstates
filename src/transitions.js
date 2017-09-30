@@ -1,7 +1,7 @@
 import { foldl, Functor, map } from 'funcadelic';
 import lensPath from 'ramda/src/lensPath';
 
-import defineComputedProperty from './define-computed-property';
+import defineComputedProperty from './utils/define-computed-property';
 
 const { keys } = Object;
 

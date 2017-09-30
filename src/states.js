@@ -1,6 +1,5 @@
 import { map } from 'funcadelic';
-import lensPath from 'ramda/src/lensPath';
-import view from 'ramda/src/view';
+import { lensPath, view } from 'ramda';
 
 class State {
   /**
