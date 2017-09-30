@@ -4,7 +4,11 @@
   "description": "Immutable. Composable. Lovable.",
   "main": "src/index.js",
   "homepage": "https://github.com/cowboyd/microstates.js#readme",
-  "keywords": ["blood", "microstates", "immutable"],
+  "keywords": [
+    "blood",
+    "microstates",
+    "immutable"
+  ],
   "scripts": {
     "test": "jest",
     "test:watch": "yarn test -- --watch",
@@ -25,6 +29,7 @@
   "devDependencies": {
     "babel-cli": "6.26.0",
     "babel-jest": "21.2.0",
+    "babel-plugin-transform-class-properties": "6.24.1",
     "babel-preset-env": "1.6.0",
     "jest": "^21.1.0",
     "standard-version": "^4.2.0"
@@ -39,8 +44,16 @@
   },
   "jest": {
     "testRegex": "(/tests/.*|\\.(test|spec))\\.(js)$",
-    "moduleFileExtensions": ["js", "json"],
-    "modulePaths": ["<rootDir>/src", "<rootDir>/node_modules"],
-    "transformIgnorePatterns": ["/node_modules/(?!funcadelic)"]
+    "moduleFileExtensions": [
+      "js",
+      "json"
+    ],
+    "modulePaths": [
+      "<rootDir>/src",
+      "<rootDir>/node_modules"
+    ],
+    "transformIgnorePatterns": [
+      "/node_modules/(?!funcadelic)"
+    ]
   }
 }
