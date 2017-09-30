@@ -1,17 +1,17 @@
 import 'jest';
 
+import { map } from 'funcadelic';
+
 import Transitions from '../../src/utils/transitions';
 import Tree from '../../src/utils/tree';
 
 describe('Transitions', () => {
-  it('has map', () => {
-    expect(Transitions.map).toBeDefined();
-  });
   describe('node', () => {
     let transitions;
     beforeEach(() => {
       let callback = jest.fn();
-      transitions = Transitions.map(callback, Tree.from(String));
+      let type = Tree.from(String);
+      transitions = map(callback, Transitions.from(type));
     });
     it('is an instance of Transitions', () => {
       expect(transitions).toBeInstanceOf(Transitions);
@@ -21,7 +21,8 @@ describe('Transitions', () => {
     let callback;
     beforeEach(() => {
       callback = jest.fn();
-      Transitions.map(callback, Tree.from(String));
+      let type = Tree.from(String);
+      map(callback, Transitions.from(type));
     });
     it('is not called until read', () => {
       expect(callback).toHaveBeenCalledTimes(0);
@@ -29,7 +30,9 @@ describe('Transitions', () => {
     describe('caching', () => {
       beforeEach(() => {
         callback = jest.fn().mockImplementation(transition => (...args) => transition(...args));
-        let transitions = Transitions.map(callback, Tree.from(String));
+        let tree = Tree.from(String);
+        let transitions = Transitions.from(tree);
+        transitions = map(callback, transitions);
         transitions.concat('');
         transitions.concat('');
       });
@@ -51,11 +54,9 @@ describe('Transitions', () => {
     let renamedStewie;
     let agedPeter;
     class Person {
-      constructor() {
-        this.name = String;
-        this.age = Number;
-        this.parent = Person;
-      }
+      name = String;
+      age = Number;
+      parent = Person;
     }
     beforeEach(() => {
       let state = {
@@ -72,7 +73,8 @@ describe('Transitions', () => {
           return interceptor(transition(state, ...args));
         };
       });
-      transitions = Transitions.map(callback, Tree.from(Person));
+      let tree = Tree.from(Person);
+      transitions = map(callback, Transitions.from(tree));
       renamedStewie = transitions.name.concat(' Griffin');
       agedPeter = transitions.parent.age.increment();
     });

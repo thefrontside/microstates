@@ -1,3 +1,5 @@
+import { map } from 'funcadelic';
+
 import States from './utils/state';
 import Transitions from './utils/transitions';
 import Tree from './utils/tree';
@@ -7,9 +9,9 @@ export default class Microstates {
   constructor(tree, value) {
     this.tree = tree;
     this.states = States.from(tree, value);
-    this.transitions = Transitions.map(
+    this.transitions = map(
       transition => (...args) => transition(this.states, ...args),
-      tree
+      Transitions.from(tree)
     );
   }
   /**
