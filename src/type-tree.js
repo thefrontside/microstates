@@ -9,9 +9,6 @@ import propertiesFor from './utils/properties-for';
 import transitionsFor from './utils/transitions-for';
 
 export default class TypeTree {
-  constructor() {
-    this.data = null;
-  }
   static from(Type, path = []) {
     let primitive = isPrimitive(Type);
     let [name] = path.slice(-1);
