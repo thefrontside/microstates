@@ -4,18 +4,14 @@ import Microstates from '../src';
 
 describe('microstates', () => {
   class Person {
-    constructor() {
-      this.details = Object;
-      this.age = Number;
-      this.pets = Array;
-    }
+    details = Object;
+    age = Number;
+    pets = Array;
   }
   class Todo {
-    constructor() {
-      this.title = String;
-      this.isCompleted = Boolean;
-      this.owner = Person;
-    }
+    title = String;
+    isCompleted = Boolean;
+    owner = Person;
   }
   describe('states', () => {
     describe('initialize', () => {
