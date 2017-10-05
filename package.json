@@ -35,7 +35,7 @@
     "standard-version": "^4.2.0"
   },
   "dependencies": {
-    "funcadelic": "0.1.1",
+    "funcadelic": "^0.2.2",
     "ioo": "^0.1.7",
     "lodash.get": "^4.4.2",
     "lodash.has": "^4.5.2",
@@ -49,11 +49,7 @@
       "json"
     ],
     "modulePaths": [
-      "<rootDir>/src",
-      "<rootDir>/node_modules"
-    ],
-    "transformIgnorePatterns": [
-      "/node_modules/(?!funcadelic)"
+      "<rootDir>/src"
     ]
   }
 }
