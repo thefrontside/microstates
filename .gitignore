@@ -3,6 +3,8 @@
 !src/**/*
 !tests/
 !tests/**/*
+!bin/
+!bin/*
 !*.js
 !*.json
 !*.md

@@ -10,7 +10,8 @@
     "immutable"
   ],
   "scripts": {
-    "test": "jest",
+    "postinstall": "node bin/monkey-patch-funcadelic.js",
+    "test": "jest tree",
     "test:watch": "yarn test -- --watch",
     "coverage": "yarn test -- --coverage --no-cache",
     "coverage:watch": "yarn run coverage -- --watch",
@@ -32,6 +33,7 @@
     "babel-plugin-transform-class-properties": "6.24.1",
     "babel-preset-env": "1.6.0",
     "jest": "^21.1.0",
+    "jsonfile": "^4.0.0",
     "standard-version": "^4.2.0"
   },
   "dependencies": {
@@ -49,7 +51,11 @@
       "json"
     ],
     "modulePaths": [
-      "<rootDir>/src"
+      "<rootDir>/src",
+      "<rootDir>/node_modules"
+    ],
+    "transformIgnorePatterns": [
+      "/node_modules/(?!funcadelic)"
     ]
   }
 }

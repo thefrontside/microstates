@@ -4,6 +4,13 @@ import getReducerType from './get-reducer-type';
 
 export default class Tree {
 
+  constructor({ data = {}, children = {}}) {
+    return Tree.create({
+      data: () => data,
+      children: () => children
+    });
+  }
+
   get collapsed() {
     return append(this.data, map(child => child.collapsed, this.children));
   }

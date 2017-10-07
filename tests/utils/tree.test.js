@@ -78,7 +78,7 @@ describe('Tree', () => {
     });
     it('records the path data as you descend down the tree', function() {
       expect(tree.data.path).toEqual([]);
-      expect(tree.children.name.data).toEqual(['name']);
+      expect(tree.children.name.data).toEqual({Type: String, path: ['name']});
     });
   });
 
