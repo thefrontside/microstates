@@ -4,14 +4,10 @@
   "description": "Immutable. Composable. Lovable.",
   "main": "src/index.js",
   "homepage": "https://github.com/cowboyd/microstates.js#readme",
-  "keywords": [
-    "blood",
-    "microstates",
-    "immutable"
-  ],
+  "keywords": ["blood", "microstates", "immutable"],
   "scripts": {
     "postinstall": "node bin/monkey-patch-funcadelic.js",
-    "test": "jest tree",
+    "test": "jest",
     "test:watch": "yarn test -- --watch",
     "coverage": "yarn test -- --coverage --no-cache",
     "coverage:watch": "yarn run coverage -- --watch",
@@ -46,16 +42,8 @@
   },
   "jest": {
     "testRegex": "(/tests/.*|\\.(test|spec))\\.(js)$",
-    "moduleFileExtensions": [
-      "js",
-      "json"
-    ],
-    "modulePaths": [
-      "<rootDir>/src",
-      "<rootDir>/node_modules"
-    ],
-    "transformIgnorePatterns": [
-      "/node_modules/(?!funcadelic)"
-    ]
+    "moduleFileExtensions": ["js", "json"],
+    "modulePaths": ["<rootDir>/src", "<rootDir>/node_modules"],
+    "transformIgnorePatterns": ["/node_modules/(?!funcadelic)"]
   }
 }
