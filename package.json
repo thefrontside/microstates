@@ -10,7 +10,8 @@
     "immutable"
   ],
   "scripts": {
-    "postinstall": "node bin/monkey-patch-funcadelic.js",
+    "pretest": "node bin/monkey-patch-funcadelic.js",
+    "posttest": "node bin/un-monkey-patch-funcadelic.js",
     "test": "jest tree",
     "test:watch": "yarn test -- --watch",
     "coverage": "yarn test -- --coverage --no-cache",
