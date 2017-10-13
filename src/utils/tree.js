@@ -1,28 +1,33 @@
-import { filter, append, Functor, map } from 'funcadelic';
+import { append, filter, Functor, map } from 'funcadelic';
 
 import getReducerType from './get-reducer-type';
 
-export default class Tree {
+let { keys } = Object;
 
-  constructor({ data = {}, children = {}}) {
+export default class Tree {
+  constructor({ data = {}, children = {} }) {
     return Tree.create({
       data: () => data,
-      children: () => children
+      children: () => children,
     });
   }
 
   get collapsed() {
-    return append(this.data, map(child => child.collapsed, this.children));
+    if (keys(this.children).length > 0) {
+      return append(this.data, map(child => child.collapsed, this.children));
+    } else {
+      return this.data;
+    }
   }
 
-  static create({data = ()=> ({}), children =  ()=> ({})}) {
+  static create({ data = () => ({}), children = () => ({}) }) {
     return Object.create(Tree.prototype, {
       data: {
-        get: data
+        get: data,
       },
       children: {
-        get: children
-      }
+        get: children,
+      },
     });
   }
 
@@ -58,29 +63,27 @@ export default class Tree {
         let childTypes = filter(({ value }) => !!value.call, new Reducer());
 
         return map((ChildType, key) => Tree.from(ChildType, append(path, key)), childTypes);
-      }
+      },
     });
   }
 }
 
 Functor.instance(Tree, {
   /**
-   * Lazily invoke callback on every proprerty of given tree,
+   * Lazily invoke callback on every property of given tree,
    * the return value is assigned to property value.
    *
    * @param {*} fn (TypeTree, path) => any
    * @param {*} tree Tree
    */
   map(fn, tree) {
-    return Object.create(Tree, {
-      data: {
-        get() { return fn(tree.data); }
+    return Tree.create({
+      data() {
+        return fn(tree.data);
       },
-      children: {
-        get() {
-          return map(child => map(fn, child), tree.children);
-        }
-      }
+      children() {
+        return map(child => map(fn, child), tree.children);
+      },
     });
-  }
+  },
 });

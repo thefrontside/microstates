@@ -2,16 +2,16 @@ export default class MicrostateNumber {
   initialize(current = 0) {
     return current;
   }
-  sum(current, ...args) {
+  sum(current = 0, ...args) {
     return args.reduce((accumulator, value) => accumulator + value, current);
   }
-  subtract(current, ...args) {
+  subtract(current = 0, ...args) {
     return args.reduce((accumulator, value) => accumulator - value, current);
   }
-  increment(current, step = 1) {
+  increment(current = 0, step = 1) {
     return current + step;
   }
-  decrement(current, step = 1) {
+  decrement(current = 0, step = 1) {
     return current - step;
   }
 }

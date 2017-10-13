@@ -1,146 +1,213 @@
 import 'jest';
 
-import Microstates from '../src';
+import Microstates from '../src/microstates';
 
 describe('microstates', () => {
-  class Person {
-    constructor() {
-      this.details = Object;
-      this.age = Number;
-      this.pets = Array;
-    }
-  }
-  class Todo {
-    constructor() {
-      this.title = String;
-      this.isCompleted = Boolean;
-      this.owner = Person;
-    }
-  }
-  describe('states', () => {
-    describe('initialize', () => {
+  describe('for Number', () => {
+    describe('without initial state', () => {
       let ms;
       beforeEach(() => {
-        ms = Microstates.from(Todo);
+        ms = Microstates.from(Number);
       });
-      it('initializes the state', () => {
-        expect(ms.states).toEqual({
-          title: '',
-          isCompleted: false,
-          owner: { details: {}, age: 0, pets: [] },
+      it('has states', () => {
+        expect(ms).toHaveProperty('states', 0);
+      });
+      it('has transitions', () => {
+        expect(ms).toMatchObject({
+          transitions: {
+            set: expect.any(Function),
+            increment: expect.any(Function),
+          },
         });
       });
-      it('initialized with class instances', () => {
-        expect(ms.states).toBeInstanceOf(Todo);
-        expect(ms.states.owner).toBeInstanceOf(Person);
+      it('returns new state on transition', () => {
+        expect(ms.transitions.increment()).toBe(1);
       });
     });
-    describe('restore from state', () => {
+    describe('with initial state', () => {
       let ms;
       beforeEach(() => {
-        ms = Microstates.from(Todo, {
-          title: 'Write a test',
-          isCompleted: true,
-          owner: { details: { gender: 'male' }, age: 35, pets: ['dog', 'cat', 'fish'] },
-        });
+        ms = Microstates.from(Number, 3);
       });
-      it('restores from state', () => {
-        expect(ms.states).toEqual({
-          title: 'Write a test',
-          isCompleted: true,
-          owner: { details: { gender: 'male' }, age: 35, pets: ['dog', 'cat', 'fish'] },
-        });
-      });
-      it('initialized with class instances', () => {
-        expect(ms.states).toBeInstanceOf(Todo);
-        expect(ms.states.owner).toBeInstanceOf(Person);
+      it('returns new state on transition', () => {
+        expect(ms.transitions.increment()).toBe(4);
       });
     });
   });
-  describe('transitions', () => {
-    describe('continuious', () => {
-      let ms;
+  describe('for shallow composition', () => {
+    let ms;
+    class State {
+      name = String;
+      isOpen = Boolean;
+    }
+    describe('without initial state', () => {
       beforeEach(() => {
-        ms = Microstates.from(Todo);
-        ms = ms.to(ms.transitions.title.set('Hello World'));
-        ms = ms.to(ms.transitions.owner.age.increment());
+        ms = Microstates.from(State);
       });
-      it('accumulated transitions', () => {
-        expect(ms.states).toEqual({
-          title: 'Hello World',
-          isCompleted: false,
-          owner: { details: {}, age: 1, pets: [] },
+      it('initializes default', () => {
+        expect(ms).toHaveProperty('states', { name: '', isOpen: false });
+      });
+      it('has transitions', () => {
+        expect(ms).toMatchObject({
+          transitions: {
+            set: expect.any(Function),
+            merge: expect.any(Function),
+            name: {
+              set: expect.any(Function),
+              concat: expect.any(Function),
+            },
+            isOpen: {
+              set: expect.any(Function),
+              toggle: expect.any(Function),
+            },
+          },
+        });
+      });
+      it('replaces value when set is called on the node', () => {
+        expect(ms.transitions.set({ name: 'taras' })).toEqual({ name: 'taras' });
+      });
+      it('replaces value when set is called on leaf state', () => {
+        expect(ms.transitions.name.set('taras')).toEqual({ name: 'taras' });
+      });
+    });
+    describe('with initial state', () => {
+      beforeEach(() => {
+        ms = Microstates.from(State, { isOpen: true });
+      });
+      it('uses provided state', () => {
+        expect(ms).toHaveProperty('states', { name: '', isOpen: true });
+      });
+      it('replaces value when set is called but uses provided value', () => {
+        expect(ms.transitions.name.set('taras')).toEqual({ name: 'taras', isOpen: true });
+      });
+      it('merges value on merge transition', () => {
+        expect(ms.transitions.merge({ name: 'taras' })).toEqual({ name: 'taras', isOpen: true });
+      });
+    });
+  });
+  describe('shallow composition with arrays and objects', () => {
+    let ms;
+    class State {
+      animals = Array;
+      config = Object;
+    }
+    describe('without initial value', () => {
+      beforeEach(() => {
+        ms = Microstates.from(State);
+      });
+      it('initialies with default', () => {
+        expect(ms).toHaveProperty('states', {
+          animals: [],
+          config: {},
+        });
+      });
+      it('returns a new object with value pushed into an array', () => {
+        expect(ms.transitions.animals.push('cat')).toEqual({
+          animals: ['cat'],
+        });
+      });
+      it('return a new object with value assigned into the object', () => {
+        expect(ms.transitions.config.assign({ x: 10, y: 20 })).toEqual({
+          config: { x: 10, y: 20 },
         });
       });
     });
-    describe('set', () => {
-      describe('root', () => {
-        function describe_root_set(value) {
-          describe(value, () => {
-            let result;
-            beforeEach(() => {
-              let { transitions } = Microstates.from(Todo);
-              result = transitions.set(value);
-            });
-            it(`replaced root with "${value}"`, () => {
-              expect(result).toBe(value);
-            });
-          });
-        }
-        describe_root_set(null);
-        describe_root_set('');
-        describe_root_set(0);
-        describe_root_set(false);
-        describe_root_set({});
-        describe_root_set([]);
+    describe('with initial value', () => {
+      beforeEach(() => {
+        ms = Microstates.from(State, { animals: ['cat', 'dog'], config: { color: 'red' } });
       });
-      describe('shallow', () => {
-        let result;
-        beforeEach(() => {
-          let { transitions } = Microstates.from(Todo);
-          result = transitions.title.set('foo');
-        });
-        it('replaced shallow property with foo', () => {
-          expect(result).toEqual({
-            title: 'foo',
-            isCompleted: false,
-            owner: { details: {}, age: 0, pets: [] },
-          });
+      it('uses provided value', () => {
+        expect(ms).toHaveProperty('states', {
+          animals: ['cat', 'dog'],
+          config: { color: 'red' },
         });
       });
-      describe('deep', () => {
-        let result;
-        beforeEach(() => {
-          let { transitions } = Microstates.from(Todo);
-          result = transitions.owner.age.set(null);
-        });
-        it('replaced age property with null', () => {
-          expect(result).toEqual({
-            title: '',
-            isCompleted: false,
-            owner: { details: {}, age: null, pets: [] },
-          });
+      it('returns a new object with value pushed into an array', () => {
+        expect(ms.transitions.animals.push('bird')).toEqual({
+          animals: ['cat', 'dog', 'bird'],
+          config: { color: 'red' },
         });
       });
-    });
-    describe('merge', () => {
-      describe('root', () => {
-        let result;
-        beforeEach(() => {
-          let { transitions } = Microstates.from(Todo);
-          result = transitions.merge({
-            isCompleted: true,
-            owner: { details: { hairColor: 'blonde' }, age: 10, pets: ['dog'] },
-          });
-        });
-        it('deeply merged hash into root', () => {
-          expect(result).toEqual({
-            title: '',
-            isCompleted: true,
-            owner: { details: { hairColor: 'blonde' }, age: 10, pets: ['dog'] },
-          });
+      it('return a new object with value assigned into the object', () => {
+        expect(ms.transitions.config.assign({ x: 10, y: 20 })).toEqual({
+          animals: ['cat', 'dog'],
+          config: { x: 10, y: 20, color: 'red' },
         });
       });
     });
   });
+  describe('recursive composition', () => {
+    class Container {
+      contains = Container;
+      x = Number;
+      y = Number;
+    }
+    describe('without initial value', () => {
+      let ms;
+      beforeEach(() => {
+        ms = Microstates.from(Container);
+      });
+      it('initializes first level', () => {
+        expect(ms).toMatchObject({
+          states: {
+            contains: expect.any(Object),
+            x: 0,
+            y: 0,
+          },
+        });
+      });
+      it('initializes recursively', () => {
+        expect(ms).toMatchObject({
+          states: {
+            contains: {
+              x: 0,
+              y: 0,
+              contains: expect.any(Object),
+            },
+            x: 0,
+            y: 0,
+          },
+        });
+      });
+      it('transitions non recursive value', () => {
+        expect(ms.transitions.x.increment()).toEqual({
+          x: 1,
+        });
+      });
+      it('transition recursive value', () => {
+        expect(ms.transitions.contains.y.increment()).toEqual({
+          contains: {
+            y: 1,
+          },
+        });
+      });
+    });
+    describe('with initial value', () => {
+      let ms;
+      beforeEach(() => {
+        ms = Microstates.from(Container, {
+          x: 10,
+          contains: { y: 20, contains: { x: 30, y: 25 } },
+        });
+      });
+      it('restores state tree from initial value', () => {
+        expect(ms).toMatchObject({
+          states: {
+            x: 10,
+            y: 0,
+            contains: {
+              y: 20,
+              x: 0,
+              contains: {
+                x: 30,
+                y: 25,
+              },
+            },
+          },
+        });
+      });
+    });
+  });
+  // TODO: deep composition
+  // TODO: initialize
 });
