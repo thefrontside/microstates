@@ -35,12 +35,12 @@ describe('microstates', () => {
     });
   });
   describe('for shallow composition', () => {
-    let ms;
     class State {
       name = String;
       isOpen = Boolean;
     }
     describe('without initial state', () => {
+      let ms;
       beforeEach(() => {
         ms = Microstates.from(State);
       });
@@ -71,6 +71,7 @@ describe('microstates', () => {
       });
     });
     describe('with initial state', () => {
+      let ms;
       beforeEach(() => {
         ms = Microstates.from(State, { isOpen: true });
       });
@@ -86,12 +87,12 @@ describe('microstates', () => {
     });
   });
   describe('shallow composition with arrays and objects', () => {
-    let ms;
     class State {
       animals = Array;
       config = Object;
     }
     describe('without initial value', () => {
+      let ms;
       beforeEach(() => {
         ms = Microstates.from(State);
       });
@@ -113,6 +114,7 @@ describe('microstates', () => {
       });
     });
     describe('with initial value', () => {
+      let ms;
       beforeEach(() => {
         ms = Microstates.from(State, { animals: ['cat', 'dog'], config: { color: 'red' } });
       });
@@ -206,8 +208,107 @@ describe('microstates', () => {
           },
         });
       });
+      it('transitions deeply nested state', () => {
+        expect(ms.transitions.contains.contains.x.increment()).toEqual({
+          x: 10,
+          contains: { y: 20, contains: { x: 31, y: 25 } },
+        });
+      });
+      it('transitions deeply nested state without initial value', () => {
+        expect(ms.transitions.contains.contains.contains.y.decrement()).toEqual({
+          x: 10,
+          contains: { y: 20, contains: { x: 30, y: 25, contains: { y: -1 } } },
+        });
+      });
     });
   });
-  // TODO: deep composition
-  // TODO: initialize
+  describe('deep composition', () => {
+    class Session {
+      token = String;
+    }
+    class Authentication {
+      isAuthenticated = Boolean;
+      session = Session;
+    }
+    class State {
+      authentication = Authentication;
+    }
+    describe('without initial state', () => {
+      let ms;
+      beforeEach(() => {
+        ms = Microstates.from(State);
+      });
+      it('builds state tree', () => {
+        expect(ms).toMatchObject({
+          states: {
+            authentication: {
+              isAuthenticated: false,
+              session: {
+                token: '',
+              },
+            },
+          },
+        });
+      });
+      it('transitions deeply nested state', () => {
+        expect(ms.transitions.authentication.session.token.set('SECRET')).toEqual({
+          authentication: { session: { token: 'SECRET' } },
+        });
+      });
+    });
+    describe('with initial state', () => {
+      let ms;
+      beforeEach(() => {
+        ms = Microstates.from(State, {
+          authentication: { isAuthenticated: true, session: { token: 'SECRET' } },
+        });
+      });
+      it('builds state tree', () => {
+        expect(ms).toMatchObject({
+          states: {
+            authentication: {
+              isAuthenticated: true,
+              session: {
+                token: 'SECRET',
+              },
+            },
+          },
+        });
+      });
+    });
+  });
+  describe('custom transitions', () => {
+    class Car {
+      speed = Number;
+      increaseSpeed(current = {}, amount) {
+        let { speed = 0 } = current;
+        return {
+          speed: speed + amount,
+        };
+      }
+    }
+    class State {
+      vehicle = Car;
+    }
+    describe('transition', () => {
+      describe('without initial value', () => {
+        let ms;
+        beforeEach(() => {
+          ms = Microstates.from(State);
+        });
+        it('uses current state value', () => {
+          expect(ms.transitions.vehicle.increaseSpeed(10)).toEqual({ vehicle: { speed: 10 } });
+        });
+      });
+      describe('with initial value', () => {
+        let ms;
+        beforeEach(() => {
+          ms = Microstates.from(State, { vehicle: { speed: 10 } });
+        });
+        it('creates initial value', () => {
+          expect(ms.transitions.vehicle.increaseSpeed(10)).toEqual({ vehicle: { speed: 20 } });
+        });
+      });
+    });
+  });
 });
