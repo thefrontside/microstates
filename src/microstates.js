@@ -1,14 +1,21 @@
-import { map } from 'funcadelic';
+import { append, map } from 'funcadelic';
 import lensPath from 'ramda/src/lensPath';
 
+import gettersFor from './utils/getters-for';
 import initialize from './utils/initialize';
+import isPrimitive from './utils/is-primitive';
 import transitionsFor from './utils/transitions-for';
 import Tree from './utils/tree';
 import validate from './utils/validate';
 
 export default class Microstates {
   constructor(tree, value) {
-    this.states = map(data => initialize(data, value), tree).collapsed;
+    let values = map(data => append(data, { value: initialize(data, value) }), tree);
+
+    this.states = map(
+      ({ Type, value }) => (isPrimitive(Type) ? value : append(value, gettersFor(Type))),
+      values
+    ).collapsed;
 
     // raw, uncurried transitions
     let rawTransitions = map(

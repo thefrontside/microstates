@@ -23,7 +23,7 @@ describe('initialize', () => {
     });
     describe('composed state', () => {
       it('uses generic initializer', () => {
-        expect(initialize({ Type: State, path: [] })).toBeInstanceOf(State);
+        expect(initialize({ Type: State, path: [] })).toBeInstanceOf(Object);
       });
       describe('custom initializer', () => {
         let callback;

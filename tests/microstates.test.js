@@ -311,4 +311,39 @@ describe('microstates', () => {
       });
     });
   });
+  describe('computed properties support', () => {
+    class State {
+      firstName = String;
+      lastName = String;
+      get fullName() {
+        return `${this.firstName} ${this.lastName}`;
+      }
+    }
+    describe('without initial state', () => {
+      let ms;
+      beforeEach(() => {
+        ms = Microstates.from(State);
+      });
+      it('is computed', function() {
+        expect(ms).toMatchObject({
+          states: {
+            fullName: ' ',
+          },
+        });
+      });
+    });
+    describe('with initial state', () => {
+      let ms;
+      beforeEach(() => {
+        ms = Microstates.from(State, { firstName: 'Peter', lastName: 'Griffin' });
+      });
+      it('is computed', () => {
+        expect(ms).toMatchObject({
+          states: {
+            fullName: 'Peter Griffin',
+          },
+        });
+      });
+    });
+  });
 });

@@ -1,3 +1,5 @@
+import { append } from 'funcadelic';
+
 import getReducerType from './get-reducer-type';
 
 export default function initializerFor(Type) {
@@ -5,6 +7,6 @@ export default function initializerFor(Type) {
   if (initialize) {
     return initialize;
   } else {
-    return attrs => new Type(attrs);
+    return (attrs = {}) => append({}, attrs);
   }
 }

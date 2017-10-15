@@ -34,8 +34,5 @@ describe('initializer-for', () => {
     it('provides default initialize for custom type', () => {
       expect(initializerFor(WithoutInitialize)).toBeDefined();
     });
-    it('provides default initializer which returns instance of custom type', () => {
-      expect(initializerFor(WithoutInitialize)()).toBeInstanceOf(WithoutInitialize);
-    });
   });
 });
