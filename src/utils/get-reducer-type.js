@@ -1,21 +1,21 @@
-import MicrostateArray from '../primitives/array';
-import MicrostateBoolean from '../primitives/boolean';
-import MicrostateNumber from '../primitives/number';
-import MicrostateObject from '../primitives/object';
-import MicrostateString from '../primitives/string';
+import ArrayState from '../primitives/array';
+import BooleanState from '../primitives/boolean';
+import NumberState from '../primitives/number';
+import ObjectState from '../primitives/object';
+import StringState from '../primitives/string';
 
 export default function getReducerType(type) {
   switch (type) {
     case String:
-      return MicrostateString;
+      return StringState;
     case Number:
-      return MicrostateNumber;
+      return NumberState;
     case Boolean:
-      return MicrostateBoolean;
+      return BooleanState;
     case Object:
-      return MicrostateObject;
+      return ObjectState;
     case Array:
-      return MicrostateArray;
+      return ArrayState;
   }
   return type;
 }

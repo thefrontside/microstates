@@ -1,4 +1,4 @@
-export default class MicrostateObject {
+export default class ObjectState {
   initialize(current = {}) {
     return current;
   }

@@ -1,4 +1,4 @@
-export default class MicrostateArray {
+export default class ArrayState {
   initialize(current = []) {
     return current;
   }

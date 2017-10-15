@@ -1,4 +1,4 @@
-export default class MicrostateString {
+export default class StringState {
   initialize(current = '') {
     return current;
   }

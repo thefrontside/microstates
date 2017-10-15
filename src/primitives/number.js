@@ -1,4 +1,4 @@
-export default class MicrostateNumber {
+export default class NumberState {
   initialize(current = 0) {
     return current;
   }
