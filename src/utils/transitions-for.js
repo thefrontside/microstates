@@ -1,7 +1,7 @@
 import { append, filter, map } from 'funcadelic';
+import getOwnPropertyDescriptors from 'object.getownpropertydescriptors';
 import mergeDeepRight from 'ramda/src/mergeDeepRight';
 
-import getOwnPropertyDescriptors from './get-own-property-descriptors';
 import getReducerType from './get-reducer-type';
 import isPrimitive from './is-primitive';
 import transition from './transition';

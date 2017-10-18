@@ -1,6 +1,5 @@
 import { append, filter, map } from 'funcadelic';
-
-import getOwnPropertyDescriptors from './get-own-property-descriptors';
+import getOwnPropertyDescriptors from 'object.getownpropertydescriptors';
 
 export default function gettersFor(Type) {
   let descriptors = filter(({ value }) => !!value.get, getOwnPropertyDescriptors(Type.prototype));
