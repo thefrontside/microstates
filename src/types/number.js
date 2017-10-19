@@ -1,17 +1,17 @@
-export default class NumberState {
+export default class NumberType {
   initialize(current = 0) {
     return current;
   }
-  sum(current = 0, ...args) {
+  sum(current, ...args) {
     return args.reduce((accumulator, value) => accumulator + value, current);
   }
-  subtract(current = 0, ...args) {
+  subtract(current, ...args) {
     return args.reduce((accumulator, value) => accumulator - value, current);
   }
-  increment(current = 0, step = 1) {
+  increment(current, step = 1) {
     return current + step;
   }
-  decrement(current = 0, step = 1) {
+  decrement(current, step = 1) {
     return current - step;
   }
 }

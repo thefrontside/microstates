@@ -1,4 +1,4 @@
-export default class StringState {
+export default class StringType {
   initialize(current = '') {
     return current;
   }

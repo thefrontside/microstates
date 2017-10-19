@@ -1,4 +1,4 @@
-export default class ObjectState {
+export default class ObjectType {
   initialize(current = {}) {
     return current;
   }

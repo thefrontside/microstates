@@ -1,9 +1,9 @@
 import { append } from 'funcadelic';
 
-import getReducerType from './get-reducer-type';
+import getType from './get-type';
 
 export default function initializerFor(Type) {
-  let initialize = getReducerType(Type).prototype.initialize;
+  let initialize = getType(Type).prototype.initialize;
   if (initialize) {
     return initialize;
   } else {

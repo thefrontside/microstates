@@ -26,7 +26,10 @@ export default class Microstates {
     // curry in the lens and value
     let curriedTransitions = map(
       ({ path, transitions }) =>
-        map(t => (...args) => t(lensPath(path), value, ...args), transitions),
+        map(
+          t => (...args) => t(lensPath(path), map(({ value }) => value, values).collapsed, ...args),
+          transitions
+        ),
       rawTransitions
     );
 

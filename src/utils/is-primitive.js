@@ -1,5 +1,5 @@
-import getReducerType from './get-reducer-type';
+import getType from './get-type';
 
 export default function isPrimitive(type) {
-  return getReducerType(type) !== type;
+  return getType(type) !== type;
 }

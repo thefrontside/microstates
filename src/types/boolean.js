@@ -1,8 +1,8 @@
-export default class BooleanState {
+export default class BooleanType {
   initialize(current = false) {
     return current;
   }
-  toggle(current = false) {
+  toggle(current) {
     return !current;
   }
 }

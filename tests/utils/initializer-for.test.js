@@ -1,29 +1,29 @@
 import 'jest';
 
-import ArrayState from '../../src/primitives/array';
-import BooleanState from '../../src/primitives/boolean';
-import NumberState from '../../src/primitives/number';
-import ObjectState from '../../src/primitives/object';
-import StringState from '../../src/primitives/string';
+import ArrayType from '../../src/types/array';
+import BooleanType from '../../src/types/boolean';
+import NumberType from '../../src/types/number';
+import ObjectType from '../../src/types/object';
+import StringType from '../../src/types/string';
 import initializerFor from '../../src/utils/initializer-for';
 
 describe('initializer-for', () => {
   it('gets initialize for Number', () => {
-    expect(initializerFor(Number)).toBe(NumberState.prototype.initialize);
+    expect(initializerFor(Number)).toBe(NumberType.prototype.initialize);
   });
   it('get initialize for String', () => {
-    expect(initializerFor(String)).toBe(StringState.prototype.initialize);
+    expect(initializerFor(String)).toBe(StringType.prototype.initialize);
   });
   it('gets initialize for Boolean', () => {
-    expect(initializerFor(Boolean)).toBe(BooleanState.prototype.initialize);
+    expect(initializerFor(Boolean)).toBe(BooleanType.prototype.initialize);
   });
   it('gets initialize for Object', () => {
-    expect(initializerFor(Object)).toBe(ObjectState.prototype.initialize);
+    expect(initializerFor(Object)).toBe(ObjectType.prototype.initialize);
   });
   it('gets initialize for Array', () => {
-    expect(initializerFor(Array)).toBe(ArrayState.prototype.initialize);
+    expect(initializerFor(Array)).toBe(ArrayType.prototype.initialize);
   });
-  describe('custom state', () => {
+  describe('custom Type', () => {
     class WithInitialize {
       initialize() {}
     }

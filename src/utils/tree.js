@@ -1,6 +1,6 @@
 import { append, filter, Functor, map } from 'funcadelic';
 
-import getReducerType from './get-reducer-type';
+import getType from './get-type';
 
 let { keys } = Object;
 
@@ -59,7 +59,7 @@ export default class Tree {
        * Eager evaluation would cause infinite loop because parent would be evaluated recursively.
        */
       children() {
-        let Reducer = getReducerType(Type);
+        let Reducer = getType(Type);
         let childTypes = filter(({ value }) => !!value.call, new Reducer());
 
         return map((ChildType, key) => Tree.from(ChildType, append(path, key)), childTypes);

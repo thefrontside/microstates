@@ -67,7 +67,7 @@ describe('microstates', () => {
         expect(ms.transitions.set({ name: 'taras' })).toEqual({ name: 'taras' });
       });
       it('replaces value when set is called on leaf state', () => {
-        expect(ms.transitions.name.set('taras')).toEqual({ name: 'taras' });
+        expect(ms.transitions.name.set('taras')).toEqual({ name: 'taras', isOpen: false });
       });
     });
     describe('with initial state', () => {
@@ -105,11 +105,13 @@ describe('microstates', () => {
       it('returns a new object with value pushed into an array', () => {
         expect(ms.transitions.animals.push('cat')).toEqual({
           animals: ['cat'],
+          config: {},
         });
       });
       it('return a new object with value assigned into the object', () => {
         expect(ms.transitions.config.assign({ x: 10, y: 20 })).toEqual({
           config: { x: 10, y: 20 },
+          animals: [],
         });
       });
     });
@@ -174,13 +176,19 @@ describe('microstates', () => {
       it('transitions non recursive value', () => {
         expect(ms.transitions.x.increment()).toEqual({
           x: 1,
+          contains: {},
+          y: 0,
         });
       });
       it('transition recursive value', () => {
         expect(ms.transitions.contains.y.increment()).toEqual({
           contains: {
             y: 1,
+            contains: {},
+            x: 0,
           },
+          y: 0,
+          x: 0,
         });
       });
     });
@@ -189,7 +197,8 @@ describe('microstates', () => {
       beforeEach(() => {
         ms = Microstates.from(Container, {
           x: 10,
-          contains: { y: 20, contains: { x: 30, y: 25 } },
+          y: 0,
+          contains: { y: 20, x: 0, contains: { x: 30, y: 25, contains: {} } },
         });
       });
       it('restores state tree from initial value', () => {
@@ -211,13 +220,19 @@ describe('microstates', () => {
       it('transitions deeply nested state', () => {
         expect(ms.transitions.contains.contains.x.increment()).toEqual({
           x: 10,
-          contains: { y: 20, contains: { x: 31, y: 25 } },
+          y: 0,
+          contains: { y: 20, contains: { x: 31, y: 25, contains: {} }, x: 0 },
         });
       });
       it('transitions deeply nested state without initial value', () => {
         expect(ms.transitions.contains.contains.contains.y.decrement()).toEqual({
           x: 10,
-          contains: { y: 20, contains: { x: 30, y: 25, contains: { y: -1 } } },
+          y: 0,
+          contains: {
+            y: 20,
+            x: 0,
+            contains: { x: 30, y: 25, contains: { y: -1, x: 0, contains: {} } },
+          },
         });
       });
     });
@@ -252,7 +267,10 @@ describe('microstates', () => {
       });
       it('transitions deeply nested state', () => {
         expect(ms.transitions.authentication.session.token.set('SECRET')).toEqual({
-          authentication: { session: { token: 'SECRET' } },
+          authentication: {
+            isAuthenticated: false,
+            session: { token: 'SECRET' },
+          },
         });
       });
     });
