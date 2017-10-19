@@ -1,6 +1,6 @@
 export default class ArrayType {
-  initialize(current = []) {
-    return current;
+  constructor(value = []) {
+    return value instanceof Array ? value : [value];
   }
   push(current, ...args) {
     return [...current, ...args];

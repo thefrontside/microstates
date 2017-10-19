@@ -1,11 +1,16 @@
 import { lensPath, view } from 'ramda';
 
-import initializerFor from './initializer-for';
+import getType from './get-type';
+import isPrimitive from './is-primitive';
 
 export default function initialize({ Type, path }, value) {
-  let initializer = initializerFor(Type);
   let lens = lensPath(path);
-  let current = view(lens, value);
+  let Class = getType(Type);
+  let current = new Class(view(lens, value));
 
-  return initializer(current);
+  if (isPrimitive(Type)) {
+    return current.valueOf();
+  } else {
+    return current;
+  }
 }

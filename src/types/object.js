@@ -1,6 +1,6 @@
 export default class ObjectType {
-  initialize(current = {}) {
-    return current;
+  constructor(value = {}) {
+    return new Object(value);
   }
   assign(current, props) {
     return Object.assign({}, current, props);

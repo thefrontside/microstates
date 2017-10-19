@@ -1,6 +1,6 @@
 export default class NumberType {
-  initialize(current = 0) {
-    return current;
+  constructor(value = 0) {
+    return new Number(value);
   }
   sum(current, ...args) {
     return args.reduce((accumulator, value) => accumulator + value, current);

@@ -1,6 +1,6 @@
 export default class BooleanType {
-  initialize(current = false) {
-    return current;
+  constructor(value = false) {
+    return new Boolean(value);
   }
   toggle(current) {
     return !current;

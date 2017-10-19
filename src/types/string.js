@@ -1,6 +1,6 @@
 export default class StringType {
-  initialize(current = '') {
-    return current;
+  constructor(value = '') {
+    return new String(value);
   }
   concat(current, ...args) {
     return String.prototype.concat.apply(current, args);

@@ -21,7 +21,7 @@ export default function transitionsFor(Type) {
   let methods = filter(({ value }) => isFunctionDescriptor(value), descriptors);
 
   let transitionFns = filter(
-    ({ key }) => !['constructor', 'initialize'].includes(key),
+    ({ key }) => key !== 'constructor',
     map(({ value }) => value, methods)
   );
 
