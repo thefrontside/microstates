@@ -1,5 +1,5 @@
-import getType from './get-type';
+const { keys } = Object;
 
 export default function isPrimitive(type) {
-  return getType(type) !== type;
+  return keys(new type()).length === 0;
 }

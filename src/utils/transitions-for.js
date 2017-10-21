@@ -2,7 +2,6 @@ import { append, filter, map } from 'funcadelic';
 import getOwnPropertyDescriptors from 'object.getownpropertydescriptors';
 import mergeDeepRight from 'ramda/src/mergeDeepRight';
 
-import getType from './get-type';
 import isPrimitive from './is-primitive';
 import transition from './transition';
 
@@ -15,9 +14,7 @@ const merge = transition(function merge(current, state) {
 });
 
 export default function transitionsFor(Type) {
-  let type = getType(Type);
-
-  let descriptors = getOwnPropertyDescriptors(type.prototype);
+  let descriptors = getOwnPropertyDescriptors(Type.prototype);
   let methods = filter(({ value }) => isFunctionDescriptor(value), descriptors);
 
   let transitionFns = filter(
