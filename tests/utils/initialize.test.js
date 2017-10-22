@@ -2,6 +2,7 @@ import 'jest';
 
 import { append } from 'funcadelic';
 import initialize from '../../src/utils/initialize';
+import { Object as ObjectType, Number, Array, String, Boolean } from '../../src';
 
 describe('initialize', () => {
   describe('Number', () => {
@@ -28,12 +29,12 @@ describe('initialize', () => {
       expect(initialize({ Type: Boolean, path: [] }, true)).toBe(true);
     });
   });
-  describe('Object', () => {
+  describe('ObjectType', () => {
     it(`uses types's initializer`, () => {
-      expect(initialize({ Type: Object, path: [] })).toEqual({});
+      expect(initialize({ Type: ObjectType, path: [] })).toEqual({});
     });
     it('uses passed in value', () => {
-      expect(initialize({ Type: Object, path: [] }, { hello: 'world' })).toEqual({
+      expect(initialize({ Type: ObjectType, path: [] }, { hello: 'world' })).toEqual({
         hello: 'world',
       });
     });

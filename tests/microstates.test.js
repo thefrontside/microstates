@@ -1,6 +1,7 @@
 import 'jest';
 
 import Microstates from '../src/microstates';
+import { Object as ObjectType, Number, String, Array, Boolean } from '../src';
 
 describe('microstates', () => {
   describe('for Number', () => {
@@ -89,7 +90,7 @@ describe('microstates', () => {
   describe('shallow composition with arrays and objects', () => {
     class State {
       animals = Array;
-      config = Object;
+      config = ObjectType;
     }
     describe('without initial value', () => {
       let ms;
