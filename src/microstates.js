@@ -34,6 +34,7 @@ export default class Microstates {
     );
 
     this.transitions = curriedTransitions.collapsed;
+    this.tree = tree;
   }
   /**
    * Create new Microstates for same type tree but new value.
