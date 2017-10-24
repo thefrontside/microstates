@@ -3,6 +3,7 @@
   "version": "0.2.0",
   "description": "Immutable. Composable. Lovable.",
   "main": "src/index.js",
+  "files": ["src/**/*"],
   "homepage": "https://github.com/cowboyd/microstates.js#readme",
   "keywords": ["blood", "microstates", "immutable"],
   "scripts": {
