@@ -1,6 +1,6 @@
 {
   "name": "microstates",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Immutable. Composable. Lovable.",
   "main": "src/index.js",
   "homepage": "https://github.com/cowboyd/microstates.js#readme",
