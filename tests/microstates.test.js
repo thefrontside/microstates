@@ -302,7 +302,9 @@ describe('microstates', () => {
     class Car {
       speed = MS.Number;
       increaseSpeed(current, amount) {
-        return this.speed.sum(amount);
+        return this.merge({
+          speed: this.speed.sum(amount),
+        });
       }
     }
     class State {
@@ -348,6 +350,48 @@ describe('microstates', () => {
         });
         it('creates initial value', () => {
           expect(ms.transitions.vehicle.increaseSpeed(10)).toEqual({ vehicle: { speed: 20 } });
+        });
+      });
+    });
+    describe('merging', () => {
+      class ModalContent {
+        text = String;
+      }
+      class Modal {
+        isOpen = Boolean;
+        title = String;
+        content = ModalContent;
+      }
+      class State {
+        messages = Array;
+        modal = Modal;
+
+        addItemAndShowModal(current, message, prompt) {
+          return this.merge({
+            messages: this.messages.push(message),
+            modal: {
+              isOpen: true,
+              content: {
+                text: this.modal.content.text.set(prompt),
+              },
+            },
+          });
+        }
+      }
+      let ms;
+      beforeEach(() => {
+        ms = Microstates.from(State, { modal: { title: 'Confirmation' } });
+      });
+      it('returns merged state', () => {
+        expect(ms.transitions.addItemAndShowModal('Hello World', 'You have a message')).toEqual({
+          messages: ['Hello World'],
+          modal: {
+            isOpen: true,
+            title: 'Confirmation',
+            content: {
+              text: 'You have a message',
+            },
+          },
         });
       });
     });

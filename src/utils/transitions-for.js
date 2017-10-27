@@ -9,8 +9,8 @@ const set = transition(function set(current, state) {
   return state;
 });
 
-const merge = transition(function merge(current, state) {
-  return mergeDeepRight(current, state);
+const merge = transition(function merge(current, ...args) {
+  return mergeDeepRight(current, ...args);
 });
 
 export default function transitionsFor(Type) {
