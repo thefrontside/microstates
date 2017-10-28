@@ -302,9 +302,7 @@ describe('microstates', () => {
     class Car {
       speed = MS.Number;
       increaseSpeed(current, amount) {
-        return this.merge({
-          speed: this.speed.sum(amount),
-        });
+        return this.speed.sum(amount);
       }
     }
     class State {
@@ -367,15 +365,10 @@ describe('microstates', () => {
         modal = Modal;
 
         addItemAndShowModal(current, message, prompt) {
-          return this.merge({
-            messages: this.messages.push(message),
-            modal: {
-              isOpen: true,
-              content: {
-                text: this.modal.content.text.set(prompt),
-              },
-            },
-          });
+          return this.messages
+            .push(message)
+            .modal.isOpen.set(true)
+            .modal.content.text.set(prompt);
         }
       }
       let ms;
