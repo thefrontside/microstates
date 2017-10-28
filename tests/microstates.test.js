@@ -301,16 +301,36 @@ describe('microstates', () => {
   describe('custom transitions', () => {
     class Car {
       speed = MS.Number;
-      increaseSpeed(current = {}, amount) {
-        let { speed = 0 } = current;
-        return {
-          speed: speed + amount,
-        };
+      increaseSpeed(current, amount) {
+        return this.speed.sum(amount);
       }
     }
     class State {
       vehicle = Car;
     }
+    describe('context', () => {
+      let context;
+      beforeEach(() => {
+        class State {
+          items = MS.Array;
+          custom() {
+            context = this;
+          }
+        }
+        let { transitions: { custom } } = Microstates.from(State);
+        custom();
+      });
+      it('excludes custom transtions from context', () => {
+        expect(context).not.toHaveProperty('custom');
+      });
+      it.skip('has items transitions', () => {
+        expect(context).toMatchObject({
+          items: {
+            push: expect.any(Function),
+          },
+        });
+      });
+    });
     describe('transition', () => {
       describe('without initial value', () => {
         let ms;
