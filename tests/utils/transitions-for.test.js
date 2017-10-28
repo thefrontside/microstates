@@ -1,11 +1,11 @@
 import 'jest';
 
 import transitionsFor from '../../src/utils/transitions-for';
-import { String, Array, Number, Object as ObjectType, Boolean } from '../../src';
+import * as MS from '../../src';
 
 describe('transitionsFor', () => {
   describe('Array', () => {
-    let transitions = transitionsFor(Array);
+    let transitions = transitionsFor(MS.Array);
     it('has transitions', () => {
       expect(transitions).toMatchObject({
         set: expect.any(Function),
@@ -14,7 +14,7 @@ describe('transitionsFor', () => {
     });
   });
   describe('String', () => {
-    let transitions = transitionsFor(String);
+    let transitions = transitionsFor(MS.String);
     it('has transitions', () => {
       expect(transitions).toMatchObject({
         set: expect.any(Function),
@@ -23,7 +23,7 @@ describe('transitionsFor', () => {
     });
   });
   describe('Number', () => {
-    let transitions = transitionsFor(Number);
+    let transitions = transitionsFor(MS.Number);
     it('has transitions', () => {
       expect(transitions).toMatchObject({
         set: expect.any(Function),
@@ -32,7 +32,7 @@ describe('transitionsFor', () => {
     });
   });
   describe('Boolean', () => {
-    let transitions = transitionsFor(Boolean);
+    let transitions = transitionsFor(MS.Boolean);
     it('has transitions', () => {
       expect(transitions).toMatchObject({
         set: expect.any(Function),
@@ -44,7 +44,7 @@ describe('transitionsFor', () => {
     });
   });
   describe('Object', () => {
-    let transitions = transitionsFor(ObjectType);
+    let transitions = transitionsFor(MS.Object);
     it('has transitions', () => {
       expect(transitions).toMatchObject({
         set: expect.any(Function),
@@ -55,7 +55,7 @@ describe('transitionsFor', () => {
   describe('Custom Class', () => {
     let transitions = transitionsFor(
       class MyClass {
-        string = String;
+        string = MS.String;
         action() {}
       }
     );

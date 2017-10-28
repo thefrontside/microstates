@@ -1,14 +1,13 @@
 import 'jest';
 
-import Microstates from '../src/microstates';
-import { Object as ObjectType, Number, String, Array, Boolean } from '../src';
+import Microstates, * as MS from '../src';
 
 describe('microstates', () => {
   describe('for Number', () => {
     describe('without initial state', () => {
       let ms;
       beforeEach(() => {
-        ms = Microstates.from(Number);
+        ms = Microstates.from(MS.Number);
       });
       it('has states', () => {
         expect(ms).toHaveProperty('states', 0);
@@ -28,7 +27,7 @@ describe('microstates', () => {
     describe('with initial state', () => {
       let ms;
       beforeEach(() => {
-        ms = Microstates.from(Number, 3);
+        ms = Microstates.from(MS.Number, 3);
       });
       it('returns new state on transition', () => {
         expect(ms.transitions.increment()).toBe(4);
@@ -37,8 +36,8 @@ describe('microstates', () => {
   });
   describe('for shallow composition', () => {
     class State {
-      name = String;
-      isOpen = Boolean;
+      name = MS.String;
+      isOpen = MS.Boolean;
     }
     describe('without initial state', () => {
       let ms;
@@ -89,8 +88,8 @@ describe('microstates', () => {
   });
   describe('shallow composition with arrays and objects', () => {
     class State {
-      animals = Array;
-      config = ObjectType;
+      animals = MS.Array;
+      config = MS.Object;
     }
     describe('without initial value', () => {
       let ms;
@@ -144,8 +143,8 @@ describe('microstates', () => {
   describe('recursive composition', () => {
     class Container {
       contains = Container;
-      x = Number;
-      y = Number;
+      x = MS.Number;
+      y = MS.Number;
     }
     describe('without initial value', () => {
       let ms;
@@ -240,10 +239,10 @@ describe('microstates', () => {
   });
   describe('deep composition', () => {
     class Session {
-      token = String;
+      token = MS.String;
     }
     class Authentication {
-      isAuthenticated = Boolean;
+      isAuthenticated = MS.Boolean;
       session = Session;
     }
     class State {
@@ -298,7 +297,7 @@ describe('microstates', () => {
   });
   describe('custom transitions', () => {
     class Car {
-      speed = Number;
+      speed = MS.Number;
       increaseSpeed(current = {}, amount) {
         let { speed = 0 } = current;
         return {
@@ -332,8 +331,8 @@ describe('microstates', () => {
   });
   describe('computed properties support', () => {
     class State {
-      firstName = String;
-      lastName = String;
+      firstName = MS.String;
+      lastName = MS.String;
       get fullName() {
         return `${this.firstName} ${this.lastName}`;
       }
@@ -367,7 +366,7 @@ describe('microstates', () => {
   });
   describe('cart example', () => {
     class Cart {
-      products = Array;
+      products = MS.Array;
       get price() {
         return this.products.reduce((acc, product) => acc + product.quantity * product.price, 0);
       }
