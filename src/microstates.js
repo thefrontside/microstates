@@ -2,6 +2,7 @@ import Tree from './utils/tree';
 import States from './utils/states';
 import Transitions from './utils/transitions';
 import validate from './utils/validate';
+import context from './utils/context';
 
 export default class Microstates {
   constructor(tree, value) {
