@@ -39,7 +39,7 @@ export default function ContextFactory(Type, exclude) {
           map(
             t => (...args) => {
               let result = t(...args);
-              if (typeof result && result) {
+              if (typeof result === 'object' && result) {
                 return Context(mergeDeepRight(value, result));
               } else {
                 return Context(result);
