@@ -302,7 +302,7 @@ describe('microstates', () => {
     class Car {
       speed = MS.Number;
       increaseSpeed(current, amount) {
-        return this.speed.sum(amount);
+        return this(current).speed.sum(amount);
       }
     }
     class State {
@@ -323,12 +323,8 @@ describe('microstates', () => {
       it('excludes custom transtions from context', () => {
         expect(context).not.toHaveProperty('custom');
       });
-      it.skip('has items transitions', () => {
-        expect(context).toMatchObject({
-          items: {
-            push: expect.any(Function),
-          },
-        });
+      it('is a function', () => {
+        expect(context).toBeInstanceOf(Function);
       });
     });
     describe('transition', () => {
@@ -353,30 +349,32 @@ describe('microstates', () => {
     });
     describe('merging', () => {
       class ModalContent {
-        text = String;
+        text = MS.String;
       }
       class Modal {
-        isOpen = Boolean;
-        title = String;
+        isOpen = MS.Boolean;
+        title = MS.String;
         content = ModalContent;
       }
       class State {
-        messages = Array;
+        messages = MS.Array;
         modal = Modal;
 
         addItemAndShowModal(current, message, prompt) {
-          return this.messages
-            .push(message)
+          return this(current)
+            .messages.push(message)
             .modal.isOpen.set(true)
             .modal.content.text.set(prompt);
         }
       }
       let ms;
+      let result;
       beforeEach(() => {
         ms = Microstates.from(State, { modal: { title: 'Confirmation' } });
+        result = ms.transitions.addItemAndShowModal('Hello World', 'You have a message');
       });
       it('returns merged state', () => {
-        expect(ms.transitions.addItemAndShowModal('Hello World', 'You have a message')).toEqual({
+        expect(result).toEqual({
           messages: ['Hello World'],
           modal: {
             isOpen: true,
