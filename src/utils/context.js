@@ -1,8 +1,9 @@
-import { map, filter } from 'funcadelic';
+import { map, filter, append } from 'funcadelic';
 import mergeDeepRight from 'ramda/src/mergeDeepRight';
 
 import Tree from './tree';
 import Transitions from './transitions';
+import States from './states';
 
 /**
  * Return a function that will generate a context object for given type. The returned
@@ -12,11 +13,11 @@ import Transitions from './transitions';
  * valueOf the context object returns the boxed-in value.
  * 
  * ```js
- * class Item {
+ * class State {
  *   count = Number;
  * }
  * 
- * let context = ContextFactory(Item);
+ * let context = ContextFactory(State);
  * context({ count: 0 })
  *  .count.increment()
  *  .count.increment()
@@ -30,28 +31,30 @@ export default function ContextFactory(Type, exclude) {
   let tree = Tree.from(Type);
 
   return function Context(value) {
-    let context = map(
-      // when internal transition is invoked, merge result into current value
-      // then create a new context object to allow chaining
-      transitions =>
-        map(
-          t => (...args) => Context(mergeDeepRight(value, t(...args))),
-          // to prevent infinite loop, exclude transition that this context is for
-          filter(({ key }) => key !== exclude, transitions)
-        ),
-      Transitions(tree, value)
-    ).collapsed;
-
-    // valueOf gives transition handler a way to pull value boxed in this context
-    return defineValueOf(context, value);
+    return append(
+      map(
+        // when internal transition is invoked, merge result into current value
+        // then create a new context object to allow chaining
+        transitions =>
+          map(
+            t => (...args) => {
+              let result = t(...args);
+              if (typeof result && result) {
+                return Context(mergeDeepRight(value, result));
+              } else {
+                return Context(result);
+              }
+            },
+            // to prevent infinite loop, exclude transition that this context is for
+            filter(({ key }) => key !== exclude, transitions)
+          ),
+        Transitions(tree, States(tree, value).collapsed)
+      ).collapsed,
+      {
+        valueOf() {
+          return value;
+        },
+      }
+    );
   };
-}
-
-function defineValueOf(object, value) {
-  return Object.defineProperty(object, 'valueOf', {
-    value() {
-      return value;
-    },
-    enumerable: false,
-  });
 }

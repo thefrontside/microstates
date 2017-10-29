@@ -16,6 +16,9 @@ describe('withoutGetters', () => {
       })
     ).toEqual({ a: 'a' });
   });
+  it('returns null', () => {
+    expect(withoutGetters(null)).toBe(null);
+  });
   it('returns only values on nested objects', () => {
     expect(
       withoutGetters({
