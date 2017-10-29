@@ -308,25 +308,6 @@ describe('microstates', () => {
     class State {
       vehicle = Car;
     }
-    describe('context', () => {
-      let context;
-      beforeEach(() => {
-        class State {
-          items = MS.Array;
-          custom() {
-            context = this;
-          }
-        }
-        let { transitions: { custom } } = Microstates.from(State);
-        custom();
-      });
-      it('excludes custom transtions from context', () => {
-        expect(context).not.toHaveProperty('custom');
-      });
-      it('is a function', () => {
-        expect(context).toBeInstanceOf(Function);
-      });
-    });
     describe('transition', () => {
       describe('without initial value', () => {
         let ms;
@@ -344,6 +325,35 @@ describe('microstates', () => {
         });
         it('creates initial value', () => {
           expect(ms.transitions.vehicle.increaseSpeed(10)).toEqual({ vehicle: { speed: 20 } });
+        });
+      });
+    });
+    describe('context', () => {
+      let context;
+      let result;
+      beforeEach(() => {
+        class State {
+          items = MS.Array;
+          custom() {
+            context = this;
+          }
+        }
+        let { transitions: { custom } } = Microstates.from(State);
+        custom();
+      });
+      it('is a function', () => {
+        expect(context).toBeInstanceOf(Function);
+      });
+      it('excludes custom transtions from context', () => {
+        expect(context()).not.toHaveProperty('custom');
+      });
+      it('returns transitions', () => {
+        expect(context()).toMatchObject({
+          items: {
+            push: expect.any(Function),
+          },
+          merge: expect.any(Function),
+          set: expect.any(Function),
         });
       });
     });
