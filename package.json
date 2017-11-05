@@ -1,6 +1,6 @@
 {
   "name": "microstates",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "description": "Immutable. Composable. Lovable.",
   "main": "src/index.js",
   "files": ["src/**/*"],
