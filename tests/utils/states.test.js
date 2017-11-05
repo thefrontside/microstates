@@ -14,7 +14,7 @@ describe('States', () => {
         a = ['a', 'b', 'c'];
       }
     );
-    let states = States(tree);
+    let states = States(tree).collapsed;
     it('includes constants in states tree', () => {
       // once transition-context is merged, need to add collapsed to
       // the end of States().
