@@ -21,4 +21,8 @@ describe('gettersFor', () => {
       b: 'b',
     });
   });
+  it('returns instance of Type', () => {
+    class Type {}
+    expect(gettersFor(Type)).toBeInstanceOf(Type);
+  });
 });
