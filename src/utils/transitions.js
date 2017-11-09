@@ -9,5 +9,5 @@ export default function Transitions(tree, states) {
       map(t => (...args) => t(lensPath(path), states, ...args), transitions),
     // curried transitions
     map(({ Type, path }) => ({ path, transitions: transitionsFor(Type) }), tree)
-  ).collapsed;
+  );
 }
