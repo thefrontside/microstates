@@ -6,7 +6,7 @@ import gettersFor from './getters-for';
 
 export default function States(tree, value) {
   return map(
-    ({ Type, value }) => (isPrimitive(Type) ? value : append(gettersFor(Type), value)),
+    ({ Type, value }) => (isPrimitive(Type) ? value : append(value, gettersFor(Type))),
     map(data => append(data, { value: initialize(data, value) }), tree)
   );
 }

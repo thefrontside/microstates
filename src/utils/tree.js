@@ -12,7 +12,6 @@ export default class Tree {
 
   get collapsed() {
     if (keys(this.children).length > 0) {
-      console.log(this.data);
       return append(this.data, map(child => child.collapsed, this.children));
     } else {
       return this.data;
