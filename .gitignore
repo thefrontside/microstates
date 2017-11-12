@@ -13,3 +13,4 @@
 !.travis.yml
 !LICENSE
 !.npmignore
+.esm-cache
