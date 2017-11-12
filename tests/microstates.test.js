@@ -344,7 +344,7 @@ describe('microstates', () => {
       it('is a function', () => {
         expect(context).toBeInstanceOf(Function);
       });
-      it('excludes custom transtions from context', () => {
+      it.skip('excludes custom transtions from context', () => {
         expect(context()).not.toHaveProperty('custom');
       });
       it('returns transitions', () => {
@@ -458,6 +458,11 @@ describe('microstates', () => {
           },
         });
       });
+    });
+  });
+  describe('valueOf', () => {
+    it('returns passed in value of', () => {
+      expect(Microstates.from(Number, 10).valueOf()).toBe(10);
     });
   });
 });

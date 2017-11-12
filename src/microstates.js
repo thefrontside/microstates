@@ -9,6 +9,7 @@ export default class Microstates {
     this.states = States(tree, value).collapsed;
     this.transitions = Transitions(tree, this.states).collapsed;
     this.tree = tree;
+    this.value = value;
   }
   /**
    * Create new Microstates for same type tree but new value.
@@ -16,6 +17,9 @@ export default class Microstates {
    */
   to(value) {
     return new Microstates(this.tree, value);
+  }
+  valueOf() {
+    return this.value;
   }
   /**
    * Build Microstates for given type and value.
