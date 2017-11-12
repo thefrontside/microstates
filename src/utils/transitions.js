@@ -1,8 +1,12 @@
-import lensPath from 'ramda/src/lensPath';
 import { map } from 'funcadelic';
+
+import lensPath from 'ramda/src/lensPath';
+import set from 'ramda/src/set';
+import view from 'ramda/src/view';
 
 import transitionsFor from './transitions-for';
 import ContextFactory from './context';
+import withoutGetters from './without-getters';
 
 /**
  * Return a tree of transitions for a given transition tree. States are used to provide 
@@ -12,14 +16,38 @@ import ContextFactory from './context';
  * @param {States} states 
  */
 export default function Transitions(tree, states) {
+  let withTransitions = map(
+    ({ Type, path }) => ({
+      Type,
+      path,
+      transitions: transitionsFor(Type),
+    }),
+    tree
+  );
+
   return map(
     ({ Type, path, transitions }) =>
       map(
-        (t, name) => (...args) =>
-          t.call(ContextFactory(Type, name), lensPath(path), states, ...args),
+        (t, name) => (...args) => {
+          let lens = lensPath(path);
+
+          let current = view(lens, states);
+
+          let context = ContextFactory(Type, name);
+
+          let result = t.call(context, current, ...args);
+
+          let nextValue = set(lens, valueOf(result), states);
+
+          return withoutGetters(nextValue);
+        },
         transitions
       ),
     // curried transitions
-    map(({ Type, path }) => ({ Type, path, transitions: transitionsFor(Type) }), tree)
+    withTransitions
   );
+}
+
+function valueOf(o) {
+  return o && o.valueOf && o.valueOf.call ? o.valueOf() : o;
 }

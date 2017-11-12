@@ -3,15 +3,14 @@ import getOwnPropertyDescriptors from 'object.getownpropertydescriptors';
 import mergeDeepRight from 'ramda/src/mergeDeepRight';
 
 import isPrimitive from './is-primitive';
-import transition from './transition';
 
-const set = transition(function set(current, state) {
+const set = function set(current, state) {
   return state;
-});
+};
 
-const merge = transition(function merge(current, ...args) {
+const merge = function merge(current, ...args) {
   return mergeDeepRight(current, ...args);
-});
+};
 
 export default function transitionsFor(Type) {
   let descriptors = getOwnPropertyDescriptors(Type.prototype);
@@ -23,7 +22,7 @@ export default function transitionsFor(Type) {
   );
 
   let common = isPrimitive(Type) ? { set } : { set, merge };
-  return append(common, map(fn => transition(fn), transitionFns));
+  return append(common, transitionFns);
 }
 
 function isFunctionDescriptor(descriptor) {
