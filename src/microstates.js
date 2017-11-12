@@ -5,8 +5,8 @@ import validate from './utils/validate';
 
 export default class Microstates {
   constructor(tree, value) {
-    this.states = States(tree, value);
-    this.transitions = Transitions(tree, this.states);
+    this.states = States(tree, value).collapsed;
+    this.transitions = Transitions(tree, this.states).collapsed;
     this.tree = tree;
   }
   /**

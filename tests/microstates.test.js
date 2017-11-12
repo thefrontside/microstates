@@ -44,6 +44,9 @@ describe('microstates', () => {
       beforeEach(() => {
         ms = Microstates.from(State);
       });
+      it('is instance of State', () => {
+        expect(ms.states).toBeInstanceOf(State);
+      });
       it('initializes default', () => {
         expect(ms).toHaveProperty('states', { name: '', isOpen: false });
       });

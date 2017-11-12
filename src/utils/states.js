@@ -8,5 +8,5 @@ export default function States(tree, value) {
   return map(
     ({ Type, value }) => (isPrimitive(Type) ? value : append(value, gettersFor(Type))),
     map(data => append(data, { value: initialize(data, value) }), tree)
-  ).collapsed;
+  );
 }

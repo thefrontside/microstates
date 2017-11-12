@@ -35,7 +35,7 @@
     "standard-version": "^4.2.0"
   },
   "dependencies": {
-    "funcadelic": "^0.2.2",
+    "funcadelic": "^0.2.5",
     "object.getownpropertydescriptors": "2.0.3",
     "ramda": "^0.24.1"
   },
