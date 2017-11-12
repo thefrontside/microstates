@@ -27,28 +27,25 @@ import States from './states';
  * 
  * @param {*} Type 
  */
-export default function ContextFactory(Type, exclude) {
-  let tree = Tree.from(Type);
-
+export default function ContextFactory(Type) {
   return function Context(value) {
-    return append(
-      map(
-        // when internal transition is invoked, merge result into current value
-        // then create a new context object to allow chaining
-        transitions =>
-          map(
-            t => (...args) => Context(softMerge(value, t(...args))),
-            // to prevent infinite loop, exclude transition that this context is for
-            filter(({ key }) => key !== exclude, transitions)
-          ),
-        Transitions(tree, States(tree, value).collapsed)
-      ).collapsed,
-      {
-        valueOf() {
-          return value;
-        },
-      }
+    let tree = Tree.from(Type);
+    let states = States(tree, value).collapsed;
+
+    let transitions = Transitions(tree, states);
+
+    let contextual = map(
+      // when internal transition is invoked, merge result into current value
+      // then create a new context object to allow chaining
+      transitions => map(t => (...args) => Context(softMerge(value, t(...args))), transitions),
+      transitions
     );
+
+    return append(contextual.collapsed, {
+      valueOf() {
+        return value;
+      },
+    });
   };
 }
 

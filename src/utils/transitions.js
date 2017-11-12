@@ -7,6 +7,7 @@ import view from 'ramda/src/view';
 import transitionsFor from './transitions-for';
 import ContextFactory from './context';
 import withoutGetters from './without-getters';
+import getOwnPropertyDescriptors from 'object.getownpropertydescriptors';
 
 /**
  * Return a tree of transitions for a given transition tree. States are used to provide 
@@ -15,7 +16,7 @@ import withoutGetters from './without-getters';
  * @param {Tree} tree 
  * @param {States} states 
  */
-export default function Transitions(tree, states) {
+export default function Transitions(tree, states, value) {
   let withTransitions = map(
     ({ Type, path }) => ({
       Type,
@@ -33,13 +34,13 @@ export default function Transitions(tree, states) {
 
           let current = view(lens, states);
 
-          let context = ContextFactory(Type, name);
+          let context = ContextFactory(Type);
 
-          let result = t.call(context, current, ...args);
+          let result = valueOf(t.call(context, current, ...args));
 
-          let nextValue = set(lens, valueOf(result), states);
+          let next = set(lens, withoutGetters(result), value);
 
-          return withoutGetters(nextValue);
+          return next;
         },
         transitions
       ),

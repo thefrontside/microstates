@@ -7,7 +7,7 @@ describe('microstates', () => {
     describe('without initial state', () => {
       let ms;
       beforeEach(() => {
-        ms = Microstates.from(MS.Number);
+        ms = Microstates(MS.Number)();
       });
       it('has states', () => {
         expect(ms).toHaveProperty('states', 0);
@@ -27,7 +27,7 @@ describe('microstates', () => {
     describe('with initial state', () => {
       let ms;
       beforeEach(() => {
-        ms = Microstates.from(MS.Number, 3);
+        ms = Microstates(MS.Number)(3);
       });
       it('returns new state on transition', () => {
         expect(ms.transitions.increment()).toBe(4);
@@ -42,7 +42,7 @@ describe('microstates', () => {
     describe('without initial state', () => {
       let ms;
       beforeEach(() => {
-        ms = Microstates.from(State);
+        ms = Microstates(State)();
       });
       it('is instance of State', () => {
         expect(ms.states).toBeInstanceOf(State);
@@ -70,13 +70,13 @@ describe('microstates', () => {
         expect(ms.transitions.set({ name: 'taras' })).toEqual({ name: 'taras' });
       });
       it('replaces value when set is called on leaf state', () => {
-        expect(ms.transitions.name.set('taras')).toEqual({ name: 'taras', isOpen: false });
+        expect(ms.transitions.name.set('taras')).toEqual({ name: 'taras' });
       });
     });
     describe('with initial state', () => {
       let ms;
       beforeEach(() => {
-        ms = Microstates.from(State, { isOpen: true });
+        ms = Microstates(State)({ isOpen: true });
       });
       it('uses provided state', () => {
         expect(ms).toHaveProperty('states', { name: '', isOpen: true });
@@ -97,7 +97,7 @@ describe('microstates', () => {
     describe('without initial value', () => {
       let ms;
       beforeEach(() => {
-        ms = Microstates.from(State);
+        ms = Microstates(State)();
       });
       it('initialies with default', () => {
         expect(ms).toHaveProperty('states', {
@@ -108,20 +108,18 @@ describe('microstates', () => {
       it('returns a new object with value pushed into an array', () => {
         expect(ms.transitions.animals.push('cat')).toEqual({
           animals: ['cat'],
-          config: {},
         });
       });
       it('return a new object with value assigned into the object', () => {
         expect(ms.transitions.config.assign({ x: 10, y: 20 })).toEqual({
           config: { x: 10, y: 20 },
-          animals: [],
         });
       });
     });
     describe('with initial value', () => {
       let ms;
       beforeEach(() => {
-        ms = Microstates.from(State, { animals: ['cat', 'dog'], config: { color: 'red' } });
+        ms = Microstates(State)({ animals: ['cat', 'dog'], config: { color: 'red' } });
       });
       it('uses provided value', () => {
         expect(ms).toHaveProperty('states', {
@@ -152,7 +150,7 @@ describe('microstates', () => {
     describe('without initial value', () => {
       let ms;
       beforeEach(() => {
-        ms = Microstates.from(Container);
+        ms = Microstates(Container)();
       });
       it('initializes first level', () => {
         expect(ms).toMatchObject({
@@ -179,26 +177,20 @@ describe('microstates', () => {
       it('transitions non recursive value', () => {
         expect(ms.transitions.x.increment()).toEqual({
           x: 1,
-          contains: {},
-          y: 0,
         });
       });
       it('transition recursive value', () => {
         expect(ms.transitions.contains.y.increment()).toEqual({
           contains: {
             y: 1,
-            contains: {},
-            x: 0,
           },
-          y: 0,
-          x: 0,
         });
       });
     });
     describe('with initial value', () => {
       let ms;
       beforeEach(() => {
-        ms = Microstates.from(Container, {
+        ms = Microstates(Container)({
           x: 10,
           y: 0,
           contains: { y: 20, x: 0, contains: { x: 30, y: 25, contains: {} } },
@@ -234,7 +226,7 @@ describe('microstates', () => {
           contains: {
             y: 20,
             x: 0,
-            contains: { x: 30, y: 25, contains: { y: -1, x: 0, contains: {} } },
+            contains: { x: 30, y: 25, contains: { y: -1 } },
           },
         });
       });
@@ -254,13 +246,12 @@ describe('microstates', () => {
     describe('without initial state', () => {
       let ms;
       beforeEach(() => {
-        ms = Microstates.from(State);
+        ms = Microstates(State)();
       });
       it('builds state tree', () => {
         expect(ms).toMatchObject({
           states: {
             authentication: {
-              isAuthenticated: false,
               session: {
                 token: '',
               },
@@ -271,7 +262,6 @@ describe('microstates', () => {
       it('transitions deeply nested state', () => {
         expect(ms.transitions.authentication.session.token.set('SECRET')).toEqual({
           authentication: {
-            isAuthenticated: false,
             session: { token: 'SECRET' },
           },
         });
@@ -280,7 +270,7 @@ describe('microstates', () => {
     describe('with initial state', () => {
       let ms;
       beforeEach(() => {
-        ms = Microstates.from(State, {
+        ms = Microstates(State)({
           authentication: { isAuthenticated: true, session: { token: 'SECRET' } },
         });
       });
@@ -312,7 +302,7 @@ describe('microstates', () => {
       describe('without initial value', () => {
         let ms;
         beforeEach(() => {
-          ms = Microstates.from(State);
+          ms = Microstates(State)();
         });
         it('uses current state value', () => {
           expect(ms.transitions.vehicle.increaseSpeed(10)).toEqual({ vehicle: { speed: 10 } });
@@ -321,7 +311,7 @@ describe('microstates', () => {
       describe('with initial value', () => {
         let ms;
         beforeEach(() => {
-          ms = Microstates.from(State, { vehicle: { speed: 10 } });
+          ms = Microstates(State)({ vehicle: { speed: 10 } });
         });
         it('creates initial value', () => {
           expect(ms.transitions.vehicle.increaseSpeed(10)).toEqual({ vehicle: { speed: 20 } });
@@ -338,7 +328,7 @@ describe('microstates', () => {
             context = this;
           }
         }
-        let { transitions: { custom } } = Microstates.from(State);
+        let { transitions: { custom } } = Microstates(State)();
         custom();
       });
       it('is a function', () => {
@@ -380,7 +370,7 @@ describe('microstates', () => {
       let ms;
       let result;
       beforeEach(() => {
-        ms = Microstates.from(State, { modal: { title: 'Confirmation' } });
+        ms = Microstates(State)({ modal: { title: 'Confirmation' } });
         result = ms.transitions.addItemAndShowModal('Hello World', 'You have a message');
       });
       it('returns merged state', () => {
@@ -408,7 +398,7 @@ describe('microstates', () => {
     describe('without initial state', () => {
       let ms;
       beforeEach(() => {
-        ms = Microstates.from(State);
+        ms = Microstates(State)();
       });
       it('is computed', function() {
         expect(ms).toMatchObject({
@@ -421,7 +411,7 @@ describe('microstates', () => {
     describe('with initial state', () => {
       let ms;
       beforeEach(() => {
-        ms = Microstates.from(State, { firstName: 'Peter', lastName: 'Griffin' });
+        ms = Microstates(State)({ firstName: 'Peter', lastName: 'Griffin' });
       });
       it('is computed', () => {
         expect(ms).toMatchObject({
@@ -445,9 +435,9 @@ describe('microstates', () => {
     describe('adding products without initial value', () => {
       let ms;
       beforeEach(() => {
-        ms = Microstates.from(Cart);
-        ms = ms.to(ms.transitions.products.push({ quantity: 1, price: 10 }));
-        ms = ms.to(ms.transitions.products.push({ quantity: 2, price: 20 }));
+        ms = Microstates(Cart)()
+          .products.push({ quantity: 1, price: 10 })
+          .products.push({ quantity: 2, price: 20 });
       });
       it('adds items to the cart', () => {
         expect(ms).toMatchObject({
@@ -458,11 +448,16 @@ describe('microstates', () => {
           },
         });
       });
+      it('provides valueOf', () => {
+        expect(ms.valueOf()).toEqual({
+          products: [{ quantity: 1, price: 10 }, { quantity: 2, price: 20 }],
+        });
+      });
     });
   });
   describe('valueOf', () => {
     it('returns passed in value of', () => {
-      expect(Microstates.from(Number, 10).valueOf()).toBe(10);
+      expect(Microstates(MS.Number)(10).valueOf()).toBe(10);
     });
   });
 });

@@ -6,7 +6,7 @@ import Microstates, * as MS from '../../src';
 describe('array', () => {
   describe('replace', () => {
     let array = ['a', 'b', 'c'];
-    let ms = Microstates.from(MS.Array, array);
+    let ms = Microstates(MS.Array)(array);
     it('replaces first element', () => {
       expect(ms.transitions.replace('a', 'd')).toEqual(['d', 'b', 'c']);
     });
