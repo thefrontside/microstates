@@ -37,14 +37,7 @@ export default function ContextFactory(Type, exclude) {
         // then create a new context object to allow chaining
         transitions =>
           map(
-            t => (...args) => {
-              let result = t(...args);
-              if (typeof result === 'object' && result) {
-                return Context(mergeDeepRight(value, result));
-              } else {
-                return Context(result);
-              }
-            },
+            t => (...args) => Context(softMerge(value, t(...args))),
             // to prevent infinite loop, exclude transition that this context is for
             filter(({ key }) => key !== exclude, transitions)
           ),
@@ -57,4 +50,17 @@ export default function ContextFactory(Type, exclude) {
       }
     );
   };
+}
+
+/**
+ * Merge if b is an object, otherwise return b
+ * @param {*} a 
+ * @param {*} b 
+ */
+function softMerge(a, b) {
+  if (b && typeof b === 'object') {
+    return mergeDeepRight(a, b);
+  } else {
+    return b;
+  }
 }
