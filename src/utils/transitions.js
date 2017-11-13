@@ -7,7 +7,6 @@ import view from 'ramda/src/view';
 import Microstates from '../microstates';
 import transitionsFor from './transitions-for';
 import withoutGetters from './without-getters';
-import getOwnPropertyDescriptors from 'object.getownpropertydescriptors';
 
 /**
  * Return a tree of transitions for a given transition tree. States are used to provide 
