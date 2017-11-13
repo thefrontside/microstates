@@ -4,8 +4,8 @@ import lensPath from 'ramda/src/lensPath';
 import set from 'ramda/src/set';
 import view from 'ramda/src/view';
 
+import Microstates from '../microstates';
 import transitionsFor from './transitions-for';
-import ContextFactory from './context';
 import withoutGetters from './without-getters';
 import getOwnPropertyDescriptors from 'object.getownpropertydescriptors';
 
@@ -34,7 +34,7 @@ export default function Transitions(tree, states, value) {
 
           let current = view(lens, states);
 
-          let context = ContextFactory(Type);
+          let context = Microstates(Type);
 
           let result = valueOf(t.call(context, current, ...args));
 
