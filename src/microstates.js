@@ -4,6 +4,8 @@ import States from './utils/states';
 import Transitions from './utils/transitions';
 import validate from './utils/validate';
 
+const { assign } = Object;
+
 export default function Microstates(Type) {
   let tree = Tree.from(Type);
 
@@ -11,17 +13,18 @@ export default function Microstates(Type) {
     let states = States(tree, value).collapsed;
     let transitions = Transitions(tree, states, value);
 
-    return {
-      Type,
-      states,
-      transitions: transitions.collapsed,
+    return assign(
+      {
+        Type,
+        states,
+        transitions: transitions.collapsed,
 
-      valueOf() {
-        return value;
+        valueOf() {
+          return value;
+        },
       },
-
-      ...map(transitions => map(t => (...args) => Microstate(t(...args)), transitions), transitions)
-        .collapsed,
-    };
+      map(transitions => map(t => (...args) => Microstate(t(...args)), transitions), transitions)
+        .collapsed
+    );
   };
 }
