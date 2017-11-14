@@ -347,6 +347,45 @@ describe('microstates', () => {
         });
       });
     });
+    describe('type shifting', () => {
+      describe('of root state', () => {
+        class Choice {
+          topic = MS.String;
+          yes(current, reason) {
+            return this(current, Yes).affirmation.set(reason);
+          }
+          no(current, reason) {
+            return this(current, No).refutation.set(reason);
+          }
+        }
+        class No extends Choice {
+          refutation = MS.String;
+        }
+        class Yes extends Choice {
+          affirmation = MS.String;
+        }
+        let ms, yes, no;
+        beforeEach(() => {
+          ms = Microstates(Choice)({ topic: 'Microstates are tiny' });
+          yes = ms.yes('So tiny.');
+          no = ms.no('They huge.');
+        });
+        it('returns affirmation for yes', () => {
+          expect(yes.valueOf()).toEqual({ topic: 'Microstates are tiny', affirmation: 'So tiny.' });
+        });
+        it('returns refutation for no', () => {
+          expect(no.valueOf()).toEqual({ topic: 'Microstates are tiny', refutation: 'They huge.' });
+        });
+        it(`changed the root's structure`, () => {
+          expect(yes).toMatchObject({
+            states: {
+              topic: 'Microstates are tiny',
+              affirmation: 'So tiny.',
+            },
+          });
+        });
+      });
+    });
     describe('merging', () => {
       class ModalContent {
         text = MS.String;

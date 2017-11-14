@@ -7,9 +7,11 @@ import validate from './utils/validate';
 const { assign } = Object;
 
 export default function Microstates(Type) {
-  let tree = Tree.from(Type);
+  return function Microstate(value, tree = Tree.from(Type)) {
+    if (!(tree instanceof Tree)) {
+      tree = Tree.from(tree);
+    }
 
-  return function Microstate(value) {
     let states = States(tree, value).collapsed;
     let transitions = Transitions(tree, states, value);
 
@@ -22,6 +24,8 @@ export default function Microstates(Type) {
         valueOf() {
           return value;
         },
+
+        isMicrostate: true,
       },
       map(transitions => map(t => (...args) => Microstate(t(...args)), transitions), transitions)
         .collapsed

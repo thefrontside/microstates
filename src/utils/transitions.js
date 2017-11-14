@@ -28,14 +28,20 @@ export default function Transitions(tree, states, value) {
   return map(
     ({ Type, path, transitions }) =>
       map(
-        (t, name) => (...args) => {
+        t => (...args) => {
           let lens = lensPath(path);
 
           let current = view(lens, states);
 
           let context = Microstates(Type);
 
-          let result = valueOf(t.call(context, current, ...args));
+          let result = t.call(context, current, ...args);
+
+          // result can be a microstate if it was invoked with `return this(current)`
+          // or it can be result if it was just returned without invoking the context
+          if (result && result.isMicrostate) {
+            result = result.valueOf();
+          }
 
           let next = set(lens, withoutGetters(result), value);
 
@@ -46,8 +52,4 @@ export default function Transitions(tree, states, value) {
     // curried transitions
     withTransitions
   );
-}
-
-function valueOf(o) {
-  return o && o.valueOf && o.valueOf.call ? o.valueOf() : o;
 }
