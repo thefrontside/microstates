@@ -21,6 +21,8 @@ export default function Microstates(Type) {
         states,
         transitions: transitions.collapsed,
 
+        value,
+
         valueOf() {
           return value;
         },
