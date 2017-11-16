@@ -1,37 +1,32 @@
-import { map } from 'funcadelic';
-
+import { map, append } from 'funcadelic';
 import lensPath from 'ramda/src/lensPath';
 import set from 'ramda/src/set';
 import view from 'ramda/src/view';
 
 import Microstates from '../microstates';
+import Tree from './tree';
+
 import transitionsFor from './transitions-for';
 import withoutGetters from './without-getters';
+import initialize from './initialize';
+import isPrimitive from './is-primitive';
+import gettersFor from './getters-for';
 
-/**
- * Return a tree of transitions for a given transition tree. States are used to provide 
- * values for transitions to use calculating state transitions.
- * 
- * @param {Tree} tree 
- * @param {States} states 
- */
-export default function Transitions(tree, states, value) {
-  let withTransitions = map(
-    ({ Type, path }) => ({
-      Type,
-      path,
-      transitions: transitionsFor(Type),
-    }),
-    tree
+export default function Microstate(Type, value) {
+  let tree = Tree.from(Type);
+
+  let states = map(
+    ({ Type, value }) => (isPrimitive(Type) ? value : append(value, gettersFor(Type))),
+    map(data => append(data, { value: initialize(data, value) }), tree)
   );
 
-  return map(
+  let transitions = map(
     ({ Type, path, transitions }) =>
       map(
         t => (...args) => {
           let lens = lensPath(path);
 
-          let current = view(lens, states);
+          let current = view(lens, states.collapsed);
 
           let context = (_Type = Type, _value = current) => {
             return Microstates(_Type, _value);
@@ -52,6 +47,18 @@ export default function Transitions(tree, states, value) {
         transitions
       ),
     // curried transitions
-    withTransitions
+    map(
+      ({ Type, path }) => ({
+        Type,
+        path,
+        transitions: transitionsFor(Type),
+      }),
+      tree
+    )
   );
+
+  return {
+    transitions,
+    states,
+  };
 }

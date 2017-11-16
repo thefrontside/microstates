@@ -1,23 +1,22 @@
-import { map } from 'funcadelic';
-import Tree from './utils/tree';
-import States from './utils/states';
-import Transitions from './utils/transitions';
-import validate from './utils/validate';
+import { map, append } from 'funcadelic';
 
-const { assign } = Object;
+import Microstate from './utils/microstate';
 
 export default function Microstates(Type, value) {
-  let tree = Tree.from(Type);
-  let states = States(tree, value).collapsed;
-  let transitions = Transitions(tree, states, value);
+  let { transitions, states } = Microstate(Type, value);
 
-  return assign(
+  return append(
     {
       Type,
-      states,
-      transitions: transitions.collapsed,
-
       value,
+
+      get states() {
+        return states.collapsed;
+      },
+
+      get transitions() {
+        return transitions.collapsed;
+      },
 
       valueOf() {
         return value;
