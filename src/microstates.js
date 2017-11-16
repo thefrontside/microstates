@@ -6,31 +6,28 @@ import validate from './utils/validate';
 
 const { assign } = Object;
 
-export default function Microstates(Type) {
-  return function Microstate(value, tree = Tree.from(Type)) {
-    if (!(tree instanceof Tree)) {
-      tree = Tree.from(tree);
-    }
+export default function Microstates(Type, value) {
+  let tree = Tree.from(Type);
+  let states = States(tree, value).collapsed;
+  let transitions = Transitions(tree, states, value);
 
-    let states = States(tree, value).collapsed;
-    let transitions = Transitions(tree, states, value);
+  return assign(
+    {
+      Type,
+      states,
+      transitions: transitions.collapsed,
 
-    return assign(
-      {
-        Type,
-        states,
-        transitions: transitions.collapsed,
+      value,
 
-        value,
-
-        valueOf() {
-          return value;
-        },
-
-        isMicrostate: true,
+      valueOf() {
+        return value;
       },
-      map(transitions => map(t => (...args) => Microstate(t(...args)), transitions), transitions)
-        .collapsed
-    );
-  };
+
+      isMicrostate: true,
+    },
+    map(
+      transitions => map(t => (...args) => Microstates(Type, t(...args)), transitions),
+      transitions
+    ).collapsed
+  );
 }

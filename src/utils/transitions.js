@@ -33,7 +33,9 @@ export default function Transitions(tree, states, value) {
 
           let current = view(lens, states);
 
-          let context = Microstates(Type);
+          let context = (_Type = Type, _value = current) => {
+            return Microstates(_Type, _value);
+          };
 
           let result = t.call(context, current, ...args);
 
