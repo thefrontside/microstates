@@ -1,4 +1,4 @@
-import { filter, foldl, append } from 'funcadelic';
+import { foldl, append } from 'funcadelic';
 import getOwnPropertyDescriptors from 'object.getownpropertydescriptors';
 
 export default function withoutGetters(o) {
