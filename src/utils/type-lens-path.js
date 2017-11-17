@@ -1,7 +1,6 @@
 import curry from 'ramda/src/curry';
 import lens from 'ramda/src/lens';
 
-import Tree from './tree';
 import overload from './overload';
 
 const path = curry(function(paths, Type) {
@@ -38,6 +37,6 @@ const assocPath = curry(function(paths, val, Type) {
   return overload(Type, propName, val);
 });
 
-export default function treeLensPath(paths) {
+export default function typeLensPath(paths) {
   return lens(path(paths), assocPath(paths));
 }
