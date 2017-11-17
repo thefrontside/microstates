@@ -381,6 +381,51 @@ describe('microstates', () => {
           });
         });
       });
+      describe('shallow nested property', () => {
+        class Filled {
+          content = MS.Array;
+          empty() {
+            return this(Empty);
+          }
+        }
+        class Empty {
+          add(current, ...args) {
+            return this(Filled).content.push(...args);
+          }
+        }
+        class Box {
+          content = Empty;
+        }
+        let empty, filled, emptied;
+        beforeEach(() => {
+          empty = Microstates(Box);
+          filled = empty.content.add('shoes', 'watch');
+          emptied = filled.content.empty();
+        });
+        it('can be empty', () => {
+          expect(empty).toMatchObject({
+            states: {
+              content: expect.any(Empty),
+            },
+          });
+        });
+        it('can be filled', () => {
+          expect(filled).toMatchObject({
+            states: {
+              content: expect.any(Filled),
+            },
+          });
+          expect(filled.valueOf()).toEqual({ content: { content: ['shoes', 'watch'] } });
+        });
+        it('can be emptied', () => {
+          expect(emptied).toMatchObject({
+            states: {
+              content: {},
+            },
+          });
+          expect(emptied.valueOf()).toEqual({ content: {} });
+        });
+      });
     });
     describe('merging', () => {
       class ModalContent {
