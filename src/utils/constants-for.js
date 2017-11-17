@@ -26,7 +26,7 @@ export default function constantsFor(Type) {
   );
 
   return Object.create(
-    Object.prototype,
+    Type.prototype,
     map(
       descriptor => ({
         get() {

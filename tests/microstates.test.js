@@ -544,4 +544,45 @@ describe('microstates', () => {
       expect(ms).toHaveProperty('value', 10);
     });
   });
+  describe('constants support', () => {
+    let ms = Microstates(
+      class {
+        n = 10;
+        b = true;
+        s = 'hello';
+        o = { hello: 'world' };
+        a = ['a', 'b', 'c'];
+        greeting = MS.String;
+      }
+    );
+    let next = ms.greeting.set('HI');
+    it('includes constants in states tree', () => {
+      // once transition-context is merged, need to add collapsed to
+      // the end of States().
+      expect(ms).toHaveProperty('states', {
+        n: 10,
+        b: true,
+        s: 'hello',
+        o: { hello: 'world' },
+        a: ['a', 'b', 'c'],
+        greeting: '',
+      });
+    });
+    it('constants are not included in valueOf', () => {
+      expect(ms.valueOf()).toBeUndefined();
+    });
+    it('next state has constants', () => {
+      expect(next).toHaveProperty('states', {
+        n: 10,
+        b: true,
+        s: 'hello',
+        o: { hello: 'world' },
+        a: ['a', 'b', 'c'],
+        greeting: 'HI',
+      });
+    });
+    it('next state excludes constants', () => {
+      expect(next.valueOf()).toEqual({ greeting: 'HI' });
+    });
+  });
 });
