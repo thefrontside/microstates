@@ -42,13 +42,20 @@ describe('typeLensPath', () => {
     it('replaces root', () => {
       expect(set(typeLensPath([]), Vehicle, State)).toBe(Vehicle);
     });
-    it('sets shallow property', () => {
+    it('sets new shallow property', () => {
       let Type = set(typeLensPath(['a']), 'VALUE', State);
       expect(Type).not.toBe(State);
       expect(new Type()).toMatchObject({
         count: MS.Number,
         person: Person,
         a: 'VALUE',
+      });
+    });
+    it('sets existing property', () => {
+      let Type = set(typeLensPath(['person']), Vehicle, State);
+      expect(new Type()).toMatchObject({
+        count: MS.Number,
+        person: Vehicle,
       });
     });
     it('sets deep property', () => {
