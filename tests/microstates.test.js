@@ -584,7 +584,7 @@ describe('microstates', () => {
         greeting: 'HI',
       });
     });
-    it('next state excludes constants', () => {
+    it('next valueOf excludes constants', () => {
       expect(next.valueOf()).toEqual({ greeting: 'HI' });
     });
   });
