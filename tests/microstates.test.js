@@ -552,6 +552,7 @@ describe('microstates', () => {
         s = 'hello';
         o = { hello: 'world' };
         a = ['a', 'b', 'c'];
+        null = null;
         greeting = MS.String;
       }
     );
@@ -565,6 +566,7 @@ describe('microstates', () => {
         s: 'hello',
         o: { hello: 'world' },
         a: ['a', 'b', 'c'],
+        null: null,
         greeting: '',
       });
     });
@@ -578,6 +580,7 @@ describe('microstates', () => {
         s: 'hello',
         o: { hello: 'world' },
         a: ['a', 'b', 'c'],
+        null: null,
         greeting: 'HI',
       });
     });
