@@ -28,9 +28,7 @@ export default function Microstate(Type, value) {
 
           let current = view(lens, states.collapsed);
 
-          let context = (_Type = Type, _value = current) => {
-            return Microstates(_Type, _value);
-          };
+          let context = (_Type = Type, _value = current) => Microstates(_Type, _value);
 
           let result = t.call(context, current, ...args);
 
