@@ -11,6 +11,7 @@ import withoutGetters from './without-getters';
 import initialize from './initialize';
 import isPrimitive from './is-primitive';
 import gettersFor from './getters-for';
+import typeLensPath from './type-lens-path';
 
 export default function Microstate(Type, value) {
   let tree = Tree.from(Type);
@@ -21,26 +22,30 @@ export default function Microstate(Type, value) {
   );
 
   let transitions = map(
-    ({ Type, path, transitions }) =>
+    ({ Type: _Type, path, transitions }) =>
       map(
         t => (...args) => {
-          let lens = lensPath(path);
+          let valueLens = lensPath(path);
+          let typeLens = typeLensPath(path);
 
-          let current = view(lens, states.collapsed);
+          let current = view(valueLens, states.collapsed);
 
-          let context = (_Type = Type, _value = current) => Microstates(_Type, _value);
+          let type = _Type;
 
-          let result = t.call(context, current, ...args);
+          let context = (Type = type, value = current) => Microstates(Type, value);
+
+          let val = t.call(context, current, ...args);
 
           // result can be a microstate if it was invoked with `return this(current)`
           // or it can be result if it was just returned without invoking the context
-          if (result && result.isMicrostate) {
-            result = result.valueOf();
+          if (val && val.microstate) {
+            return Microstates(
+              type === val.Type ? type : set(typeLens, val.Type, Type),
+              set(valueLens, withoutGetters(val.valueOf()), value)
+            );
           }
 
-          let next = set(lens, withoutGetters(result), value);
-
-          return next;
+          return Microstates(Type, set(valueLens, withoutGetters(val), value));
         },
         transitions
       ),
@@ -56,6 +61,11 @@ export default function Microstate(Type, value) {
   );
 
   return {
+    Type,
+    value,
+    valueOf() {
+      return value;
+    },
     transitions,
     states,
   };

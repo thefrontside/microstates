@@ -3,30 +3,15 @@ import { map, append } from 'funcadelic';
 import Microstate from './utils/microstate';
 
 export default function Microstates(Type, value) {
-  let { transitions, states } = Microstate(Type, value);
-
-  return append(
+  let microstate = new Microstate(Type, value);
+  let properties = append(
     {
-      Type,
-      value,
-
+      microstate,
       get states() {
-        return states.collapsed;
+        return microstate.states.collapsed;
       },
-
-      get transitions() {
-        return transitions.collapsed;
-      },
-
-      valueOf() {
-        return value;
-      },
-
-      isMicrostate: true,
     },
-    map(
-      transitions => map(t => (...args) => Microstates(Type, t(...args)), transitions),
-      transitions
-    ).collapsed
+    microstate.transitions.collapsed
   );
+  return append(microstate, properties);
 }
