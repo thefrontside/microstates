@@ -588,7 +588,58 @@ describe('microstates', () => {
       expect(next.valueOf()).toEqual({ greeting: 'HI' });
     });
   });
-  describe('typeshifting + constant values', () => {
+  describe('type-shifting', () => {
+    class Line {
+      a = MS.Number;
+      add({ a }, b) {
+        return this(Corner, { a, b });
+      }
+    }
+    class Corner extends Line {
+      a = MS.Number;
+      b = MS.Number;
+      add({ a, b }, c) {
+        return this(Triangle, { a, b, c });
+      }
+    }
+    class Triangle extends Corner {
+      c = MS.Number;
+    }
+    let line = Microstates(Line).a.set(10);
+    let corner = line.add(20);
+    let triangle = corner.add(30);
+    it('constructs a line', () => {
+      expect(line.states).toBeInstanceOf(Line);
+      expect(line).toMatchObject({
+        states: {
+          a: 10,
+        },
+      });
+      expect(line.valueOf()).toEqual({ a: 10 });
+    });
+    it('constructs a Corner', () => {
+      expect(corner.states).toBeInstanceOf(Corner);
+      expect(corner).toMatchObject({
+        states: {
+          a: 10,
+          b: 20,
+        },
+      });
+      expect(corner.valueOf()).toEqual({ a: 10, b: 20 });
+    });
+    it('constructs a Triangle', () => {
+      expect(triangle.states).toBeInstanceOf(Triangle);
+      expect(triangle).toMatchObject({
+        states: {
+          a: 10,
+          b: 20,
+          c: 30,
+        },
+      });
+      expect(triangle.valueOf()).toEqual({ a: 10, b: 20, c: 30 });
+    });
+  });
+  describe('type-shifting + constant values', () => {
     class Async {
       content = null;
       isLoaded = false;
