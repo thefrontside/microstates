@@ -588,4 +588,85 @@ describe('microstates', () => {
       expect(next.valueOf()).toEqual({ greeting: 'HI' });
     });
   });
+  describe('typeshifting + constant values', () => {
+    class Async {
+      content = null;
+      isLoaded = false;
+      isLoading = false;
+      isError = false;
+
+      loading() {
+        return this(AsyncLoading);
+      }
+    }
+
+    class AsyncError extends Async {
+      isError = true;
+      isLoading = false;
+      isLoaded = true;
+    }
+
+    class AsyncLoading extends Async {
+      isLoading = true;
+
+      loaded(current, content) {
+        return this(
+          class extends AsyncLoaded {
+            content = content;
+          }
+        );
+      }
+
+      error(current, msg) {
+        return this(
+          class extends AsyncError {
+            error = msg;
+          }
+        );
+      }
+    }
+
+    class AsyncLoaded extends Async {
+      isLoaded = true;
+      isLoading = false;
+      isError = false;
+    }
+    describe('successful loading siquence', () => {
+      let async = Microstates(Async);
+      it('can transition to loading', () => {
+        expect(async.loading()).toMatchObject({
+          states: {
+            content: null,
+            isLoaded: false,
+            isLoading: true,
+            isError: false,
+          },
+        });
+      });
+      it('can transition from loading to loaded', () => {
+        expect(async.loading().loaded('GREAT SUCCESS')).toMatchObject({
+          states: {
+            content: 'GREAT SUCCESS',
+            isLoaded: true,
+            isLoading: false,
+            isError: false,
+          },
+        });
+      });
+    });
+    describe('error loading sequence', () => {
+      let async = Microstates(Async);
+      it('can transition from loading to error', () => {
+        expect(async.loading().error(':(')).toMatchObject({
+          states: {
+            content: null,
+            isLoaded: true,
+            isError: true,
+            isLoading: false,
+            error: ':(',
+          },
+        });
+      });
+    });
+  });
 });
