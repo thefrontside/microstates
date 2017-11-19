@@ -14,8 +14,8 @@ import gettersFor from './getters-for';
 import typeLensPath from './type-lens-path';
 import constantsFor from './constants-for';
 
-export default function Microstate(Type, value) {
-  let tree = Tree.from(Type);
+export default function Microstate(root, value) {
+  let tree = Tree.from(root);
 
   let states = map(
     ({ Type, value }) =>
@@ -24,7 +24,7 @@ export default function Microstate(Type, value) {
   );
 
   let transitions = map(
-    ({ Type: _Type, path, transitions }) =>
+    ({ Type, path, transitions }) =>
       map(
         t => (...args) => {
           let valueLens = lensPath(path);
@@ -32,9 +32,7 @@ export default function Microstate(Type, value) {
 
           let current = view(valueLens, states.collapsed);
 
-          let type = _Type;
-
-          let context = (Type = type, value = current) => Microstates(Type, value);
+          let context = (_Type = Type, value = current) => Microstates(_Type, value);
 
           let val = t.call(context, current, ...args);
 
@@ -42,12 +40,12 @@ export default function Microstate(Type, value) {
           // or it can be result if it was just returned without invoking the context
           if (val && val.microstate) {
             return Microstates(
-              type === val.Type ? type : set(typeLens, val.Type, Type),
+              Type === val.Type ? Type : set(typeLens, val.Type, root),
               set(valueLens, withoutGetters(val.valueOf()), value)
             );
           }
 
-          return Microstates(Type, set(valueLens, withoutGetters(val), value));
+          return Microstates(root, set(valueLens, withoutGetters(val), value));
         },
         transitions
       ),
@@ -63,7 +61,7 @@ export default function Microstate(Type, value) {
   );
 
   return {
-    Type,
+    Type: root,
     value,
     valueOf() {
       return value;
