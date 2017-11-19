@@ -9,19 +9,12 @@ import Tree from './tree';
 import transitionsFor from './transitions-for';
 import withoutGetters from './without-getters';
 import initialize from './initialize';
-import isPrimitive from './is-primitive';
-import gettersFor from './getters-for';
 import typeLensPath from './type-lens-path';
-import constantsFor from './constants-for';
 
-export default function Microstate(root, value) {
+export default function Microstate(root, initial) {
   let tree = Tree.from(root);
 
-  let states = map(
-    ({ Type, value }) =>
-      isPrimitive(Type) ? value : append(value, append(gettersFor(Type), constantsFor(Type))),
-    map(data => append(data, { value: initialize(data, value) }), tree)
-  );
+  let states = map(({ Type, path }) => initialize(Type, view(lensPath(path), initial)), tree);
 
   let transitions = map(
     ({ Type, path }) =>
@@ -41,11 +34,11 @@ export default function Microstate(root, value) {
           if (val && val.microstate) {
             return Microstates(
               Type === val.Type ? Type : set(typeLens, val.Type, root),
-              set(valueLens, withoutGetters(val.valueOf()), value)
+              set(valueLens, withoutGetters(val.valueOf()), initial)
             );
           }
 
-          return Microstates(root, set(valueLens, withoutGetters(val), value));
+          return Microstates(root, set(valueLens, withoutGetters(val), initial));
         },
         transitionsFor(Type)
       ),
@@ -54,9 +47,9 @@ export default function Microstate(root, value) {
 
   return {
     Type: root,
-    value,
+    value: initial,
     valueOf() {
-      return value;
+      return initial;
     },
     transitions,
     states,
