@@ -6,6 +6,16 @@ import Microstates, * as MS from '../../src';
 describe('array', () => {
   let array = ['a', 'b', 'c'];
   let ms = Microstates(MS.Array, array);
+  describe('constructor', () => {
+    it('returns an array when receives another value', () => {
+      expect(new MS.Array()).toEqual([]);
+      expect(new MS.Array('foo')).toEqual(['foo']);
+      expect(new MS.Array(false)).toEqual([false]);
+    });
+    it('returns the array when one is passed', () => {
+      expect(new MS.Array(array)).toBe(array);
+    });
+  });
   describe('filter', () => {
     it('removes items', () => {
       expect(ms.filter(v => v !== 'a').valueOf()).toEqual(['b', 'c']);
