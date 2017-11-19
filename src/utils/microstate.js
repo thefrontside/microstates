@@ -24,7 +24,7 @@ export default function Microstate(root, value) {
   );
 
   let transitions = map(
-    ({ Type, path, transitions }) =>
+    ({ Type, path }) =>
       map(
         t => (...args) => {
           let valueLens = lensPath(path);
@@ -47,17 +47,9 @@ export default function Microstate(root, value) {
 
           return Microstates(root, set(valueLens, withoutGetters(val), value));
         },
-        transitions
+        transitionsFor(Type)
       ),
-    // curried transitions
-    map(
-      ({ Type, path }) => ({
-        Type,
-        path,
-        transitions: transitionsFor(Type),
-      }),
-      tree
-    )
+    tree
   );
 
   return {
