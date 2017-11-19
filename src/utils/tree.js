@@ -3,13 +3,13 @@ import { append, filter, Functor, map } from 'funcadelic';
 let { keys } = Object;
 
 export default class Tree {
-  constructor({ data = () => ({}), children = () => ({}) }) {
+  constructor(props = { data: () => ({}), children: () => ({}) }) {
     return Object.create(Tree.prototype, {
       data: {
-        get: data,
+        get: props.data,
       },
       children: {
-        get: children,
+        get: props.children,
       },
     });
   }
