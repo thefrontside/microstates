@@ -3,10 +3,14 @@ import { append, filter, Functor, map } from 'funcadelic';
 let { keys } = Object;
 
 export default class Tree {
-  constructor({ data = {}, children = {} }) {
-    return Tree.create({
-      data: () => data,
-      children: () => children,
+  constructor({ data = () => ({}), children = () => ({}) }) {
+    return Object.create(Tree.prototype, {
+      data: {
+        get: data,
+      },
+      children: {
+        get: children,
+      },
     });
   }
 
@@ -18,19 +22,8 @@ export default class Tree {
     }
   }
 
-  static create({ data = () => ({}), children = () => ({}) }) {
-    return Object.create(Tree.prototype, {
-      data: {
-        get: data,
-      },
-      children: {
-        get: children,
-      },
-    });
-  }
-
   static from(Type, path = []) {
-    return Tree.create({
+    return new Tree({
       data() {
         return { path, Type };
       },
@@ -74,7 +67,7 @@ Functor.instance(Tree, {
    * @param {*} tree Tree
    */
   map(fn, tree) {
-    return Tree.create({
+    return new Tree({
       data() {
         return fn(tree.data);
       },
