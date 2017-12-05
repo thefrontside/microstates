@@ -3,7 +3,7 @@ import { map, append } from 'funcadelic';
 import Microstate from './utils/microstate';
 
 /**
- * Invoking Microstates will return an object with the following shape.
+ * Invoking microstate will return an object with the following shape.
  *
  * {
  *  Type,                     // structure of current microstate
@@ -23,7 +23,7 @@ import Microstate from './utils/microstate';
  * @param {*} Type
  * @param {*} value
  */
-export default function Microstates(Type, value) {
+export default function microstate(Type, value) {
   let microstate = new Microstate(Type, value);
   let properties = append(
     {
