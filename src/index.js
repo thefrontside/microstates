@@ -1,4 +1,4 @@
-export { default } from './microstates';
+export { default } from './microstate';
 export { default as Number } from './types/number';
 export { default as String } from './types/string';
 export { default as Boolean } from './types/boolean';

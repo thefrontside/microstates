@@ -2,7 +2,7 @@ import 'jest';
 
 import constantsFor from '../../src/utils/constants-for';
 
-describe('constantsFor', () => {
+describe('utils/constants-for', () => {
   let constants = constantsFor(
     class {
       n = 10;

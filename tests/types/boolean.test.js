@@ -1,4 +1,3 @@
-import Microstate from '../../src/utils/microstate';
 import 'jest';
 
 import microstate, * as MS from '../../src';

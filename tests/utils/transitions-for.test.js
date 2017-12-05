@@ -3,7 +3,7 @@ import 'jest';
 import transitionsFor from '../../src/utils/transitions-for';
 import * as MS from '../../src';
 
-describe('transitionsFor', () => {
+describe('utils/transitions-for', () => {
   describe('Array', () => {
     let transitions = transitionsFor(MS.Array);
     it('has transitions', () => {

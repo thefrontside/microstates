@@ -3,7 +3,7 @@ import 'jest';
 import isPrimitive from '../../src/utils/is-primitive';
 import * as MS from '../../src';
 
-describe('isPrimitive', () => {
+describe('utils/is-primitive', () => {
   it('returns true for Number', () => {
     expect(isPrimitive(MS.Number)).toBe(true);
   });

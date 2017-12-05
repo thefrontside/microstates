@@ -2,7 +2,7 @@ import 'jest';
 
 import microstate, * as MS from '../src';
 
-describe('microstates', () => {
+describe('microstate', () => {
   describe('for Number', () => {
     describe('without initial state', () => {
       let ms;
@@ -10,7 +10,7 @@ describe('microstates', () => {
         ms = microstate(MS.Number);
       });
       it('has state', () => {
-        expect(ms).toHaveProperty('state', 0);
+        expect(ms.state).toBe(0);
       });
       it('has transitions', () => {
         expect(ms).toMatchObject({
@@ -46,7 +46,7 @@ describe('microstates', () => {
         expect(ms.state).toBeInstanceOf(State);
       });
       it('initializes default', () => {
-        expect(ms).toHaveProperty('state', { name: '', isOpen: false });
+        expect(ms.state).toEqual({ name: '', isOpen: false });
       });
       it('has transitions', () => {
         expect(ms).toMatchObject({
@@ -75,7 +75,7 @@ describe('microstates', () => {
         ms = microstate(State, { isOpen: true });
       });
       it('uses provided state', () => {
-        expect(ms).toHaveProperty('state', { name: '', isOpen: true });
+        expect(ms.state).toEqual({ name: '', isOpen: true });
       });
       it('replaces value when set is called but uses provided value', () => {
         expect(ms.name.set('taras').valueOf()).toEqual({ name: 'taras', isOpen: true });
@@ -96,7 +96,7 @@ describe('microstates', () => {
         ms = microstate(State);
       });
       it('initialies with default', () => {
-        expect(ms).toHaveProperty('state', {
+        expect(ms.state).toEqual({
           animals: [],
           config: {},
         });
@@ -118,7 +118,7 @@ describe('microstates', () => {
         ms = microstate(State, { animals: ['cat', 'dog'], config: { color: 'red' } });
       });
       it('uses provided value', () => {
-        expect(ms).toHaveProperty('state', {
+        expect(ms.state).toEqual({
           animals: ['cat', 'dog'],
           config: { color: 'red' },
         });
@@ -149,25 +149,21 @@ describe('microstates', () => {
         ms = microstate(Container);
       });
       it('initializes first level', () => {
-        expect(ms).toMatchObject({
-          state: {
-            contains: expect.any(Object),
-            x: 0,
-            y: 0,
-          },
+        expect(ms.state).toMatchObject({
+          contains: expect.any(Object),
+          x: 0,
+          y: 0,
         });
       });
       it('initializes recursively', () => {
-        expect(ms).toMatchObject({
-          state: {
-            contains: {
-              x: 0,
-              y: 0,
-              contains: expect.any(Object),
-            },
+        expect(ms.state).toMatchObject({
+          contains: {
             x: 0,
             y: 0,
+            contains: expect.any(Object),
           },
+          x: 0,
+          y: 0,
         });
       });
       it('transitions non recursive value', () => {
@@ -193,17 +189,15 @@ describe('microstates', () => {
         });
       });
       it('restores state tree from initial value', () => {
-        expect(ms).toMatchObject({
-          state: {
-            x: 10,
-            y: 0,
+        expect(ms.state).toMatchObject({
+          x: 10,
+          y: 0,
+          contains: {
+            y: 20,
+            x: 0,
             contains: {
-              y: 20,
-              x: 0,
-              contains: {
-                x: 30,
-                y: 25,
-              },
+              x: 30,
+              y: 25,
             },
           },
         });
@@ -245,12 +239,10 @@ describe('microstates', () => {
         ms = microstate(State);
       });
       it('builds state tree', () => {
-        expect(ms).toMatchObject({
-          state: {
-            authentication: {
-              session: {
-                token: '',
-              },
+        expect(ms.state).toMatchObject({
+          authentication: {
+            session: {
+              token: '',
             },
           },
         });
@@ -271,13 +263,11 @@ describe('microstates', () => {
         });
       });
       it('builds state tree', () => {
-        expect(ms).toMatchObject({
-          state: {
-            authentication: {
-              isAuthenticated: true,
-              session: {
-                token: 'SECRET',
-              },
+        expect(ms.state).toMatchObject({
+          authentication: {
+            isAuthenticated: true,
+            session: {
+              token: 'SECRET',
             },
           },
         });
@@ -373,11 +363,9 @@ describe('microstates', () => {
           expect(no.valueOf()).toEqual({ topic: 'Microstates are tiny', refutation: 'They huge.' });
         });
         it(`changed the root's structure`, () => {
-          expect(yes).toMatchObject({
-            state: {
-              topic: 'Microstates are tiny',
-              affirmation: 'So tiny.',
-            },
+          expect(yes.state).toMatchObject({
+            topic: 'Microstates are tiny',
+            affirmation: 'So tiny.',
           });
         });
       });
@@ -403,25 +391,19 @@ describe('microstates', () => {
           emptied = filled.content.empty();
         });
         it('can be empty', () => {
-          expect(empty).toMatchObject({
-            state: {
-              content: expect.any(Empty),
-            },
+          expect(empty.state).toMatchObject({
+            content: expect.any(Empty),
           });
         });
         it('can be filled', () => {
-          expect(filled).toMatchObject({
-            state: {
-              content: expect.any(Filled),
-            },
+          expect(filled.state).toMatchObject({
+            content: expect.any(Filled),
           });
           expect(filled.valueOf()).toEqual({ content: { content: ['shoes', 'watch'] } });
         });
         it('can be emptied', () => {
-          expect(emptied).toMatchObject({
-            state: {
-              content: {},
-            },
+          expect(emptied.state).toMatchObject({
+            content: {},
           });
           expect(emptied.valueOf()).toEqual({ content: {} });
         });
@@ -481,10 +463,8 @@ describe('microstates', () => {
         ms = microstate(State);
       });
       it('is computed', function() {
-        expect(ms).toMatchObject({
-          state: {
-            fullName: ' ',
-          },
+        expect(ms.state).toMatchObject({
+          fullName: ' ',
         });
       });
     });
@@ -494,10 +474,8 @@ describe('microstates', () => {
         ms = microstate(State, { firstName: 'Peter', lastName: 'Griffin' });
       });
       it('is computed', () => {
-        expect(ms).toMatchObject({
-          state: {
-            fullName: 'Peter Griffin',
-          },
+        expect(ms.state).toMatchObject({
+          fullName: 'Peter Griffin',
         });
       });
     });
@@ -520,12 +498,10 @@ describe('microstates', () => {
           .products.push({ quantity: 2, price: 20 });
       });
       it('adds items to the cart', () => {
-        expect(ms).toMatchObject({
-          state: {
-            price: 50,
-            count: 3,
-            products: [{ quantity: 1, price: 10 }, { quantity: 2, price: 20 }],
-          },
+        expect(ms.state).toMatchObject({
+          price: 50,
+          count: 3,
+          products: [{ quantity: 1, price: 10 }, { quantity: 2, price: 20 }],
         });
       });
       it('provides valueOf', () => {
@@ -536,9 +512,15 @@ describe('microstates', () => {
     });
   });
   describe('valueOf', () => {
-    let ms = microstate(MS.Number, 10);
+    let ms;
+    beforeEach(() => {
+      ms = microstate(MS.Number, 10);
+    });
     it('returns passed in value of', () => {
       expect(ms.valueOf()).toBe(10);
+    });
+    it('is not enumerable', () => {
+      expect(ms).not.toHaveProperty('valueOf');
     });
   });
   describe('constants support', () => {
@@ -557,7 +539,7 @@ describe('microstates', () => {
     it('includes constants in state tree', () => {
       // once transition-context is merged, need to add collapsed to
       // the end of state().
-      expect(ms).toHaveProperty('state', {
+      expect(ms.state).toEqual({
         n: 10,
         b: true,
         s: 'hello',
@@ -571,7 +553,7 @@ describe('microstates', () => {
       expect(ms.valueOf()).toBeUndefined();
     });
     it('next state has constants', () => {
-      expect(next).toHaveProperty('state', {
+      expect(next.state).toEqual({
         n: 10,
         b: true,
         s: 'hello',
@@ -607,31 +589,25 @@ describe('microstates', () => {
     let triangle = corner.add(30);
     it('constructs a line', () => {
       expect(line.state).toBeInstanceOf(Line);
-      expect(line).toMatchObject({
-        state: {
-          a: 10,
-        },
+      expect(line.state).toMatchObject({
+        a: 10,
       });
       expect(line.valueOf()).toEqual({ a: 10 });
     });
     it('constructs a Corner', () => {
       expect(corner.state).toBeInstanceOf(Corner);
-      expect(corner).toMatchObject({
-        state: {
-          a: 10,
-          b: 20,
-        },
+      expect(corner.state).toMatchObject({
+        a: 10,
+        b: 20,
       });
       expect(corner.valueOf()).toEqual({ a: 10, b: 20 });
     });
     it('constructs a Triangle', () => {
       expect(triangle.state).toBeInstanceOf(Triangle);
-      expect(triangle).toMatchObject({
-        state: {
-          a: 10,
-          b: 20,
-          c: 30,
-        },
+      expect(triangle.state).toMatchObject({
+        a: 10,
+        b: 20,
+        c: 30,
       });
       expect(triangle.valueOf()).toEqual({ a: 10, b: 20, c: 30 });
     });
@@ -682,37 +658,31 @@ describe('microstates', () => {
     describe('successful loading siquence', () => {
       let async = microstate(Async);
       it('can transition to loading', () => {
-        expect(async.loading()).toMatchObject({
-          state: {
-            content: null,
-            isLoaded: false,
-            isLoading: true,
-            isError: false,
-          },
+        expect(async.loading().state).toMatchObject({
+          content: null,
+          isLoaded: false,
+          isLoading: true,
+          isError: false,
         });
       });
       it('can transition from loading to loaded', () => {
-        expect(async.loading().loaded('GREAT SUCCESS')).toMatchObject({
-          state: {
-            content: 'GREAT SUCCESS',
-            isLoaded: true,
-            isLoading: false,
-            isError: false,
-          },
+        expect(async.loading().loaded('GREAT SUCCESS').state).toMatchObject({
+          content: 'GREAT SUCCESS',
+          isLoaded: true,
+          isLoading: false,
+          isError: false,
         });
       });
     });
     describe('error loading sequence', () => {
       let async = microstate(Async);
       it('can transition from loading to error', () => {
-        expect(async.loading().error(':(')).toMatchObject({
-          state: {
-            content: null,
-            isLoaded: true,
-            isError: true,
-            isLoading: false,
-            error: ':(',
-          },
+        expect(async.loading().error(':(').state).toMatchObject({
+          content: null,
+          isLoaded: true,
+          isError: true,
+          isLoading: false,
+          error: ':(',
         });
       });
     });

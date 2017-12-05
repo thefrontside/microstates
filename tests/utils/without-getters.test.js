@@ -2,7 +2,7 @@ import 'jest';
 
 import withoutGetters from '../../src/utils/without-getters';
 
-describe('withoutGetters', () => {
+describe('utils/without-getters', () => {
   it('returns value on simple objects', () => {
     expect(withoutGetters(1)).toBe(1);
   });

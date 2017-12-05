@@ -2,7 +2,7 @@ import 'jest';
 
 import gettersFor from '../../src/utils/getters-for';
 
-describe('gettersFor', () => {
+describe('utils/getters-for', () => {
   it('returns an object with only getters', () => {
     expect(
       gettersFor(

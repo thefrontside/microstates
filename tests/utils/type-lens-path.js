@@ -7,7 +7,7 @@ import typeLensPath from '../../src/utils/type-lens-path';
 import * as MS from '../../src';
 import Tree from '../../src/utils/tree';
 
-describe('typeLensPath', () => {
+describe('utils/type-lens-path', () => {
   class Person {
     firstName = MS.String;
     lastName = MS.String;

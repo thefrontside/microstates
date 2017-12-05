@@ -2,7 +2,7 @@ import 'jest';
 
 import Tree from '../../src/utils/tree';
 
-describe('tree', () => {
+describe('utils/tree', () => {
   it('instantiates without params', () => {
     expect(() => {
       new Tree();

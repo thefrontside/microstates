@@ -4,7 +4,7 @@ import { append } from 'funcadelic';
 import initialize from '../../src/utils/initialize';
 import * as MS from '../../src';
 
-describe('initialize', () => {
+describe('utils/initialize', () => {
   describe('Number', () => {
     it(`uses types's initializer`, () => {
       expect(initialize(MS.Number)).toBe(0);

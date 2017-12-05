@@ -16,17 +16,17 @@ export default class ArrayType {
     return Array.prototype.map.call(current, callback);
   }
   /**
-   * Return a new array with first occurance of found item 
+   * Return a new array with first occurance of found item
    * replaced with the replacement. It is very optimistic and
-   * will not throw even when item is not found. 
-   * 
+   * will not throw even when item is not found.
+   *
    * ```js
-   * let ms = Microstates.from(MS.Array, ['a', 'b', 'c']);
+   * let ms = microstate(MS.Array, ['a', 'b', 'c']);
    * // => [ d, b, c ]
    * ```
-   * @param {Array} current 
-   * @param {any} item 
-   * @param {any} replacement 
+   * @param {Array} current
+   * @param {any} item
+   * @param {any} replacement
    */
   replace(current, item, replacement) {
     let index = indexOf(item, current);
