@@ -1,10 +1,9 @@
-import Microstate from '../../src/utils/microstate';
 import 'jest';
 
-import Microstates, * as MS from '../../src';
+import microstate, * as MS from '../../src';
 
 describe('string', () => {
-  let ms = Microstates(MS.String);
+  let ms = microstate(MS.String);
   it('concat', () => {
     expect(ms.concat(' foo').valueOf()).toBe(' foo');
   });

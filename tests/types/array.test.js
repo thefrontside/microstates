@@ -1,11 +1,11 @@
 import 'jest';
 
 import ArrayType from '../../src/types/array';
-import Microstates, * as MS from '../../src';
+import microstate, * as MS from '../../src';
 
 describe('array', () => {
   let array = ['a', 'b', 'c'];
-  let ms = Microstates(MS.Array, array);
+  let ms = microstate(MS.Array, array);
   describe('constructor', () => {
     it('returns an array when receives another value', () => {
       expect(new MS.Array()).toEqual([]);

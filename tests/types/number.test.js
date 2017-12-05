@@ -1,9 +1,9 @@
 import 'jest';
 
-import Microstates, * as MS from '../../src';
+import microstate, * as MS from '../../src';
 
 describe('number', () => {
-  let ms = Microstates(MS.Number, 10);
+  let ms = microstate(MS.Number, 10);
   it('subtract', () => {
     expect(ms.subtract(5).valueOf()).toBe(5);
   });
