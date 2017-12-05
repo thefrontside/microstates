@@ -3,6 +3,22 @@ import 'jest';
 import microstate, * as MS from '../src';
 
 describe('microstate', () => {
+  it('throws an error when a transition called state is defined', () => {
+    expect(function() {
+      microstate(
+        class MyClass {
+          state() {}
+        }
+      );
+    }).toThrowError(
+      `You can not use 'state' as transition name because it'll conflict with state property on the microstate.`
+    );
+  });
+  it('throws an error when state property is set', () => {
+    expect(function() {
+      microstate(MS.Number).state = 10;
+    }).toThrowError(`Setting state property will not do anything useful. Please don't do this.`);
+  });
   describe('for Number', () => {
     describe('without initial state', () => {
       let ms;

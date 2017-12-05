@@ -1,7 +1,7 @@
-import { append } from 'funcadelic';
-
 import state from './utils/state';
 import { keep, reveal } from './utils/secret';
+
+const { assign } = Object;
 
 /**
  * Returns a new Microstate instance. A microstate is an object that
@@ -18,8 +18,8 @@ export default function microstate(Type, value) {
 export class Microstate {
   constructor(Type, value) {
     let ms = state(Type, value);
-    let transitions = append(this, ms.transitions.collapsed);
-    return keep(transitions, ms);
+    keep(this, ms);
+    return assign(this, ms.transitions.collapsed);
   }
   /**
    * Evaluates to state for this microstate.
@@ -27,6 +27,14 @@ export class Microstate {
   get state() {
     return reveal(this).state.collapsed;
   }
+
+  set state(value) {
+    let message = reveal(this).transitions.collapsed.state
+      ? `You can not use 'state' as transition name because it'll conflict with state property on the microstate.`
+      : `Setting state property will not do anything useful. Please don't do this.`;
+    throw Error(message);
+  }
+
   /**
    * Return boxed in value for this microstates
    */
