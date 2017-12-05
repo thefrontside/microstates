@@ -47,7 +47,6 @@ export default function Microstate(root, initial) {
 
   return {
     Type: root,
-    value: initial,
     valueOf() {
       return initial;
     },

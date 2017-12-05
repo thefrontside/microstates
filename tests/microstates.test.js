@@ -535,13 +535,10 @@ describe('microstates', () => {
       });
     });
   });
-  describe('value', () => {
+  describe('valueOf', () => {
     let ms = microstate(MS.Number, 10);
     it('returns passed in value of', () => {
       expect(ms.valueOf()).toBe(10);
-    });
-    it('has value on value property', () => {
-      expect(ms).toHaveProperty('value', 10);
     });
   });
   describe('constants support', () => {

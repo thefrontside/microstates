@@ -7,7 +7,6 @@ import Microstate from './utils/microstate';
  *
  * {
  *  Type,                     // structure of current microstate
- *  value,                    // initial value
  *  valueOf() {               // initial value
  *    return value;
  *  }
