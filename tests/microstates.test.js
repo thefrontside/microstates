@@ -9,8 +9,8 @@ describe('microstates', () => {
       beforeEach(() => {
         ms = microstate(MS.Number);
       });
-      it('has states', () => {
-        expect(ms).toHaveProperty('states', 0);
+      it('has state', () => {
+        expect(ms).toHaveProperty('state', 0);
       });
       it('has transitions', () => {
         expect(ms).toMatchObject({
@@ -43,10 +43,10 @@ describe('microstates', () => {
         ms = microstate(State);
       });
       it('is instance of State', () => {
-        expect(ms.states).toBeInstanceOf(State);
+        expect(ms.state).toBeInstanceOf(State);
       });
       it('initializes default', () => {
-        expect(ms).toHaveProperty('states', { name: '', isOpen: false });
+        expect(ms).toHaveProperty('state', { name: '', isOpen: false });
       });
       it('has transitions', () => {
         expect(ms).toMatchObject({
@@ -75,7 +75,7 @@ describe('microstates', () => {
         ms = microstate(State, { isOpen: true });
       });
       it('uses provided state', () => {
-        expect(ms).toHaveProperty('states', { name: '', isOpen: true });
+        expect(ms).toHaveProperty('state', { name: '', isOpen: true });
       });
       it('replaces value when set is called but uses provided value', () => {
         expect(ms.name.set('taras').valueOf()).toEqual({ name: 'taras', isOpen: true });
@@ -96,7 +96,7 @@ describe('microstates', () => {
         ms = microstate(State);
       });
       it('initialies with default', () => {
-        expect(ms).toHaveProperty('states', {
+        expect(ms).toHaveProperty('state', {
           animals: [],
           config: {},
         });
@@ -118,7 +118,7 @@ describe('microstates', () => {
         ms = microstate(State, { animals: ['cat', 'dog'], config: { color: 'red' } });
       });
       it('uses provided value', () => {
-        expect(ms).toHaveProperty('states', {
+        expect(ms).toHaveProperty('state', {
           animals: ['cat', 'dog'],
           config: { color: 'red' },
         });
@@ -150,7 +150,7 @@ describe('microstates', () => {
       });
       it('initializes first level', () => {
         expect(ms).toMatchObject({
-          states: {
+          state: {
             contains: expect.any(Object),
             x: 0,
             y: 0,
@@ -159,7 +159,7 @@ describe('microstates', () => {
       });
       it('initializes recursively', () => {
         expect(ms).toMatchObject({
-          states: {
+          state: {
             contains: {
               x: 0,
               y: 0,
@@ -194,7 +194,7 @@ describe('microstates', () => {
       });
       it('restores state tree from initial value', () => {
         expect(ms).toMatchObject({
-          states: {
+          state: {
             x: 10,
             y: 0,
             contains: {
@@ -246,7 +246,7 @@ describe('microstates', () => {
       });
       it('builds state tree', () => {
         expect(ms).toMatchObject({
-          states: {
+          state: {
             authentication: {
               session: {
                 token: '',
@@ -272,7 +272,7 @@ describe('microstates', () => {
       });
       it('builds state tree', () => {
         expect(ms).toMatchObject({
-          states: {
+          state: {
             authentication: {
               isAuthenticated: true,
               session: {
@@ -374,7 +374,7 @@ describe('microstates', () => {
         });
         it(`changed the root's structure`, () => {
           expect(yes).toMatchObject({
-            states: {
+            state: {
               topic: 'Microstates are tiny',
               affirmation: 'So tiny.',
             },
@@ -404,14 +404,14 @@ describe('microstates', () => {
         });
         it('can be empty', () => {
           expect(empty).toMatchObject({
-            states: {
+            state: {
               content: expect.any(Empty),
             },
           });
         });
         it('can be filled', () => {
           expect(filled).toMatchObject({
-            states: {
+            state: {
               content: expect.any(Filled),
             },
           });
@@ -419,7 +419,7 @@ describe('microstates', () => {
         });
         it('can be emptied', () => {
           expect(emptied).toMatchObject({
-            states: {
+            state: {
               content: {},
             },
           });
@@ -482,7 +482,7 @@ describe('microstates', () => {
       });
       it('is computed', function() {
         expect(ms).toMatchObject({
-          states: {
+          state: {
             fullName: ' ',
           },
         });
@@ -495,7 +495,7 @@ describe('microstates', () => {
       });
       it('is computed', () => {
         expect(ms).toMatchObject({
-          states: {
+          state: {
             fullName: 'Peter Griffin',
           },
         });
@@ -521,7 +521,7 @@ describe('microstates', () => {
       });
       it('adds items to the cart', () => {
         expect(ms).toMatchObject({
-          states: {
+          state: {
             price: 50,
             count: 3,
             products: [{ quantity: 1, price: 10 }, { quantity: 2, price: 20 }],
@@ -557,10 +557,10 @@ describe('microstates', () => {
       }
     );
     let next = ms.greeting.set('HI');
-    it('includes constants in states tree', () => {
+    it('includes constants in state tree', () => {
       // once transition-context is merged, need to add collapsed to
-      // the end of States().
-      expect(ms).toHaveProperty('states', {
+      // the end of state().
+      expect(ms).toHaveProperty('state', {
         n: 10,
         b: true,
         s: 'hello',
@@ -574,7 +574,7 @@ describe('microstates', () => {
       expect(ms.valueOf()).toBeUndefined();
     });
     it('next state has constants', () => {
-      expect(next).toHaveProperty('states', {
+      expect(next).toHaveProperty('state', {
         n: 10,
         b: true,
         s: 'hello',
@@ -609,18 +609,18 @@ describe('microstates', () => {
     let corner = line.add(20);
     let triangle = corner.add(30);
     it('constructs a line', () => {
-      expect(line.states).toBeInstanceOf(Line);
+      expect(line.state).toBeInstanceOf(Line);
       expect(line).toMatchObject({
-        states: {
+        state: {
           a: 10,
         },
       });
       expect(line.valueOf()).toEqual({ a: 10 });
     });
     it('constructs a Corner', () => {
-      expect(corner.states).toBeInstanceOf(Corner);
+      expect(corner.state).toBeInstanceOf(Corner);
       expect(corner).toMatchObject({
-        states: {
+        state: {
           a: 10,
           b: 20,
         },
@@ -628,9 +628,9 @@ describe('microstates', () => {
       expect(corner.valueOf()).toEqual({ a: 10, b: 20 });
     });
     it('constructs a Triangle', () => {
-      expect(triangle.states).toBeInstanceOf(Triangle);
+      expect(triangle.state).toBeInstanceOf(Triangle);
       expect(triangle).toMatchObject({
-        states: {
+        state: {
           a: 10,
           b: 20,
           c: 30,
@@ -686,7 +686,7 @@ describe('microstates', () => {
       let async = microstate(Async);
       it('can transition to loading', () => {
         expect(async.loading()).toMatchObject({
-          states: {
+          state: {
             content: null,
             isLoaded: false,
             isLoading: true,
@@ -696,7 +696,7 @@ describe('microstates', () => {
       });
       it('can transition from loading to loaded', () => {
         expect(async.loading().loaded('GREAT SUCCESS')).toMatchObject({
-          states: {
+          state: {
             content: 'GREAT SUCCESS',
             isLoaded: true,
             isLoading: false,
@@ -709,7 +709,7 @@ describe('microstates', () => {
       let async = microstate(Async);
       it('can transition from loading to error', () => {
         expect(async.loading().error(':(')).toMatchObject({
-          states: {
+          state: {
             content: null,
             isLoaded: true,
             isError: true,

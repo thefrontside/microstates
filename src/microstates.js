@@ -13,7 +13,7 @@ import Microstate from './utils/microstate';
  *  }
  *
  *  // General use API
- *  states,                   // instantiated states
+ *  state,                    // instantiated state
  *  ...transitions.collapsed  // spread collapsed transitions for chaining
  *
  *  // Customization API
@@ -28,8 +28,8 @@ export default function microstate(Type, value) {
   let properties = append(
     {
       microstate,
-      get states() {
-        return microstate.states.collapsed;
+      get state() {
+        return microstate.state.collapsed;
       },
     },
     microstate.transitions.collapsed

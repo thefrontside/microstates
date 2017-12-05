@@ -14,7 +14,7 @@ import typeLensPath from './type-lens-path';
 export default function Microstate(root, initial) {
   let tree = Tree.from(root);
 
-  let states = map(({ Type, path }) => initialize(Type, view(lensPath(path), initial)), tree);
+  let state = map(({ Type, path }) => initialize(Type, view(lensPath(path), initial)), tree);
 
   let transitions = map(
     ({ Type, path }) =>
@@ -23,7 +23,7 @@ export default function Microstate(root, initial) {
           let valueLens = lensPath(path);
           let typeLens = typeLensPath(path);
 
-          let current = view(valueLens, states.collapsed);
+          let current = view(valueLens, state.collapsed);
 
           let context = (_Type = Type, value = current) => Microstates(_Type, value);
 
@@ -52,6 +52,6 @@ export default function Microstate(root, initial) {
       return initial;
     },
     transitions,
-    states,
+    state,
   };
 }
