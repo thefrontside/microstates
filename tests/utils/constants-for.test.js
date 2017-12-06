@@ -31,4 +31,12 @@ describe('utils/constants-for', () => {
       a: ['a', 'b', 'c'],
     });
   });
+  it('shares constants for a Type', () => {
+    class MyType {
+      shared = {};
+    }
+    let a = constantsFor(MyType).shared;
+    let b = constantsFor(MyType).shared;
+    expect(a).toBe(b);
+  });
 });

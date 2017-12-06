@@ -1,4 +1,6 @@
-const symbol = Symbol('🙈 microstate');
+const symbol = Symbol('🙈');
+
+const { getOwnPropertySymbols } = Object;
 
 export function keep(object, value) {
   return Object.defineProperty(object, symbol, {
@@ -8,9 +10,7 @@ export function keep(object, value) {
 }
 
 export function reveal(object) {
-  if (object) {
+  if (object && getOwnPropertySymbols(object).includes(symbol)) {
     return object[symbol];
-  } else {
-    return object;
   }
 }
