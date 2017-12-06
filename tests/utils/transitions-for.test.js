@@ -69,4 +69,15 @@ describe('utils/transitions-for', () => {
       expect(transitions.action).toBeDefined();
     });
   });
+  describe('inhertied transitions', () => {
+    class Parent {
+      fromParent() {}
+    }
+    class Child extends Parent {}
+    it('are available on child class', () => {
+      expect(transitionsFor(Child)).toMatchObject({
+        fromParent: expect.any(Function),
+      });
+    });
+  });
 });
