@@ -1,28 +1,35 @@
 import { map, filter } from 'funcadelic';
 import getOwnPropertyDescriptors from 'object.getownpropertydescriptors';
+import { keep, reveal } from './secret';
 
 /**
- * Returns an object with constants from a type as getters. 
- * 
+ * Returns an object with constants from a type as getters.
+ *
  * For example,
- * 
+ *
  * ```js
  * constantsFor(class {
  *   isPending = true;
  *   isNew = false;
  * })
- * //=> { 
+ * //=> {
  * //  get isPending() { return true; }
  * //  get isNew() { return false; }
  * // }
  * ```
- * 
- * @param {*} Type 
+ *
+ * @param {*} Type
  */
 export default function constantsFor(Type) {
+  let instance = reveal(Type);
+  if (!instance) {
+    instance = new Type();
+    keep(Type, instance);
+  }
+
   let descriptors = filter(
     ({ value }) => typeof value.value !== 'function',
-    getOwnPropertyDescriptors(new Type())
+    getOwnPropertyDescriptors(instance)
   );
 
   return Object.create(

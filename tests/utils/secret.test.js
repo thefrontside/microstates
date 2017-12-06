@@ -11,4 +11,17 @@ describe('utils/secret', () => {
     let obj = {};
     expect(reveal(keep(obj, 42))).toBe(42);
   });
+  describe('storing on Type', () => {
+    let Parent;
+    let Child;
+    beforeEach(() => {
+      Parent = class {};
+      Child = class extends Parent {};
+    });
+    it('does not share secret between child and parent', () => {
+      keep(Parent, 42);
+      expect(reveal(Parent)).toBe(42);
+      expect(reveal(Child)).toBeUndefined();
+    });
+  });
 });
