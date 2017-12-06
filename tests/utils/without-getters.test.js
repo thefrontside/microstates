@@ -1,14 +1,14 @@
 import 'jest';
 
-import valueOf from '../../src/utils/value-of';
+import withoutGetters from '../../src/utils/without-getters';
 
-describe('valueOf', () => {
+describe('utils/without-getters', () => {
   it('returns value on simple objects', () => {
-    expect(valueOf(1)).toBe(1);
+    expect(withoutGetters(1)).toBe(1);
   });
   it('returns only values on shallow objects', () => {
     expect(
-      valueOf({
+      withoutGetters({
         a: 'a',
         get b() {
           return 'b';
@@ -16,9 +16,12 @@ describe('valueOf', () => {
       })
     ).toEqual({ a: 'a' });
   });
+  it('returns null', () => {
+    expect(withoutGetters(null)).toBe(null);
+  });
   it('returns only values on nested objects', () => {
     expect(
-      valueOf({
+      withoutGetters({
         a: 'a',
         get b() {
           return 'b';

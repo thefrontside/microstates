@@ -1,7 +1,14 @@
-import lensPath from 'ramda/src/lensPath';
-import view from 'ramda/src/view';
+import { append } from 'funcadelic';
 
-export default function initialize({ Type, path }, value) {
-  let current = view(lensPath(path), value);
-  return new Type(current).valueOf();
+import isPrimitive from './is-primitive';
+import gettersFor from './getters-for';
+import constantsFor from './constants-for';
+
+export default function initialize(Type, value) {
+  let instance = new Type(value).valueOf();
+  if (isPrimitive(Type)) {
+    return instance;
+  } else {
+    return append(instance, append(gettersFor(Type), constantsFor(Type)));
+  }
 }

@@ -3,10 +3,14 @@ import { append, filter, Functor, map } from 'funcadelic';
 let { keys } = Object;
 
 export default class Tree {
-  constructor({ data = {}, children = {} }) {
-    return Tree.create({
-      data: () => data,
-      children: () => children,
+  constructor(props = { data: () => ({}), children: () => ({}) }) {
+    return Object.create(Tree.prototype, {
+      data: {
+        get: props.data,
+      },
+      children: {
+        get: props.children,
+      },
     });
   }
 
@@ -18,19 +22,8 @@ export default class Tree {
     }
   }
 
-  static create({ data = () => ({}), children = () => ({}) }) {
-    return Object.create(Tree.prototype, {
-      data: {
-        get: data,
-      },
-      children: {
-        get: children,
-      },
-    });
-  }
-
   static from(Type, path = []) {
-    return Tree.create({
+    return new Tree({
       data() {
         return { path, Type };
       },
@@ -57,7 +50,7 @@ export default class Tree {
        * Eager evaluation would cause infinite loop because parent would be evaluated recursively.
        */
       children() {
-        let childTypes = filter(({ value }) => !!value.call, new Type());
+        let childTypes = filter(({ value }) => !!value && value.call, new Type());
 
         return map((ChildType, key) => Tree.from(ChildType, append(path, key)), childTypes);
       },
@@ -74,7 +67,7 @@ Functor.instance(Tree, {
    * @param {*} tree Tree
    */
   map(fn, tree) {
-    return Tree.create({
+    return new Tree({
       data() {
         return fn(tree.data);
       },

@@ -1,20 +1,19 @@
 import { append, filter, map } from 'funcadelic';
-import getOwnPropertyDescriptors from 'object.getownpropertydescriptors';
 import mergeDeepRight from 'ramda/src/mergeDeepRight';
+import getPrototypeDescriptors from './get-prototype-descriptors';
 
 import isPrimitive from './is-primitive';
-import transition from './transition';
 
-const set = transition(function set(current, state) {
+const set = function set(current, state) {
   return state;
-});
+};
 
-const merge = transition(function merge(current, state) {
-  return mergeDeepRight(current, state);
-});
+const merge = function merge(current, ...args) {
+  return mergeDeepRight(current, ...args);
+};
 
 export default function transitionsFor(Type) {
-  let descriptors = getOwnPropertyDescriptors(Type.prototype);
+  let descriptors = getPrototypeDescriptors(Type);
   let methods = filter(({ value }) => isFunctionDescriptor(value), descriptors);
 
   let transitionFns = filter(
@@ -23,7 +22,7 @@ export default function transitionsFor(Type) {
   );
 
   let common = isPrimitive(Type) ? { set } : { set, merge };
-  return append(common, map(fn => transition(fn), transitionFns));
+  return append(common, transitionFns);
 }
 
 function isFunctionDescriptor(descriptor) {
