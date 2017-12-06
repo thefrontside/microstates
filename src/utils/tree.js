@@ -1,4 +1,7 @@
-import { append, filter, Functor, map } from 'funcadelic';
+import { append, filter, Functor, reduce, Monoid, map } from 'funcadelic';
+import * as MS from '..';
+import overload from './overload';
+import descriptorsFor from './descriptors-for';
 
 let { keys } = Object;
 
@@ -22,7 +25,9 @@ export default class Tree {
     }
   }
 
-  static from(Type, path = []) {
+  static from(TypeOfValue, path = []) {
+    let Type = toTypeClass(TypeOfValue);
+
     return new Tree({
       data() {
         return { path, Type };
@@ -77,3 +82,28 @@ Functor.instance(Tree, {
     });
   },
 });
+
+let Class = Monoid.create(
+  class {
+    empty() {
+      return class {};
+    }
+    append({ name, value }, Class) {
+      return overload(Class, name, toTypeClass(value));
+    }
+  }
+);
+
+function toTypeClass(Type) {
+  switch (typeof Type) {
+    case 'number':
+      return MS.Number;
+    case 'string':
+      return MS.String;
+    case 'boolean':
+      return MS.Boolean;
+    case 'object':
+      return Array.isArray(Type) ? MS.Array : Class.reduce(descriptorsFor(Type));
+  }
+  return Type;
+}

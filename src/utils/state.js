@@ -13,6 +13,10 @@ import initialize from './initialize';
 import typeLensPath from './type-lens-path';
 
 export default function state(root, value) {
+  if (typeof root !== 'function' && value === undefined) {
+    value = root;
+  }
+
   let tree = Tree.from(root);
 
   let state = map(({ Type, path }) => initialize(Type, view(lensPath(path), value)), tree);

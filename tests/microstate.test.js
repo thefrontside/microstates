@@ -751,4 +751,44 @@ describe('microstate', () => {
       ).toBeInstanceOf(Armed);
     });
   });
+  describe('with value', () => {
+    it('from a number', () => {
+      let ms = microstate(42);
+
+      expect(ms.state).toBe(42);
+      expect(ms).toMatchObject({
+        increment: expect.any(Function),
+      });
+    });
+    describe('from an object', () => {
+      let ms = microstate({ character: { name: 'Peter Griffin', age: 64 } });
+      it('has state', () => {
+        expect(ms.state).toMatchObject({
+          character: {
+            name: 'Peter Griffin',
+            age: 64,
+          },
+        });
+      });
+      it('has transitions', () => {
+        expect(ms).toMatchObject({
+          character: {
+            name: {
+              concat: expect.any(Function),
+            },
+            age: {
+              increment: expect.any(Function),
+            },
+          },
+        });
+      });
+      it('transitions', () => {
+        expect(ms.character.age.increment().state).toMatchObject({
+          character: {
+            age: 65,
+          },
+        });
+      });
+    });
+  });
 });
