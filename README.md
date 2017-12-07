@@ -94,7 +94,7 @@ microstate(MS.String).state;
 
 // initial value is 'hello world' so state will be hello world.
 microstate(MS.String, 'hello world').state;
-// => ''
+// => 'hello world'
 ```
 
 The object returned from the constructor has all of the transitions for the structure.
@@ -122,14 +122,24 @@ Defining custom types is done using ES2016 classes syntax. In JavaScript classes
 any function can work as a type, but we recommend using class syntax.
 
 ```js
-microstate(class {});
+class Counter {
+  count = MS.Number;
+}
+
+microstate(Counter);
 // => {
 //      merge: Function
 //      set: Function
+//      count: {
+//        increment: Function
+//        decrement: Function
+//        sum: Function
+//        subtract: Function
+//      }
 //    }
 
-microstate(class {}).state;
-// => {}
+microstate(Counter).state;
+// => { count: 0 }
 ```
 
 We use Class Properties syntax to define composition of microstates. If you're using Babel, you need
