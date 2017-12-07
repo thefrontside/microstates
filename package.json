@@ -45,7 +45,7 @@
     "@std/esm": "^0.14.0",
     "funcadelic": "^0.2.6",
     "object.getownpropertydescriptors": "2.0.3",
-    "ramda": "^0.24.1"
+    "ramda": "^0.25.0"
   },
   "jest": {
     "testRegex": "(/tests/.*|\\.(test|spec))\\.(js)$",
