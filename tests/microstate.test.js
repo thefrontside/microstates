@@ -814,4 +814,65 @@ describe('microstate', () => {
       expect(actions.myProp.set('foo').state).toEqual({ myProp: 'foo' });
     });
   });
+  describe('Authentication Example', () => {
+    class Session {
+      content = null;
+      constructor(state) {
+        if (state) {
+          return new AuthenticatedSession(state);
+        } else {
+          return new AnonymousSession(state);
+        }
+      }
+    }
+
+    class AuthenticatedSession {
+      isAuthenticated = true;
+      content = MS.Object;
+
+      logout() {
+        return this(AnonymousSession);
+      }
+    }
+
+    class AnonymousSession {
+      content = null;
+      isAuthenticated = false;
+      authenticate(current, user) {
+        return this(AuthenticatedSession, { content: user });
+      }
+    }
+
+    class MyApp {
+      session = Session;
+    }
+
+    describe('AnonymousSession', () => {
+      let ms = microstate(MyApp);
+      let authenticated = ms.session.authenticate({
+        name: 'Charles',
+      });
+      it('initializes into AnonymousSession without initial state', () => {
+        expect(ms.state.session).toBeInstanceOf(AnonymousSession);
+      });
+      it('transitions AnonymousSession to Authenticated with authenticate', () => {
+        expect(authenticated.state.session).toBeInstanceOf(AuthenticatedSession);
+        expect(authenticated.state.session).toEqual({
+          content: { name: 'Charles' },
+          isAuthenticated: true,
+        });
+      });
+    });
+
+    describe('AuthenticatedSession', () => {
+      let ms = microstate(MyApp, { session: { name: 'Taras' } });
+      let anonymous = ms.session.logout();
+      it('initializes into AuthenticatedSession state', () => {
+        expect(ms.state.session).toBeInstanceOf(AuthenticatedSession);
+      });
+      it('transitions Authenticated session to AnonymousSession with logout', () => {
+        expect(anonymous.state.session).toBeInstanceOf(AnonymousSession);
+      });
+    });
+  });
 });

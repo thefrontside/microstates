@@ -1,7 +1,5 @@
 import { append, filter, Functor, reduce, Monoid, map } from 'funcadelic';
-import * as MS from '..';
-import overload from './overload';
-import descriptorsFor from './descriptors-for';
+import toTypeClass from './to-type-class';
 
 let { keys } = Object;
 
