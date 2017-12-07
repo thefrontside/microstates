@@ -88,8 +88,6 @@ Microstate constructor creates a microstate. It accepts two arguments: `Type` cl
 the structure of your state and `value` that is the initial state.
 
 ```js
-import microstate, * as MS from 'microstates';
-
 // initial value is undefined so state will be default value of String which is an empty string
 microstate(MS.String).state;
 // => ''
@@ -102,8 +100,6 @@ microstate(MS.String, 'hello world').state;
 The object returned from the constructor has all of the transitions for the structure.
 
 ```js
-import microstate, * as MS from 'microstates';
-
 let ms = microstate(MS.Object);
 
 console.log(ms);
@@ -114,6 +110,284 @@ console.log(ms);
 
 ms.assign({ hello: 'world', hi: 'there' }).state;
 // => { hello: 'world', hi: 'there' }
+```
+
+# Composition
+
+Microstates are designed to be composable. You can define custom microstate types and nested them
+necessary. Microstates will take care of ensuring that all transitioning composed microstates is
+done immutably.
+
+Defining custom types is done using ES2016 classes syntax. In JavaScript classes are functions. So
+any function can work as a type, but we recommend using class syntax.
+
+```js
+microstate(class {});
+// => {
+//      merge: Function
+//      set: Function
+//    }
+
+microstate(class {}).state;
+// => {}
+```
+
+We use Class Properties syntax to define composition of microstates. If you're using Babel, you need
+[Class Properties transform](https://babeljs.io/docs/plugins/transform-class-properties/) for Class
+Properties to work.
+
+```js
+class Person {
+  name = MS.String;
+  age = MS.Number;
+}
+
+microstate(Person);
+// => {
+//      name: { concat: Function, set: Function },
+//      age: { increment: Function, decrement: Function, sum: Function, subtract: Function }
+//    }
+
+// state objects maintain their type's class
+microstate(Person).state instanceof Person;
+// => true
+
+microstate(Person).state;
+// => { name: '', age: 0 }
+```
+
+You can restore a composed microstate by providing initial value that matches the structure of the
+microstate.
+
+```js
+microstate(Person, { name: 'Taras', age: 99 }).state;
+// => { name: 'Taras', age: 99 }
+```
+
+You can compose custom types into other custom types.
+
+```js
+class Address {
+  street = MS.String;
+  number = MS.Number;
+  city = MS.String;
+}
+
+class Person {
+  name = MS.String;
+  age = MS.Number;
+  address = Address;
+}
+
+microstate(Person, { name: 'Taras', address: { city: 'Toronto' } }).state;
+// => {
+//      name: 'Taras',
+//      age: 0,
+//      address: {
+//        street: '',
+//        number: 0,
+//        city: 'Toronto'
+//      }
+//    }
+```
+
+You can access transitions of composed states by using object property notation. Every time that you
+call a transition, you receive a new microstate and you start from the root of the original type.
+
+```js
+microstate(Person)
+  .age.increment()
+  .address.city.set('San Francisco')
+  .address.street.set('Market St').state;
+// => {
+//      name: 'Taras',
+//      age: 1,
+//      address: {
+//        street: 'Market St',
+//        number: 0,
+//        city: 'San Francisco'
+//      }
+//    }
+```
+
+The objects can be of any complexity and can even support recursion.
+
+```js
+class Person {
+  name = MS.String;
+  father = Person;
+}
+
+microsate(Person, { name: 'Stewie' })
+  .father.name.set('Peter')
+  .father.father.name.set('Mr Griffin')
+  .father.father.father.name.set('Mr Giffin Senior').state;
+// => { name: 'Stewie',
+//      father: {
+//        name: 'Peter',
+//        father: {
+//          name: 'Mr Griffin,
+//          father: {
+//            name: 'Mr Griffin Senior'
+//          }
+//        }
+//      }
+//    }
+```
+
+We currently do not support composition inside of arrays but we're looking into supporting it in the
+future.
+
+Composed states have two default transitions `set` and `merge`.
+
+`set` will replace the state of current microstate.
+
+```js
+microstate(Person).father.father.set({ name: 'Peter' }).state;
+// => { name: '', father: { name: 'Peter' }}
+```
+
+`merge` will recursively merge the object into current state.
+
+```js
+microstate(Person, { name: 'Peter' }).merge({ name: 'Taras', father: { name: 'Serge' } }).state;
+// { name: 'Taras', father: { name: 'Serge' }}
+```
+
+# Static values
+
+You can define static values on custom types. Static values are added to state but do not get
+transitions.
+
+```js
+class Ajax {
+  content = null;
+  isLoaded = false;
+}
+
+microstate(Ajax).state.content;
+// => null;
+
+microstate(Ajax).content;
+// undefined
+
+microstate(Ajax).state.isLoaded;
+// => false
+
+microstate(Ajax).isLoaded.set(false);
+// Error: calling set of undefined
+```
+
+# Computed Properties
+
+Composed states can have computed properties. Computed Properties make it possible define properties
+that derive their values from the state. Use getter syntax to define computed properties on composed
+states.
+
+```js
+class Measure {
+  length = MS.Number;
+  get inInches() {
+    return `${this.height / 2.54} inches`;
+  }
+}
+
+microstate(Measure, { length: 170 }).state.inInches;
+// => '66.9291 inches'
+
+microstate(Measure, { length: 170 }).height.set(160).state.inInches;
+// => '62.9921 inches'
+```
+
+# Custom Transitions
+
+You can define custom transitions on custom types. Inside of custom transitions, you have access to
+current state and ability to transition local state using `this()` function. You probably never seen
+`this()` before. Think about it as a function that returns a microstate for the current node. It is
+actually a microstate constructor that is bound to custom transitions.
+
+```js
+class Person {
+  home: MS.String;
+  location: MS.String;
+  goHome(current) {
+    if (current.home !== current.location) {
+      return this().location.set(current.home);
+    } else {
+      return current;
+    }
+  }
+}
+
+microstate(Person, { home: 'Toronto', location: 'San Francisco' }).goHome().state;
+// => { home: 'Toronto', location: 'Toronto' }
+```
+
+# Batch Transitions
+
+Custom transitions can be used to perform multiple transformations in sequence. This is useful when
+you have a deeply nested microstate and you're applying several transformations to one branch of the
+microstate. All of the operations we'll execute before the transformation is complete.
+
+```js
+class MyModal {
+  isOpen = MS.Boolean;
+  title = MS.String;
+  content = MS.String;
+
+  show(current, title, content) {
+    return this()
+      .isOpen.set(true),
+      .title.set(title)
+      .content.set(content)
+  }
+}
+
+class MyComponent {
+  modal = MyModal;
+  counter = MS.Number
+}
+
+microstate(MyComponent).modal.show('Hello World', 'Rise and shine!').state;
+// => { modal: { isOpen: true, title: 'Hello World', content: 'Rise and shine!' }, counter: 0 }
+```
+
+# Changing structure
+
+Microstates can change their own structure using custom transitions. This is useful when you're
+modeling state machines or want to be able to change the shape of the state after a transition. To
+change the structure of a microstate you replace it with new microstate in a custom transition.
+
+```js
+class Session {
+  content = null;
+}
+
+class AuthenticatedSession extends Session {
+  isAuthenticated = true;
+  content = MS.Object;
+
+  logout() {
+    return this(AnonymousSession);
+  }
+}
+
+class AnonymousSession extends Session {
+  isAuthenticated = false;
+  authenticate(current, user) {
+    return this(AuthenticatedSession, { content: user });
+  }
+}
+
+class MyApp {
+  session = AnonymousSession;
+}
+
+microstate(MyApp).state;
+// => { session: { content: null, isAuthenticated: false }}
+
+microstate(MyApp).authenticate({ name: 'Taras' }).state;
+// => { session: { content: { name: 'Taras' }, isAuthenticated: true }};
 ```
 
 # Built-in types
@@ -131,8 +405,6 @@ Return a new microstate with boolean value replaced. Value will be coerced with
 `Boolean(value).valueOf()`.
 
 ```js
-import microstate, * as MS from 'microstates';
-
 microstate(MS.Boolean).set(true).state;
 // => true
 ```
@@ -142,8 +414,6 @@ microstate(MS.Boolean).set(true).state;
 Return a new microstate with state of boolean value switched to opposite.
 
 ```js
-import microstate, * as MS from 'microstates';
-
 microstate(MS.Boolean).state;
 // => false
 
@@ -164,8 +434,6 @@ microstate(MS.Boolean, true).toggle().state;
 Replace current state with value. The value will be coerced same as `Number(value).valueOf()`.
 
 ```js
-import microstate, * as MS from 'microstates';
-
 microstate(MS.Number).set(10).state;
 // => 10
 ```
@@ -175,8 +443,6 @@ microstate(MS.Number).set(10).state;
 Return a microstate with result of adding passed in values to current state.
 
 ```js
-import microstate, * as MS from 'microstates';
-
 microstate(MS.Number).sum(5, 10).state;
 // => 15
 ```
@@ -186,8 +452,6 @@ microstate(MS.Number).sum(5, 10).state;
 Return a microstate with result of subtraction of passed in values from current state.
 
 ```js
-import microstate, * as MS from 'microstates';
-
 microstate(MS.Number, 42).subtract(2, 10).state;
 // => 30
 ```
@@ -197,8 +461,6 @@ microstate(MS.Number, 42).subtract(2, 10).state;
 Return a microstate with state increased by step value of current state (defaults to 1).
 
 ```js
-import microstate, * as MS from 'microstates';
-
 microstate(MS.Number).increment().state;
 // => 1
 
@@ -216,8 +478,6 @@ microstate(MS.Number)
 Return a microstate with state decreased by step value of current state (defaults to 1).
 
 ```js
-import microstate, * as MS from 'microstates';
-
 microstate(MS.Number).decrement().state;
 // => -1
 
@@ -241,8 +501,6 @@ Replace the state with value and return a new microsate with new state. Value wi
 `String(value).valueOf()`.
 
 ```js
-import microstate, * as MS from 'microstates';
-
 microstate(MS.String).set('hello world').state;
 // => 'hello world'
 ```
@@ -252,8 +510,6 @@ microstate(MS.String).set('hello world').state;
 Combine current state with passed in string and return a new microstate with new state.
 
 ```js
-import microstate, * as MS from 'microstates';
-
 microstate(MS.String, 'hello ').concat('world').state;
 // => 'hello world'
 ```
@@ -268,8 +524,6 @@ Replace state with value and return a new microstate with new state. Value will 
 `Array(value).valueOf()`
 
 ```js
-import microstate, * as MS from 'microstates';
-
 microstate(MS.Array).set('hello world');
 // ['hello world']
 ```
@@ -279,8 +533,6 @@ microstate(MS.Array).set('hello world');
 Push value to the end of the array and return a new microstate with state as new array.
 
 ```js
-import microstate, * as MS from 'microstates';
-
 microstate(MS.Array).push(10, 15, 25).state;
 // => [ 10, 15, 25 ]
 
@@ -295,8 +547,6 @@ microstate(MS.Array, ['a', 'b'])
 Apply filter fn to every element in the array and return a new microstate with result as state.
 
 ```js
-import microstate, * as MS from 'microstates';
-
 microstate(MS.Array, [10.123, 1, 42, 0.01]).filter(value => Number.isNumber(value)).state;
 // => [ 1, 42 ];
 ```
@@ -324,8 +574,6 @@ microstate(MS.Array, ['a', 'b', 'c']).replace('b', 'B').state;
 Represents a collection of values keyed by string. Object types have `assign` and `set` transitions.
 
 ```js
-import microstate, * as MS from 'microstates';
-
 microstate(MS.Object).state;
 // => {}
 ```
@@ -336,8 +584,6 @@ Replace state with value and return a new microstate with new state. The value w
 object with `Object(value).valueOf()`.
 
 ```js
-import microstate, * as MS from 'microstates';
-
 microstate(MS.Object).set({ hello: 'world' }).state;
 // => { hello: 'world' }
 ```
@@ -348,8 +594,50 @@ Create a new object and copy values from existing state and passed in object. Re
 microstate with new state.
 
 ```js
-import microstate, * as MS from 'microstates';
-
 microstate(MS.Object, { color: 'red' }).assign({ make: 'Honda' }).state;
 // => { color: 'red', make: 'Honda' }
+```
+
+# FAQ
+
+## What if I can't use class syntax?
+
+Classes are functions in JavaScript, so you should be able to use a function to do most of the same
+things as you would with classes.
+
+```js
+class Person {
+  name = MS.String;
+  age = MS.Number;
+}
+```
+
+^^ is equivalent to
+
+```js
+function Person() {
+  this.name = MS.String;
+  this.age = MS.Number;
+}
+```
+
+## What if I can't use Class Properties?
+
+Babel compiles Class Properties into class constructors. If you can't use Class Properties, then you
+can try the following.
+
+```js
+class Person {
+  constructor() {
+    this.name = MS.String;
+    this.age = MS.Number;
+  }
+}
+
+class Employee extends Person {
+  constructor() {
+    super();
+    this.boss = Person;
+  }
+}
 ```
