@@ -1,6 +1,6 @@
 {
   "name": "microstates",
-  "version": "0.2.3",
+  "version": "0.3.0",
   "description": "Immutable. Composable. Lovable.",
   "main": "cjs.js",
   "module": "src/index.js",
