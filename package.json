@@ -1,7 +1,7 @@
 {
   "name": "microstates",
   "version": "0.3.0",
-  "description": "Immutable. Composable. Lovable.",
+  "description": "Graceful state transitions for data of any shape.",
   "main": "cjs.js",
   "module": "src/index.js",
   "files": [
