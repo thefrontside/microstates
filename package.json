@@ -31,7 +31,7 @@
     "test:watch": "npm test -- --watch"
   },
   "dependencies": {
-    "@std/esm": "^0.14.0",
+    "@std/esm": "^0.18.0",
     "funcadelic": "^0.3.0",
     "object.getownpropertydescriptors": "2.0.3",
     "ramda": "^0.25.0"
