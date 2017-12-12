@@ -433,6 +433,11 @@ describe('microstate', () => {
       get fullName() {
         return `${this.firstName} ${this.lastName}`;
       }
+      toUpperCase({ firstName, lastName }) {
+        return this()
+          .firstName.set(firstName.toUpperCase())
+          .lastName.set(lastName.toUpperCase());
+      }
     }
     describe('without initial state', () => {
       let ms;
@@ -454,6 +459,9 @@ describe('microstate', () => {
         expect(ms.state).toMatchObject({
           fullName: 'Peter Griffin'
         });
+      });
+      it('should not have getters in valueOf after custom transition', () => {
+        expect(ms.toUpperCase().valueOf()).not.toHaveProperty('lastName');
       });
     });
   });
