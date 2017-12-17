@@ -461,7 +461,7 @@ describe('microstate', () => {
         });
       });
       it('should not have getters in valueOf after custom transition', () => {
-        expect(ms.toUpperCase().valueOf()).not.toHaveProperty('lastName');
+        expect(ms.toUpperCase().valueOf()).not.toHaveProperty('fullName');
       });
     });
   });
