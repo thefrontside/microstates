@@ -760,6 +760,21 @@ describe('microstate', () => {
         increment: expect.any(Function),
       });
     });
+    describe('noop transition', () => {
+      class Person {
+        name = MS.String;
+        isCool = MS.Boolean;
+        noop() {
+          return this()
+        }
+      };
+      it(`doesn't change current state`, () => {
+        let ms = microstate(Person, {name: 'Sivakumar', isCool: true})
+        ms = ms.noop()
+        expect(ms.state.name).toBe('Sivakumar')
+        expect(ms.state.isCool).toBe(true)
+      })
+    });
     describe('from an object', () => {
       let ms = microstate({ character: { name: 'Peter Griffin', age: 64 } });
       it('has state', () => {
