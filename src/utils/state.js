@@ -29,8 +29,9 @@ export default function state(root, value) {
           let typeLens = typeLensPath(path);
 
           let current = view(valueLens, state.collapsed);
+          let slice = view(valueLens, value);
 
-          let context = (_Type = Type, value = current) => microstate(_Type, value);
+          let context = (_Type = Type, _value = slice) => microstate(_Type, _value);
 
           let val = t.call(context, current, ...args);
 
@@ -55,6 +56,6 @@ export default function state(root, value) {
     Type: root,
     value,
     transitions,
-    state,
+    state
   };
 }
