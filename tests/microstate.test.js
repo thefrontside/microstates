@@ -733,14 +733,27 @@ describe('microstate', () => {
       class Person {
         name = MS.String;
         isCool = MS.Boolean;
-        noop() {
+        noopThis() {
           return this();
         }
+        noopCurrent(current) {
+          return current;
+        }
       }
-      it(`doesn't change current state`, () => {
-        let ms = microstate(Person, { name: 'Sivakumar', isCool: true }).noop();
-        expect(ms.state.name).toBe('Sivakumar');
-        expect(ms.state.isCool).toBe(true);
+      let ms = microstate(Person, { name: 'Sivakumar', isCool: true });
+      it(`doesn't change current state when this() is returned`, () => {
+        let result = ms.noopThis();
+        expect(result.state).toMatchObject({
+          name: 'Sivakumar',
+          isCool: true,
+        });
+      });
+      it(`doesn't change current state when current is returned`, () => {
+        let result = ms.noopCurrent();
+        expect(result.state).toMatchObject({
+          name: 'Sivakumar',
+          isCool: true,
+        });
       });
     });
     describe('from an object', () => {

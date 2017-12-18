@@ -35,6 +35,10 @@ export default function state(root, value) {
 
           let val = t.call(context, current, ...args);
 
+          if (current === val) {
+            return microstate(root, value);
+          }
+
           // result can be a microstate if it was invoked with `return this(current)`
           // or it can be result if it was just returned without invoking the context
           let ms = reveal(val);
