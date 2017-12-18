@@ -31,7 +31,7 @@ describe('microstate', () => {
       it('has transitions', () => {
         expect(ms).toMatchObject({
           set: expect.any(Function),
-          increment: expect.any(Function)
+          increment: expect.any(Function),
         });
       });
       it('returns new state on transition', () => {
@@ -70,12 +70,12 @@ describe('microstate', () => {
           merge: expect.any(Function),
           name: {
             set: expect.any(Function),
-            concat: expect.any(Function)
+            concat: expect.any(Function),
           },
           isOpen: {
             set: expect.any(Function),
-            toggle: expect.any(Function)
-          }
+            toggle: expect.any(Function),
+          },
         });
       });
       it('replaces value when set is called on the node', () => {
@@ -114,17 +114,17 @@ describe('microstate', () => {
       it('initialies with default', () => {
         expect(ms.state).toEqual({
           animals: [],
-          config: {}
+          config: {},
         });
       });
       it('returns a new object with value pushed into an array', () => {
         expect(ms.animals.push('cat').valueOf()).toEqual({
-          animals: ['cat']
+          animals: ['cat'],
         });
       });
       it('return a new object with value assigned into the object', () => {
         expect(ms.config.assign({ x: 10, y: 20 }).valueOf()).toEqual({
-          config: { x: 10, y: 20 }
+          config: { x: 10, y: 20 },
         });
       });
     });
@@ -136,19 +136,19 @@ describe('microstate', () => {
       it('uses provided value', () => {
         expect(ms.state).toEqual({
           animals: ['cat', 'dog'],
-          config: { color: 'red' }
+          config: { color: 'red' },
         });
       });
       it('returns a new object with value pushed into an array', () => {
         expect(ms.animals.push('bird').valueOf()).toEqual({
           animals: ['cat', 'dog', 'bird'],
-          config: { color: 'red' }
+          config: { color: 'red' },
         });
       });
       it('return a new object with value assigned into the object', () => {
         expect(ms.config.assign({ x: 10, y: 20 }).valueOf()).toEqual({
           animals: ['cat', 'dog'],
-          config: { x: 10, y: 20, color: 'red' }
+          config: { x: 10, y: 20, color: 'red' },
         });
       });
     });
@@ -168,7 +168,7 @@ describe('microstate', () => {
         expect(ms.state).toMatchObject({
           contains: expect.any(Object),
           x: 0,
-          y: 0
+          y: 0,
         });
       });
       it('initializes recursively', () => {
@@ -176,22 +176,22 @@ describe('microstate', () => {
           contains: {
             x: 0,
             y: 0,
-            contains: expect.any(Object)
+            contains: expect.any(Object),
           },
           x: 0,
-          y: 0
+          y: 0,
         });
       });
       it('transitions non recursive value', () => {
         expect(ms.x.increment().valueOf()).toEqual({
-          x: 1
+          x: 1,
         });
       });
       it('transition recursive value', () => {
         expect(ms.contains.y.increment().valueOf()).toEqual({
           contains: {
-            y: 1
-          }
+            y: 1,
+          },
         });
       });
     });
@@ -201,7 +201,7 @@ describe('microstate', () => {
         ms = microstate(Container, {
           x: 10,
           y: 0,
-          contains: { y: 20, x: 0, contains: { x: 30, y: 25, contains: {} } }
+          contains: { y: 20, x: 0, contains: { x: 30, y: 25, contains: {} } },
         });
       });
       it('restores state tree from initial value', () => {
@@ -213,16 +213,16 @@ describe('microstate', () => {
             x: 0,
             contains: {
               x: 30,
-              y: 25
-            }
-          }
+              y: 25,
+            },
+          },
         });
       });
       it('transitions deeply nested state', () => {
         expect(ms.contains.contains.x.increment().valueOf()).toEqual({
           x: 10,
           y: 0,
-          contains: { y: 20, contains: { x: 31, y: 25, contains: {} }, x: 0 }
+          contains: { y: 20, contains: { x: 31, y: 25, contains: {} }, x: 0 },
         });
       });
       it('transitions deeply nested state without initial value', () => {
@@ -232,8 +232,8 @@ describe('microstate', () => {
           contains: {
             y: 20,
             x: 0,
-            contains: { x: 30, y: 25, contains: { y: -1 } }
-          }
+            contains: { x: 30, y: 25, contains: { y: -1 } },
+          },
         });
       });
     });
@@ -258,16 +258,16 @@ describe('microstate', () => {
         expect(ms.state).toMatchObject({
           authentication: {
             session: {
-              token: ''
-            }
-          }
+              token: '',
+            },
+          },
         });
       });
       it('transitions deeply nested state', () => {
         expect(ms.authentication.session.token.set('SECRET').valueOf()).toEqual({
           authentication: {
-            session: { token: 'SECRET' }
-          }
+            session: { token: 'SECRET' },
+          },
         });
       });
     });
@@ -275,7 +275,7 @@ describe('microstate', () => {
       let ms;
       beforeEach(() => {
         ms = microstate(State, {
-          authentication: { isAuthenticated: true, session: { token: 'SECRET' } }
+          authentication: { isAuthenticated: true, session: { token: 'SECRET' } },
         });
       });
       it('builds state tree', () => {
@@ -283,9 +283,9 @@ describe('microstate', () => {
           authentication: {
             isAuthenticated: true,
             session: {
-              token: 'SECRET'
-            }
-          }
+              token: 'SECRET',
+            },
+          },
         });
       });
     });
@@ -342,10 +342,10 @@ describe('microstate', () => {
       it('returns transitions', () => {
         expect(context()).toMatchObject({
           items: {
-            push: expect.any(Function)
+            push: expect.any(Function),
           },
           merge: expect.any(Function),
-          set: expect.any(Function)
+          set: expect.any(Function),
         });
       });
     });
@@ -381,7 +381,7 @@ describe('microstate', () => {
         it(`changed the root's structure`, () => {
           expect(yes.state).toMatchObject({
             topic: 'Microstates are tiny',
-            affirmation: 'So tiny.'
+            affirmation: 'So tiny.',
           });
         });
       });
@@ -419,9 +419,9 @@ describe('microstate', () => {
             isOpen: true,
             title: 'Confirmation',
             content: {
-              text: 'You have a message'
-            }
-          }
+              text: 'You have a message',
+            },
+          },
         });
       });
     });
@@ -446,7 +446,7 @@ describe('microstate', () => {
       });
       it('is computed', function() {
         expect(ms.state).toMatchObject({
-          fullName: ' '
+          fullName: ' ',
         });
       });
     });
@@ -457,7 +457,7 @@ describe('microstate', () => {
       });
       it('is computed', () => {
         expect(ms.state).toMatchObject({
-          fullName: 'Peter Griffin'
+          fullName: 'Peter Griffin',
         });
       });
       it('should not have getters in valueOf after custom transition', () => {
@@ -486,12 +486,12 @@ describe('microstate', () => {
         expect(ms.state).toMatchObject({
           price: 50,
           count: 3,
-          products: [{ quantity: 1, price: 10 }, { quantity: 2, price: 20 }]
+          products: [{ quantity: 1, price: 10 }, { quantity: 2, price: 20 }],
         });
       });
       it('provides valueOf', () => {
         expect(ms.valueOf()).toEqual({
-          products: [{ quantity: 1, price: 10 }, { quantity: 2, price: 20 }]
+          products: [{ quantity: 1, price: 10 }, { quantity: 2, price: 20 }],
         });
       });
     });
@@ -530,7 +530,7 @@ describe('microstate', () => {
         o: { hello: 'world' },
         a: ['a', 'b', 'c'],
         null: null,
-        greeting: ''
+        greeting: '',
       });
     });
     it('constants are not included in valueOf', () => {
@@ -544,7 +544,7 @@ describe('microstate', () => {
         o: { hello: 'world' },
         a: ['a', 'b', 'c'],
         null: null,
-        greeting: 'HI'
+        greeting: 'HI',
       });
     });
     it('next valueOf excludes constants', () => {
@@ -577,7 +577,7 @@ describe('microstate', () => {
     it('constructs a line', () => {
       expect(line.state).toBeInstanceOf(Line);
       expect(line.state).toMatchObject({
-        a: 10
+        a: 10,
       });
       expect(line.valueOf()).toEqual({ a: 10 });
     });
@@ -585,7 +585,7 @@ describe('microstate', () => {
       expect(corner.state).toBeInstanceOf(Corner);
       expect(corner.state).toMatchObject({
         a: 10,
-        b: 20
+        b: 20,
       });
       expect(corner.valueOf()).toEqual({ a: 10, b: 20 });
     });
@@ -594,7 +594,7 @@ describe('microstate', () => {
       expect(triangle.state).toMatchObject({
         a: 10,
         b: 20,
-        c: 30
+        c: 30,
       });
       expect(triangle.valueOf()).toEqual({ a: 10, b: 20, c: 30 });
     });
@@ -649,7 +649,7 @@ describe('microstate', () => {
           content: null,
           isLoaded: false,
           isLoading: true,
-          isError: false
+          isError: false,
         });
       });
       it('can transition from loading to loaded', () => {
@@ -657,7 +657,7 @@ describe('microstate', () => {
           content: 'GREAT SUCCESS',
           isLoaded: true,
           isLoading: false,
-          isError: false
+          isError: false,
         });
       });
     });
@@ -669,7 +669,7 @@ describe('microstate', () => {
           isLoaded: true,
           isError: true,
           isLoading: false,
-          error: ':('
+          error: ':(',
         });
       });
     });
@@ -726,7 +726,7 @@ describe('microstate', () => {
 
       expect(ms.state).toBe(42);
       expect(ms).toMatchObject({
-        increment: expect.any(Function)
+        increment: expect.any(Function),
       });
     });
     describe('noop transition', () => {
@@ -749,27 +749,27 @@ describe('microstate', () => {
         expect(ms.state).toMatchObject({
           character: {
             name: 'Peter Griffin',
-            age: 64
-          }
+            age: 64,
+          },
         });
       });
       it('has transitions', () => {
         expect(ms).toMatchObject({
           character: {
             name: {
-              concat: expect.any(Function)
+              concat: expect.any(Function),
             },
             age: {
-              increment: expect.any(Function)
-            }
-          }
+              increment: expect.any(Function),
+            },
+          },
         });
       });
       it('transitions', () => {
         expect(ms.character.age.increment().state).toMatchObject({
           character: {
-            age: 65
-          }
+            age: 65,
+          },
         });
       });
     });

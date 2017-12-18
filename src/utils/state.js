@@ -56,6 +56,6 @@ export default function state(root, value) {
     Type: root,
     value,
     transitions,
-    state
+    state,
   };
 }
