@@ -3,25 +3,22 @@
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
 <a name="0.1.0"></a>
-# [0.1.0](https://github.com/cowboyd/microstates.js/compare/v0.0.6...v0.1.0) (2016-09-19)
 
+# [0.1.0](https://github.com/cowboyd/microstates.js/compare/v0.0.6...v0.1.0) (2016-09-19)
 
 ### Bug Fixes
 
 * **git:** excluded .gitignore from .gitignore ([653c0c3](https://github.com/cowboyd/microstates.js/commit/653c0c3))
 * **packages:** fix for standard-version procedure ([c8a8ddb](https://github.com/cowboyd/microstates.js/commit/c8a8ddb))
 
-
 ### Features
 
 * **jest:** replace old test-suite with jest ([54a414b](https://github.com/cowboyd/microstates.js/commit/54a414b))
 * **travis:** add travis support ([4194899](https://github.com/cowboyd/microstates.js/commit/4194899))
 
-
-
 <a name="0.0.6"></a>
-## 0.0.6 (2016-09-03)
 
+## 0.0.6 (2016-09-03)
 
 ### Bug Fixes
 

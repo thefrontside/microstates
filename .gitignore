@@ -1,16 +1,2 @@
-*
-!src/
-!src/**/*
-!tests/
-!tests/**/*
-!bin/
-!bin/*
-!*.js
-!*.json
-!*.md
-!.babelrc
-!.gitignore
-!.travis.yml
-!LICENSE
-!.npmignore
+node_modules
 .esm-cache

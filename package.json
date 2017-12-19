@@ -2,50 +2,50 @@
   "name": "microstates",
   "version": "0.3.0",
   "description": "Graceful state transitions for data of any shape.",
-  "main": "cjs.js",
-  "module": "src/index.js",
-  "files": [
-    "src/**/*"
-  ],
-  "homepage": "https://github.com/cowboyd/microstates.js#readme",
   "keywords": [
     "blood",
-    "microstates",
-    "immutable"
+    "immutable",
+    "microstates"
   ],
-  "scripts": {
-    "pretest": "node bin/monkey-patch-funcadelic.js",
-    "posttest": "node bin/un-monkey-patch-funcadelic.js",
-    "test": "jest",
-    "test:watch": "yarn test -- --watch",
-    "coverage": "yarn test -- --coverage --no-cache",
-    "coverage:watch": "yarn run coverage -- --watch",
-    "prerelease": "yarn test",
-    "release": "standard-version && yarn pack"
-  },
-  "repository": {
-    "type": "git",
-    "url": "git+ssh://git@github.com/cowboyd/microstates.js.git"
-  },
-  "author": "Charles Lowell <charles@frontside.io>, Taras Mankovski <taras@thisdot.co>",
-  "license": "MIT",
+  "homepage": "https://github.com/cowboyd/microstates.js#readme",
   "bugs": {
     "url": "https://github.com/cowboyd/microstates.js/issues"
   },
-  "devDependencies": {
-    "babel-cli": "6.26.0",
-    "babel-jest": "21.2.0",
-    "babel-plugin-transform-class-properties": "6.24.1",
-    "babel-preset-env": "1.6.0",
-    "jest": "^21.1.0",
-    "jsonfile": "^4.0.0",
-    "standard-version": "^4.2.0"
+  "license": "MIT",
+  "author": "Charles Lowell <charles@frontside.io>, Taras Mankovski <taras@thisdot.co>",
+  "files": [
+    "src/**/*"
+  ],
+  "main": "cjs.js",
+  "module": "src/index.js",
+  "repository": "git+ssh://git@github.com/cowboyd/microstates.js.git",
+  "scripts": {
+    "precommit": "lint-staged",
+    "coverage": "npm test -- --coverage --no-cache",
+    "coverage:watch": "npm run coverage -- --watch",
+    "prerelease": "npm test",
+    "release": "npm pack",
+    "pretest": "node bin/monkey-patch-funcadelic.js",
+    "test": "jest",
+    "posttest": "node bin/un-monkey-patch-funcadelic.js",
+    "test:watch": "npm test -- --watch"
   },
   "dependencies": {
     "@std/esm": "^0.14.0",
     "funcadelic": "^0.2.6",
     "object.getownpropertydescriptors": "2.0.3",
     "ramda": "^0.25.0"
+  },
+  "devDependencies": {
+    "babel-cli": "6.26.0",
+    "babel-jest": "21.2.0",
+    "babel-plugin-transform-class-properties": "6.24.1",
+    "babel-preset-env": "1.6.0",
+    "husky": "0.14.3",
+    "jest": "^21.1.0",
+    "jsonfile": "^4.0.0",
+    "lint-staged": "6.0.0",
+    "prettier": "1.9.2"
   },
   "jest": {
     "testRegex": "(/tests/.*|\\.(test|spec))\\.(js)$",
@@ -59,6 +59,12 @@
     ],
     "transformIgnorePatterns": [
       "/node_modules/(?!funcadelic)"
+    ]
+  },
+  "lint-staged": {
+    "*.{js,md}": [
+      "prettier --write",
+      "git add"
     ]
   }
 }
