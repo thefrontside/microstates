@@ -1,4 +1,4 @@
-import { map, filter } from 'funcadelic';
+import $ from './chain';
 import getOwnPropertyDescriptors from 'object.getownpropertydescriptors';
 import { keep, reveal } from './secret';
 
@@ -27,21 +27,15 @@ export default function constantsFor(Type) {
     keep(Type, instance);
   }
 
-  let descriptors = filter(
-    ({ value }) => typeof value.value !== 'function',
-    getOwnPropertyDescriptors(instance)
-  );
+  let properties = $(getOwnPropertyDescriptors(instance))
+    .filter(({ value }) => typeof value.value !== 'function')
+    .map(descriptor => ({
+      get() {
+        return descriptor.value;
+      },
+      enumerable: true,
+    }))
+    .valueOf();
 
-  return Object.create(
-    Type.prototype,
-    map(
-      descriptor => ({
-        get() {
-          return descriptor.value;
-        },
-        enumerable: true,
-      }),
-      descriptors
-    )
-  );
+  return Object.create(Type.prototype, properties);
 }
