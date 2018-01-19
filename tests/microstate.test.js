@@ -385,45 +385,6 @@ describe('microstate', () => {
           });
         });
       });
-      describe('shallow nested property', () => {
-        class Filled {
-          content = MS.Array;
-          empty() {
-            return this(Empty);
-          }
-        }
-        class Empty {
-          add(current, ...args) {
-            return this(Filled).content.push(...args);
-          }
-        }
-        class Box {
-          content = Empty;
-        }
-        let empty, filled, emptied;
-        beforeEach(() => {
-          empty = microstate(Box);
-          filled = empty.content.add('shoes', 'watch');
-          emptied = filled.content.empty();
-        });
-        it('can be empty', () => {
-          expect(empty.state).toMatchObject({
-            content: expect.any(Empty),
-          });
-        });
-        it('can be filled', () => {
-          expect(filled.state).toMatchObject({
-            content: expect.any(Filled),
-          });
-          expect(filled.valueOf()).toEqual({ content: { content: ['shoes', 'watch'] } });
-        });
-        it('can be emptied', () => {
-          expect(emptied.state).toMatchObject({
-            content: {},
-          });
-          expect(emptied.valueOf()).toEqual({ content: {} });
-        });
-      });
     });
     describe('merging', () => {
       class ModalContent {
@@ -472,6 +433,11 @@ describe('microstate', () => {
       get fullName() {
         return `${this.firstName} ${this.lastName}`;
       }
+      toUpperCase({ firstName, lastName }) {
+        return this()
+          .firstName.set(firstName.toUpperCase())
+          .lastName.set(lastName.toUpperCase());
+      }
     }
     describe('without initial state', () => {
       let ms;
@@ -493,6 +459,9 @@ describe('microstate', () => {
         expect(ms.state).toMatchObject({
           fullName: 'Peter Griffin',
         });
+      });
+      it('should not have getters in valueOf after custom transition', () => {
+        expect(ms.toUpperCase().valueOf()).not.toHaveProperty('fullName');
       });
     });
   });
@@ -758,6 +727,33 @@ describe('microstate', () => {
       expect(ms.state).toBe(42);
       expect(ms).toMatchObject({
         increment: expect.any(Function),
+      });
+    });
+    describe('noop transition', () => {
+      class Person {
+        name = MS.String;
+        isCool = MS.Boolean;
+        noopThis() {
+          return this();
+        }
+        noopCurrent(current) {
+          return current;
+        }
+      }
+      let ms = microstate(Person, { name: 'Sivakumar', isCool: true });
+      it(`doesn't change current state when this() is returned`, () => {
+        let result = ms.noopThis();
+        expect(result.state).toMatchObject({
+          name: 'Sivakumar',
+          isCool: true,
+        });
+      });
+      it(`doesn't change current state when current is returned`, () => {
+        let result = ms.noopCurrent();
+        expect(result.state).toMatchObject({
+          name: 'Sivakumar',
+          isCool: true,
+        });
       });
     });
     describe('from an object', () => {

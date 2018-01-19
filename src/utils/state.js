@@ -29,10 +29,15 @@ export default function state(root, value) {
           let typeLens = typeLensPath(path);
 
           let current = view(valueLens, state.collapsed);
+          let slice = view(valueLens, value);
 
-          let context = (_Type = Type, value = current) => microstate(_Type, value);
+          let context = (_Type = Type, _value = slice) => microstate(_Type, _value);
 
           let val = t.call(context, current, ...args);
+
+          if (current === val) {
+            return microstate(root, value);
+          }
 
           // result can be a microstate if it was invoked with `return this(current)`
           // or it can be result if it was just returned without invoking the context
