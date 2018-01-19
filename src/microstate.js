@@ -1,6 +1,5 @@
 import state from './utils/state';
 import { keep, reveal } from './utils/secret';
-import { Functor, map } from 'funcadelic';
 
 const { assign } = Object;
 
@@ -43,11 +42,3 @@ export class Microstate {
     return reveal(this).value;
   }
 }
-
-Functor.instance(Microstate, {
-  map(fn, microstate) {
-    let { transitions } = reveal(microstate);
-    return map(transitions => map(transition => fn(transition), transitions), transitions)
-      .collapsed;
-  },
-});
