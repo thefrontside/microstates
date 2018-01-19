@@ -319,6 +319,16 @@ describe('microstate', () => {
           expect(ms.vehicle.increaseSpeed(10).valueOf()).toEqual({ vehicle: { speed: 20 } });
         });
       });
+      describe('chained operations', function() {
+        it('should maintain root', function() {
+          expect(
+            microstate(State)
+              .vehicle.increaseSpeed(10)
+              .vehicle.increaseSpeed(20)
+              .valueOf()
+          ).toEqual({ vehicle: { speed: 30 } });
+        });
+      });
     });
     describe('context', () => {
       let context;

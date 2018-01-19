@@ -44,7 +44,7 @@ export default function state(root, value) {
           let ms = reveal(val);
           if (val && ms) {
             return microstate(
-              Type === ms.Type ? Type : set(typeLens, ms.Type, root),
+              Type === ms.Type ? root : set(typeLens, ms.Type, root),
               set(valueLens, withoutGetters(ms.value), value)
             );
           }
