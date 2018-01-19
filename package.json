@@ -32,7 +32,7 @@
   },
   "dependencies": {
     "@std/esm": "^0.14.0",
-    "funcadelic": "^0.2.6",
+    "funcadelic": "^0.3.0",
     "object.getownpropertydescriptors": "2.0.3",
     "ramda": "^0.25.0"
   },
