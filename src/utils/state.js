@@ -11,50 +11,58 @@ import transitionsFor from './transitions-for';
 import withoutGetters from './without-getters';
 import initialize from './initialize';
 import typeLensPath from './type-lens-path';
+import getType from './get-type';
 
 export default function state(root, value) {
   if (typeof root !== 'function' && value === undefined) {
     value = root;
   }
 
-  let tree = Tree.from(root);
-
-  let state = map(({ Type, path }) => initialize(Type, view(lensPath(path), value)), tree);
-
-  let transitions = map(
-    ({ Type, path }) =>
-      map(
-        t => (...args) => {
-          let valueLens = lensPath(path);
-          let typeLens = typeLensPath(path);
-
-          let current = view(valueLens, state.collapsed);
-          let slice = view(valueLens, value);
-
-          let context = (_Type = Type, _value = slice) => microstate(_Type, _value);
-
-          let val = t.call(context, current, ...args);
-
-          if (current === val) {
-            return microstate(root, value);
-          }
-
-          // result can be a microstate if it was invoked with `return this(current)`
-          // or it can be result if it was just returned without invoking the context
-          let ms = reveal(val);
-          if (val && ms) {
-            return microstate(
-              Type === ms.Type ? root : set(typeLens, ms.Type, root),
-              set(valueLens, withoutGetters(ms.value), value)
-            );
-          }
-
-          return microstate(root, set(valueLens, withoutGetters(val), value));
-        },
-        transitionsFor(Type)
-      ),
-    tree
+  let tree = map(
+    ({ Type, path }) => ({
+      Type,
+      path,
+      initialized: initialize(Type, view(lensPath(path), value)),
+    }),
+    Tree.from(root)
   );
+
+  let state = map(({ initialized }) => initialized, tree);
+
+  let transitions = map(({ path, initialized }) => {
+    let Type = getType(initialized);
+
+    return map(
+      t => (...args) => {
+        let valueLens = lensPath(path);
+        let typeLens = typeLensPath(path);
+
+        let current = view(valueLens, state.collapsed);
+        let slice = view(valueLens, value);
+
+        let context = (_Type = Type, _value = slice) => microstate(_Type, _value);
+
+        let val = t.call(context, current, ...args);
+
+        if (current === val) {
+          return microstate(root, value);
+        }
+
+        // result can be a microstate if it was invoked with `return this(current)`
+        // or it can be result if it was just returned without invoking the context
+        let ms = reveal(val);
+        if (val && ms) {
+          return microstate(
+            Type === ms.Type ? root : set(typeLens, ms.Type, root),
+            set(valueLens, withoutGetters(ms.value), value)
+          );
+        }
+
+        return microstate(root, set(valueLens, withoutGetters(val), value));
+      },
+      transitionsFor(Type)
+    );
+  }, tree);
 
   return {
     Type: root,

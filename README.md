@@ -371,9 +371,17 @@ change the structure of a microstate you replace it with new microstate in a cus
 ```js
 class Session {
   content = null;
+
+  constructor(state) {
+    if (state) {
+      return new AuthenticatedSession(state);
+    } else {
+      return new AnonymousSession(state);
+    }
+  }
 }
 
-class AuthenticatedSession extends Session {
+class AuthenticatedSession {
   isAuthenticated = true;
   content = MS.Object;
 
@@ -382,7 +390,8 @@ class AuthenticatedSession extends Session {
   }
 }
 
-class AnonymousSession extends Session {
+class AnonymousSession {
+  content = null;
   isAuthenticated = false;
   authenticate(current, user) {
     return this(AuthenticatedSession, { content: user });
@@ -390,14 +399,24 @@ class AnonymousSession extends Session {
 }
 
 class MyApp {
-  session = AnonymousSession;
+  session = Session;
 }
 
+// without initial state it initializes into AnonymousSession state
 microstate(MyApp).state;
 // => { session: { content: null, isAuthenticated: false }}
 
+// transition to AuthenticatedSession state with authenticate
 microstate(MyApp).authenticate({ name: 'Taras' }).state;
 // => { session: { content: { name: 'Taras' }, isAuthenticated: true }};
+
+// restore into AuthenticatedSession state
+microstate(MyApp, { session: { content: { name: 'Taras' } } }).state;
+// => { session: { content: { name: 'Taras' } }, isAuthenticated: true }
+
+// transition to AnonymousSession state with logout
+microstate(MyApp, { session: { content: { name: 'Taras' } } }).logout().state;
+// => { session: { content: null, isAuthenticated: false }}
 ```
 
 # Built-in types
@@ -460,6 +479,7 @@ microstate(MS.Number).sum(5, 10).state;
 ### subtract(number: Number, [, number: Number]) => microstate
 
 Return a microstate with result of subtraction of passed in values from current state.
+<<<<<<< HEAD
 
 ```js
 microstate(MS.Number, 42).subtract(2, 10).state;
@@ -592,6 +612,9 @@ microstate(MS.Object).state;
 
 Replace state with value and return a new microstate with new state. The value will be coerced to
 object with `Object(value).valueOf()`.
+=======
+
+> > > > > > > Transitions are now generated for initialized state rather than original type
 
 ```js
 microstate(MS.Object).set({ hello: 'world' }).state;
@@ -650,4 +673,11 @@ class Employee extends Person {
     this.boss = Person;
   }
 }
+```
+
+## Run Tests
+
+```shell
+$ npm install
+$ npm test
 ```
