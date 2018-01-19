@@ -1,4 +1,4 @@
-import { append, filter, Functor, reduce, Monoid, map } from 'funcadelic';
+import { append, filter, Functor, reduce, map } from 'funcadelic';
 import toTypeClass from './to-type-class';
 
 let { keys } = Object;
@@ -80,28 +80,3 @@ Functor.instance(Tree, {
     });
   },
 });
-
-let Class = Monoid.create(
-  class {
-    empty() {
-      return class {};
-    }
-    append(Class, { name, value }) {
-      return overload(Class, name, toTypeClass(value));
-    }
-  }
-);
-
-function toTypeClass(Type) {
-  switch (typeof Type) {
-    case 'number':
-      return MS.Number;
-    case 'string':
-      return MS.String;
-    case 'boolean':
-      return MS.Boolean;
-    case 'object':
-      return Array.isArray(Type) ? MS.Array : Class.reduce(descriptorsFor(Type));
-  }
-  return Type;
-}
