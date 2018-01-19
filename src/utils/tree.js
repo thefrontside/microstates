@@ -88,7 +88,7 @@ let Class = Monoid.create(
     empty() {
       return class {};
     }
-    append({ name, value }, Class) {
+    append(Class, { name, value }) {
       return overload(Class, name, toTypeClass(value));
     }
   }
