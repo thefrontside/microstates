@@ -1,3 +1,4 @@
+import './typeclasses';
 export { default } from './microstate';
 export { default as Number } from './types/number';
 export { default as String } from './types/string';

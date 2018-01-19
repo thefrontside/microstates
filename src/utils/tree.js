@@ -1,4 +1,4 @@
-import { append, filter, Functor, reduce, map } from 'funcadelic';
+import { append, filter, reduce, map } from 'funcadelic';
 import toTypeClass from './to-type-class';
 
 let { keys } = Object;
@@ -60,23 +60,3 @@ export default class Tree {
     });
   }
 }
-
-Functor.instance(Tree, {
-  /**
-   * Lazily invoke callback on every property of given tree,
-   * the return value is assigned to property value.
-   *
-   * @param {*} fn (TypeTree, path) => any
-   * @param {*} tree Tree
-   */
-  map(fn, tree) {
-    return new Tree({
-      data() {
-        return fn(tree.data);
-      },
-      children() {
-        return map(child => map(fn, child), tree.children);
-      },
-    });
-  },
-});
