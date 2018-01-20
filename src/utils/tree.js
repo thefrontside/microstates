@@ -1,3 +1,4 @@
+import $ from './chain';
 import { append, filter, reduce, map } from 'funcadelic';
 import toTypeClass from './to-type-class';
 
@@ -53,9 +54,10 @@ export default class Tree {
        * Eager evaluation would cause infinite loop because parent would be evaluated recursively.
        */
       children() {
-        let childTypes = filter(({ value }) => !!value && value.call, new Type());
-
-        return map((ChildType, key) => Tree.from(ChildType, append(path, key)), childTypes);
+        return $(new Type())
+          .filter(({ value }) => !!value && value.call)
+          .map((ChildType, key) => Tree.from(ChildType, append(path, key)))
+          .valueOf();
       },
     });
   }
