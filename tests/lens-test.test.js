@@ -1,7 +1,7 @@
 import 'jest';
 import '../src';
 import Tree from '../src/utils/tree';
-import { view, set, lensTree, lensTree2, lensTreeChild, compose } from '../src/lens';
+import { view, set, lensTree, lensTreeData, compose } from '../src/lens';
 import { Applicative } from 'funcadelic';
 
 function pure(Type, value) {
@@ -76,5 +76,25 @@ describe('Tree lenses', () => {
     let lens = compose(lensTree(['arrayKids']), lensTree([0]));
     let next = set(lens, pure(Tree, 'Kid 0'), tree);
     expect(next.children.arrayKids.children[0].data).toEqual('Kid 0');
+  });
+
+  it('can read nested data', function() {
+    expect(view(lensTreeData(['arrayKids', 0]), tree)).toEqual('Child 0');
+  });
+
+  it('can write nested data', function() {
+    let next = set(lensTreeData(['arrayKids', 0]), 'Kid 0', tree);
+    expect(next.children.arrayKids.children[0].data).toEqual('Kid 0');
+  });
+
+  it('can read deep data with composition', function() {
+    expect(view(compose(lensTreeData(['arrayKids']), lensTreeData([0])), tree)).toEqual('Child 0');
+  });
+  it('can write deep data with composition', function() {
+    var next = set(compose(lensTreeData(['arrayKids']), lensTreeData([0])), 'Kid 0', tree);
+    expect(next.children.arrayKids.children[0]).toEqual('Kid 0');
+    expect(next.children.one.data).toEqual(1);
+    expect(next.children.two.data).toEqual(2);
+    expect(next.children.arrayKids.children[1]).toEqual('Child 1');
   });
 });

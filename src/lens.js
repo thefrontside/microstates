@@ -6,6 +6,7 @@ export { default as lensIndex } from 'ramda/src/lensIndex';
 export { default as compose } from 'ramda/src/compose';
 
 import lens from 'ramda/src/lens';
+import view from 'ramda/src/view';
 import compose from 'ramda/src/compose';
 import Tree from './utils/tree';
 import { map, foldl } from 'funcadelic';
@@ -33,6 +34,25 @@ export function lensTree(path = []) {
       });
     }
   }
+  return lens(get, set);
+}
 
+export function lensTreeData(path = []) {
+  let treeLens = lensTree(path);
+
+  function get(tree) {
+    return view(treeLens, tree).data;
+  }
+
+  function set(data, tree) {
+    let target = view(treeLens, tree);
+    return set(
+      treeLens,
+      new Tree({
+        data: () => data,
+        children: () => target.children,
+      })
+    );
+  }
   return lens(get, set);
 }
