@@ -5,13 +5,13 @@ import toTypeClass from './to-type-class';
 let { keys } = Object;
 
 export default class Tree {
-  constructor(props = { data: () => ({}), children: () => ({}) }) {
+  constructor({ data = () => ({}), children = () => ({}) }) {
     return Object.create(Tree.prototype, {
       data: {
-        get: props.data,
+        get: data,
       },
       children: {
-        get: props.children,
+        get: children,
       },
     });
   }

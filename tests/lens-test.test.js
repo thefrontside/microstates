@@ -36,30 +36,19 @@ describe('Tree lenses', () => {
     let lens = lensTree();
     expect(view(lens, tree).data).toEqual('root');
   });
-  it('can get shallow values 2', function() {
-    let lens = lensTreeChild();
-    expect(view(lens, tree).data).toEqual('root');
-  });
+
   it('can set shallow values', function() {
     let lens = lensTree();
     let next = set(lens, pure(Tree, 'still root'), tree);
     expect(next.data).toEqual('still root');
-    expect(next.children.one.data).toBe(1);
+    expect(next.children).toEqual({});
   });
-  it('can set shallow values 2', function() {
-    let lens = lensTreeChild();
-    let next = set(lens, pure(Tree, 'still root'), tree);
-    expect(next.data).toEqual('still root');
-    expect(next.children.one.data).toBe(1);
-  });
+
   it('can read deep values from an object', function() {
-    expect(view(lensTreeChild('one'), tree).data).toEqual(1);
-    expect(view(lensTreeChild('two'), tree).data).toEqual(2);
+    expect(view(lensTree(['one']), tree).data).toEqual(1);
+    expect(view(lensTree(['two']), tree).data).toEqual(2);
   });
-  it('can read deep values from an array', function() {
-    expect(view(lensTree2(['arrayKids', 0]), tree).data).toEqual('Child 0');
-    expect(view(lensTree2(['arrayKids', 1]), tree).data).toEqual('Child 1');
-  });
+
   it('can read deep values from an array', function() {
     expect(view(lensTree(['arrayKids', 0]), tree).data).toEqual('Child 0');
     expect(view(lensTree(['arrayKids', 1]), tree).data).toEqual('Child 1');
@@ -68,8 +57,8 @@ describe('Tree lenses', () => {
   it('can write deep values in an object', function() {
     let next = set(lensTree(['one']), pure(Tree, 'won'), tree);
     expect(next.data).toEqual('root');
-    expect(next.children.one.data).toEqual('won');
     expect(next.children.two.data).toBe(tree.children.two.data);
+    expect(next.children.one.data).toEqual('won');
   });
 
   it('can write deep values in an array', function() {
@@ -77,13 +66,15 @@ describe('Tree lenses', () => {
     expect(next.children.arrayKids.children[0].data).toEqual('Kid 0');
   });
 
-  it('can compose values in an object', function() {});
+  it('can compose values in an object', function() {
+    let lens = compose(lensTree([]), lensTree('one'));
+    let next = set(lens, pure(Tree, 'won'), tree);
+    expect(next.chilren.one.data).toEqual('won');
+  });
 
   it('can compose values in an array', function() {
-    let lens = lensTree(['arrayKids', 0]);
+    let lens = compose(lensTree(['arrayKids']), lensTree([0]));
     let next = set(lens, pure(Tree, 'Kid 0'), tree);
-    console.log('next.data', next.data);
-    console.log('next.children.arrayKids.data', next.children.arrayKids.data);
     expect(next.children.arrayKids.children[0].data).toEqual('Kid 0');
   });
 });
