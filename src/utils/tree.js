@@ -10,9 +10,11 @@ export default class Tree {
     return Object.create(Tree.prototype, {
       data: {
         get: data,
+        enumerable: true,
       },
       children: {
         get: children,
+        enumerable: true,
       },
     });
   }
