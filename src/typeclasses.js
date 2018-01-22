@@ -1,4 +1,5 @@
-import { Functor, map } from 'funcadelic';
+import { Applicative, Functor, map } from 'funcadelic';
+import { Monad, flatMap } from './monad';
 import { Microstate } from './microstate';
 import { reveal } from './utils/secret';
 import Tree from './utils/tree';
@@ -26,6 +27,44 @@ Functor.instance(Tree, {
       },
       children() {
         return map(child => map(fn, child), tree.children);
+      },
+    });
+  },
+});
+
+Applicative.instance(Tree, {
+  pure(value) {
+    return new Tree({
+      data() {
+        return value;
+      },
+    });
+  },
+});
+
+function thunk(fn) {
+  let evaluated = false;
+  let result = undefined;
+  return function evaluate() {
+    if (evaluated) {
+      return result;
+    } else {
+      result = fn();
+      evaluated = true;
+      return result;
+    }
+  };
+}
+
+Monad.instance(Tree, {
+  flatMap(fn, tree) {
+    let next = thunk(() => fn(tree.data));
+    return new Tree({
+      data() {
+        return next().data;
+      },
+      children() {
+        return map(child => flatMap(fn, child), next().children);
       },
     });
   },
