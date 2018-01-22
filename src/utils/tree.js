@@ -5,7 +5,8 @@ import toTypeClass from './to-type-class';
 let { keys } = Object;
 
 export default class Tree {
-  constructor({ data = () => ({}), children = () => ({}) }) {
+  constructor(props = {}) {
+    let { data = () => ({}), children = () => ({}) } = props;
     return Object.create(Tree.prototype, {
       data: {
         get: data,
