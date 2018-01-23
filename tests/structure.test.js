@@ -9,9 +9,18 @@ describe('Structure', () => {
     user = class User {
       firstName = MS.String;
       lastName = MS.String;
+
+      get fullName() {
+        return `${this.firstName} ${this.lastName}`;
+      }
+
+      get greeting() {
+        return `Hello ${this.fullName}`;
+      }
     };
   }
   let struct = new Structure(Session, { user: { firstName: 'Charles', lastName: 'Lowell' } });
+
   it('has a type associated with the root node.', function() {
     expect(struct.types.data.Type).toBe(Session);
   });
@@ -48,7 +57,14 @@ describe('Structure', () => {
       firstName: 'Charles',
       lastName: 'Lowell',
     });
-    console.log('struct = ', struct);
     expect(struct.values.children.user.children.firstName.data.value).toEqual('Charles');
+  });
+
+  it('can fetch the state at each node', function() {
+    expect(struct.states.data.state).toBeDefined();
+    expect(struct.states.data.state).toBeInstanceOf(Session);
+    expect(struct.states.children.user.data.state.constructor.name).toEqual('User');
+    expect(struct.states.children.user.data.state.fullName).toEqual('Charles Lowell');
+    expect(struct.states.children.user.data.state.greeting).toEqual('Hello Charles Lowell');
   });
 });
