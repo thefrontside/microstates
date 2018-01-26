@@ -1,4 +1,6 @@
-import state from './utils/state';
+import { map } from 'funcadelic';
+import analyze from './structure';
+import initialize from './utils/initialize';
 import { keep, reveal } from './utils/secret';
 
 const { assign } = Object;
@@ -12,24 +14,40 @@ const { assign } = Object;
  * @param {*} value
  */
 export default function microstate(Type, value) {
-  return new Microstate(Type, value);
+  let tree = analyze(Type, value);
+  return new Microstate(tree);
+}
+
+function collapse(fn, tree) {
+  return map(fn, tree).collapsed;
+}
+
+function transitions(tree) {
+  return collapse(({ transitions }) => {
+    return map(transition => {
+      return (...args) => {
+        let structure = transition(...args);
+        return new Microstate(structure);
+      };
+    }, transitions);
+  }, tree);
 }
 
 export class Microstate {
-  constructor(Type, value) {
-    let ms = state(Type, value);
-    keep(this, ms);
-    return assign(this, ms.transitions.collapsed);
+  constructor(tree) {
+    keep(this, tree);
+    return assign(this, transitions(tree));
   }
   /**
    * Evaluates to state for this microstate.
    */
   get state() {
-    return reveal(this).state.collapsed;
+    let tree = reveal(this);
+    return collapse(({ state }) => state, tree);
   }
 
   set state(value) {
-    let message = reveal(this).transitions.collapsed.state
+    let message = reveal(this).data.transitions.state
       ? `You can not use 'state' as transition name because it'll conflict with state property on the microstate.`
       : `Setting state property will not do anything useful. Please don't do this.`;
     throw Error(message);
@@ -39,6 +57,6 @@ export class Microstate {
    * Return boxed in value for this microstates
    */
   valueOf() {
-    return reveal(this).value;
+    return reveal(this).data.value;
   }
 }

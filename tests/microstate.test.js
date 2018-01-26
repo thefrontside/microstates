@@ -1,6 +1,7 @@
 import 'jest';
 import { map } from 'funcadelic';
 import microstate, * as MS from '../src';
+import { reveal } from '../src/utils/secret';
 
 describe('microstate', () => {
   it('throws an error when a transition called state is defined', () => {

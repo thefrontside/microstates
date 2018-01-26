@@ -10,7 +10,15 @@ import getOwnPropertyDescriptors from 'object.getownpropertydescriptors';
 
 const { assign } = Object;
 
-function toTypeTree(Type, path = []) {
+export default function analyze(Type, value, path = []) {
+  let types = analyzeType(Type);
+  let values = analyzeValues(types, value);
+  let states = analyzeStates(values);
+  let transitions = analyzeTransitions(states);
+  return transitions;
+}
+
+function analyzeType(Type, path = []) {
   return new Tree({
     data() {
       return { Type, path };
@@ -18,67 +26,83 @@ function toTypeTree(Type, path = []) {
     children() {
       return $(new Type())
         .filter(({ value }) => !!value && value.call)
-        .map((ChildType, key) => toTypeTree(ChildType, append(path, key)))
+        .map((ChildType, key) => analyzeType(ChildType, append(path, key)))
         .valueOf();
-    },
+    }
   });
 }
 
-function toValueTree(typeTree, value) {
-  return map(data => Object.create(data, {
+function analyzeValues(typeTree, value) {
+  return map(node => Object.create(node, {
     value: {
-      get: () => view(lensPath(data.path), value), enumerable: true
+      get: () => {
+        let { Type, path } = node;
+        var nodeValue = view(lensPath(path), value);
+
+        // init crap of which I am totally unsure.
+        let instance = new Type(nodeValue).valueOf();
+        if (isPrimitive(Type)) {
+          return instance;
+        } else {
+          return nodeValue;
+        }
+      },
+      enumerable: true
     }
   }), typeTree);
 }
 
-function gettersOf(Type) {
-  return $(getOwnPropertyDescriptors(Type.prototype))
-    .filter(({ value }) => !!value.get)
-    .map(descriptor => append(descriptor, { enumerable: true }))
+function propertiesOf(instance, value) {
+  return $(getOwnPropertyDescriptors(instance))
+    .filter((descriptor) => !descriptor.get)
+    .map((descriptor, key) => {
+      return {
+        get: () => !!value ? value[key] : undefined,
+        enumerable: true
+      };
+    })
     .valueOf();
 }
 
-export default function structure(Type, value) {
-  let types = toTypeTree(Type);
-  let values = toValueTree(types, value);
-  return new Structure(values, value);
-}
-
-export class Structure {
-  constructor(tree, value) {
-    assign(this, { tree, value });
-  }
-
-  get states() {
-    return map(data => Object.create(data, {
-      state: {
-        get() {
-          let { Type, value } = data;
-          return Object.create(Type.prototype, append(getOwnPropertyDescriptors(value), gettersOf(Type)));
+function analyzeStates(values) {
+  return map(node => Object.create(node, {
+    state: {
+      get() {
+        let { Type, value } = node;
+        // also don't know if this is the way to calculate state.
+        if (isPrimitive(Type)) {
+          return value;
+        } else {
+          return Object.create(Type.prototype, propertiesOf(value));
         }
       }
-    }), this.tree);
-  }
-
-  // maps the value tree to a set of transitions
-  get transitions() {
-    return map(data => Object.create(data, {
-      transitions: {
-        get() {
-          let { Type } = data;
-          let methods = transitionsFor(Type);
-          return map(method => (...args) => {
-            let nextLocalValue = method.apply(null, [data.state, ...args]);
-            let nextLocalType = data.Type;
-            let nextLocalStructure = structure(nextLocalType, nextLocalValue);
-
-            let nextValue = set(lensPath(data.path), nextLocalValue, this.value);
-            let nextTree = set(lensTree(data.path), nextLocalStructure.tree, this.tree);
-            return new Structure(nextTree, nextValue);
-          }, methods);
-        }
-      }
-    }) ,this.states);
-  }
+    }
+  }), values);
 }
+
+function analyzeTransitions(states) {
+  let { data: { value } } = states;
+  return map(node => Object.create(node, {
+    transitions: {
+      get() {
+        return map(method => (...args) => {
+          let { Type, path, state } = node;
+          let nextLocalValue = method.apply(null, [node.value, ...args]);
+          // let nextLocalType = Type;
+          // let nextRootValue = set(lensPath(path), nextLocalValue, value);
+          // let nextLocalTree = analyze(nextLocalType, nextRootValue, path);
+          let nextTree = set(lensTree(path), nextLocalTree, states);
+          return nextTree;
+        }, transitionsFor(node.Type));
+      }
+    }
+  }), states);
+}
+
+
+// {
+//   Type: x,
+//   path: y,
+//   sate: s,
+//   transitions: t[]
+// }
