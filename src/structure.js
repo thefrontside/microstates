@@ -10,6 +10,15 @@ import getOwnPropertyDescriptors from 'object.getownpropertydescriptors';
 
 const { assign } = Object;
 
+//
+// {
+//   path: p,
+//   Type: x,
+//   value: v,
+//   sate: s,
+//   transitions: t[]
+// }
+
 export default function analyze(Type, value, path = []) {
   let types = analyzeType(Type);
   let values = analyzeValues(types, value);
@@ -87,11 +96,3 @@ function analyzeTransitions(states) {
     }
   }), states);
 }
-
-
-// {
-//   Type: x,
-//   path: y,
-//   sate: s,
-//   transitions: t[]
-// }
