@@ -26,9 +26,7 @@
     "coverage:watch": "npm run coverage -- --watch",
     "prerelease": "npm test",
     "release": "npm pack",
-    "pretest": "node bin/monkey-patch-funcadelic.js",
     "test": "jest",
-    "posttest": "node bin/un-monkey-patch-funcadelic.js",
     "test:watch": "npm test -- --watch"
   },
   "dependencies": {
