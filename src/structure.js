@@ -52,18 +52,6 @@ function analyzeValues(typeTree, value) {
   }), typeTree);
 }
 
-function propertiesOf(instance, value) {
-  return $(getOwnPropertyDescriptors(instance))
-    .filter((descriptor) => !descriptor.get)
-    .map((descriptor, key) => {
-      return {
-        get: () => !!value ? value[key] : undefined,
-        enumerable: true
-      };
-    })
-    .valueOf();
-}
-
 function analyzeStates(values) {
   return map(node => Object.create(node, {
     state: {
@@ -73,7 +61,7 @@ function analyzeStates(values) {
         if (isPrimitive(Type)) {
           return value;
         } else {
-          return Object.create(Type.prototype, propertiesOf(value));
+          return Object.create(Type.prototype, getOwnPropertyDescriptors(value));
         }
       }
     }
@@ -81,17 +69,18 @@ function analyzeStates(values) {
 }
 
 function analyzeTransitions(states) {
-  let { data: { value } } = states;
+  let { data: { value, Type: RootType } } = states;
   return map(node => Object.create(node, {
     transitions: {
       get() {
         return map(method => (...args) => {
           let { Type, path, state } = node;
           let nextLocalValue = method.apply(null, [node.value, ...args]);
-          // let nextLocalType = Type;
-          // let nextRootValue = set(lensPath(path), nextLocalValue, value);
-          // let nextLocalTree = analyze(nextLocalType, nextRootValue, path);
-          let nextTree = set(lensTree(path), nextLocalTree, states);
+          let nextLocalType = Type;
+          let nextRootType = RootType;
+          let nextRootValue = set(lensPath(path), nextLocalValue, value);
+
+          let nextTree = analyze(RootType, nextRootValue);
           return nextTree;
         }, transitionsFor(node.Type));
       }
