@@ -50,17 +50,17 @@ describe('microstate', () => {
     });
   });
   describe('for shallow composition', () => {
-    class State {
+    class Modal {
       name = MS.String;
       isOpen = MS.Boolean;
     }
     describe('without initial state', () => {
       let ms;
       beforeEach(() => {
-        ms = microstate(State);
+        ms = microstate(Modal);
       });
-      it('is instance of State', () => {
-        expect(ms.state).toBeInstanceOf(State);
+      it('is instance of Modal', () => {
+        expect(ms.state).toBeInstanceOf(Modal);
       });
       it('initializes default', () => {
         expect(ms.state).toEqual({ name: '', isOpen: false });
@@ -89,7 +89,7 @@ describe('microstate', () => {
     describe('with initial state', () => {
       let ms;
       beforeEach(() => {
-        ms = microstate(State, { isOpen: true });
+        ms = microstate(Modal, { isOpen: true });
       });
       it('uses provided state', () => {
         expect(ms.state).toEqual({ name: '', isOpen: true });

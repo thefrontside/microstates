@@ -7,6 +7,7 @@ import isPrimitive from './utils/is-primitive';
 import initialize from './utils/initialize';
 import transitionsFor from './utils/transitions-for';
 import getOwnPropertyDescriptors from 'object.getownpropertydescriptors';
+import construct, { Microstate } from './microstate';
 
 const { assign } = Object;
 
@@ -70,7 +71,8 @@ function analyzeStates(values) {
         if (isPrimitive(Type)) {
           return value;
         } else {
-          return Object.create(Type.prototype, getOwnPropertyDescriptors(value));
+          let instance = new Type(value).valueOf();
+          return Object.create(Type.prototype, getOwnPropertyDescriptors(instance));
         }
       }
     }
@@ -78,17 +80,35 @@ function analyzeStates(values) {
 }
 
 function analyzeTransitions(states) {
-  let { data: { value, Type: RootType } } = states;
+  let { data: { value: rootValue, Type: RootType } } = states;
   return map(node => Object.create(node, {
     transitions: {
       get() {
         return map(method => (...args) => {
           let { Type, path, state } = node;
-          let nextLocalValue = method.apply(null, [node.value, ...args]);
+
+          /**
+           * Create context for the transition. This context is a microstate
+           * constructor that takes Type and value. If the user did not provide
+           * a new type or value, the constructor will default to Type and value
+           * of the current node.
+           **/
+          let context = (_Type = Type, value = node.value) => construct(_Type, value);
+
+          let transitionResult = method.apply(context, [node.value, ...args]);
+          
+          let nextLocalValue;
+          if (transitionResult instanceof Microstate) {
+            nextLocalValue = transitionResult.valueOf();
+          } else {
+            nextLocalValue = transitionResult;
+          }
+
           let nextLocalType = Type;
           let nextRootType = RootType;
-          let nextRootValue = set(lensPath(path), nextLocalValue, value);
-
+          
+          let nextRootValue = set(lensPath(path), nextLocalValue, rootValue);
+          
           let nextTree = analyze(RootType, nextRootValue);
           return nextTree;
         }, transitionsFor(node.Type));
