@@ -61,9 +61,10 @@ function analyzeStates(values) {
     state: {
       get() {
         let { Type, value } = node;
+        let instance = new Type(value).valueOf();        
         // also don't know if this is the way to calculate state.
         if (isPrimitive(Type)) {
-          return value;
+          return instance;
         } else {
           // TODO:
           // reconsider scenario where user returned a POJO from constructor
@@ -73,8 +74,10 @@ function analyzeStates(values) {
           //   2. Returning an instance of original specified type
           //   3. Returning a new type
           //   4. Return a POJO and merging in
-          let instance = new Type(value).valueOf();
-          let descriptors = append(getOwnPropertyDescriptors(value), getOwnPropertyDescriptors(instance));
+          let descriptors = getOwnPropertyDescriptors(instance);
+          if (value) {
+            descriptors = append(getOwnPropertyDescriptors(value), descriptors)
+          }
           return Object.create(Type.prototype, descriptors);
         }
       }
