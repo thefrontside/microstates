@@ -95,7 +95,7 @@ function analyzeTransitions(states) {
           let { Type, path } = node;
 
           // collapse the states tree to ensure that children get applied to the node state
-          let state = map(({ state }) => state, states).collapsed;
+          let state = map(({ state }) => state, view(lensTree(path), states)).collapsed;
 
           /**
            * Create context for the transition. This context is a microstate
