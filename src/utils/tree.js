@@ -1,6 +1,7 @@
 import $ from './chain';
 import { append, filter, reduce, map } from 'funcadelic';
 import toTypeClass from './to-type-class';
+import getOwnPropertyDescriptors from 'object.getownpropertydescriptors';
 
 let { keys } = Object;
 

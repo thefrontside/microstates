@@ -78,7 +78,8 @@ function analyzeStates(values) {
           if (value) {
             descriptors = append(getOwnPropertyDescriptors(value), descriptors)
           }
-          return Object.create(Type.prototype, descriptors);
+          let state = Object.create(Type.prototype, descriptors);
+          return state;
         }
       }
     }
@@ -91,7 +92,10 @@ function analyzeTransitions(states) {
     transitions: {
       get() {
         return map(method => (...args) => {
-          let { Type, path, state } = node;
+          let { Type, path } = node;
+
+          // collapse the states tree to ensure that children get applied to the node state
+          let state = map(({ state }) => state, states).collapsed;
 
           /**
            * Create context for the transition. This context is a microstate
@@ -102,7 +106,7 @@ function analyzeTransitions(states) {
           let context = (_Type = Type, value = node.value) => construct(_Type, value);
 
           let transitionResult = method.apply(context, [state, ...args]);
-          
+
           let nextLocalType, nextLocalValue;
           if (transitionResult instanceof Microstate) {
             nextLocalValue = transitionResult.valueOf();
