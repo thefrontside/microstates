@@ -66,14 +66,17 @@ function analyzeStates(values) {
         if (isPrimitive(Type)) {
           return instance;
         } else {
-          // TODO:
-          // reconsider scenario where user returned a POJO from constructor
-          // decide if we want to merge POJOs into instantiated object
-          // Case:
-          //   1. No constructor specified
-          //   2. Returning an instance of original specified type
-          //   3. Returning a new type
-          //   4. Return a POJO and merging in
+          /**
+           * TODO: reconsider scenario where user returned a POJO from constructor.
+           * Decide if we want to merge POJOs into instantiated object.
+           * 
+           * Cases:
+           *  1. No constructor specified
+           *  2. Returning an instance of original specified type
+           *  3. Returning a new type
+           *  4. Return a POJO and merging in
+           *  5. Sharing complex objects between instances
+           */
           let descriptors = getOwnPropertyDescriptors(instance);
           if (value) {
             descriptors = append(getOwnPropertyDescriptors(value), descriptors)
