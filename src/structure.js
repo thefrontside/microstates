@@ -45,7 +45,10 @@ function analyzeType(Type, path = []) {
 
 function analyzeValues(typeTree, value) {
   return map(node => Object.create(node, {
-    rootValue: { value },
+    rootValue: { 
+      value, 
+      enumerable: true 
+    },
     value: {
       get() {
         let { path } = node;
@@ -57,15 +60,17 @@ function analyzeValues(typeTree, value) {
 }
 
 function analyzeStates(values) {
-  return map(node => Object.create(node, {
-    state: {
-      get() {
-        let { Type, value } = node;
-        let instance = new Type(value).valueOf();        
-        // also don't know if this is the way to calculate state.
-        if (isPrimitive(Type)) {
-          return instance;
-        } else {
+  let statesTree = map(node => {
+    let newNode = Object.create(node, {
+      initialized: {
+        get() {
+          let { Type, value } = node;
+          return new Type(value).valueOf();
+        }
+      },
+      template: {
+        get() {
+          let { Type, value } = node;
           /**
            * TODO: reconsider scenario where user returned a POJO from constructor.
            * Decide if we want to merge POJOs into instantiated object.
@@ -77,28 +82,39 @@ function analyzeStates(values) {
            *  4. Return a POJO and merging in
            *  5. Sharing complex objects between instances
            */
-          let descriptors = getOwnPropertyDescriptors(instance);
+          let descriptors = getOwnPropertyDescriptors(newNode.initialized);
           if (value) {
             descriptors = append(getOwnPropertyDescriptors(value), descriptors)
           }
-          let state = Object.create(Type.prototype, descriptors);
-          return state;
+          return Object.create(Type.prototype, descriptors);
         }
-      }
-    }
-  }), values);
+      },
+      state: {
+        get() {
+          let { Type, path } = node;
+          if (isPrimitive(Type)) {
+            return newNode.initialized;
+          } else {
+            // we only want to map the children here not the node itself, so we take the children
+            // off the statesTree
+            let children = map(({ data: { state }}) => state, view(lensTree(path), statesTree).children);
+            return append(newNode.template, children);
+          }
+        }
+      },
+    })
+    return newNode;
+  }, values);
+  return statesTree;
 }
 
 function analyzeTransitions(states) {
-  let { data: { value: rootValue, Type: rootType } } = states;
-  return map(node => Object.create(node, {
+  let { data: { rootValue, Type: rootType } } = states;
+  let withTransitions = map(node => Object.create(node, {
     transitions: {
       get() {
         return map(method => (...args) => {
-          let { Type, path } = node;
-
-          // collapse the states tree to ensure that children get applied to the node state
-          let state = map(({ state }) => state, view(lensTree(path), states)).collapsed;
+          let { Type, path, state } = node;
 
           /**
            * Create context for the transition. This context is a microstate
@@ -110,22 +126,35 @@ function analyzeTransitions(states) {
 
           let transitionResult = method.apply(context, [state, ...args]);
 
-          let nextLocalType, nextLocalValue;
           if (transitionResult instanceof Microstate) {
-            nextLocalValue = transitionResult.valueOf();
-            nextLocalType = reveal(transitionResult).data.Type;
+            let nextLocalValue = transitionResult.valueOf();
+            let nextLocalType = reveal(transitionResult).data.Type;
+            if (nextLocalType !== Type) {
+
+            }
           } else {
-            nextLocalValue = transitionResult;
-            nextLocalType = Type;
+            // get next local value
+            let nextLocalValue = transitionResult;
+            // get next local type
+            let nextLocalType = Type;
+            // get next local tree by analyzing next local type and value
+            let nextLocalTree = analyze(nextLocalType, nextLocalValue, path);
+            //  get next root value by lensing the next local value into the current root value
+            let nextRootValue = set(lensPath(path), nextLocalValue, rootValue);
+            // get the next root tree by mapping the new root value onto the current root tree.
+            let nextRootTree = map(node => Object.create(node, { 
+              rootValue: { 
+                value: nextRootValue, 
+                enumerable: false 
+              }
+            }), withTransitions);
+            // lens in the next local tree to the root tree for the resulting tree.
+            let nextTree = set(lensTree(path), nextLocalTree, nextRootTree);
+            return nextTree;
           }
-
-
-          let nextRootValue = set(lensPath(path), nextLocalValue, rootValue);
-          
-          let nextTree = analyze(rootType, nextRootValue);
-          return nextTree;
         }, transitionsFor(node.Type));
       }
     }
   }), states);
+  return withTransitions;
 }

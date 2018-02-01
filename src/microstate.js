@@ -43,7 +43,7 @@ export class Microstate {
    */
   get state() {
     let tree = reveal(this);
-    return collapse(({ state }) => state, tree);
+    return tree.data.state;
   }
 
   set state(value) {
