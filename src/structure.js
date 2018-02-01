@@ -8,6 +8,7 @@ import initialize from './utils/initialize';
 import transitionsFor from './utils/transitions-for';
 import getOwnPropertyDescriptors from 'object.getownpropertydescriptors';
 import construct, { Microstate } from './microstate';
+import { reveal } from './utils/secret';
 
 const { assign } = Object;
 
@@ -44,18 +45,11 @@ function analyzeType(Type, path = []) {
 
 function analyzeValues(typeTree, value) {
   return map(node => Object.create(node, {
+    rootValue: { value },
     value: {
-      get: () => {
-        let { Type, path } = node;
-        var nodeValue = view(lensPath(path), value);
-
-        // init crap of which I am totally unsure.
-        let instance = new Type(nodeValue).valueOf();
-        if (isPrimitive(Type)) {
-          return instance;
-        } else {
-          return nodeValue;
-        }
+      get() {
+        let { path } = node;
+        return view(lensPath(path), this.rootValue);
       },
       enumerable: true
     }
@@ -71,8 +65,17 @@ function analyzeStates(values) {
         if (isPrimitive(Type)) {
           return value;
         } else {
+          // TODO:
+          // reconsider scenario where user returned a POJO from constructor
+          // decide if we want to merge POJOs into instantiated object
+          // Case:
+          //   1. No constructor specified
+          //   2. Returning an instance of original specified type
+          //   3. Returning a new type
+          //   4. Return a POJO and merging in
           let instance = new Type(value).valueOf();
-          return Object.create(Type.prototype, getOwnPropertyDescriptors(instance));
+          let descriptors = append(getOwnPropertyDescriptors(value), getOwnPropertyDescriptors(instance));
+          return Object.create(Type.prototype, descriptors);
         }
       }
     }
@@ -80,7 +83,7 @@ function analyzeStates(values) {
 }
 
 function analyzeTransitions(states) {
-  let { data: { value: rootValue, Type: RootType } } = states;
+  let { data: { value: rootValue, Type: rootType } } = states;
   return map(node => Object.create(node, {
     transitions: {
       get() {
@@ -95,21 +98,21 @@ function analyzeTransitions(states) {
            **/
           let context = (_Type = Type, value = node.value) => construct(_Type, value);
 
-          let transitionResult = method.apply(context, [node.value, ...args]);
+          let transitionResult = method.apply(context, [state, ...args]);
           
-          let nextLocalValue;
+          let nextLocalType, nextLocalValue;
           if (transitionResult instanceof Microstate) {
             nextLocalValue = transitionResult.valueOf();
+            nextLocalType = reveal(transitionResult).data.Type;
           } else {
             nextLocalValue = transitionResult;
+            nextLocalType = Type;
           }
 
-          let nextLocalType = Type;
-          let nextRootType = RootType;
-          
+
           let nextRootValue = set(lensPath(path), nextLocalValue, rootValue);
           
-          let nextTree = analyze(RootType, nextRootValue);
+          let nextTree = analyze(rootType, nextRootValue);
           return nextTree;
         }, transitionsFor(node.Type));
       }

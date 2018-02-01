@@ -40,15 +40,15 @@ describe('Structure', () => {
     expect(tree.data.state).toBeDefined();
     expect(tree.data.state).toBeInstanceOf(Session);
     expect(tree.children.user.data.state.constructor.name).toEqual('User');
-    expect(tree.children.user.data.state.fullName).toEqual('Charles Lowell');
-    expect(tree.children.user.data.state.greeting).toEqual('Hello Charles Lowell');
+    expect(tree.children.user.children.firstName.data.state).toEqual('Charles');
+    expect(tree.children.user.children.lastName.data.state).toEqual('Lowell');
   });
 
   it('can transition at a node', function () {
     let next = tree.data.transitions.authenticate();
     expect(next.data.value.isAuthenticated).toEqual(true);
     expect(next.data.state.isAuthenticated).toEqual(true);
-    expect(tree.children.user.data.state.fullName).toEqual('Charles Lowell');
-    expect(tree.children.user.data.state.greeting).toEqual('Hello Charles Lowell');
+    expect(tree.children.user.children.firstName.data.state).toEqual('Charles');
+    expect(tree.children.user.children.lastName.data.state).toEqual('Lowell');
   });
 });
