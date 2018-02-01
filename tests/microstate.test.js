@@ -456,9 +456,7 @@ describe('microstate', () => {
         ms = microstate(State);
       });
       it('is computed', function() {
-        expect(ms.state).toMatchObject({
-          fullName: ' ',
-        });
+        expect(ms.state.fullName).toEqual(' ');
       });
     });
     describe('with initial state', () => {
@@ -467,9 +465,7 @@ describe('microstate', () => {
         ms = microstate(State, { firstName: 'Peter', lastName: 'Griffin' });
       });
       it('is computed', () => {
-        expect(ms.state).toMatchObject({
-          fullName: 'Peter Griffin',
-        });
+        expect(ms.state.fullName).toEqual('Peter Griffin');
       });
       it('should not have getters in valueOf after custom transition', () => {
         expect(ms.toUpperCase().valueOf()).not.toHaveProperty('fullName');
@@ -494,9 +490,9 @@ describe('microstate', () => {
           .products.push({ quantity: 2, price: 20 });
       });
       it('adds items to the cart', () => {
+        expect(ms.state.price).toEqual(50);
+        expect(ms.state.count).toEqual(3);
         expect(ms.state).toMatchObject({
-          price: 50,
-          count: 3,
           products: [{ quantity: 1, price: 10 }, { quantity: 2, price: 20 }],
         });
       });
