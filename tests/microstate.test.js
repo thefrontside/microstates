@@ -320,7 +320,7 @@ describe('microstate', () => {
           expect(ms.vehicle.increaseSpeed(10).valueOf()).toEqual({ vehicle: { speed: 20 } });
         });
       });
-      describe('chained operations', function() {
+      describe.only('chained operations', function() {
         let ms, m1, m2, v1, v2;
         beforeEach(() => {
           ms = microstate(State);
