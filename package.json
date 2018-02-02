@@ -27,7 +27,7 @@
     "prerelease": "npm test",
     "release": "npm pack",
     "test": "jest",
-    "test:watch": "npm test -- --watch"
+    "start": "npm test -- --watch"
   },
   "dependencies": {
     "funcadelic": "^0.3.0",
