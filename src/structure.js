@@ -12,7 +12,6 @@ import { reveal } from './utils/secret';
 
 const { assign } = Object;
 
-//
 // {
 //   path: p,
 //   Type: x,
