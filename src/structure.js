@@ -115,7 +115,6 @@ function analyzeTransitions(states) {
       get() {
         return map(method => (...args) => {
           let { Type, path, state } = node;
-
           /**
            * Create context for the transition. This context is a microstate
            * constructor that takes Type and value. If the user did not provide
@@ -127,31 +126,48 @@ function analyzeTransitions(states) {
           let transitionResult = method.apply(context, [state, ...args]);
 
           if (transitionResult instanceof Microstate) {
+            // 1. get next local value
             let nextLocalValue = transitionResult.valueOf();
+            // 2. get next local type
             let nextLocalType = reveal(transitionResult).data.Type;
-            if (nextLocalType !== Type) {
-
+            if (nextLocalType === Type) {
+              // custom transition
+              // 3. get next local tree by analyzing next local type and value
+              let nextLocalTree = analyze(nextLocalType, nextLocalValue, path);
+              // 4. get next root value by lensing the next local value into the current root value
+              let nextRootValue = set(lensPath(path), nextLocalValue, rootValue);
+              // 5. get the next root tree by mapping the new root value onto the current root tree.
+              let nextRootTree = map(node => Object.create(node, { 
+                rootValue: { 
+                  value: nextRootValue, 
+                  enumerable: false 
+                }
+              }), withTransitions);
+              // 6. lens in the next local tree to the root tree for the resulting tree.
+              return set(lensTree(path), nextLocalTree, nextRootTree);
+            } else {
+              // type-shift here
             }
           } else {
-            // get next local value
+            // 1. get next local value
             let nextLocalValue = transitionResult;
-            // get next local type
+            // 2. get next local type
             let nextLocalType = Type;
-            // get next local tree by analyzing next local type and value
+            // 3. get next local tree by analyzing next local type and value
             let nextLocalTree = analyze(nextLocalType, nextLocalValue, path);
-            //  get next root value by lensing the next local value into the current root value
+            // 4. get next root value by lensing the next local value into the current root value
             let nextRootValue = set(lensPath(path), nextLocalValue, rootValue);
-            // get the next root tree by mapping the new root value onto the current root tree.
+            // 5. get the next root tree by mapping the new root value onto the current root tree.
             let nextRootTree = map(node => Object.create(node, { 
               rootValue: { 
                 value: nextRootValue, 
                 enumerable: false 
               }
             }), withTransitions);
-            // lens in the next local tree to the root tree for the resulting tree.
-            let nextTree = set(lensTree(path), nextLocalTree, nextRootTree);
-            return nextTree;
+            // 6. lens in the next local tree to the root tree for the resulting tree.
+            return set(lensTree(path), nextLocalTree, nextRootTree);
           }
+          // 7. :margarita:
         }, transitionsFor(node.Type));
       }
     }

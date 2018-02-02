@@ -320,14 +320,18 @@ describe('microstate', () => {
           expect(ms.vehicle.increaseSpeed(10).valueOf()).toEqual({ vehicle: { speed: 20 } });
         });
       });
-      describe('chained operations', function() {
+      describe.only('chained operations', function() {
+        let ms, m1, m2, v1, v2;
+        beforeEach(() => {
+          ms = microstate(State);
+          m1 = ms.vehicle.increaseSpeed(10);
+          v1 = m1.valueOf();
+          m2 = m1.vehicle.increaseSpeed(20);
+          v2 = m2.valueOf();
+        });
         it('should maintain root', function() {
-          expect(
-            microstate(State)
-              .vehicle.increaseSpeed(10)
-              .vehicle.increaseSpeed(20)
-              .valueOf()
-          ).toEqual({ vehicle: { speed: 30 } });
+          expect(v1).toEqual({ vehicle: { speed: 10 } });
+          expect(v2).toEqual({ vehicle: { speed: 30 } });
         });
       });
     });
@@ -526,7 +530,10 @@ describe('microstate', () => {
       greeting = MS.String;
     }
     let ms = microstate(Type);
-    let next = ms.greeting.set('HI');
+    let next;
+    beforeEach(() => {
+      next = ms.greeting.set('HI');
+    })
     it('includes constants in state tree', () => {
       // once transition-context is merged, need to add collapsed to
       // the end of state().
@@ -578,9 +585,12 @@ describe('microstate', () => {
     class Triangle extends Corner {
       c = MS.Number;
     }
-    let line = microstate(Line).a.set(10);
-    let corner = line.add(20);
-    let triangle = corner.add(30);
+    let line, corner, triangle;
+    beforeEach(() => {
+      line = microstate(Line).a.set(10);
+      corner = line.add(20);
+      triangle = corner.add(30);
+    });
     it('constructs a line', () => {
       expect(line.state).toBeInstanceOf(Line);
       expect(line.state).toMatchObject({
@@ -846,9 +856,12 @@ describe('microstate', () => {
 
     describe('AnonymousSession', () => {
       let ms = microstate(MyApp);
-      let authenticated = ms.session.authenticate({
-        name: 'Charles',
-      });
+      let authenticated;
+      beforeEach(() => {
+        authenticated = ms.session.authenticate({
+          name: 'Charles',
+        });
+      })
       it('initializes into AnonymousSession without initial state', () => {
         expect(ms.state.session).toBeInstanceOf(AnonymousSession);
       });
@@ -863,7 +876,10 @@ describe('microstate', () => {
 
     describe('AuthenticatedSession', () => {
       let ms = microstate(MyApp, { session: { name: 'Taras' } });
-      let anonymous = ms.session.logout();
+      let anonymous;
+      beforeEach(() => {
+        anonymous = ms.session.logout()
+      });
       it('initializes into AuthenticatedSession state', () => {
         expect(ms.state.session).toBeInstanceOf(AuthenticatedSession);
       });
