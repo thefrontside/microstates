@@ -1,9 +1,9 @@
 import 'jest';
 
-import * as MS from '../../src';
-import Tree from '../../src/utils/tree';
+import * as MS from '../src';
+import Tree from '../src/utils/tree';
 
-describe('utils/tree', () => {
+describe('tree', () => {
   it('instantiates without params', () => {
     expect(() => {
       new Tree();
