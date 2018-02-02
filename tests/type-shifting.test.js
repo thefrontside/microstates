@@ -51,7 +51,8 @@ describe('type-shifting', () => {
     expect(triangle.valueOf()).toEqual({ a: 10, b: 20, c: 30 });
   });
 });
-describe('type-shifting + constant values', () => {
+
+describe('type-shifting with constant values', () => {
   class Async {
     content = null;
     isLoaded = false;

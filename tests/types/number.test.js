@@ -1,19 +1,52 @@
-import 'jest';
+import "jest";
 
-import microstate, * as MS from '../../src';
+import microstate, * as MS from "../../src";
 
-describe('number', () => {
-  let ms = microstate(MS.Number, 10);
-  it('subtract', () => {
-    expect(ms.subtract(5).valueOf()).toBe(5);
+describe("number", () => {
+  let zero, ten;
+  beforeEach(() => {
+    zero = microstate(MS.Number);
+    ten = microstate(MS.Number, 10);
   });
-  it('sum', () => {
-    expect(ms.sum(5).valueOf()).toBe(15);
+  it("has transitions", () => {
+    expect(zero).toMatchObject({
+      set: expect.any(Function),
+      increment: expect.any(Function),
+    });
   });
-  it('increment', () => {
-    expect(ms.increment().valueOf()).toBe(11);
+  describe("without value", () => {
+    it("has state", () => {
+      expect(zero.state).toBe(0);
+    });
+    it("subtract", () => {
+      expect(zero.subtract(5).valueOf()).toBe(-5);
+    });
+    it("sum", () => {
+      expect(zero.sum(5).valueOf()).toBe(5);
+    });
+    it("increment", () => {
+      expect(zero.increment().valueOf()).toBe(1);
+    });
+    it("decrement", () => {
+      expect(zero.decrement().valueOf()).toBe(-1);
+    });
   });
-  it('decrement', () => {
-    expect(ms.decrement().valueOf()).toBe(9);
+
+  describe("with value", () => {
+    it("has state", () => {
+      expect(ten.state).toBe(10);
+    });
+    it("subtract", () => {
+      expect(ten.subtract(5).valueOf()).toBe(5);
+    });
+    it("sum", () => {
+      expect(ten.sum(5).valueOf()).toBe(15);
+    });
+    it("increment", () => {
+      expect(ten.increment().valueOf()).toBe(11);
+    });
+    it("decrement", () => {
+      expect(ten.decrement().valueOf()).toBe(9);
+    });
   });
 });

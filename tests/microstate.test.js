@@ -20,35 +20,6 @@ describe('microstate', () => {
       microstate(MS.Number).state = 10;
     }).toThrowError(`Setting state property will not do anything useful. Please don't do this.`);
   });
-  describe('for Number', () => {
-    describe('without initial state', () => {
-      let ms;
-      beforeEach(() => {
-        ms = microstate(MS.Number);
-      });
-      it('has state', () => {
-        expect(ms.state).toBe(0);
-      });
-      it('has transitions', () => {
-        expect(ms).toMatchObject({
-          set: expect.any(Function),
-          increment: expect.any(Function),
-        });
-      });
-      it('returns new state on transition', () => {
-        expect(ms.increment().valueOf()).toBe(1);
-      });
-    });
-    describe('with initial state', () => {
-      let ms;
-      beforeEach(() => {
-        ms = microstate(MS.Number, 3);
-      });
-      it('returns new state on transition', () => {
-        expect(ms.increment().valueOf()).toBe(4);
-      });
-    });
-  });
   describe('for shallow composition', () => {
     class Modal {
       name = MS.String;
@@ -357,43 +328,6 @@ describe('microstate', () => {
           },
           merge: expect.any(Function),
           set: expect.any(Function),
-        });
-      });
-    });
-    describe('type shifting', () => {
-      describe('of root state', () => {
-        class Choice {
-          topic = MS.String;
-          yes(current, reason) {
-            return this(Yes).affirmation.set(reason);
-          }
-          no(current, reason) {
-            return this(No).refutation.set(reason);
-          }
-        }
-        class No extends Choice {
-          refutation = MS.String;
-        }
-        class Yes extends Choice {
-          affirmation = MS.String;
-        }
-        let ms, yes, no;
-        beforeEach(() => {
-          ms = microstate(Choice, { topic: 'Microstates are tiny' });
-          yes = ms.yes('So tiny.');
-          no = ms.no('They huge.');
-        });
-        it('returns affirmation for yes', () => {
-          expect(yes.valueOf()).toEqual({ topic: 'Microstates are tiny', affirmation: 'So tiny.' });
-        });
-        it('returns refutation for no', () => {
-          expect(no.valueOf()).toEqual({ topic: 'Microstates are tiny', refutation: 'They huge.' });
-        });
-        it(`changed the root's structure`, () => {
-          expect(yes.state).toMatchObject({
-            topic: 'Microstates are tiny',
-            affirmation: 'So tiny.',
-          });
         });
       });
     });
