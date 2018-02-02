@@ -472,49 +472,6 @@ describe('microstate', () => {
       });
     });
   });
-  describe('cart example', () => {
-    class Cart {
-      products = MS.Array;
-      get price() {
-        return this.products.reduce((acc, product) => acc + product.quantity * product.price, 0);
-      }
-      get count() {
-        return this.products.reduce((acc, product) => acc + product.quantity, 0);
-      }
-    }
-    describe('adding products without initial value', () => {
-      let ms;
-      beforeEach(() => {
-        ms = microstate(Cart)
-          .products.push({ quantity: 1, price: 10 })
-          .products.push({ quantity: 2, price: 20 });
-      });
-      it('adds items to the cart', () => {
-        expect(ms.state.price).toEqual(50);
-        expect(ms.state.count).toEqual(3);
-        expect(ms.state).toMatchObject({
-          products: [{ quantity: 1, price: 10 }, { quantity: 2, price: 20 }],
-        });
-      });
-      it('provides valueOf', () => {
-        expect(ms.valueOf()).toEqual({
-          products: [{ quantity: 1, price: 10 }, { quantity: 2, price: 20 }],
-        });
-      });
-    });
-  });
-  describe('valueOf', () => {
-    let ms;
-    beforeEach(() => {
-      ms = microstate(MS.Number, 10);
-    });
-    it('returns passed in value of', () => {
-      expect(ms.valueOf()).toBe(10);
-    });
-    it('is not enumerable', () => {
-      expect(ms).not.toHaveProperty('valueOf');
-    });
-  });
   describe('constants support', () => {
     class Type {
       n = 10;
@@ -561,124 +518,16 @@ describe('microstate', () => {
       expect(ms.state.o).toBe(microstate(Type).state.o);
     });
   });
-  describe('type-shifting', () => {
-    class Line {
-      a = MS.Number;
-      add({ a }, b) {
-        return this(Corner, { a, b });
-      }
-    }
-    class Corner extends Line {
-      a = MS.Number;
-      b = MS.Number;
-      add({ a, b }, c) {
-        return this(Triangle, { a, b, c });
-      }
-    }
-    class Triangle extends Corner {
-      c = MS.Number;
-    }
-    let line = microstate(Line).a.set(10);
-    let corner = line.add(20);
-    let triangle = corner.add(30);
-    it('constructs a line', () => {
-      expect(line.state).toBeInstanceOf(Line);
-      expect(line.state).toMatchObject({
-        a: 10,
-      });
-      expect(line.valueOf()).toEqual({ a: 10 });
+  describe('valueOf', () => {
+    let ms;
+    beforeEach(() => {
+      ms = microstate(MS.Number, 10);
     });
-    it('constructs a Corner', () => {
-      expect(corner.state).toBeInstanceOf(Corner);
-      expect(corner.state).toMatchObject({
-        a: 10,
-        b: 20,
-      });
-      expect(corner.valueOf()).toEqual({ a: 10, b: 20 });
+    it('returns passed in value of', () => {
+      expect(ms.valueOf()).toBe(10);
     });
-    it('constructs a Triangle', () => {
-      expect(triangle.state).toBeInstanceOf(Triangle);
-      expect(triangle.state).toMatchObject({
-        a: 10,
-        b: 20,
-        c: 30,
-      });
-      expect(triangle.valueOf()).toEqual({ a: 10, b: 20, c: 30 });
-    });
-  });
-  describe('type-shifting + constant values', () => {
-    class Async {
-      content = null;
-      isLoaded = false;
-      isLoading = false;
-      isError = false;
-
-      loading() {
-        return this(AsyncLoading);
-      }
-    }
-
-    class AsyncError extends Async {
-      isError = true;
-      isLoading = false;
-      isLoaded = true;
-    }
-
-    class AsyncLoading extends Async {
-      isLoading = true;
-
-      loaded(current, content) {
-        return this(
-          class extends AsyncLoaded {
-            content = content;
-          }
-        );
-      }
-
-      error(current, msg) {
-        return this(
-          class extends AsyncError {
-            error = msg;
-          }
-        );
-      }
-    }
-
-    class AsyncLoaded extends Async {
-      isLoaded = true;
-      isLoading = false;
-      isError = false;
-    }
-    describe('successful loading siquence', () => {
-      let async = microstate(Async);
-      it('can transition to loading', () => {
-        expect(async.loading().state).toMatchObject({
-          content: null,
-          isLoaded: false,
-          isLoading: true,
-          isError: false,
-        });
-      });
-      it('can transition from loading to loaded', () => {
-        expect(async.loading().loaded('GREAT SUCCESS').state).toMatchObject({
-          content: 'GREAT SUCCESS',
-          isLoaded: true,
-          isLoading: false,
-          isError: false,
-        });
-      });
-    });
-    describe('error loading sequence', () => {
-      let async = microstate(Async);
-      it('can transition from loading to error', () => {
-        expect(async.loading().error(':(').state).toMatchObject({
-          content: null,
-          isLoaded: true,
-          isError: true,
-          isLoading: false,
-          error: ':(',
-        });
-      });
+    it('is not enumerable', () => {
+      expect(ms).not.toHaveProperty('valueOf');
     });
   });
   describe('transition inheritance', () => {
@@ -794,11 +643,14 @@ describe('microstate', () => {
       });
     });
   });
-  describe('microstate transition mapping', function() {
+  describe('mapping', function() {
     class MyType {
       myProp = MS.String;
     }
-    let actions = map(transition => (...args) => transition(...args), microstate(MyType));
+    let actions;
+    beforeEach(() => {
+      actions = map(transition => (...args) => transition(...args), microstate(MyType));
+    })
     it('keeps objects as objects', () => {
       expect(actions).toMatchObject({
         set: expect.any(Function),
@@ -809,67 +661,6 @@ describe('microstate', () => {
     });
     it('has working transitions', () => {
       expect(actions.myProp.set('foo').state).toEqual({ myProp: 'foo' });
-    });
-  });
-  describe('Authentication Example', () => {
-    class Session {
-      content = null;
-      constructor(state) {
-        if (state) {
-          return new AuthenticatedSession(state);
-        } else {
-          return new AnonymousSession(state);
-        }
-      }
-    }
-
-    class AuthenticatedSession {
-      isAuthenticated = true;
-      content = MS.Object;
-
-      logout() {
-        return this(AnonymousSession);
-      }
-    }
-
-    class AnonymousSession {
-      content = null;
-      isAuthenticated = false;
-      authenticate(current, user) {
-        return this(AuthenticatedSession, { content: user });
-      }
-    }
-
-    class MyApp {
-      session = Session;
-    }
-
-    describe('AnonymousSession', () => {
-      let ms = microstate(MyApp);
-      let authenticated = ms.session.authenticate({
-        name: 'Charles',
-      });
-      it('initializes into AnonymousSession without initial state', () => {
-        expect(ms.state.session).toBeInstanceOf(AnonymousSession);
-      });
-      it('transitions AnonymousSession to Authenticated with authenticate', () => {
-        expect(authenticated.state.session).toBeInstanceOf(AuthenticatedSession);
-        expect(authenticated.state.session).toEqual({
-          content: { name: 'Charles' },
-          isAuthenticated: true,
-        });
-      });
-    });
-
-    describe('AuthenticatedSession', () => {
-      let ms = microstate(MyApp, { session: { name: 'Taras' } });
-      let anonymous = ms.session.logout();
-      it('initializes into AuthenticatedSession state', () => {
-        expect(ms.state.session).toBeInstanceOf(AuthenticatedSession);
-      });
-      it('transitions Authenticated session to AnonymousSession with logout', () => {
-        expect(anonymous.state.session).toBeInstanceOf(AnonymousSession);
-      });
     });
   });
 });
