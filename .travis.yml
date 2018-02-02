@@ -17,3 +17,18 @@ script:
 
 # Allow Travis tests to run in containers.
 sudo: false
+
+before_deploy:
+  - npm install -g check-node-version
+
+deploy:
+  skip_cleanup: true
+  provider: npm
+  email: 
+    secure: OB6qMUvbmaP58HyyfriCk5LHN+MAFXkVeEkJ3E2VzeQ+cuK3NHiOzXQjykAdCOb2eqn2n0YjfvVgShQCO3lzABWur8bnriu62cY068mA6rq26hDtj/aYAqsRqebtpYB2Q4kGWsTdlRpvrJm3n9srM+A0YFvEQ60QCKdKL4YE7hDimIpGRR/3pwAnYejvPlwNE1LoIHBaskTOEJhOp1SLXX3RZ2tAXfhtpz7rl1wZRmlpXsB6o1LJMKFjf7/q+hDvGu4phBi+68zxBoZjCLCTRqXH8cTSSH/c5s/Is/2Ek9LjaaQkyz9Drg3gJQEdxrAe/iJFleptf8Jhy8/14+NLm6dWHRar3ODJc5zNwGdJnRyHHlXEBh66Yxx72diTXnndSWTX7xHKcZ2MWgG1JNbh6LZfptIZUxf8p5u/aDD7MuiSaBQ8V68UWNreiRLlR0NkXoJGVxgWxnizrYjhYUv+Noi79yOCkqyspCZcxEHRBGBGnQkvTKACw1UbV8VRtw625kSglSKMSRV8Pc6IpvdPtW3VBCfDhQpkSiONGXr98oEDiw9Y7dGSukwJlD5iTL/ZOuwcYkfkr3XHLsOLdzylxEKNG9n65weNTbfx51o8Gg4tBzd6qh3Bf0CMVdUUZ4+XaeW388nMBKqZ6JovXfdWMQ/Zx5lICmu3JaeEEZgXUw0= 
+  api_key:
+    secure: FmXu9hORtfyCYE3sGB2HLHAx8WEkQxoeCPpWthU+kWlCmKhj/FPQBm9gaJGl7DGAdXH6z5Vq2ncpEsFDfCzTNOYggJ1PR+0a8/GDMxLMAo8nCwKCspf+SqKSpvg4DwhlsSlhchk3YThytQq/SKKoIzC/lBqnVVX2mMwJkCKJMy/DAS4i6HyM0m6ELSmBgfZVFF1bsOPSCi3S5uiKBQmAW2ccMYXqdv9hjQ/MsOKpMOiIYoxgBwqcquA+rsPgtfUHuR24xcBp/t8fscRPilc0cCOnD3vB/vaAt2lqRfQponf8FQylqRuy553uZzwhXUP/JJYBAsfeD26DEJm5Iz3fMIPG9tsixSNPUD/P4vj3nH/b320lfXth3MhUhOw32gNlfs99pqIOTTzX1PVnezCGcMBplwA7bPdjXwTQuuE4cJCrYXEA0wJaMeMDrAdErng9xiZGYFu402guEqkACJLIb/rKJd5mTgyUUiAFVcim6cmBiRNDLVmcgd7W8NIr/FSBvU+y8Cwp7/1qve2LctoNY8qByQJHb7tCRL/cwtrVIU73wy/J5pmFv3zEn8LTeZ42us2ql5CoTgx+d2H8LAVKpZG+C/K6wkfQto21mhHpV1nS5LkK9pmDPa9wLYCfcslQBfIrwpR0fk3ZxeoHzfo0cs3j6lWQslTINxyR3JEixa4=
+  on:
+    tags: true
+    repo: cowboyd/microstates.js
+    condition: check-node-version --node 9
