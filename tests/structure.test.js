@@ -4,7 +4,7 @@ import Tree from '../src/utils/tree';
 import { view, set } from '../src/lens';
 import analyze from '../src/structure';
 
-describe.only('Structure', () => {
+describe('Structure', () => {
   class Session {
     user = class User {
       firstName = MS.String;
