@@ -1,6 +1,6 @@
 import "jest";
 import { map } from "funcadelic";
-import construct, * as MS from "../src";
+import create, * as MS from "../src";
 import { flatMap } from '../src/monad';
 import { Microstate } from "../src/microstate";
 
@@ -16,8 +16,8 @@ describe("typeclasses", () => {
 
   let simple, complex;
   beforeEach(() => {
-    simple = construct(MS.Number, 10);
-    complex = construct(Person, { name: "Taras", home: { city: "Toronto" } });
+    simple = create(MS.Number, 10);
+    complex = create(Person, { name: "Taras", home: { city: "Toronto" } });
   })
 
   describe("functor", function() {  

@@ -6,9 +6,9 @@ import Tree from './utils/tree';
 
 Functor.instance(Microstate, {
   map(fn, microstate) {
-    let tree = reveal(microstate);
+    let { tree, value } = reveal(microstate);
     let structure = map(node => fn(node), tree);
-    return new Microstate(structure);
+    return new Microstate(structure, value);
   },
 });
 

@@ -22,44 +22,42 @@ function collapse(fn, tree) {
   return map(fn, tree).collapsed;
 }
 
-// return map(transition => {
-//   return (...args) => {
-//     let structure = transition(...args);
-//     return new Microstate(structure);
-//   };
-// }, transitions);
+function transitions(value, tree, invoke) {
+  return collapse(node => {
+    let transitions = node.transitionsAt(value, tree, invoke);
+    return map(transition => {
+      return (...args) => {
+        let { tree, value } = transition(...args);
+        return new Microstate(tree, value);
+      }
+    }, transitions) 
+  }, tree);
+}
 
-function transitionsFor(value, tree, invoke) {
-  return ;
+function invoke({ Type, method, args, value, tree, state}) {
+  let next = method.apply(null, [state, ...args]);
+  return { Type, value: next };
 }
 
 export class Microstate {
   constructor(tree, value) {
-    keep(this, tree);
-    this.value = value;
-    let invoke = this.invoke.bind(this);
-    let transitions = collapse(node => map(transition => (...args) => {
-      let { tree, value } = transition(...args);
-      return new Microstate(tree, value);
-    }, node.transitionsAt(value, tree, invoke)), tree);
-    return assign(this, transitions);
+    keep(this, { tree, value });
+    return assign(this, transitions(value, tree, invoke));
   }
   
-  invoke({ Type, method, args, value, tree, state}) {
-    let next = method.apply(null, [state, ...args]);
-    return { Type, value: next };
-  }
-
   /**
    * Evaluates to state for this microstate.
    */
   get state() {
-    let tree = reveal(this);
-    return collapse(node => node.stateAt(this.value), tree);
+    let { tree, value } = reveal(this);
+    return collapse(node => {
+      return node.stateAt(value);
+    }, tree);
   }
 
   set state(value) {
-    let message = reveal(this).data.transitions.state
+    let { tree } = reveal(this);
+    let message = tree.data.transitions.state
       ? `You can not use 'state' as transition name because it'll conflict with state property on the microstate.`
       : `Setting state property will not do anything useful. Please don't do this.`;
     throw Error(message);
@@ -69,6 +67,7 @@ export class Microstate {
    * Return boxed in value for this microstates
    */
   valueOf() {
-    return this.value;
+    let { value } = reveal(this);
+    return value;
   }
 }
