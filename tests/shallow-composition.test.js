@@ -6,8 +6,8 @@ class Modal {
   name = MS.String;
   isOpen = MS.Boolean;
 }
-describe('with types', () => {
-  describe('without initial state', () => {
+describe('types', () => {
+  describe('value', () => {
     let ms;
     beforeEach(() => {
       ms = microstate(Modal);
@@ -39,29 +39,31 @@ describe('with types', () => {
       expect(ms.name.set('taras').valueOf()).toEqual({ name: 'taras' });
     });
   });
-  describe('with initial state', () => {
-    let ms;
+  describe('no value', () => {
+    let ms, set, merged;
     beforeEach(() => {
       ms = microstate(Modal, { isOpen: true });
+      set = ms.name.set('taras');
+      merged = ms.merge({ name: 'taras' });
     });
     it('uses provided state', () => {
       expect(ms.state).toEqual({ name: '', isOpen: true });
     });
     it('replaces value when set is called but uses provided value', () => {
-      expect(ms.name.set('taras').valueOf()).toEqual({ name: 'taras', isOpen: true });
+      expect(set.valueOf()).toEqual({ name: 'taras', isOpen: true });
     });
     it('merges value on merge transition', () => {
-      expect(ms.merge({ name: 'taras' }).valueOf()).toEqual({ name: 'taras', isOpen: true });
+      expect(merged.valueOf()).toEqual({ name: 'taras', isOpen: true });
     });
   });
 });
 
-describe('with arrays and objects', () => {
+describe('arrays and objects', () => {
   class State {
     animals = MS.Array;
     config = MS.Object;
   }
-  describe('without initial value', () => {
+  describe('value', () => {
     let ms;
     beforeEach(() => {
       ms = microstate(State);
@@ -83,7 +85,7 @@ describe('with arrays and objects', () => {
       });
     });
   });
-  describe('with initial value', () => {
+  describe('no value', () => {
     let ms;
     beforeEach(() => {
       ms = microstate(State, { animals: ['cat', 'dog'], config: { color: 'red' } });
