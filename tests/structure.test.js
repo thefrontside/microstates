@@ -24,7 +24,7 @@ describe('Structure', () => {
     }
   }
   let initialValue = { user: { firstName: 'Charles', lastName: 'Lowell' } };
-  let tree = analyze(Session, initialValue);
+  let tree = analyze(Session);
 
   it('can fetch the value at each node', function() {
     expect(tree.data.valueAt(initialValue)).toMatchObject({

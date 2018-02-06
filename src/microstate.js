@@ -13,9 +13,8 @@ const { assign } = Object;
  * @param {*} Type
  * @param {*} value
  */
-export default function microstate(Type, value) {
-  let tree = analyze(Type, value);
-  return new Microstate(tree, value);
+export default function create(Type, value) {
+  return new Microstate(analyze(Type), value);
 }
 
 function collapse(fn, tree) {
@@ -29,8 +28,8 @@ function transitions(value, tree, invoke) {
       return (...args) => {
         let { tree, value } = transition(...args);
         return new Microstate(tree, value);
-      }
-    }, transitions) 
+      };
+    }, transitions);
   }, tree);
 }
 

@@ -11,13 +11,7 @@ import { reveal } from './utils/secret';
 
 const { assign } = Object;
 
-export default function analyze(Type, value, path = []) {
-  let types = analyzeTypes(Type);
-  let values = analyzeValues(types, value);
-  return values;
-}
-
-function analyzeTypes(Type, path = []) {
+export default function analyze(Type, path = []) {
   return new Tree({
     data() {
       return new Node(Type, path);
@@ -25,14 +19,10 @@ function analyzeTypes(Type, path = []) {
     children() {
       return $(new Type())
         .filter(({ value }) => !!value && value.call)
-        .map((ChildType, key) => analyzeTypes(ChildType, append(path, key)))
+        .map((ChildType, key) => analyze(ChildType, append(path, key)))
         .valueOf();
     }
   });
-}
-
-function analyzeValues(typeTree, value) {
-  return typeTree;
 }
 
 class Node {
@@ -91,7 +81,7 @@ class Node {
 
       let { Type: nextLocalType, value: nextLocalValue } = invoke(transition);
 
-      let nextLocalTree = analyze(nextLocalType, nextLocalValue, path);
+      let nextLocalTree = analyze(nextLocalType, path);
 
       let nextTree = set(lensTree(path), nextLocalTree, tree);
       let nextValue = set(lensPath(path), nextLocalValue, value);
