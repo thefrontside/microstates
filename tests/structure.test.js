@@ -98,7 +98,8 @@ describe('Structure', () => {
 
     // passed tree and value are local to the transition
     expect(passedValue).toBe('Lowell');
-    expect(passedTree).toEqual(tree.children.user.children.lastName);
+    expect(passedTree.data.Type.name).toEqual('StringType');
+    expect(passedTree.data.path).toEqual([]);
 
     // we type shift on the subchild.
     expect(nextTree.children.user.children.lastName.data.Type).toBe(SuperString);

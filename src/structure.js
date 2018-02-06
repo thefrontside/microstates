@@ -25,6 +25,23 @@ export default function analyze(Type, path = []) {
   });
 }
 
+/**
+ * Turn any structure tree into a root tree.
+ *
+ * Every node in a tree knows its path. This path is what identifies
+ * its context in the containing tree.
+ *
+ * This lets you take any tree, sitting at any context and make it
+ * "context free". I.e. converts it into a root.
+ *
+ * @param {Tree} tree - the tree to isolate
+ * @returns {Tree} - a tree just like `tree`, but now a root.
+ */
+function isolate(tree) {
+  let prefix = tree.data.path;
+  return map(node => append(node, { path: node.path.slice(prefix.length)}), tree);
+}
+
 class Node {
   constructor(Type, path) {
     assign(this, { Type, path });
@@ -69,14 +86,14 @@ class Node {
       let localValue = this.valueAt(value);
       let localTree = view(lensTree(path), tree);
       let localState = this.stateAt(value);
-      
-      let transition = { 
-        Type, 
-        method, 
-        args, 
-        state: localState, 
-        value: localValue, 
-        tree: localTree 
+
+      let transition = {
+        Type,
+        method,
+        args,
+        state: localState,
+        value: localValue,
+        tree: isolate(localTree)
       };
 
       let { Type: nextLocalType, value: nextLocalValue } = invoke(transition);

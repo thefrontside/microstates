@@ -21,7 +21,7 @@ function collapse(fn, tree) {
   return map(fn, tree).collapsed;
 }
 
-function transitions(value, tree, invoke) {
+function transitions(value, tree) {
   return collapse(node => {
     let transitions = node.transitionsAt(value, tree, invoke);
     return map(transition => {
@@ -41,9 +41,9 @@ function invoke({ Type, method, args, value, tree, state}) {
 export class Microstate {
   constructor(tree, value) {
     keep(this, { tree, value });
-    return assign(this, transitions(value, tree, invoke));
+    return assign(this, transitions(value, tree));
   }
-  
+
   /**
    * Evaluates to state for this microstate.
    */
