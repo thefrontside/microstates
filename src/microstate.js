@@ -15,35 +15,47 @@ const { assign } = Object;
  */
 export default function microstate(Type, value) {
   let tree = analyze(Type, value);
-  return new Microstate(tree);
+  return new Microstate(tree, value);
 }
 
 function collapse(fn, tree) {
   return map(fn, tree).collapsed;
 }
 
-function transitions(tree) {
-  return collapse(({ transitions }) => {
-    return map(transition => {
-      return (...args) => {
-        let structure = transition(...args);
-        return new Microstate(structure);
-      };
-    }, transitions);
-  }, tree);
+// return map(transition => {
+//   return (...args) => {
+//     let structure = transition(...args);
+//     return new Microstate(structure);
+//   };
+// }, transitions);
+
+function transitionsFor(value, tree, invoke) {
+  return ;
 }
 
 export class Microstate {
-  constructor(tree) {
+  constructor(tree, value) {
     keep(this, tree);
-    return assign(this, transitions(tree));
+    this.value = value;
+    let invoke = this.invoke.bind(this);
+    let transitions = collapse(node => map(transition => (...args) => {
+      let { tree, value } = transition(...args);
+      return new Microstate(tree, value);
+    }, node.transitionsAt(value, tree, invoke)), tree);
+    return assign(this, transitions);
   }
+  
+  invoke({ Type, method, args, value, tree, state}) {
+    let next = method.apply(null, [state, ...args]);
+    return { Type, value: next };
+  }
+
   /**
    * Evaluates to state for this microstate.
    */
   get state() {
     let tree = reveal(this);
-    return collapse(({ state }) => state, tree);
+    return collapse(node => node.stateAt(this.value), tree);
   }
 
   set state(value) {
@@ -57,6 +69,6 @@ export class Microstate {
    * Return boxed in value for this microstates
    */
   valueOf() {
-    return reveal(this).data.value;
+    return this.value;
   }
 }

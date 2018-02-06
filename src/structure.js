@@ -78,7 +78,8 @@ class Node {
     return map(method => (...args) => {
       let localValue = this.valueAt(value);
       let localTree = view(lensTree(path), tree);
-      let transition = { Type, method, args, value: localValue, tree: localTree };
+      let localState = this.stateAt(value);
+      let transition = { Type, method, args, state: localState, value: localValue, tree: localTree };
 
       let { Type: nextLocalType, value: nextLocalValue } = invoke(transition);
 

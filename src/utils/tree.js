@@ -5,7 +5,6 @@ import getOwnPropertyDescriptors from 'object.getownpropertydescriptors';
 let { keys } = Object;
 
 export default class Tree {
-  
   constructor(props = {}) {
     let { data = () => ({}), children = () => ({}) } = props;
     return Object.create(Tree.prototype, {
