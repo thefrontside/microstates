@@ -1,12 +1,12 @@
 import 'jest';
 import { map } from 'funcadelic';
-import microstate, * as MS from '../src';
+import create, * as MS from '../src';
 import { reveal } from '../src/utils/secret';
 
 describe('microstate', () => {
   it('throws an error when a transition called state is defined', () => {
     expect(function() {
-      microstate(
+      create(
         class MyClass {
           state() {}
         }
@@ -17,14 +17,14 @@ describe('microstate', () => {
   });
   it('throws an error when state property is set', () => {
     expect(function() {
-      microstate(MS.Number).state = 10;
+      create(MS.Number).state = 10;
     }).toThrowError(`Setting state property will not do anything useful. Please don't do this.`);
   });
   
   describe('valueOf', () => {
     let ms;
     beforeEach(() => {
-      ms = microstate(MS.Number, 10);
+      ms = create(MS.Number, 10);
     });
     it('returns passed in value of', () => {
       expect(ms.valueOf()).toBe(10);

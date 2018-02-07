@@ -1,6 +1,7 @@
 import $ from './utils/chain';
 import { map, append } from 'funcadelic';
 import { view, set, lensTree, lensPath, lensIndex } from './lens';
+import equals from './utils/equals';
 import Tree from './utils/tree';
 import isPrimitive from './utils/is-primitive';
 import initialize from './utils/initialize';
@@ -40,6 +41,19 @@ export default function analyze(Type, path = []) {
 function isolate(tree) {
   let prefix = tree.data.path;
   return map(node => append(node, { path: node.path.slice(prefix.length)}), tree);
+}
+
+/**
+ * Change the path of a tree.
+ * 
+ * This lets you take any tree, sitting at any context and prefix the context with
+ * additional path.
+ * 
+ * @param {*} tree 
+ * @param {*} path 
+ */
+function relocate(path, tree) {
+  return map(node => append(node, { path: [...path, ...node.path]}), tree);
 }
 
 class Node {
@@ -82,7 +96,7 @@ class Node {
   transitionsAt(value, tree, invoke) {
     let { Type, path } = this;
 
-    return map(method => (...args) => {
+    let transitions = map(method => (...args) => {
       let localValue = this.valueAt(value);
       let localTree = view(lensTree(path), tree);
       let localState = this.stateAt(value);
@@ -96,13 +110,25 @@ class Node {
         tree: isolate(localTree)
       };
 
-      let { Type: nextLocalType, value: nextLocalValue } = invoke(transition);
+      let { 
+        Type: nextLocalType, 
+        value: nextLocalValue, 
+        tree: nextLocalTree 
+      } = invoke(transition);
 
-      let nextLocalTree = analyze(nextLocalType, path);
+      if (nextLocalTree) {
+        if (!equals(nextLocalTree.data.path, path)) {
+          nextLocalTree = relocate(path, nextLocalTree);
+        }
+      } else {
+        nextLocalTree = analyze(nextLocalType, path); 
+      }
 
       let nextTree = set(lensTree(path), nextLocalTree, tree);
       let nextValue = set(lensPath(path), nextLocalValue, value);
       return { tree: nextTree, value: nextValue };
     }, transitionsFor(Type));
+
+    return transitions;
   }
 }

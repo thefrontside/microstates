@@ -1,6 +1,6 @@
 import 'jest';
 import { map } from 'funcadelic';
-import microstate, * as MS from '../src';
+import create, * as MS from '../src';
 
 class Car {
   speed = MS.Number;
@@ -8,37 +8,48 @@ class Car {
     return this().speed.sum(amount);
   }
 }
-class State {
+class Road {
   vehicle = Car;
 }
 
 describe('transition', () => {
   describe('without initial value', () => {
-    let ms;
+    let ms, faster;
     beforeEach(() => {
-      ms = microstate(State);
+      ms = create(Road);
+      faster = ms.vehicle.increaseSpeed(10);
     });
     it('uses current state value', () => {
-      expect(ms.vehicle.increaseSpeed(10).valueOf()).toEqual({ vehicle: { speed: 10 } });
+      expect(faster.valueOf()).toEqual({ vehicle: { speed: 10 } });
     });
   });
   describe('with initial value', () => {
-    let ms;
+    let ms, faster;
     beforeEach(() => {
-      ms = microstate(State, { vehicle: { speed: 10 } });
+      ms = create(Road, { vehicle: { speed: 10 } });
+      faster = ms.vehicle.increaseSpeed(10);
     });
     it('creates initial value', () => {
-      expect(ms.vehicle.increaseSpeed(10).valueOf()).toEqual({ vehicle: { speed: 20 } });
+      expect(faster.valueOf()).toEqual({ vehicle: { speed: 20 } });
     });
   });
   describe('chained operations', function() {
-    it('should maintain root', function() {
-      expect(
-        microstate(State)
-          .vehicle.increaseSpeed(10)
-          .vehicle.increaseSpeed(20)
-          .valueOf()
-      ).toEqual({ vehicle: { speed: 30 } });
+    let ms, m1, m2, v1, v2;
+    beforeEach(() => {
+      ms = create(Road);
+      m1 = ms.vehicle.increaseSpeed(10);
+      v1 = m1.valueOf();
+      m2 = m1.vehicle.increaseSpeed(20);
+      v2 = m2.valueOf();
+    });
+    it('should maintain root after 1st transition', () => {
+      expect(m1).toMatchObject({
+        vehicle: {
+          increaseSpeed: expect.any(Function)
+        }
+      });
+      expect(v1).toEqual({ vehicle: { speed: 10 } });
+      expect(v2).toEqual({ vehicle: { speed: 30 } });
     });
   });
 });
@@ -52,7 +63,7 @@ describe('context', () => {
         context = this;
       }
     }
-    let { custom } = microstate(State);
+    let { custom } = create(State);
     custom();
   });
   it('is a function', () => {
@@ -94,7 +105,7 @@ describe('merging', () => {
   let ms;
   let result;
   beforeEach(() => {
-    ms = microstate(State, { modal: { title: 'Confirmation' } });
+    ms = create(State, { modal: { title: 'Confirmation' } });
     result = ms.addItemAndShowModal('Hello World', 'You have a message');
   });
   it('returns merged state', () => {
