@@ -5,13 +5,15 @@ import microstate, * as MS from '../src';
 class State {
   firstName = MS.String;
   lastName = MS.String;
+
   get fullName() {
     return `${this.firstName} ${this.lastName}`;
   }
-  toUpperCase({ firstName, lastName }) {
+
+  toUpperCase(state) {
     return this()
-      .firstName.set(firstName.toUpperCase())
-      .lastName.set(lastName.toUpperCase());
+      .firstName.set(state.firstName.toUpperCase())
+      .lastName.set(state.lastName.toUpperCase());
   }
 }
 

@@ -24,7 +24,6 @@ function collapse(fn, tree) {
 function transitions(value, tree) {
   return collapse(node => {
     let transitions = node.transitionsAt(value, tree, invoke);
-    // console.log({ value, data: tree.data, transitions })
     return map(transition => {
       return (...args) => {
         let { tree, value } = transition(...args);
@@ -41,17 +40,22 @@ function context(tree, value) {
       // TODO
     } else {
       let ms = new Microstate(tree, value);
-      // console.log('context=', { data: tree.data, ms, transitions: transitions(value, tree) })
       return ms;
     }
   }
 }
 
-function invoke({ Type, method, args, value, tree, state}) {
+function state(value, tree) {
+  return collapse(node => {
+    return node.stateAt(value);
+  }, tree);
+}
+
+function invoke({ Type, method, args, value, tree}) {
 
   // console.log({ Type, data: tree.data, value });
   let transitionContext = context(tree, value);
-  let next = method.apply(transitionContext, [state, ...args]);
+  let next = method.apply(transitionContext, [state(value, tree), ...args]);
 
   if (next instanceof Microstate) {
     return reveal(next);
@@ -71,9 +75,7 @@ export class Microstate {
    */
   get state() {
     let { tree, value } = reveal(this);
-    return collapse(node => {
-      return node.stateAt(value);
-    }, tree);
+    return state(value, tree);
   }
 
   set state(value) {

@@ -99,13 +99,11 @@ class Node {
     let transitions = map(method => (...args) => {
       let localValue = this.valueAt(value);
       let localTree = view(lensTree(path), tree);
-      let localState = this.stateAt(value);
 
       let transition = {
         Type,
         method,
         args,
-        state: localState,
         value: localValue,
         tree: isolate(localTree)
       };
