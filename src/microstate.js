@@ -55,8 +55,7 @@ export class Microstate {
   }
 
   set state(value) {
-    let { tree } = reveal(this);
-    let message = tree.data.transitions.state
+    let message = typeof value === 'function'
       ? `You can not use 'state' as transition name because it'll conflict with state property on the microstate.`
       : `Setting state property will not do anything useful. Please don't do this.`;
     throw Error(message);
