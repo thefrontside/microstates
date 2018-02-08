@@ -124,7 +124,6 @@ class Node {
       let localTree = view(lensTree(path), tree);
 
       let transition = {
-        Type,
         method,
         args,
         value: localValue,
@@ -132,7 +131,6 @@ class Node {
       };
 
       let { 
-        Type: nextLocalType, 
         value: nextLocalValue, 
         tree: nextLocalTree 
       } = invoke(transition);

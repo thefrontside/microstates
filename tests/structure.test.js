@@ -50,19 +50,23 @@ describe('Structure', () => {
       deauthenticate() {}
     };
 
+    let returnValue = {
+      isAuthenticated: true,
+      user: { firstName: 'Authentic Charles', lastName: 'Authentic Lowell'}
+    };
+
+    let tree = analyze(Authenticated, returnValue);
+
     let invoke = jest.fn(() => ({
-      Type: Authenticated,
-      value: {
-        isAuthenticated: true,
-        user: { firstName: 'Authentic Charles', lastName: 'Authentic Lowell'}
-      }
+      value: returnValue,
+      tree
     }));
+
     let {tree: nextTree, value: nextValue} = tree.data.transitionsAt(initialValue, tree, invoke).authenticate('username', 'password');
     expect(invoke.mock.calls.length).toBe(1);
 
     // verify the arguments passed to the `invoke` callback.
-    let { Type, method, args, value, tree: passedTree } = invoke.mock.calls[0][0];
-    expect(Type).toBe(Session);
+    let { method, args, value, tree: passedTree } = invoke.mock.calls[0][0];
     expect(method).toBe(Session.prototype.authenticate);
     expect(args).toEqual(['username', 'password']);
     expect(value).toBe(value);
@@ -83,7 +87,7 @@ describe('Structure', () => {
     class SuperString {}
 
     let invoke = jest.fn(() => ({
-      Type: SuperString,
+      tree: analyze(SuperString, 'Super-tastic!'),
       value: 'Super-tastic!'
     }));
 
@@ -91,8 +95,8 @@ describe('Structure', () => {
 
     expect(invoke.mock.calls.length).toBe(1);
 
-    let { Type, method, args, value: passedValue, tree: passedTree } = invoke.mock.calls[0][0];
-    expect(Type.name).toBe('StringType');
+    let { method, args, value: passedValue, tree: passedTree } = invoke.mock.calls[0][0];
+
     expect(method.name).toBe('set');
     expect(args).toEqual(['make super']);
 

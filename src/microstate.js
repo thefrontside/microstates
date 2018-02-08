@@ -51,16 +51,16 @@ function state(value, tree) {
   }, tree);
 }
 
-function invoke({ Type, method, args, value, tree}) {
+function invoke({ method, args, value, tree}) {
 
   let transitionContext = context(tree, value);
-  let next = method.apply(transitionContext, [state(value, tree), ...args]);
+  let nextValue = method.apply(transitionContext, [state(value, tree), ...args]);
 
-  if (next instanceof Microstate) {
-    return reveal(next);
+  if (nextValue instanceof Microstate) {
+    return reveal(nextValue);
+  } else {
+    return { tree, value: nextValue };
   }
-
-  return { Type, tree, value: next };
 }
 
 export class Microstate {
