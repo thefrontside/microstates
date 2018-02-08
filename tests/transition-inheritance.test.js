@@ -11,11 +11,11 @@ class Confirmation {
   }
 
   arm() {
-    return this(Armed);
+    return this.set(Armed);
   }
 
   reset() {
-    return this(Confirmation);
+    return this.set(Confirmation);
   }
 }
 
@@ -25,7 +25,7 @@ class Armed extends Confirmation {
   }
 
   confirm() {
-    return this(Confirmed);
+    return this.set(Confirmed);
   }
 }
 

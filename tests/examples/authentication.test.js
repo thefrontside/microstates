@@ -18,7 +18,7 @@ class AuthenticatedSession {
   content = MS.Object;
 
   logout() {
-    return this(AnonymousSession);
+    return this.set(AnonymousSession);
   }
 }
 
@@ -26,7 +26,7 @@ class AnonymousSession {
   content = null;
   isAuthenticated = false;
   authenticate(current, user) {
-    return this(AuthenticatedSession, { content: user });
+    return this.set(AuthenticatedSession, { content: user });
   }
 }
 

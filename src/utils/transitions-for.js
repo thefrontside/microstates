@@ -1,12 +1,19 @@
-import $ from './chain';
 import { append } from 'funcadelic';
+import $ from './chain';
 import mergeDeepRight from 'ramda/src/mergeDeepRight';
 import getPrototypeDescriptors from './get-prototype-descriptors';
+import create from '../microstate';
 
 import isPrimitive from './is-primitive';
 
-const set = function set(current, state) {
-  return state;
+const set = function set(current, Type, value) {
+  if (arguments.length === 3) {
+    return create(Type, value);
+  } else if (arguments.length === 2 && typeof Type === 'function') {
+    return create(Type);
+  } else if (arguments.length === 2) {
+    return Type;
+  }
 };
 
 const merge = function merge(current, ...args) {

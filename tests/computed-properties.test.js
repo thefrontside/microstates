@@ -11,7 +11,7 @@ class State {
   }
 
   toUpperCase(state) {
-    return this()
+    return this
       .firstName.set(state.firstName.toUpperCase())
       .lastName.set(state.lastName.toUpperCase());
   }

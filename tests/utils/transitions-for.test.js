@@ -1,7 +1,7 @@
 import 'jest';
-
-import transitionsFor from '../../src/utils/transitions-for';
+import { map } from 'funcadelic';
 import * as MS from '../../src';
+import transitionsFor from '../../src/utils/transitions-for';
 
 describe('utils/transitions-for', () => {
   describe('Array', () => {

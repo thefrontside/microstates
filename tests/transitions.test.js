@@ -1,11 +1,12 @@
 import 'jest';
 import { map } from 'funcadelic';
 import create, * as MS from '../src';
+import { Microstate } from '../src/microstate';
 
 class Car {
   speed = MS.Number;
   increaseSpeed(current, amount) {
-    return this().speed.sum(amount);
+    return this.speed.sum(amount);
   }
 }
 class Road {
@@ -67,13 +68,13 @@ describe('context', () => {
     custom();
   });
   it('is a function', () => {
-    expect(context).toBeInstanceOf(Function);
+    expect(context).toBeInstanceOf(Microstate);
   });
   it.skip('excludes custom transtions from context', () => {
-    expect(context()).not.toHaveProperty('custom');
+    expect(context).not.toHaveProperty('custom');
   });
   it('returns transitions', () => {
-    expect(context()).toMatchObject({
+    expect(context).toMatchObject({
       items: {
         push: expect.any(Function),
       },
@@ -96,7 +97,7 @@ describe('merging', () => {
     modal = Modal;
 
     addItemAndShowModal(current, message, prompt) {
-      return this()
+      return this
         .messages.push(message)
         .modal.isOpen.set(true)
         .modal.content.text.set(prompt);

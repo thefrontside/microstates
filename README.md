@@ -309,12 +309,10 @@ microstate(Measure, { length: 170 }).height.set(160).state.inInches;
 // => '62.9921 inches'
 ```
 
-# Custom Transitions
+# Transitions
 
-You can define custom transitions on custom types. Inside of custom transitions, you have access to
-current state and ability to transition local state using `this()` function. You probably never seen
-`this()` before. Think about it as a function that returns a microstate for the current node. It is
-actually a microstate constructor that is bound to custom transitions.
+You can define transitions on custom types. Inside of transitions, you have access to
+current state and transition local state.
 
 ```js
 class Person {
@@ -322,7 +320,7 @@ class Person {
   location: MS.String;
   goHome(current) {
     if (current.home !== current.location) {
-      return this().location.set(current.home);
+      return this.location.set(current.home);
     } else {
       return current;
     }
@@ -335,7 +333,7 @@ microstate(Person, { home: 'Toronto', location: 'San Francisco' }).goHome().stat
 
 # Batch Transitions
 
-Custom transitions can be used to perform multiple transformations in sequence. This is useful when
+Transitions can be used to perform multiple transformations in sequence. This is useful when
 you have a deeply nested microstate and you're applying several transformations to one branch of the
 microstate. All of the operations we'll execute before the transformation is complete.
 
@@ -346,7 +344,7 @@ class MyModal {
   content = MS.String;
 
   show(current, title, content) {
-    return this()
+    return this
       .isOpen.set(true),
       .title.set(title)
       .content.set(content)
@@ -386,7 +384,7 @@ class AuthenticatedSession {
   content = MS.Object;
 
   logout() {
-    return this(AnonymousSession);
+    return this.set(AnonymousSession);
   }
 }
 
@@ -394,7 +392,7 @@ class AnonymousSession {
   content = null;
   isAuthenticated = false;
   authenticate(current, user) {
-    return this(AuthenticatedSession, { content: user });
+    return this.set(AuthenticatedSession, { content: user });
   }
 }
 
@@ -612,9 +610,6 @@ microstate(MS.Object).state;
 
 Replace state with value and return a new microstate with new state. The value will be coerced to
 object with `Object(value).valueOf()`.
-=======
-
-> > > > > > > Transitions are now generated for initialized state rather than original type
 
 ```js
 microstate(MS.Object).set({ hello: 'world' }).state;

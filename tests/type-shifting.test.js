@@ -6,14 +6,14 @@ describe('type-shifting', () => {
   class Line {
     a = MS.Number;
     add({ a }, b) {
-      return this(Corner, { a, b });
+      return this.set(Corner, { a, b });
     }
   }
   class Corner extends Line {
     a = MS.Number;
     b = MS.Number;
     add({ a, b }, c) {
-      return this(Triangle, { a, b, c });
+      return this.set(Triangle, { a, b, c });
     }
   }
   class Triangle extends Corner {
@@ -60,7 +60,7 @@ describe('type-shifting with constant values', () => {
     isError = false;
 
     loading() {
-      return this(AsyncLoading);
+      return this.set(AsyncLoading);
     }
   }
 
@@ -74,7 +74,7 @@ describe('type-shifting with constant values', () => {
     isLoading = true;
 
     loaded(current, content) {
-      return this(
+      return this.set(
         class extends AsyncLoaded {
           content = content;
         }
@@ -82,7 +82,7 @@ describe('type-shifting with constant values', () => {
     }
 
     error(current, msg) {
-      return this(
+      return this.set(
         class extends AsyncError {
           error = msg;
         }
