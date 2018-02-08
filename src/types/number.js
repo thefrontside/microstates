@@ -2,16 +2,16 @@ export default class NumberType {
   constructor(value = 0) {
     return new Number(value);
   }
-  sum(current, ...args) {
-    return args.reduce((accumulator, value) => accumulator + value, current);
+  sum(...args) {
+    return args.reduce((accumulator, value) => accumulator + value, this.state);
   }
-  subtract(current, ...args) {
-    return args.reduce((accumulator, value) => accumulator - value, current);
+  subtract(...args) {
+    return args.reduce((accumulator, value) => accumulator - value, this.state);
   }
-  increment(current, step = 1) {
-    return current + step;
+  increment(step = 1) {
+    return this.state + step;
   }
-  decrement(current, step = 1) {
-    return current - step;
+  decrement(step = 1) {
+    return this.state - step;
   }
 }

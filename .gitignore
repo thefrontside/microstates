@@ -1,2 +1,5 @@
 node_modules
 .esm-cache
+/yarn.lock
+/dist
+package-lock.json

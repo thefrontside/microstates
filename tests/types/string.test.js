@@ -1,9 +1,9 @@
 import 'jest';
 
-import microstate, * as MS from '../../src';
+import Microstate from '../../src';
 
-describe('string', () => {
-  let ms = microstate(MS.String);
+describe('string transitions', () => {
+  let ms = Microstate.create(String);
   it('concat', () => {
     expect(ms.concat(' foo').valueOf()).toBe(' foo');
   });

@@ -14,38 +14,42 @@
   "license": "MIT",
   "author": "Charles Lowell <charles@frontside.io>, Taras Mankovski <taras@thisdot.co>",
   "files": [
-    "src/**/*"
+    "src/**/*",
+    "dist/index.js"
   ],
-  "main": "cjs.js",
+  "main": "dist/index.js",
   "module": "src/index.js",
   "repository": "git+ssh://git@github.com/cowboyd/microstates.js.git",
   "scripts": {
-    "precommit": "lint-staged",
+    "build": "rollup --config",
     "coverage": "npm test -- --coverage --no-cache",
     "coverage:watch": "npm run coverage -- --watch",
     "prerelease": "npm test",
     "release": "npm pack",
-    "pretest": "node bin/monkey-patch-funcadelic.js",
     "test": "jest",
-    "posttest": "node bin/un-monkey-patch-funcadelic.js",
-    "test:watch": "npm test -- --watch"
+    "start": "npm test -- --watch"
   },
   "dependencies": {
-    "@std/esm": "^0.18.0",
-    "funcadelic": "^0.3.0",
+    "funcadelic": "^0.3.2",
     "object.getownpropertydescriptors": "2.0.3",
     "ramda": "^0.25.0"
   },
   "devDependencies": {
+    "@babel/core": "^7.0.0-beta.38",
+    "@babel/plugin-proposal-class-properties": "^7.0.0-beta.38",
+    "@babel/preset-env": "^7.0.0-beta.38",
     "babel-cli": "6.26.0",
     "babel-jest": "21.2.0",
     "babel-plugin-transform-class-properties": "6.24.1",
     "babel-preset-env": "1.6.0",
     "husky": "0.14.3",
-    "jest": "^21.1.0",
+    "jest": "^22.1.0",
     "jsonfile": "^4.0.0",
     "lint-staged": "6.0.0",
-    "prettier": "1.9.2",
+    "prettier": "^1.10.2",
+    "pretty-format": "22.1.0",
+    "rollup": "^0.53.0",
+    "rollup-plugin-babel": "^4.0.0-beta.0",
     "standard-version": "^4.2.0"
   },
   "jest": {
@@ -60,12 +64,6 @@
     ],
     "transformIgnorePatterns": [
       "/node_modules/(?!funcadelic)"
-    ]
-  },
-  "lint-staged": {
-    "*.{js,md}": [
-      "prettier --write",
-      "git add"
     ]
   }
 }

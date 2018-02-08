@@ -1,13 +1,15 @@
-import { Functor, map } from 'funcadelic';
-import { Microstate } from './microstate';
+import { Applicative, Functor, map } from 'funcadelic';
+import { Monad, flatMap } from './monad';
+import Microstate from './microstate';
 import { reveal } from './utils/secret';
 import Tree from './utils/tree';
+import thunk from './thunk';
 
 Functor.instance(Microstate, {
   map(fn, microstate) {
-    let { transitions } = reveal(microstate);
-    return map(transitions => map(transition => fn(transition), transitions), transitions)
-      .collapsed;
+    let { tree, value } = reveal(microstate);
+    let structure = map(node => fn(node), tree);
+    return new Microstate(structure, value);
   },
 });
 
@@ -26,6 +28,31 @@ Functor.instance(Tree, {
       },
       children() {
         return map(child => map(fn, child), tree.children);
+      },
+    });
+  },
+});
+
+Applicative.instance(Tree, {
+  pure(value) {
+    return new Tree({
+      data() {
+        return value;
+      },
+    });
+  },
+});
+
+
+Monad.instance(Tree, {
+  flatMap(fn, tree) {
+    let next = thunk(() => fn(tree.data));
+    return new Tree({
+      data() {
+        return next().data;
+      },
+      children() {
+        return map(child => flatMap(fn, child), next().children);
       },
     });
   },
