@@ -101,7 +101,7 @@ console.log(ms);
 //    set: Function
 //  }
 
-assign({ hello: 'world', hi: 'there' }).state;
+ms.assign({ hello: 'world', hi: 'there' }).state;
 // => { hello: 'world', hi: 'there' }
 ```
 
@@ -311,11 +311,12 @@ current state and transition local state.
 class Person {
   home: String;
   location: String;
-  goHome(current) {
-    if (current.home !== current.location) {
-      return this.location.set(current.home);
+  goHome() {
+    let { home, location } = this.state;
+    if (home !== location) {
+      return this.location.set(home);
     } else {
-      return current;
+      return this.state;
     }
   }
 }
@@ -336,7 +337,7 @@ class MyModal {
   title = String;
   content = String;
 
-  show(current, title, content) {
+  show(title, content) {
     return this
       .isOpen.set(true),
       .title.set(title)
@@ -384,7 +385,7 @@ class AuthenticatedSession {
 class AnonymousSession {
   content = null;
   isAuthenticated = false;
-  authenticate(current, user) {
+  authenticate(user) {
     return this.set(AuthenticatedSession, { content: user });
   }
 }

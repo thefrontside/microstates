@@ -10,10 +10,10 @@ class State {
     return `${this.firstName} ${this.lastName}`;
   }
 
-  toUpperCase(state) {
+  toUpperCase() {
     return this
-      .firstName.set(state.firstName.toUpperCase())
-      .lastName.set(state.lastName.toUpperCase());
+      .firstName.set(this.state.firstName.toUpperCase())
+      .lastName.set(this.state.lastName.toUpperCase());
   }
 }
 

@@ -7,18 +7,18 @@ import getType from './get-type';
 
 import isPrimitive from './is-primitive';
 
-const set = function set(current, Type, value) {
-  if (arguments.length === 3) {
+const set = function set(Type, value) {
+  if (arguments.length === 2) {
     return Microstate.create(Type, value);
-  } else if (arguments.length === 2 && typeof Type === 'function') {
-    return Microstate.create(Type);
-  } else if (arguments.length === 2) {
+  } else if (arguments.length === 1 && typeof Type === 'function') {
+    return Microstate.create(Type, this.valueOf());
+  } else if (arguments.length === 1) {
     return Type;
   }
 };
 
-const merge = function merge(current, ...args) {
-  return mergeDeepRight(current, ...args);
+const merge = function merge(...args) {
+  return mergeDeepRight(this.state, ...args);
 };
 
 export default function transitionsFor(Type) {

@@ -5,14 +5,16 @@ import Microstate from '../src';
 describe('type-shifting', () => {
   class Line {
     a = Number;
-    add({ a }, b) {
+    add(b) {
+      let { a } = this.state;
       return this.set(Corner, { a, b });
     }
   }
   class Corner extends Line {
     a = Number;
     b = Number;
-    add({ a, b }, c) {
+    add(c) {
+      let { a, b } = this.state;
       return this.set(Triangle, { a, b, c });
     }
   }
@@ -73,7 +75,7 @@ describe('type-shifting with constant values', () => {
   class AsyncLoading extends Async {
     isLoading = true;
 
-    loaded(current, content) {
+    loaded(content) {
       return this.set(
         class extends AsyncLoaded {
           content = content;
@@ -81,7 +83,7 @@ describe('type-shifting with constant values', () => {
       );
     }
 
-    error(current, msg) {
+    error(msg) {
       return this.set(
         class extends AsyncError {
           error = msg;

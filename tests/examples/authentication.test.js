@@ -25,7 +25,7 @@ class AuthenticatedSession {
 class AnonymousSession {
   content = null;
   isAuthenticated = false;
-  authenticate(current, user) {
+  authenticate(user) {
     return this.set(AuthenticatedSession, { content: user });
   }
 }

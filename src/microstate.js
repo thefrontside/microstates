@@ -70,9 +70,7 @@ function state(value, tree) {
 }
 
 function invoke({ method, args, value, tree}) {
-
-  let nextValue = method.apply(new Microstate(tree, value), [state(value, tree), ...args]);
-
+  let nextValue = method.apply(new Microstate(tree, value), args);
   if (nextValue instanceof Microstate) {
     return reveal(nextValue);
   } else {

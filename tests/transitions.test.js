@@ -4,7 +4,7 @@ import Microstate from '../src';
 
 class Car {
   speed = Number;
-  increaseSpeed(current, amount) {
+  increaseSpeed(amount) {
     return this.speed.sum(amount);
   }
 }
@@ -95,7 +95,7 @@ describe('merging', () => {
     messages = Array;
     modal = Modal;
 
-    addItemAndShowModal(current, message, prompt) {
+    addItemAndShowModal(message, prompt) {
       return this
         .messages.push(message)
         .modal.isOpen.set(true)
