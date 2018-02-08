@@ -7,14 +7,8 @@ import getType from './get-type';
 
 import isPrimitive from './is-primitive';
 
-const set = function set(Type, value) {
-  if (arguments.length === 2) {
-    return Microstate.create(Type, value);
-  } else if (arguments.length === 1 && typeof Type === 'function') {
-    return Microstate.create(Type, this.valueOf());
-  } else if (arguments.length === 1) {
-    return Type;
-  }
+const set = function set(value) {
+  return value;
 };
 
 const merge = function merge(...args) {

@@ -53,6 +53,7 @@ describe('transition', () => {
     });
   });
 });
+
 describe('context', () => {
   let context;
   let result;

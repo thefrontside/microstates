@@ -1,6 +1,6 @@
 import 'jest';
 import { map } from 'funcadelic';
-import Microstate from '../../src';
+import { create } from '../../src';
 
 class Session {
   content = null;
@@ -18,7 +18,7 @@ class AuthenticatedSession {
   content = Object;
 
   logout() {
-    return this.set(AnonymousSession);
+    return create(AnonymousSession);
   }
 }
 
@@ -26,7 +26,7 @@ class AnonymousSession {
   content = null;
   isAuthenticated = false;
   authenticate(user) {
-    return this.set(AuthenticatedSession, { content: user });
+    return create(AuthenticatedSession, { content: user });
   }
 }
 
@@ -37,7 +37,7 @@ class MyApp {
 describe('AnonymousSession', () => {
   let ms, authenticated;
   beforeEach(() => {
-    ms = Microstate.create(MyApp);
+    ms = create(MyApp);
     authenticated = ms.session.authenticate({
       name: 'Charles',
     });
@@ -57,7 +57,7 @@ describe('AnonymousSession', () => {
 describe('AuthenticatedSession', () => {
   let ms, anonymous;
   beforeEach(() => {
-    ms = Microstate.create(MyApp, { session: { name: 'Taras' } })
+    ms = create(MyApp, { session: { name: 'Taras' } })
     anonymous = ms.session.logout();
   });
   it('initializes into AuthenticatedSession state', () => {

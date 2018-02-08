@@ -1,13 +1,13 @@
 import 'jest';
 import { map } from 'funcadelic';
-import Microstate from '../src';
+import { create } from '../src';
 
 describe('type-shifting', () => {
   class Line {
     a = Number;
     add(b) {
       let { a } = this.state;
-      return this.set(Corner, { a, b });
+      return create(Corner, { a, b });
     }
   }
   class Corner extends Line {
@@ -15,13 +15,13 @@ describe('type-shifting', () => {
     b = Number;
     add(c) {
       let { a, b } = this.state;
-      return this.set(Triangle, { a, b, c });
+      return create(Triangle, { a, b, c });
     }
   }
   class Triangle extends Corner {
     c = Number;
   }
-  let ms = Microstate.create(Line);
+  let ms = create(Line);
   let line, corner, triangle;
   beforeEach(() => {
     line = ms.a.set(10);
@@ -52,6 +52,12 @@ describe('type-shifting', () => {
     });
     expect(triangle.valueOf()).toEqual({ a: 10, b: 20, c: 30 });
   });
+  it('can be done down tree', () => {
+    let string = create(String, '100');
+    let cString = triangle.c.set(string)
+    expect(cString.state.c).toBe('100');
+    expect(cString.c.concat).toBeDefined();
+  });
 });
 
 describe('type-shifting with constant values', () => {
@@ -62,7 +68,7 @@ describe('type-shifting with constant values', () => {
     isError = false;
 
     loading() {
-      return this.set(AsyncLoading);
+      return create(AsyncLoading);
     }
   }
 
@@ -76,19 +82,15 @@ describe('type-shifting with constant values', () => {
     isLoading = true;
 
     loaded(content) {
-      return this.set(
-        class extends AsyncLoaded {
-          content = content;
-        }
-      );
+      return create(class extends AsyncLoaded {
+        content = content;
+      });
     }
 
     error(msg) {
-      return this.set(
-        class extends AsyncError {
-          error = msg;
-        }
-      );
+      return create(class extends AsyncError {
+        error = msg;
+      });
     }
   }
 
@@ -98,7 +100,7 @@ describe('type-shifting with constant values', () => {
     isError = false;
   }
   describe('successful loading siquence', () => {
-    let async = Microstate.create(Async);
+    let async = create(Async);
     it('can transition to loading', () => {
       expect(async.loading().state).toMatchObject({
         content: null,
@@ -117,7 +119,7 @@ describe('type-shifting with constant values', () => {
     });
   });
   describe('error loading sequence', () => {
-    let async = Microstate.create(Async);
+    let async = create(Async);
     it('can transition from loading to error', () => {
       expect(async.loading().error(':(').state).toMatchObject({
         content: null,

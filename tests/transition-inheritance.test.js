@@ -1,6 +1,6 @@
 import 'jest';
 import { map } from 'funcadelic';
-import Microstate from '../src';
+import { create } from '../src';
 
 class Confirmation {
   get isArmed() {
@@ -11,11 +11,11 @@ class Confirmation {
   }
 
   arm() {
-    return this.set(Armed);
+    return create(Armed);
   }
 
   reset() {
-    return this.set(Confirmation);
+    return create(Confirmation);
   }
 }
 
@@ -25,7 +25,7 @@ class Armed extends Confirmation {
   }
 
   confirm() {
-    return this.set(Confirmed);
+    return create(Confirmed);
   }
 }
 
@@ -35,7 +35,7 @@ class Confirmed extends Confirmation {
   }
 }
 
-let dnd = Microstate.create(Confirmation);
+let dnd = create(Confirmation);
 let armed, confirmed, reset, rearmed, state;
 beforeEach(() => {
   armed = dnd.arm();
