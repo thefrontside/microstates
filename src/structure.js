@@ -135,13 +135,7 @@ class Node {
         tree: nextLocalTree 
       } = invoke(transition);
 
-      if (nextLocalTree) {
-        nextLocalTree = graft(path, nextLocalTree);
-      } else {
-        nextLocalTree = analyzeType(nextLocalType, path); 
-      }
-
-      let nextTree = set(lensTree(path), nextLocalTree, tree);
+      let nextTree = set(lensTree(path), graft(path, nextLocalTree), tree);
       let nextValue = set(lensPath(path), nextLocalValue, value);
       return { tree: nextTree, value: nextValue };
     }, transitionsFor(Type));
