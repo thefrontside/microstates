@@ -1,7 +1,6 @@
 import 'jest';
 import { map } from 'funcadelic';
-import create from '../src';
-import { Microstate } from '../src/microstate';
+import Microstate from '../src';
 
 class Car {
   speed = Number;
@@ -17,7 +16,7 @@ describe('transition', () => {
   describe('without initial value', () => {
     let ms, faster;
     beforeEach(() => {
-      ms = create(Road);
+      ms = Microstate.create(Road);
       faster = ms.vehicle.increaseSpeed(10);
     });
     it('uses current state value', () => {
@@ -27,7 +26,7 @@ describe('transition', () => {
   describe('with initial value', () => {
     let ms, faster;
     beforeEach(() => {
-      ms = create(Road, { vehicle: { speed: 10 } });
+      ms = Microstate.create(Road, { vehicle: { speed: 10 } });
       faster = ms.vehicle.increaseSpeed(10);
     });
     it('creates initial value', () => {
@@ -37,7 +36,7 @@ describe('transition', () => {
   describe('chained operations', function() {
     let ms, m1, m2, v1, v2;
     beforeEach(() => {
-      ms = create(Road);
+      ms = Microstate.create(Road);
       m1 = ms.vehicle.increaseSpeed(10);
       v1 = m1.valueOf();
       m2 = m1.vehicle.increaseSpeed(20);
@@ -64,7 +63,7 @@ describe('context', () => {
         context = this;
       }
     }
-    let { custom } = create(State);
+    let { custom } = Microstate.create(State);
     custom();
   });
   it('is a function', () => {
@@ -106,7 +105,7 @@ describe('merging', () => {
   let ms;
   let result;
   beforeEach(() => {
-    ms = create(State, { modal: { title: 'Confirmation' } });
+    ms = Microstate.create(State, { modal: { title: 'Confirmation' } });
     result = ms.addItemAndShowModal('Hello World', 'You have a message');
   });
   it('returns merged state', () => {

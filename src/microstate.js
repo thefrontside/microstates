@@ -4,23 +4,23 @@ import { keep, reveal } from './utils/secret';
 
 const { assign } = Object;
 
-/**
- * Returns a new Microstate instance. A microstate is an object that
- * wraps a type and a value and provides chainable transitions for
- * this value.
- *
- * @param {*} Type
- * @param {*} value
- */
-export default function create(Type, value) {
-  let tree = analyze(Type, value);
-  return new Microstate(tree, value);
-}
-
-export class Microstate {
+export default class Microstate {
   constructor(tree, value) {
     keep(this, { tree, value });
     return assign(this, transitions(value, tree));
+  }
+
+  /**
+   * Returns a new Microstate instance. A microstate is an object that
+   * wraps a type and a value and provides chainable transitions for
+   * this value.
+   *
+   * @param {*} Type
+   * @param {*} value
+   */
+  static create(Type, value) {
+    let tree = analyze(Type, value);
+    return new Microstate(tree, value);
   }
 
   /**

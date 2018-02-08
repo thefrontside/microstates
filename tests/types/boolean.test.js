@@ -1,9 +1,9 @@
 import 'jest';
 
-import create from '../../src';
+import Microstate from '../../src';
 
 describe('boolean', () => {
-  let ms = create(Boolean);
+  let ms = Microstate.create(Boolean);
   it('toggles', () => {
     expect(ms.valueOf()).toBeFalsy();
     expect(ms.toggle().valueOf()).toBe(true);

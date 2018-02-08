@@ -1,6 +1,6 @@
 import 'jest';
 import { map } from 'funcadelic';
-import create from '../src';
+import Microstate from '../src';
 
 class Session {
   token = String;
@@ -15,7 +15,7 @@ class State {
 describe('without initial state', () => {
   let ms;
   beforeEach(() => {
-    ms = create(State);
+    ms = Microstate.create(State);
   });
   it('builds state tree', () => {
     expect(ms.state).toMatchObject({
@@ -37,7 +37,7 @@ describe('without initial state', () => {
 describe('with initial state', () => {
   let ms;
   beforeEach(() => {
-    ms = create(State, {
+    ms = Microstate.create(State, {
       authentication: { isAuthenticated: true, session: { token: 'SECRET' } },
     });
   });

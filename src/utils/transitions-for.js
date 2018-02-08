@@ -2,16 +2,16 @@ import { append } from 'funcadelic';
 import $ from './chain';
 import mergeDeepRight from 'ramda/src/mergeDeepRight';
 import getPrototypeDescriptors from './get-prototype-descriptors';
-import create from '../microstate';
+import Microstate from '../microstate';
 import getType from './get-type';
 
 import isPrimitive from './is-primitive';
 
 const set = function set(current, Type, value) {
   if (arguments.length === 3) {
-    return create(Type, value);
+    return Microstate.create(Type, value);
   } else if (arguments.length === 2 && typeof Type === 'function') {
-    return create(Type);
+    return Microstate.create(Type);
   } else if (arguments.length === 2) {
     return Type;
   }

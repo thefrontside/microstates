@@ -1,6 +1,6 @@
 import 'jest';
 import { map } from 'funcadelic';
-import create from '../src';
+import Microstate from '../src';
 
 class Container {
   contains = Container;
@@ -11,7 +11,7 @@ class Container {
 describe('without initial value', () => {
   let ms;
   beforeEach(() => {
-    ms = create(Container);
+    ms = Microstate.create(Container);
   });
   it('initializes first level', () => {
     expect(ms.state).toMatchObject({
@@ -47,7 +47,7 @@ describe('without initial value', () => {
 describe('with initial value', () => {
   let ms;
   beforeEach(() => {
-    ms = create(Container, {
+    ms = Microstate.create(Container, {
       x: 10,
       y: 0,
       contains: { y: 20, x: 0, contains: { x: 30, y: 25, contains: {} } },

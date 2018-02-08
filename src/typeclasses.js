@@ -1,6 +1,6 @@
 import { Applicative, Functor, map } from 'funcadelic';
 import { Monad, flatMap } from './monad';
-import { Microstate } from './microstate';
+import Microstate from './microstate';
 import { reveal } from './utils/secret';
 import Tree from './utils/tree';
 import thunk from './thunk';

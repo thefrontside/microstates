@@ -22,42 +22,35 @@ npm install --save microstates
 
 # yarn add microstates
 ```
-
-`microstates` module exports a microstate constructor as `default` and built in types: `Number`,
-`String`, `Boolean`, `Object` and `Array`.
-
-_Note_: We recommend `import * as MS from 'microstates'` syntax, to hide built-in types behind a
-namespace. Otherwise they'll overwrite built in JavaScript classes in the module.
-
 Let's see some code,
 
 ```js
-import microstate, * as MS from 'microstates';
+import Microstate from 'microstates';
 
-microstate(MS.Number, 42).increment().state;
+Microstate.create(Number, 42).increment().state;
 //=> 43
 
 class MyCounter {
-  count = MS.Number;
+  count = Number;
 }
 
 // creating microstate from composed states
-microstate(MyCounter).state;
+Microstate.create(MyCounter).state;
 // => { count: 0 }
 
-microstate(MyCounter).count.increment().state;
+Microstate.create(MyCounter).count.increment().state;
 // => { count: 1 }
 
 class MyModal {
-  isOpen = MS.Boolean;
-  title = MS.String;
+  isOpen = Boolean;
+  title = String;
 }
 
 // you can restore a microstate from previous value
-microstate(MyModal, { isOpen: true, title: 'Hello World' }).state;
+Microstate.create(MyModal, { isOpen: true, title: 'Hello World' }).state;
 // => { isOpen: true, title: 'Hello World' }
 
-microstate(MyModal, { isOpen: true, title: 'Hello World' }).isOpen.toggle().state;
+Microstate.create(MyModal, { isOpen: true, title: 'Hello World' }).isOpen.toggle().state;
 // => { isOpen: false, title: 'Hello World' }
 
 // lets composed multiple state together
@@ -66,13 +59,13 @@ class MyState {
   counter = MyCounter;
 }
 
-microstate(MyState).state;
+Microstate.create(MyState).state;
 // => {
 //  modal: { isOpen: false, title: '' },
 //  counter: { count: 0 }
 // }
 
-microstate(MyState)
+Microstate.create(MyState)
   .counter.increment()
   .modal.title.set('Hello World')
   .modal.isOpen.set(true).state;
@@ -89,18 +82,18 @@ the structure of your state and `value` that is the initial state.
 
 ```js
 // initial value is undefined so state will be default value of String which is an empty string
-microstate(MS.String).state;
+Microstate.create(String).state;
 // => ''
 
 // initial value is 'hello world' so state will be hello world.
-microstate(MS.String, 'hello world').state;
+Microstate.create(String, 'hello world').state;
 // => 'hello world'
 ```
 
 The object returned from the constructor has all of the transitions for the structure.
 
 ```js
-let ms = microstate(MS.Object);
+let ms = Microstate.create(Object);
 
 console.log(ms);
 //  {
@@ -108,7 +101,7 @@ console.log(ms);
 //    set: Function
 //  }
 
-ms.assign({ hello: 'world', hi: 'there' }).state;
+assign({ hello: 'world', hi: 'there' }).state;
 // => { hello: 'world', hi: 'there' }
 ```
 
@@ -123,10 +116,10 @@ any function can work as a type, but we recommend using class syntax.
 
 ```js
 class Counter {
-  count = MS.Number;
+  count = Number;
 }
 
-microstate(Counter);
+Microstate.create(Counter);
 // => {
 //      merge: Function
 //      set: Function
@@ -138,7 +131,7 @@ microstate(Counter);
 //      }
 //    }
 
-microstate(Counter).state;
+Microstate.create(Counter).state;
 // => { count: 0 }
 ```
 
@@ -148,21 +141,21 @@ Properties to work.
 
 ```js
 class Person {
-  name = MS.String;
-  age = MS.Number;
+  name = String;
+  age = Number;
 }
 
-microstate(Person);
+Microstate.create(Person);
 // => {
 //      name: { concat: Function, set: Function },
 //      age: { increment: Function, decrement: Function, sum: Function, subtract: Function }
 //    }
 
 // state objects maintain their type's class
-microstate(Person).state instanceof Person;
+Microstate.create(Person).state instanceof Person;
 // => true
 
-microstate(Person).state;
+Microstate.create(Person).state;
 // => { name: '', age: 0 }
 ```
 
@@ -170,7 +163,7 @@ You can restore a composed microstate by providing initial value that matches th
 microstate.
 
 ```js
-microstate(Person, { name: 'Taras', age: 99 }).state;
+Microstate.create(Person, { name: 'Taras', age: 99 }).state;
 // => { name: 'Taras', age: 99 }
 ```
 
@@ -178,18 +171,18 @@ You can compose custom types into other custom types.
 
 ```js
 class Address {
-  street = MS.String;
-  number = MS.Number;
-  city = MS.String;
+  street = String;
+  number = Number;
+  city = String;
 }
 
 class Person {
-  name = MS.String;
-  age = MS.Number;
+  name = String;
+  age = Number;
   address = Address;
 }
 
-microstate(Person, { name: 'Taras', address: { city: 'Toronto' } }).state;
+Microstate.create(Person, { name: 'Taras', address: { city: 'Toronto' } }).state;
 // => {
 //      name: 'Taras',
 //      age: 0,
@@ -205,7 +198,7 @@ You can access transitions of composed states by using object property notation.
 call a transition, you receive a new microstate and you start from the root of the original type.
 
 ```js
-microstate(Person)
+Microstate.create(Person)
   .age.increment()
   .address.city.set('San Francisco')
   .address.street.set('Market St').state;
@@ -224,7 +217,7 @@ The objects can be of any complexity and can even support recursion.
 
 ```js
 class Person {
-  name = MS.String;
+  name = String;
   father = Person;
 }
 
@@ -253,14 +246,14 @@ Composed states have two default transitions `set` and `merge`.
 `set` will replace the state of current microstate.
 
 ```js
-microstate(Person).father.father.set({ name: 'Peter' }).state;
+Microstate.create(Person).father.father.set({ name: 'Peter' }).state;
 // => { name: '', father: { name: 'Peter' }}
 ```
 
 `merge` will recursively merge the object into current state.
 
 ```js
-microstate(Person, { name: 'Peter' }).merge({ name: 'Taras', father: { name: 'Serge' } }).state;
+Microstate.create(Person, { name: 'Peter' }).merge({ name: 'Taras', father: { name: 'Serge' } }).state;
 // { name: 'Taras', father: { name: 'Serge' }}
 ```
 
@@ -275,16 +268,16 @@ class Ajax {
   isLoaded = false;
 }
 
-microstate(Ajax).state.content;
+Microstate.create(Ajax).state.content;
 // => null;
 
-microstate(Ajax).content;
+Microstate.create(Ajax).content;
 // undefined
 
-microstate(Ajax).state.isLoaded;
+Microstate.create(Ajax).state.isLoaded;
 // => false
 
-microstate(Ajax).isLoaded.set(false);
+Microstate.create(Ajax).isLoaded.set(false);
 // Error: calling set of undefined
 ```
 
@@ -296,16 +289,16 @@ states.
 
 ```js
 class Measure {
-  length = MS.Number;
+  length = Number;
   get inInches() {
     return `${this.height / 2.54} inches`;
   }
 }
 
-microstate(Measure, { length: 170 }).state.inInches;
+Microstate.create(Measure, { length: 170 }).state.inInches;
 // => '66.9291 inches'
 
-microstate(Measure, { length: 170 }).height.set(160).state.inInches;
+Microstate.create(Measure, { length: 170 }).height.set(160).state.inInches;
 // => '62.9921 inches'
 ```
 
@@ -316,8 +309,8 @@ current state and transition local state.
 
 ```js
 class Person {
-  home: MS.String;
-  location: MS.String;
+  home: String;
+  location: String;
   goHome(current) {
     if (current.home !== current.location) {
       return this.location.set(current.home);
@@ -327,7 +320,7 @@ class Person {
   }
 }
 
-microstate(Person, { home: 'Toronto', location: 'San Francisco' }).goHome().state;
+Microstate.create(Person, { home: 'Toronto', location: 'San Francisco' }).goHome().state;
 // => { home: 'Toronto', location: 'Toronto' }
 ```
 
@@ -339,9 +332,9 @@ microstate. All of the operations we'll execute before the transformation is com
 
 ```js
 class MyModal {
-  isOpen = MS.Boolean;
-  title = MS.String;
-  content = MS.String;
+  isOpen = Boolean;
+  title = String;
+  content = String;
 
   show(current, title, content) {
     return this
@@ -353,10 +346,10 @@ class MyModal {
 
 class MyComponent {
   modal = MyModal;
-  counter = MS.Number
+  counter = Number
 }
 
-microstate(MyComponent).modal.show('Hello World', 'Rise and shine!').state;
+Microstate.create(MyComponent).modal.show('Hello World', 'Rise and shine!').state;
 // => { modal: { isOpen: true, title: 'Hello World', content: 'Rise and shine!' }, counter: 0 }
 ```
 
@@ -381,7 +374,7 @@ class Session {
 
 class AuthenticatedSession {
   isAuthenticated = true;
-  content = MS.Object;
+  content = Object;
 
   logout() {
     return this.set(AnonymousSession);
@@ -401,19 +394,19 @@ class MyApp {
 }
 
 // without initial state it initializes into AnonymousSession state
-microstate(MyApp).state;
+Microstate.create(MyApp).state;
 // => { session: { content: null, isAuthenticated: false }}
 
 // transition to AuthenticatedSession state with authenticate
-microstate(MyApp).authenticate({ name: 'Taras' }).state;
+Microstate.create(MyApp).authenticate({ name: 'Taras' }).state;
 // => { session: { content: { name: 'Taras' }, isAuthenticated: true }};
 
 // restore into AuthenticatedSession state
-microstate(MyApp, { session: { content: { name: 'Taras' } } }).state;
+Microstate.create(MyApp, { session: { content: { name: 'Taras' } } }).state;
 // => { session: { content: { name: 'Taras' } }, isAuthenticated: true }
 
 // transition to AnonymousSession state with logout
-microstate(MyApp, { session: { content: { name: 'Taras' } } }).logout().state;
+Microstate.create(MyApp, { session: { content: { name: 'Taras' } } }).logout().state;
 // => { session: { content: null, isAuthenticated: false }}
 ```
 
@@ -432,7 +425,7 @@ Return a new microstate with boolean value replaced. Value will be coerced with
 `Boolean(value).valueOf()`.
 
 ```js
-microstate(MS.Boolean).set(true).state;
+Microstate.create(Boolean).set(true).state;
 // => true
 ```
 
@@ -441,13 +434,13 @@ microstate(MS.Boolean).set(true).state;
 Return a new microstate with state of boolean value switched to opposite.
 
 ```js
-microstate(MS.Boolean).state;
+Microstate.create(Boolean).state;
 // => false
 
-microstate(MS.Boolean).toggle().state;
+Microstate.create(Boolean).toggle().state;
 // => true;
 
-microstate(MS.Boolean, true).toggle().state;
+Microstate.create(Boolean, true).toggle().state;
 // => false;
 ```
 
@@ -461,7 +454,7 @@ microstate(MS.Boolean, true).toggle().state;
 Replace current state with value. The value will be coerced same as `Number(value).valueOf()`.
 
 ```js
-microstate(MS.Number).set(10).state;
+Microstate.create(Number).set(10).state;
 // => 10
 ```
 
@@ -470,7 +463,7 @@ microstate(MS.Number).set(10).state;
 Return a microstate with result of adding passed in values to current state.
 
 ```js
-microstate(MS.Number).sum(5, 10).state;
+Microstate.create(Number).sum(5, 10).state;
 // => 15
 ```
 
@@ -480,7 +473,7 @@ Return a microstate with result of subtraction of passed in values from current 
 <<<<<<< HEAD
 
 ```js
-microstate(MS.Number, 42).subtract(2, 10).state;
+Microstate.create(Number, 42).subtract(2, 10).state;
 // => 30
 ```
 
@@ -489,13 +482,13 @@ microstate(MS.Number, 42).subtract(2, 10).state;
 Return a microstate with state increased by step value of current state (defaults to 1).
 
 ```js
-microstate(MS.Number).increment().state;
+Microstate.create(Number).increment().state;
 // => 1
 
-microstate(MS.Number).increment(5).state;
+Microstate.create(Number).increment(5).state;
 // => 5
 
-microstate(MS.Number)
+Microstate.create(Number)
   .increment(5)
   .increment().state;
 // => 6
@@ -506,13 +499,13 @@ microstate(MS.Number)
 Return a microstate with state decreased by step value of current state (defaults to 1).
 
 ```js
-microstate(MS.Number).decrement().state;
+Microstate.create(Number).decrement().state;
 // => -1
 
-microstate(MS.Number).decrement(5).state;
+Microstate.create(Number).decrement(5).state;
 // => -5
 
-microstate(MS.Number)
+Microstate.create(Number)
   .decrement(5)
   .decrement().state;
 // => -6
@@ -529,7 +522,7 @@ Replace the state with value and return a new microsate with new state. Value wi
 `String(value).valueOf()`.
 
 ```js
-microstate(MS.String).set('hello world').state;
+Microstate.create(String).set('hello world').state;
 // => 'hello world'
 ```
 
@@ -538,13 +531,13 @@ microstate(MS.String).set('hello world').state;
 Combine current state with passed in string and return a new microstate with new state.
 
 ```js
-microstate(MS.String, 'hello ').concat('world').state;
+Microstate.create(String, 'hello ').concat('world').state;
 // => 'hello world'
 ```
 
 ## Array
 
-Represents an indexed collection of items.
+Represents an indexed collection of ite
 
 ### set(value: any) => microstate
 
@@ -552,7 +545,7 @@ Replace state with value and return a new microstate with new state. Value will 
 `Array(value).valueOf()`
 
 ```js
-microstate(MS.Array).set('hello world');
+Microstate.create(Array).set('hello world');
 // ['hello world']
 ```
 
@@ -561,10 +554,10 @@ microstate(MS.Array).set('hello world');
 Push value to the end of the array and return a new microstate with state as new array.
 
 ```js
-microstate(MS.Array).push(10, 15, 25).state;
+Microstate.create(Array).push(10, 15, 25).state;
 // => [ 10, 15, 25 ]
 
-microstate(MS.Array, ['a', 'b'])
+Microstate.create(Array, ['a', 'b'])
   .push('c')
   .push('d').state;
 // => [ 'a', 'b', 'c', 'd' ]
@@ -575,7 +568,7 @@ microstate(MS.Array, ['a', 'b'])
 Apply filter fn to every element in the array and return a new microstate with result as state.
 
 ```js
-microstate(MS.Array, [10.123, 1, 42, 0.01]).filter(value => Number.isNumber(value)).state;
+Microstate.create(Array, [10.123, 1, 42, 0.01]).filter(value => Number.isNumber(value)).state;
 // => [ 1, 42 ];
 ```
 
@@ -584,7 +577,7 @@ microstate(MS.Array, [10.123, 1, 42, 0.01]).filter(value => Number.isNumber(valu
 Map every item in array and return a new microstate with new array as state.
 
 ```js
-microstate(MS.Array, ['a', 'b', 'c']).map(v => v.toUpperCase()).state;
+Microstate.create(Array, ['a', 'b', 'c']).map(v => v.toUpperCase()).state;
 // => ['A', 'B', 'C']
 ```
 
@@ -593,7 +586,7 @@ microstate(MS.Array, ['a', 'b', 'c']).map(v => v.toUpperCase()).state;
 Replace first occurance of `item` in array with `replacement` using exact(`===`) comparison.
 
 ```js
-microstate(MS.Array, ['a', 'b', 'c']).replace('b', 'B').state;
+Microstate.create(Array, ['a', 'b', 'c']).replace('b', 'B').state;
 // => [ 'a', 'B', 'c' ]
 ```
 
@@ -602,7 +595,7 @@ microstate(MS.Array, ['a', 'b', 'c']).replace('b', 'B').state;
 Represents a collection of values keyed by string. Object types have `assign` and `set` transitions.
 
 ```js
-microstate(MS.Object).state;
+Microstate.create(Object).state;
 // => {}
 ```
 
@@ -612,7 +605,7 @@ Replace state with value and return a new microstate with new state. The value w
 object with `Object(value).valueOf()`.
 
 ```js
-microstate(MS.Object).set({ hello: 'world' }).state;
+Microstate.create(Object).set({ hello: 'world' }).state;
 // => { hello: 'world' }
 ```
 
@@ -622,7 +615,7 @@ Create a new object and copy values from existing state and passed in object. Re
 microstate with new state.
 
 ```js
-microstate(MS.Object, { color: 'red' }).assign({ make: 'Honda' }).state;
+Microstate.create(Object, { color: 'red' }).assign({ make: 'Honda' }).state;
 // => { color: 'red', make: 'Honda' }
 ```
 
@@ -635,8 +628,8 @@ things as you would with classes.
 
 ```js
 class Person {
-  name = MS.String;
-  age = MS.Number;
+  name = String;
+  age = Number;
 }
 ```
 
@@ -644,8 +637,8 @@ class Person {
 
 ```js
 function Person() {
-  this.name = MS.String;
-  this.age = MS.Number;
+  this.name = String;
+  this.age = Number;
 }
 ```
 
@@ -657,8 +650,8 @@ can try the following.
 ```js
 class Person {
   constructor() {
-    this.name = MS.String;
-    this.age = MS.Number;
+    this.name = String;
+    this.age = Number;
   }
 }
 

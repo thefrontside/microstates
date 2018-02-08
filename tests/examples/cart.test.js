@@ -1,6 +1,6 @@
 import 'jest';
 import { map } from 'funcadelic';
-import create from '../../src';
+import Microstate from '../../src';
 
 describe('cart example', () => {
   class Cart {
@@ -15,7 +15,7 @@ describe('cart example', () => {
   describe('adding products without initial value', () => {
     let ms;
     beforeEach(() => {
-      ms = create(Cart)
+      ms = Microstate.create(Cart)
         .products.push({ quantity: 1, price: 10 })
         .products.push({ quantity: 2, price: 20 });
     });

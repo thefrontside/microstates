@@ -1,6 +1,6 @@
 import 'jest';
 import { map } from 'funcadelic';
-import create from '../src';
+import Microstate from '../src';
 
 class Modal {
   name = String;
@@ -10,7 +10,7 @@ describe('types', () => {
   describe('value', () => {
     let ms;
     beforeEach(() => {
-      ms = create(Modal);
+      ms = Microstate.create(Modal);
     });
     it('is instance of Modal', () => {
       expect(ms.state).toBeInstanceOf(Modal);
@@ -42,7 +42,7 @@ describe('types', () => {
   describe('no value', () => {
     let ms, set, merged;
     beforeEach(() => {
-      ms = create(Modal, { isOpen: true });
+      ms = Microstate.create(Modal, { isOpen: true });
       set = ms.name.set('taras');
       merged = ms.merge({ name: 'taras' });
     });
@@ -66,7 +66,7 @@ describe('arrays and objects', () => {
   describe('value', () => {
     let ms;
     beforeEach(() => {
-      ms = create(State);
+      ms = Microstate.create(State);
     });
     it('initialies with default', () => {
       expect(ms.state).toEqual({
@@ -88,7 +88,7 @@ describe('arrays and objects', () => {
   describe('no value', () => {
     let ms;
     beforeEach(() => {
-      ms = create(State, { animals: ['cat', 'dog'], config: { color: 'red' } });
+      ms = Microstate.create(State, { animals: ['cat', 'dog'], config: { color: 'red' } });
     });
     it('uses provided value', () => {
       expect(ms.state).toEqual({
