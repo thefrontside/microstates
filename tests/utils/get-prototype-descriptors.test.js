@@ -4,7 +4,8 @@ import getPrototypeDescriptors from '../../src/utils/get-prototype-descriptors';
 
 describe('utils/get-prototype-descriptors', () => {
   it('excludes methods from object', () => {
-    expect(getPrototypeDescriptors(class {})).not.toHaveProperty('__defineGetter__');
+    class MyClass {}
+    expect(getPrototypeDescriptors(MyClass)).not.toHaveProperty('__defineGetter__');
   });
   it('includes class method', () => {
     expect(

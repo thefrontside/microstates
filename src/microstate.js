@@ -1,6 +1,5 @@
 import { map } from 'funcadelic';
 import analyze from './structure';
-import initialize from './utils/initialize';
 import { keep, reveal } from './utils/secret';
 
 const { assign } = Object;

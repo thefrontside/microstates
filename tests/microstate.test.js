@@ -30,7 +30,7 @@ describe('microstate', () => {
       expect(ms.valueOf()).toBe(10);
     });
     it('is not enumerable', () => {
-      expect(ms).not.toHaveProperty('valueOf');
+      expect(Object.keys(ms).indexOf('valueOf')).toBe(-1);
     });
   });
 });

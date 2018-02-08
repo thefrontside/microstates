@@ -19,8 +19,6 @@ describe('constants support', () => {
     next = ms.greeting.set('HI');
   });
   it('includes constants in state tree', () => {
-    // once transition-context is merged, need to add collapsed to
-    // the end of state().
     expect(ms.state).toEqual({
       n: 10,
       b: true,

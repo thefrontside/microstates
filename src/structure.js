@@ -4,7 +4,6 @@ import { view, set, lensTree, lensPath, lensIndex } from './lens';
 import equals from './utils/equals';
 import Tree from './utils/tree';
 import isPrimitive from './utils/is-primitive';
-import initialize from './utils/initialize';
 import transitionsFor from './utils/transitions-for';
 import getOwnPropertyDescriptors from 'object.getownpropertydescriptors';
 import construct, { Microstate } from './microstate';
