@@ -1,4 +1,4 @@
-import * as MS from '..';
+import * as MS from '../index';
 
 const { getPrototypeOf } = Object;
 

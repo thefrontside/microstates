@@ -7,7 +7,6 @@ export { default as compose } from 'ramda/src/compose';
 
 import lens from 'ramda/src/lens';
 import view from 'ramda/src/view';
-import compose from 'ramda/src/compose';
 import Tree from './utils/tree';
 import { map, foldl } from 'funcadelic';
 

@@ -1,5 +1,4 @@
-import { Applicative } from 'funcadelic';
-import { type } from 'funcadelic/src/typeclasses';
+import { Applicative, type } from 'funcadelic';
 
 export const Monad = type(
   class Monad extends Applicative {
