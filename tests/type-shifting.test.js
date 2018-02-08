@@ -1,23 +1,25 @@
 import 'jest';
 import { map } from 'funcadelic';
-import create, * as MS from '../src';
+import { create } from '../src';
 
 describe('type-shifting', () => {
   class Line {
-    a = MS.Number;
-    add({ a }, b) {
-      return this(Corner, { a, b });
+    a = Number;
+    add(b) {
+      let { a } = this.state;
+      return create(Corner, { a, b });
     }
   }
   class Corner extends Line {
-    a = MS.Number;
-    b = MS.Number;
-    add({ a, b }, c) {
-      return this(Triangle, { a, b, c });
+    a = Number;
+    b = Number;
+    add(c) {
+      let { a, b } = this.state;
+      return create(Triangle, { a, b, c });
     }
   }
   class Triangle extends Corner {
-    c = MS.Number;
+    c = Number;
   }
   let ms = create(Line);
   let line, corner, triangle;
@@ -50,6 +52,12 @@ describe('type-shifting', () => {
     });
     expect(triangle.valueOf()).toEqual({ a: 10, b: 20, c: 30 });
   });
+  it('can be done down tree', () => {
+    let string = create(String, '100');
+    let cString = triangle.c.set(string)
+    expect(cString.state.c).toBe('100');
+    expect(cString.c.concat).toBeDefined();
+  });
 });
 
 describe('type-shifting with constant values', () => {
@@ -60,7 +68,7 @@ describe('type-shifting with constant values', () => {
     isError = false;
 
     loading() {
-      return this(AsyncLoading);
+      return create(AsyncLoading);
     }
   }
 
@@ -73,20 +81,16 @@ describe('type-shifting with constant values', () => {
   class AsyncLoading extends Async {
     isLoading = true;
 
-    loaded(current, content) {
-      return this(
-        class extends AsyncLoaded {
-          content = content;
-        }
-      );
+    loaded(content) {
+      return create(class extends AsyncLoaded {
+        content = content;
+      });
     }
 
-    error(current, msg) {
-      return this(
-        class extends AsyncError {
-          error = msg;
-        }
-      );
+    error(msg) {
+      return create(class extends AsyncError {
+        error = msg;
+      });
     }
   }
 

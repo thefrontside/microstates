@@ -7,8 +7,8 @@ import analyze from '../src/structure';
 describe('Structure', () => {
   class Session {
     user = class User {
-      firstName = MS.String;
-      lastName = MS.String;
+      firstName = String;
+      lastName = String;
 
       get fullName() {
         return `${this.firstName} ${this.lastName}`;

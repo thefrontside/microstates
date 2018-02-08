@@ -1,6 +1,6 @@
 import 'jest';
 import { map } from 'funcadelic';
-import microstate, * as MS from '../src';
+import Microstate from '../src';
 
 class Type {
   n = 10;
@@ -9,13 +9,13 @@ class Type {
   o = { hello: 'world' };
   a = ['a', 'b', 'c'];
   null = null;
-  greeting = MS.String;
+  greeting = String;
 }
 
 describe('constants support', () => {
   let ms, next;
   beforeEach(() => {
-    ms = microstate(Type);
+    ms = Microstate.create(Type);
     next = ms.greeting.set('HI');
   });
   it('includes constants in state tree', () => {
@@ -47,6 +47,6 @@ describe('constants support', () => {
     expect(next.valueOf()).toEqual({ greeting: 'HI' });
   });
   it.skip('shares complex objects between multiple instances of microstate', () => {
-    expect(ms.state.o).toBe(microstate(Type).state.o);
+    expect(ms.state.o).toBe(create(Type).state.o);
   });
 });

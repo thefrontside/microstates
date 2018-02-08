@@ -1,7 +1,6 @@
 import $ from './utils/chain';
 import { map, append } from 'funcadelic';
 import { view, set, lensTree, lensPath, lensIndex } from './lens';
-import equals from './utils/equals';
 import Tree from './utils/tree';
 import isPrimitive from './utils/is-primitive';
 import transitionsFor from './utils/transitions-for';
@@ -19,12 +18,13 @@ export default function analyze(Type, value) {
 }
 
 function analyzeType(Type, path = []) {
+  let type = getType(Type);
   return new Tree({
     data() {
-      return new Node(Type, path);
+      return new Node(type, path);
     },
     children() {
-      return $(new Type())
+      return $(new type())
         .filter(({ value }) => !!value && value.call)
         .map((ChildType, key) => analyzeType(ChildType, append(path, key)))
         .valueOf();

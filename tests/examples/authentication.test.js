@@ -1,6 +1,6 @@
 import 'jest';
 import { map } from 'funcadelic';
-import create, * as MS from '../../src';
+import { create } from '../../src';
 
 class Session {
   content = null;
@@ -15,18 +15,18 @@ class Session {
 
 class AuthenticatedSession {
   isAuthenticated = true;
-  content = MS.Object;
+  content = Object;
 
   logout() {
-    return this(AnonymousSession);
+    return create(AnonymousSession);
   }
 }
 
 class AnonymousSession {
   content = null;
   isAuthenticated = false;
-  authenticate(current, user) {
-    return this(AuthenticatedSession, { content: user });
+  authenticate(user) {
+    return create(AuthenticatedSession, { content: user });
   }
 }
 

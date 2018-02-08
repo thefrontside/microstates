@@ -1,11 +1,11 @@
 import 'jest';
 import { map } from 'funcadelic';
-import create, * as MS from '../src';
+import Microstate from '../src';
 
 class Car {
-  speed = MS.Number;
-  increaseSpeed(current, amount) {
-    return this().speed.sum(amount);
+  speed = Number;
+  increaseSpeed(amount) {
+    return this.speed.sum(amount);
   }
 }
 class Road {
@@ -16,7 +16,7 @@ describe('transition', () => {
   describe('without initial value', () => {
     let ms, faster;
     beforeEach(() => {
-      ms = create(Road);
+      ms = Microstate.create(Road);
       faster = ms.vehicle.increaseSpeed(10);
     });
     it('uses current state value', () => {
@@ -26,7 +26,7 @@ describe('transition', () => {
   describe('with initial value', () => {
     let ms, faster;
     beforeEach(() => {
-      ms = create(Road, { vehicle: { speed: 10 } });
+      ms = Microstate.create(Road, { vehicle: { speed: 10 } });
       faster = ms.vehicle.increaseSpeed(10);
     });
     it('creates initial value', () => {
@@ -36,7 +36,7 @@ describe('transition', () => {
   describe('chained operations', function() {
     let ms, m1, m2, v1, v2;
     beforeEach(() => {
-      ms = create(Road);
+      ms = Microstate.create(Road);
       m1 = ms.vehicle.increaseSpeed(10);
       v1 = m1.valueOf();
       m2 = m1.vehicle.increaseSpeed(20);
@@ -53,27 +53,28 @@ describe('transition', () => {
     });
   });
 });
+
 describe('context', () => {
   let context;
   let result;
   beforeEach(() => {
     class State {
-      items = MS.Array;
+      items = Array;
       custom() {
         context = this;
       }
     }
-    let { custom } = create(State);
+    let { custom } = Microstate.create(State);
     custom();
   });
   it('is a function', () => {
-    expect(context).toBeInstanceOf(Function);
+    expect(context).toBeInstanceOf(Microstate);
   });
   it.skip('excludes custom transtions from context', () => {
-    expect(context()).not.toHaveProperty('custom');
+    expect(context).not.toHaveProperty('custom');
   });
   it('returns transitions', () => {
-    expect(context()).toMatchObject({
+    expect(context).toMatchObject({
       items: {
         push: expect.any(Function),
       },
@@ -84,19 +85,19 @@ describe('context', () => {
 });
 describe('merging', () => {
   class ModalContent {
-    text = MS.String;
+    text = String;
   }
   class Modal {
-    isOpen = MS.Boolean;
-    title = MS.String;
+    isOpen = Boolean;
+    title = String;
     content = ModalContent;
   }
   class State {
-    messages = MS.Array;
+    messages = Array;
     modal = Modal;
 
-    addItemAndShowModal(current, message, prompt) {
-      return this()
+    addItemAndShowModal(message, prompt) {
+      return this
         .messages.push(message)
         .modal.isOpen.set(true)
         .modal.content.text.set(prompt);
@@ -105,7 +106,7 @@ describe('merging', () => {
   let ms;
   let result;
   beforeEach(() => {
-    ms = create(State, { modal: { title: 'Confirmation' } });
+    ms = Microstate.create(State, { modal: { title: 'Confirmation' } });
     result = ms.addItemAndShowModal('Hello World', 'You have a message');
   });
   it('returns merged state', () => {

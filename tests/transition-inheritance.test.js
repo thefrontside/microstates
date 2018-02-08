@@ -1,6 +1,6 @@
 import 'jest';
 import { map } from 'funcadelic';
-import create, * as MS from '../src';
+import { create } from '../src';
 
 class Confirmation {
   get isArmed() {
@@ -11,11 +11,11 @@ class Confirmation {
   }
 
   arm() {
-    return this(Armed);
+    return create(Armed);
   }
 
   reset() {
-    return this(Confirmation);
+    return create(Confirmation);
   }
 }
 
@@ -25,7 +25,7 @@ class Armed extends Confirmation {
   }
 
   confirm() {
-    return this(Confirmed);
+    return create(Confirmed);
   }
 }
 
