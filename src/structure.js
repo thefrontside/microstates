@@ -1,7 +1,6 @@
 import $ from './utils/chain';
 import { map, append } from 'funcadelic';
 import { view, set, lensTree, lensPath, lensIndex } from './lens';
-import equals from './utils/equals';
 import Tree from './utils/tree';
 import isPrimitive from './utils/is-primitive';
 import transitionsFor from './utils/transitions-for';
