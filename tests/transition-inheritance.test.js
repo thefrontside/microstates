@@ -1,6 +1,6 @@
 import 'jest';
 import { map } from 'funcadelic';
-import microstate, * as MS from '../src';
+import create, * as MS from '../src';
 
 class Confirmation {
   get isArmed() {
@@ -35,14 +35,18 @@ class Confirmed extends Confirmation {
   }
 }
 
-let dnd = microstate(Confirmation);
+let dnd = create(Confirmation);
+let armed, confirmed, reset, rearmed, state;
+beforeEach(() => {
+  armed = dnd.arm();
+  confirmed = armed.confirm();
+  reset = confirmed.reset();
+  rearmed = reset.arm();
+  state = rearmed.state;
+});
 
 it('can transition to inherited transition', () => {
   expect(
-    dnd
-      .arm()
-      .confirm()
-      .reset()
-      .arm().state
+    state
   ).toBeInstanceOf(Armed);
 });

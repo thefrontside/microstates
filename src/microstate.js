@@ -34,10 +34,10 @@ function transitions(value, tree) {
 }
 
 function context(tree, value) {
-  return function transitionContext(nextType, nextValue) {
+  return function transitionContext(nextType, nextValue = value) {
     // context is invoked with arguments
     if (nextType) {
-      // TODO
+      return create(nextType, nextValue);
     } else {
       let ms = new Microstate(tree, value);
       return ms;
