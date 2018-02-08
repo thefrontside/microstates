@@ -1,6 +1,6 @@
 import StringType from '../types/string';
 import BooleanType from '../types/boolean';
-import NumberType from '../types/Number';
+import NumberType from '../types/number';
 import ObjectType from '../types/object';
 import ArrayType from '../types/array';
 
