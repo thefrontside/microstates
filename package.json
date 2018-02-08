@@ -47,6 +47,7 @@
     "jsonfile": "^4.0.0",
     "lint-staged": "6.0.0",
     "prettier": "^1.10.2",
+    "pretty-format": "22.1.0",
     "rollup": "^0.53.0",
     "rollup-plugin-babel": "^4.0.0-beta.0",
     "standard-version": "^4.2.0"

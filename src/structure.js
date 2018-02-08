@@ -19,12 +19,13 @@ export default function analyze(Type, value) {
 }
 
 function analyzeType(Type, path = []) {
+  let type = getType(Type);
   return new Tree({
     data() {
-      return new Node(Type, path);
+      return new Node(type, path);
     },
     children() {
-      return $(new Type())
+      return $(new type())
         .filter(({ value }) => !!value && value.call)
         .map((ChildType, key) => analyzeType(ChildType, append(path, key)))
         .valueOf();

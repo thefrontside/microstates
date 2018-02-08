@@ -1,16 +1,16 @@
 import 'jest';
 import { map } from 'funcadelic';
-import microstate, * as MS from '../src';
+import create from '../src';
 
 class Modal {
-  name = MS.String;
-  isOpen = MS.Boolean;
+  name = String;
+  isOpen = Boolean;
 }
 describe('types', () => {
   describe('value', () => {
     let ms;
     beforeEach(() => {
-      ms = microstate(Modal);
+      ms = create(Modal);
     });
     it('is instance of Modal', () => {
       expect(ms.state).toBeInstanceOf(Modal);
@@ -42,7 +42,7 @@ describe('types', () => {
   describe('no value', () => {
     let ms, set, merged;
     beforeEach(() => {
-      ms = microstate(Modal, { isOpen: true });
+      ms = create(Modal, { isOpen: true });
       set = ms.name.set('taras');
       merged = ms.merge({ name: 'taras' });
     });
@@ -60,13 +60,13 @@ describe('types', () => {
 
 describe('arrays and objects', () => {
   class State {
-    animals = MS.Array;
-    config = MS.Object;
+    animals = Array;
+    config = Object;
   }
   describe('value', () => {
     let ms;
     beforeEach(() => {
-      ms = microstate(State);
+      ms = create(State);
     });
     it('initialies with default', () => {
       expect(ms.state).toEqual({
@@ -88,7 +88,7 @@ describe('arrays and objects', () => {
   describe('no value', () => {
     let ms;
     beforeEach(() => {
-      ms = microstate(State, { animals: ['cat', 'dog'], config: { color: 'red' } });
+      ms = create(State, { animals: ['cat', 'dog'], config: { color: 'red' } });
     });
     it('uses provided value', () => {
       expect(ms.state).toEqual({

@@ -1,10 +1,10 @@
 import 'jest';
 import { map } from 'funcadelic';
-import microstate, * as MS from '../src';
+import create from '../src';
 
 class State {
-  firstName = MS.String;
-  lastName = MS.String;
+  firstName = String;
+  lastName = String;
 
   get fullName() {
     return `${this.firstName} ${this.lastName}`;
@@ -20,7 +20,7 @@ class State {
 describe('without initial state', () => {
   let ms;
   beforeEach(() => {
-    ms = microstate(State);
+    ms = create(State);
   });
   it('is computed', function() {
     expect(ms.state.fullName).toEqual(' ');
@@ -29,7 +29,7 @@ describe('without initial state', () => {
 describe('with initial state', () => {
   let ms;
   beforeEach(() => {
-    ms = microstate(State, { firstName: 'Peter', lastName: 'Griffin' });
+    ms = create(State, { firstName: 'Peter', lastName: 'Griffin' });
   });
   it('is computed', () => {
     expect(ms.state.fullName).toEqual('Peter Griffin');

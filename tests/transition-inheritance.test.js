@@ -1,6 +1,6 @@
 import 'jest';
 import { map } from 'funcadelic';
-import create, * as MS from '../src';
+import create from '../src';
 
 class Confirmation {
   get isArmed() {

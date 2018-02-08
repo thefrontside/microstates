@@ -1,10 +1,10 @@
 import 'jest';
 import { map } from 'funcadelic';
-import create, * as MS from '../src';
+import create from '../src';
 import { Microstate } from '../src/microstate';
 
 class Car {
-  speed = MS.Number;
+  speed = Number;
   increaseSpeed(current, amount) {
     return this.speed.sum(amount);
   }
@@ -59,7 +59,7 @@ describe('context', () => {
   let result;
   beforeEach(() => {
     class State {
-      items = MS.Array;
+      items = Array;
       custom() {
         context = this;
       }
@@ -85,15 +85,15 @@ describe('context', () => {
 });
 describe('merging', () => {
   class ModalContent {
-    text = MS.String;
+    text = String;
   }
   class Modal {
-    isOpen = MS.Boolean;
-    title = MS.String;
+    isOpen = Boolean;
+    title = String;
     content = ModalContent;
   }
   class State {
-    messages = MS.Array;
+    messages = Array;
     modal = Modal;
 
     addItemAndShowModal(current, message, prompt) {

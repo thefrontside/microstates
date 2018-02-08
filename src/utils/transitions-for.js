@@ -3,6 +3,7 @@ import $ from './chain';
 import mergeDeepRight from 'ramda/src/mergeDeepRight';
 import getPrototypeDescriptors from './get-prototype-descriptors';
 import create from '../microstate';
+import getType from './get-type';
 
 import isPrimitive from './is-primitive';
 
@@ -21,7 +22,7 @@ const merge = function merge(current, ...args) {
 };
 
 export default function transitionsFor(Type) {
-  let descriptors = getPrototypeDescriptors(Type);
+  let descriptors = getPrototypeDescriptors(getType(Type));
 
   let transitionFns = $(descriptors)
     .filter(({ value }) => isFunctionDescriptor(value))

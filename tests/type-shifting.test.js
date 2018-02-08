@@ -1,23 +1,23 @@
 import 'jest';
 import { map } from 'funcadelic';
-import create, * as MS from '../src';
+import create from '../src';
 
 describe('type-shifting', () => {
   class Line {
-    a = MS.Number;
+    a = Number;
     add({ a }, b) {
       return this.set(Corner, { a, b });
     }
   }
   class Corner extends Line {
-    a = MS.Number;
-    b = MS.Number;
+    a = Number;
+    b = Number;
     add({ a, b }, c) {
       return this.set(Triangle, { a, b, c });
     }
   }
   class Triangle extends Corner {
-    c = MS.Number;
+    c = Number;
   }
   let ms = create(Line);
   let line, corner, triangle;

@@ -1,6 +1,6 @@
 import 'jest';
 import { map } from 'funcadelic';
-import create, * as MS from '../src';
+import create from '../src';
 import { reveal } from '../src/utils/secret';
 
 describe('microstate', () => {
@@ -17,14 +17,14 @@ describe('microstate', () => {
   });
   it('throws an error when state property is set', () => {
     expect(function() {
-      create(MS.Number).state = 10;
+      create(Number).state = 10;
     }).toThrowError(`Setting state property will not do anything useful. Please don't do this.`);
   });
   
   describe('valueOf', () => {
     let ms;
     beforeEach(() => {
-      ms = create(MS.Number, 10);
+      ms = create(Number, 10);
     });
     it('returns passed in value of', () => {
       expect(ms.valueOf()).toBe(10);

@@ -1,10 +1,10 @@
 import 'jest';
 import { map } from 'funcadelic';
-import microstate, * as MS from '../../src';
+import create from '../../src';
 
 describe('cart example', () => {
   class Cart {
-    products = MS.Array;
+    products = Array;
     get price() {
       return this.products.reduce((acc, product) => acc + product.quantity * product.price, 0);
     }
@@ -15,7 +15,7 @@ describe('cart example', () => {
   describe('adding products without initial value', () => {
     let ms;
     beforeEach(() => {
-      ms = microstate(Cart)
+      ms = create(Cart)
         .products.push({ quantity: 1, price: 10 })
         .products.push({ quantity: 2, price: 20 });
     });
