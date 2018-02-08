@@ -57,7 +57,7 @@ function analyzeValue(value, tree) {
  * @param {Tree} tree - the tree to isolate
  * @returns {Tree} - a tree just like `tree`, but now a root.
  */
-function isolate(tree) {
+function prune(tree) {
   let prefix = tree.data.path;
   return map(node => append(node, { path: node.path.slice(prefix.length)}), tree);
 }
@@ -71,8 +71,12 @@ function isolate(tree) {
  * @param {*} tree 
  * @param {*} path 
  */
-function relocate(path, tree) {
-  return map(node => append(node, { path: [...path, ...node.path]}), tree);
+function graft(path, tree) {
+  if (path.length === 0) {
+    return tree;
+  } else {
+    return map(node => append(node, { path: [...path, ...node.path]}), tree);
+  }
 }
 
 class Node {
@@ -124,7 +128,7 @@ class Node {
         method,
         args,
         value: localValue,
-        tree: isolate(localTree)
+        tree: prune(localTree)
       };
 
       let { 
@@ -134,9 +138,7 @@ class Node {
       } = invoke(transition);
 
       if (nextLocalTree) {
-        if (!equals(nextLocalTree.data.path, path)) {
-          nextLocalTree = relocate(path, nextLocalTree);
-        }
+        nextLocalTree = graft(path, nextLocalTree);
       } else {
         nextLocalTree = analyzeType(nextLocalType, path); 
       }
