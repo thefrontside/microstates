@@ -14,7 +14,8 @@ const { assign } = Object;
  * @param {*} value
  */
 export default function create(Type, value) {
-  return new Microstate(analyze(Type), value);
+  let tree = analyze(Type, value);
+  return new Microstate(tree, value);
 }
 
 function collapse(fn, tree) {

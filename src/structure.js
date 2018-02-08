@@ -9,10 +9,17 @@ import transitionsFor from './utils/transitions-for';
 import getOwnPropertyDescriptors from 'object.getownpropertydescriptors';
 import construct, { Microstate } from './microstate';
 import { reveal } from './utils/secret';
+import getType from './utils/get-type';
 
 const { assign } = Object;
 
-export default function analyze(Type, path = []) {
+export default function analyze(Type, value) {
+  let types = analyzeType(Type);
+  let values = analyzeValue(value, types);
+  return values;
+}
+
+function analyzeType(Type, path = []) {
   return new Tree({
     data() {
       return new Node(Type, path);
@@ -20,10 +27,23 @@ export default function analyze(Type, path = []) {
     children() {
       return $(new Type())
         .filter(({ value }) => !!value && value.call)
-        .map((ChildType, key) => analyze(ChildType, append(path, key)))
+        .map((ChildType, key) => analyzeType(ChildType, append(path, key)))
         .valueOf();
     }
   });
+}
+
+function analyzeValue(value, tree) {
+  return map(node => {
+    let { Type } = node;
+    let state = node.stateAt(value);
+    let initializedType = getType(state);
+    if (Type === initializedType) {
+      return node;
+    } else {
+      return append(node, { Type: initializedType })
+    }
+  }, tree);
 }
 
 /**
@@ -88,7 +108,7 @@ class Node {
       if (nodeValue) {
         descriptors = append(getOwnPropertyDescriptors(nodeValue), descriptors);
       }
-      let state = Object.create(Type.prototype, descriptors);
+      let state = Object.create(Object.getPrototypeOf(instance), descriptors);
       return state;
     }
   }
@@ -96,7 +116,7 @@ class Node {
   transitionsAt(value, tree, invoke) {
     let { Type, path } = this;
 
-    let transitions = map(method => (...args) => {
+    return map(method => (...args) => {
       let localValue = this.valueAt(value);
       let localTree = view(lensTree(path), tree);
 
@@ -119,7 +139,7 @@ class Node {
           nextLocalTree = relocate(path, nextLocalTree);
         }
       } else {
-        nextLocalTree = analyze(nextLocalType, path); 
+        nextLocalTree = analyzeType(nextLocalType, path); 
       }
 
       let nextTree = set(lensTree(path), nextLocalTree, tree);
