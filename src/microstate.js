@@ -53,7 +53,6 @@ function state(value, tree) {
 
 function invoke({ Type, method, args, value, tree}) {
 
-  // console.log({ Type, data: tree.data, value });
   let transitionContext = context(tree, value);
   let next = method.apply(transitionContext, [state(value, tree), ...args]);
 

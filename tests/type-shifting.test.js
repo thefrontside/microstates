@@ -1,6 +1,6 @@
 import 'jest';
 import { map } from 'funcadelic';
-import microstate, * as MS from '../src';
+import create, * as MS from '../src';
 
 describe('type-shifting', () => {
   class Line {
@@ -19,7 +19,7 @@ describe('type-shifting', () => {
   class Triangle extends Corner {
     c = MS.Number;
   }
-  let ms = microstate(Line);
+  let ms = create(Line);
   let line, corner, triangle;
   beforeEach(() => {
     line = ms.a.set(10);
@@ -96,7 +96,7 @@ describe('type-shifting with constant values', () => {
     isError = false;
   }
   describe('successful loading siquence', () => {
-    let async = microstate(Async);
+    let async = create(Async);
     it('can transition to loading', () => {
       expect(async.loading().state).toMatchObject({
         content: null,
@@ -115,7 +115,7 @@ describe('type-shifting with constant values', () => {
     });
   });
   describe('error loading sequence', () => {
-    let async = microstate(Async);
+    let async = create(Async);
     it('can transition from loading to error', () => {
       expect(async.loading().error(':(').state).toMatchObject({
         content: null,

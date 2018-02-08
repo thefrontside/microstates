@@ -1,6 +1,6 @@
 import 'jest';
 import { map } from 'funcadelic';
-import microstate, * as MS from '../../src';
+import create, * as MS from '../../src';
 
 describe('authentication example', () => {
   class Session {
@@ -38,7 +38,7 @@ describe('authentication example', () => {
   describe('AnonymousSession', () => {
     let ms, authenticated;
     beforeEach(() => {
-      ms = microstate(MyApp);
+      ms = create(MyApp);
       authenticated = ms.session.authenticate({
         name: 'Charles',
       });
@@ -58,7 +58,7 @@ describe('authentication example', () => {
   describe('AuthenticatedSession', () => {
     let ms, anonymous;
     beforeEach(() => {
-      ms = microstate(MyApp, { session: { name: 'Taras' } })
+      ms = create(MyApp, { session: { name: 'Taras' } })
       anonymous = ms.session.logout();
     });
     it('initializes into AuthenticatedSession state', () => {
