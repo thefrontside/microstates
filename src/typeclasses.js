@@ -1,5 +1,6 @@
 import { Applicative, Functor, map } from 'funcadelic';
 import { Monad, flatMap } from './monad';
+import thunk from './thunk';
 import { Microstate } from './microstate';
 import { reveal } from './utils/secret';
 import Tree from './utils/tree';
@@ -42,19 +43,6 @@ Applicative.instance(Tree, {
   },
 });
 
-function thunk(fn) {
-  let evaluated = false;
-  let result = undefined;
-  return function evaluate() {
-    if (evaluated) {
-      return result;
-    } else {
-      result = fn();
-      evaluated = true;
-      return result;
-    }
-  };
-}
 
 Monad.instance(Tree, {
   flatMap(fn, tree) {

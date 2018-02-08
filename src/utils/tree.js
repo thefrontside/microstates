@@ -1,4 +1,5 @@
 import $ from './chain';
+import thunk from '../thunk';
 import { append, filter, reduce, map } from 'funcadelic';
 import getOwnPropertyDescriptors from 'object.getownpropertydescriptors';
 
@@ -9,11 +10,11 @@ export default class Tree {
     let { data = () => ({}), children = () => ({}) } = props;
     return Object.create(Tree.prototype, {
       data: {
-        get: data,
+        get: thunk(data),
         enumerable: true,
       },
       children: {
-        get: children,
+        get: thunk(children),
         enumerable: true,
       },
     });
