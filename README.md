@@ -25,9 +25,9 @@ npm install --save microstates
 Let's see some code,
 
 ```js
-import Microstate from 'microstates';
+import { create } from 'microstates';
 
-Microstate.create(Number, 42).increment().state;
+create(Number, 42).increment().state;
 //=> 43
 
 class MyCounter {
@@ -35,10 +35,10 @@ class MyCounter {
 }
 
 // creating microstate from composed states
-Microstate.create(MyCounter).state;
+create(MyCounter).state;
 // => { count: 0 }
 
-Microstate.create(MyCounter).count.increment().state;
+create(MyCounter).count.increment().state;
 // => { count: 1 }
 
 class MyModal {
@@ -47,10 +47,10 @@ class MyModal {
 }
 
 // you can restore a microstate from previous value
-Microstate.create(MyModal, { isOpen: true, title: 'Hello World' }).state;
+create(MyModal, { isOpen: true, title: 'Hello World' }).state;
 // => { isOpen: true, title: 'Hello World' }
 
-Microstate.create(MyModal, { isOpen: true, title: 'Hello World' }).isOpen.toggle().state;
+create(MyModal, { isOpen: true, title: 'Hello World' }).isOpen.toggle().state;
 // => { isOpen: false, title: 'Hello World' }
 
 // lets composed multiple state together
@@ -59,13 +59,13 @@ class MyState {
   counter = MyCounter;
 }
 
-Microstate.create(MyState).state;
+create(MyState).state;
 // => {
 //  modal: { isOpen: false, title: '' },
 //  counter: { count: 0 }
 // }
 
-Microstate.create(MyState)
+create(MyState)
   .counter.increment()
   .modal.title.set('Hello World')
   .modal.isOpen.set(true).state;
@@ -82,18 +82,20 @@ the structure of your state and `value` that is the initial state.
 
 ```js
 // initial value is undefined so state will be default value of String which is an empty string
-Microstate.create(String).state;
+create(String).state;
 // => ''
 
 // initial value is 'hello world' so state will be hello world.
-Microstate.create(String, 'hello world').state;
+create(String, 'hello world').state;
 // => 'hello world'
 ```
 
 The object returned from the constructor has all of the transitions for the structure.
 
 ```js
-let ms = Microstate.create(Object);
+import { create } from 'microstates';
+
+let ms = create(Object);
 
 console.log(ms);
 //  {
@@ -119,7 +121,7 @@ class Counter {
   count = Number;
 }
 
-Microstate.create(Counter);
+create(Counter);
 // => {
 //      merge: Function
 //      set: Function
@@ -145,17 +147,17 @@ class Person {
   age = Number;
 }
 
-Microstate.create(Person);
+create(Person);
 // => {
 //      name: { concat: Function, set: Function },
 //      age: { increment: Function, decrement: Function, sum: Function, subtract: Function }
 //    }
 
 // state objects maintain their type's class
-Microstate.create(Person).state instanceof Person;
+create(Person).state instanceof Person;
 // => true
 
-Microstate.create(Person).state;
+create(Person).state;
 // => { name: '', age: 0 }
 ```
 
@@ -163,7 +165,7 @@ You can restore a composed microstate by providing initial value that matches th
 microstate.
 
 ```js
-Microstate.create(Person, { name: 'Taras', age: 99 }).state;
+create(Person, { name: 'Taras', age: 99 }).state;
 // => { name: 'Taras', age: 99 }
 ```
 
@@ -182,7 +184,7 @@ class Person {
   address = Address;
 }
 
-Microstate.create(Person, { name: 'Taras', address: { city: 'Toronto' } }).state;
+create(Person, { name: 'Taras', address: { city: 'Toronto' } }).state;
 // => {
 //      name: 'Taras',
 //      age: 0,
@@ -198,7 +200,7 @@ You can access transitions of composed states by using object property notation.
 call a transition, you receive a new microstate and you start from the root of the original type.
 
 ```js
-Microstate.create(Person)
+create(Person)
   .age.increment()
   .address.city.set('San Francisco')
   .address.street.set('Market St').state;
@@ -221,7 +223,7 @@ class Person {
   father = Person;
 }
 
-microsate(Person, { name: 'Stewie' })
+create(Person, { name: 'Stewie' })
   .father.name.set('Peter')
   .father.father.name.set('Mr Griffin')
   .father.father.father.name.set('Mr Giffin Senior').state;
@@ -246,14 +248,14 @@ Composed states have two default transitions `set` and `merge`.
 `set` will replace the state of current microstate.
 
 ```js
-Microstate.create(Person).father.father.set({ name: 'Peter' }).state;
+create(Person).father.father.set({ name: 'Peter' }).state;
 // => { name: '', father: { name: 'Peter' }}
 ```
 
 `merge` will recursively merge the object into current state.
 
 ```js
-Microstate.create(Person, { name: 'Peter' }).merge({ name: 'Taras', father: { name: 'Serge' } }).state;
+create(Person, { name: 'Peter' }).merge({ name: 'Taras', father: { name: 'Serge' } }).state;
 // { name: 'Taras', father: { name: 'Serge' }}
 ```
 
@@ -268,16 +270,16 @@ class Ajax {
   isLoaded = false;
 }
 
-Microstate.create(Ajax).state.content;
+create(Ajax).state.content;
 // => null;
 
-Microstate.create(Ajax).content;
+create(Ajax).content;
 // undefined
 
-Microstate.create(Ajax).state.isLoaded;
+create(Ajax).state.isLoaded;
 // => false
 
-Microstate.create(Ajax).isLoaded.set(false);
+create(Ajax).isLoaded.set(false);
 // Error: calling set of undefined
 ```
 
@@ -295,10 +297,10 @@ class Measure {
   }
 }
 
-Microstate.create(Measure, { length: 170 }).state.inInches;
+create(Measure, { length: 170 }).state.inInches;
 // => '66.9291 inches'
 
-Microstate.create(Measure, { length: 170 }).height.set(160).state.inInches;
+create(Measure, { length: 170 }).height.set(160).state.inInches;
 // => '62.9921 inches'
 ```
 
@@ -321,7 +323,7 @@ class Person {
   }
 }
 
-Microstate.create(Person, { home: 'Toronto', location: 'San Francisco' }).goHome().state;
+create(Person, { home: 'Toronto', location: 'San Francisco' }).goHome().state;
 // => { home: 'Toronto', location: 'Toronto' }
 ```
 
@@ -350,7 +352,7 @@ class MyComponent {
   counter = Number
 }
 
-Microstate.create(MyComponent).modal.show('Hello World', 'Rise and shine!').state;
+create(MyComponent).modal.show('Hello World', 'Rise and shine!').state;
 // => { modal: { isOpen: true, title: 'Hello World', content: 'Rise and shine!' }, counter: 0 }
 ```
 
@@ -395,19 +397,19 @@ class MyApp {
 }
 
 // without initial state it initializes into AnonymousSession state
-Microstate.create(MyApp).state;
+create(MyApp).state;
 // => { session: { content: null, isAuthenticated: false }}
 
 // transition to AuthenticatedSession state with authenticate
-Microstate.create(MyApp).authenticate({ name: 'Taras' }).state;
+create(MyApp).authenticate({ name: 'Taras' }).state;
 // => { session: { content: { name: 'Taras' }, isAuthenticated: true }};
 
 // restore into AuthenticatedSession state
-Microstate.create(MyApp, { session: { content: { name: 'Taras' } } }).state;
+create(MyApp, { session: { content: { name: 'Taras' } } }).state;
 // => { session: { content: { name: 'Taras' } }, isAuthenticated: true }
 
 // transition to AnonymousSession state with logout
-Microstate.create(MyApp, { session: { content: { name: 'Taras' } } }).logout().state;
+create(MyApp, { session: { content: { name: 'Taras' } } }).logout().state;
 // => { session: { content: null, isAuthenticated: false }}
 ```
 
