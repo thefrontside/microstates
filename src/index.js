@@ -7,3 +7,4 @@ export const { create } = Microstate;
 export { default as Microstate } from './microstate';
 export { default as Tree } from './utils/tree';
 export { default as analyze } from './structure';
+export { parameterized } from './types/parameters.js';
