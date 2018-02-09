@@ -13,7 +13,7 @@ const { assign } = Object;
 
 export default function analyze(Type, value) {
   let types = flatMap(analyzeType, pure(Tree, new Node(Type, [])));
-  let values = analyzeValue(value, types);
+  let values = map(analyzeValue(value), types);
   return values;
 }
 
@@ -30,8 +30,8 @@ function analyzeType(node) {
   });
 }
 
-function analyzeValue(value, tree) {
-  return map(node => {
+function analyzeValue(value) {
+  return (node) => {
     let { Type } = node;
     let state = node.stateAt(value);
     let initializedType = getType(state);
@@ -40,7 +40,7 @@ function analyzeValue(value, tree) {
     } else {
       return append(node, { Type: initializedType });
     }
-  }, tree);
+  };
 }
 
 /**
