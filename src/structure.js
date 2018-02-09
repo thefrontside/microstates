@@ -1,5 +1,6 @@
 import $ from './utils/chain';
-import { map, append } from 'funcadelic';
+import { map, append, pure } from 'funcadelic';
+import { flatMap } from './monad';
 import { view, set, lensTree, lensPath, lensIndex } from './lens';
 import Tree from './utils/tree';
 import isPrimitive from './utils/is-primitive';
@@ -11,21 +12,19 @@ import getType from './utils/get-type';
 const { assign } = Object;
 
 export default function analyze(Type, value) {
-  let types = analyzeType(Type);
+  let types = flatMap(analyzeType, pure(Tree, new Node(Type, [])));
   let values = analyzeValue(value, types);
   return values;
 }
 
-function analyzeType(Type, path = []) {
-  let type = getType(Type);
+function analyzeType(node) {
   return new Tree({
-    data() {
-      return new Node(type, path);
-    },
+    data: () => node,
     children() {
+      let type = getType(node.Type);
       return $(new type())
         .filter(({ value }) => !!value && value.call)
-        .map((ChildType, key) => analyzeType(ChildType, append(path, key)))
+        .map((ChildType, key) => pure(Tree, new Node(ChildType, append(node.path, key))))
         .valueOf();
     }
   });
@@ -39,7 +38,7 @@ function analyzeValue(value, tree) {
     if (Type === initializedType) {
       return node;
     } else {
-      return append(node, { Type: initializedType })
+      return append(node, { Type: initializedType });
     }
   }, tree);
 }
@@ -63,12 +62,12 @@ function prune(tree) {
 
 /**
  * Change the path of a tree.
- * 
+ *
  * This lets you take any tree, sitting at any context and prefix the context with
  * additional path.
- * 
- * @param {*} tree 
- * @param {*} path 
+ *
+ * @param {*} tree
+ * @param {*} path
  */
 function graft(path, tree) {
   if (path.length === 0) {
@@ -129,9 +128,9 @@ class Node {
         tree: prune(localTree)
       };
 
-      let { 
-        value: nextLocalValue, 
-        tree: nextLocalTree 
+      let {
+        value: nextLocalValue,
+        tree: nextLocalTree
       } = invoke(transition);
 
       let nextTree = set(lensTree(path), graft(path, nextLocalTree), tree);
