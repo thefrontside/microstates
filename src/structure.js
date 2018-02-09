@@ -1,47 +1,60 @@
 import $ from './utils/chain';
-import { map, append } from 'funcadelic';
+import { map, append, pure, foldl } from 'funcadelic';
+import { flatMap } from './monad';
 import { view, set, lensTree, lensPath, lensIndex } from './lens';
 import Tree from './utils/tree';
-import isPrimitive from './utils/is-primitive';
 import transitionsFor from './utils/transitions-for';
-import getOwnPropertyDescriptors from 'object.getownpropertydescriptors';
 import { reveal } from './utils/secret';
-import getType from './utils/get-type';
+import types, { params, any, toType } from './types';
+import isSimple  from './is-simple';
+import Microstate from './microstate';
 
 const { assign } = Object;
 
 export default function analyze(Type, value) {
-  let types = analyzeType(Type);
-  let values = analyzeValue(value, types);
-  return values;
+  return flatMap(analyzeType(value), pure(Tree, new Node(Type, [])));
 }
 
-function analyzeType(Type, path = []) {
-  let type = getType(Type);
-  return new Tree({
-    data() {
-      return new Node(type, path);
-    },
-    children() {
-      return $(new type())
-        .filter(({ value }) => !!value && value.call)
-        .map((ChildType, key) => analyzeType(ChildType, append(path, key)))
-        .valueOf();
-    }
-  });
-}
+function analyzeType(value) {
+  return (node) => {
+    let InitialType = node.Type;
+    let valueAt = node.valueAt(value);
+    let instance = new InitialType(valueAt);
 
-function analyzeValue(value, tree) {
-  return map(node => {
-    let { Type } = node;
-    let state = node.stateAt(value);
-    let initializedType = getType(state);
-    if (Type === initializedType) {
-      return node;
+    let Type;
+    if (instance instanceof Microstate) {
+      let { tree } = reveal(instance);
+      Type = tree.data.Type;
     } else {
-      return append(node, { Type: initializedType })
+      Type  = toType(InitialType);
     }
-  }, tree);
+
+    return new Tree({
+      data: () => Type === InitialType ? node : append(node, { Type }),
+      children() {
+        if (isa(Type, types.Array)) {
+          let { T } = params(Type);
+          if (T !== any) {
+            return map((child, i) => pure(Tree, new Node(T, append(node.path, i))), node.valueAt(value));
+          }
+        }
+        if (isa(Type, types.Object)) {
+          let { T } = params(Type);
+          if (T !== any) {
+            return map((child, name) => pure(Tree, new Node(T, append(node.path, name))), node.valueAt(value));
+          }
+        }
+        return $(new Type())
+          .filter(({ value }) => !!value && value.call)
+          .map((ChildType, key) => pure(Tree, new Node(ChildType, append(node.path, key))))
+          .valueOf();
+      }
+    });
+  };
+}
+
+function isa(Child, Ancestor) {
+  return Child === Ancestor || Child.prototype instanceof Ancestor;
 }
 
 /**
@@ -63,12 +76,12 @@ function prune(tree) {
 
 /**
  * Change the path of a tree.
- * 
+ *
  * This lets you take any tree, sitting at any context and prefix the context with
  * additional path.
- * 
- * @param {*} tree 
- * @param {*} path 
+ *
+ * @param {*} tree
+ * @param {*} path
  */
 function graft(path, tree) {
   if (path.length === 0) {
@@ -79,8 +92,12 @@ function graft(path, tree) {
 }
 
 class Node {
-  constructor(Type, path) {
+  constructor(Type, path, tree) {
     assign(this, { Type, path });
+  }
+
+  get isSimple() {
+    return isSimple(this.Type);
   }
 
   valueAt(total) {
@@ -91,33 +108,21 @@ class Node {
     let { Type } = this;
     let nodeValue = this.valueAt(value);
     let instance = new Type(nodeValue).valueOf();
-    // also don't know if this is the way to calculate state.
-    if (isPrimitive(Type)) {
-      return instance;
+    if (isSimple(Type)) {
+      return nodeValue || instance;
+    } else if (isa(Type, types.Array)) {
+      return [];
+    } else if (isa(Type, types.Object)) {
+      return {};
+    } else if (nodeValue) {
+      return append(instance, nodeValue);
     } else {
-      /**
-       * TODO: reconsider scenario where user returned a POJO from constructor.
-       * Decide if we want to merge POJOs into instantiated object.
-       *
-       * Cases:
-       *  1. No constructor specified
-       *  2. Returning an instance of original specified type
-       *  3. Returning a new type
-       *  4. Return a POJO and merging in
-       *  5. Sharing complex objects between instances
-       */
-      let descriptors = getOwnPropertyDescriptors(instance);
-      if (nodeValue) {
-        descriptors = append(getOwnPropertyDescriptors(nodeValue), descriptors);
-      }
-      let state = Object.create(Object.getPrototypeOf(instance), descriptors);
-      return state;
+      return instance;
     }
   }
 
   transitionsAt(value, tree, invoke) {
     let { Type, path } = this;
-
     return map(method => (...args) => {
       let localValue = this.valueAt(value);
       let localTree = view(lensTree(path), tree);
@@ -129,14 +134,14 @@ class Node {
         tree: prune(localTree)
       };
 
-      let { 
-        value: nextLocalValue, 
-        tree: nextLocalTree 
+      let {
+        value: nextLocalValue,
+        tree: nextLocalTree
       } = invoke(transition);
 
       let nextTree = set(lensTree(path), graft(path, nextLocalTree), tree);
       let nextValue = set(lensPath(path), nextLocalValue, value);
-      
+
       return { tree: nextTree, value: nextValue };
     }, transitionsFor(Type));
 

@@ -28,6 +28,9 @@ export default class Microstate {
    */
   get state() {
     let { tree, value } = reveal(this);
+    if (tree.data.isSimple) {
+      return value || new tree.data.Type(value).valueOf();
+    }
     return map(node => {
       return node.stateAt(value);
     }, tree).collapsed;

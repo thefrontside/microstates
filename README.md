@@ -370,9 +370,9 @@ class Session {
 
   constructor(state) {
     if (state) {
-      return new AuthenticatedSession(state);
+      return create(AuthenticatedSession, state);
     } else {
-      return new AnonymousSession(state);
+      return create(AnonymousSession, state);
     }
   }
 }
