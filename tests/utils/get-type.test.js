@@ -1,6 +1,5 @@
 import 'jest';
 import prettyFormat from 'pretty-format';
-import { map } from 'funcadelic';
 import getType from '../../src/utils/get-type';
 import BooleanType from '../../src/types/boolean';
 import NumberType from '../../src/types/number';

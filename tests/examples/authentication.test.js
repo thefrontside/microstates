@@ -1,6 +1,5 @@
 import 'jest';
-import { map } from 'funcadelic';
-import { create } from '../../src';
+import { create } from 'microstates';
 
 class Session {
   content = null;

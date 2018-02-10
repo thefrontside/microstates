@@ -1,11 +1,10 @@
 import 'jest';
 
-import 'funcadelic';
 import ArrayType from '../../src/types/array';
-import Microstate from '../../src';
+import { create } from 'microstates';
 
 let array = ['a', 'b', 'c'];
-let ms = Microstate.create(Array, array);
+let ms = create(Array, array);
 
 it('constructor returns an array when receives another value', () => {
   expect(new ArrayType()).toEqual([]);

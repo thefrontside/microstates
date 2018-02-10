@@ -1,4 +1,4 @@
-import { append, filter, reduce, map } from 'funcadelic';
+import { append, filter, map } from 'funcadelic';
 import $ from './chain';
 import thunk from '../thunk';
 import getOwnPropertyDescriptors from 'object.getownpropertydescriptors';

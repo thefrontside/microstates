@@ -1,8 +1,6 @@
 import 'jest';
-import * as MS from '../src/index';
-import Tree from '../src/utils/tree';
 import { view, set } from '../src/lens';
-import analyze from '../src/structure';
+import { analyze, Tree } from 'microstates';
 
 describe('Structure', () => {
   class Session {
@@ -97,7 +95,7 @@ describe('Structure', () => {
 
     let { method, args, value: passedValue, tree: passedTree } = invoke.mock.calls[0][0];
 
-    expect(method.name).toBe('set');
+    expect(method.name).toBe('setTransition');
     expect(args).toEqual(['make super']);
 
     // passed tree and value are local to the transition

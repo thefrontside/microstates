@@ -7,11 +7,11 @@ import getType from './get-type';
 
 import isPrimitive from './is-primitive';
 
-const set = function set(value) {
+function setTransition(value) {
   return value;
 };
 
-const merge = function merge(...args) {
+function mergeTransition(...args) {
   return mergeDeepRight(this.state, ...args);
 };
 
@@ -24,7 +24,7 @@ export default function transitionsFor(Type) {
     .filter(({ key }) => key !== 'constructor')
     .valueOf();
 
-  let common = isPrimitive(Type) ? { set } : { set, merge };
+  let common = isPrimitive(Type) ? { set: setTransition } : { set: setTransition, merge: mergeTransition };
   return append(common, transitionFns);
 }
 

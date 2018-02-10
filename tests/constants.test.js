@@ -1,6 +1,5 @@
 import 'jest';
-import { map } from 'funcadelic';
-import Microstate from '../src';
+import { create } from 'microstates';
 
 class Type {
   n = 10;
@@ -15,7 +14,7 @@ class Type {
 describe('constants support', () => {
   let ms, next;
   beforeEach(() => {
-    ms = Microstate.create(Type);
+    ms = create(Type);
     next = ms.greeting.set('HI');
   });
   it('includes constants in state tree', () => {

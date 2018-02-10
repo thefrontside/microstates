@@ -1,6 +1,4 @@
 import 'jest';
-import { map } from 'funcadelic';
-import '../../src/typeclasses';
 import transitionsFor from '../../src/utils/transitions-for';
 
 it('gets array transitions', () => {

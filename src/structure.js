@@ -5,7 +5,6 @@ import Tree from './utils/tree';
 import isPrimitive from './utils/is-primitive';
 import transitionsFor from './utils/transitions-for';
 import getOwnPropertyDescriptors from 'object.getownpropertydescriptors';
-import construct, { Microstate } from './microstate';
 import { reveal } from './utils/secret';
 import getType from './utils/get-type';
 
