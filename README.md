@@ -363,6 +363,8 @@ modeling state machines or want to be able to change the shape of the state afte
 change the structure of a microstate you replace it with new microstate in a custom transition.
 
 ```js
+import { create } from 'microstates';
+
 class Session {
   content = null;
 
@@ -380,7 +382,7 @@ class AuthenticatedSession {
   content = Object;
 
   logout() {
-    return this.set(AnonymousSession);
+    return create(AnonymousSession);
   }
 }
 
@@ -388,7 +390,7 @@ class AnonymousSession {
   content = null;
   isAuthenticated = false;
   authenticate(user) {
-    return this.set(AuthenticatedSession, { content: user });
+    return create(AuthenticatedSession, { content: user });
   }
 }
 
