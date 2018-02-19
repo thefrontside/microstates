@@ -1,6 +1,5 @@
 import 'jest';
-import Microstate from '../src';
-import { parameterized } from '../src/type-parameters';
+import { parameterized, params } from '../src/types/parameters';
 import isSimple from '../src/is-simple';
 
 describe('Type "Complexity"', () => {
@@ -19,14 +18,14 @@ describe('Type "Complexity"', () => {
   it('an array without parameters is simple', function() {
     expect(isSimple(Array)).toBe(true);
   });
-  it.only('an array with nothing but simple types is simple', function() {
+  it('an array with nothing but simple types is simple', function() {
     expect(isSimple(parameterized(Array, parameterized(Array, Boolean)))).toBe(true);
   });
   it('an array with non-simple constitunents is not simple', function() {
-    expect(isSimple(parameterized(Array, class {}))).toBe(false);
+    expect(isSimple(parameterized(Array, class Foo {}))).toBe(false);
   });
   it('an array parameterized by a simple array is simple', function() {
-    expect(isSimple(parameterized(Array, Array))).toBe(false);
+    expect(isSimple(parameterized(Array, Array))).toBe(true);
   });
   it('an object without parameters is simple', function() {
     expect(isSimple(Object)).toBe(true);
@@ -37,7 +36,7 @@ describe('Type "Complexity"', () => {
   it('an object with non-simple parameter', function() {
     expect(isSimple(parameterized(Object, class {}))).toBe(false);
   });
-  it('an array parameterized by a simple array is simple', function() {
-    expect(isSimple(parameterized(Object, Object))).toBe(false);
+  it('an object parameterized by a simple object is simple', function() {
+    expect(isSimple(parameterized(Object, Object))).toBe(true);
   });
 });

@@ -2,7 +2,7 @@ import set from 'ramda/src/set';
 import indexOf from 'ramda/src/indexOf';
 import lensPath from 'ramda/src/lensPath';
 
-import { parameterized, any } from '../type-parameters';
+import { parameterized, any } from './parameters0';
 
 class ArrayType {
   constructor(value = []) {

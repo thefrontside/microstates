@@ -8,7 +8,7 @@ import transitionsFor from './utils/transitions-for';
 import getOwnPropertyDescriptors from 'object.getownpropertydescriptors';
 import { reveal } from './utils/secret';
 import getType from './utils/get-type';
-import { isSimple } from './is-simple';
+import isSimple  from './is-simple';
 
 const { assign } = Object;
 

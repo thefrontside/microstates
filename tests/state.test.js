@@ -1,6 +1,6 @@
 import 'jest';
 import '../src/typeclasses';
-import { parameterized } from '../src/type-parameters';
+import { parameterized } from '../src/types/parameters';
 import analyze from '../src/structure';
 import { map } from 'funcadelic';
 

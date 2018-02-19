@@ -1,7 +1,8 @@
 import 'jest';
+
+import { parameterized, params, any } from '../src/types/parameters';
 import ArrayType from '../src/types/array';
 import ObjectType from '../src/types/object';
-import { parameterized, params, any } from '../src/type-parameters';
 
 describe('type parameters', () => {
   class Base {};

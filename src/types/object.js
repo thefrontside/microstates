@@ -1,4 +1,4 @@
-import { parameterized, any } from '../type-parameters';
+import { parameterized, any } from './parameters0';
 
 class ObjectType {
   constructor(value = {}) {
@@ -9,5 +9,4 @@ class ObjectType {
   }
 }
 
-// export default ObjectType;
 export default parameterized(ObjectType, {T: any});
