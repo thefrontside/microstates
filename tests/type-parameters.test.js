@@ -1,8 +1,7 @@
 import 'jest';
 
 import { parameterized, params, any } from '../src/types/parameters';
-import ArrayType from '../src/types/array';
-import ObjectType from '../src/types/object';
+import types from '../src/types';
 
 describe('type parameters', () => {
   class Base {};
@@ -18,7 +17,7 @@ describe('type parameters', () => {
     });
 
     it('transparently converts it to ArrayType', function() {
-      expect(ParameterizedArray.prototype).toBeInstanceOf(ArrayType);
+      expect(ParameterizedArray.prototype).toBeInstanceOf(types.Array);
     });
     it('has the `T` parameter set to Base', function() {
       let { T } = params(ParameterizedArray);
@@ -35,49 +34,33 @@ describe('type parameters', () => {
     });
 
     it('transparently converts it to ObjectType', function() {
-      expect(ParameterizedObject.prototype).toBeInstanceOf(ObjectType);
+      expect(ParameterizedObject.prototype).toBeInstanceOf(types.Object);
     });
   });
 
 
   describe('parameterizing a class', function() {
-    class Parametric extends parameterized(Base, {T: Object, V: Array}) {}
+    class Parametric extends parameterized(Base, { T: Object }) {}
 
     it('can fetch the type parameters', function() {
-      let { T, V } = params(Parametric);
-      expect(T).toBe(Object);
-      expect(V).toBe(Array);
+      let { T } = params(Parametric);
+      expect(T).toBe(types.Object);
     });
 
     describe('overiding the defaults of a parameterized type', () => {
       it('can override the first parameter', function() {
-        let { T, V } = params(parameterized(Parametric, String));
-        expect(T).toBe(String);
-        expect(V).toBe(Array);
-      });
-
-      it('can override both parameters', function() {
-        let { T, V } = params(parameterized(Parametric, String, Number));
-        expect(T).toBe(String);
-        expect(V).toBe(Number);
+        let { T } = params(parameterized(Parametric, String));
+        expect(T).toBe(types.String);
       });
 
       it('can override a single parameter by name', function() {
-        let { T, V } = params(parameterized(Parametric, {V: Number}));
-        expect(T).toBe(Object);
-        expect(V).toBe(Number);
-      });
-
-      it('can override both parameters by name', function() {
-        let { T, V } = params(parameterized(Parametric, {T: String, V: Number}));
-        expect(T).toBe(String);
-        expect(V).toBe(Number);
+        let { T } = params(parameterized(Parametric, {T: Number}));
+        expect(T).toBe(types.Number);
       });
 
       it('ignores parameters that are beyond the index', function() {
-        expect(params(parameterized(Parametric, String, Number, Object))).toEqual({
-          T: String,
-          V: Number
+        expect(params(parameterized(Parametric, String))).toEqual({
+          T: types.String
         });
       });
     });

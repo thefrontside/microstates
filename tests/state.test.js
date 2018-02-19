@@ -43,5 +43,4 @@ describe('State', () => {
       expect(state.fullName).toEqual('Charles Lowell');
     });
   });
-
 });
