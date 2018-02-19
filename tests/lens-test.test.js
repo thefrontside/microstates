@@ -1,8 +1,7 @@
 import 'jest';
-import '../src';
-import Tree from '../src/utils/tree';
-import { view, set, lensTree, lensTreeData, compose } from '../src/lens';
 import { Applicative } from 'funcadelic';
+import { Tree } from 'microstates';
+import { view, set, lensTree, lensTreeData, compose } from '../src/lens';
 
 function pure(Type, value) {
   return Applicative.for(Type.prototype).pure(value);

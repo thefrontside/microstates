@@ -1,12 +1,12 @@
 import "jest";
 
-import Microstate from "../../src";
+import { create } from 'microstates';
 
 describe("number", () => {
   let zero, ten;
   beforeEach(() => {
-    zero = Microstate.create(Number);
-    ten = Microstate.create(Number, 10);
+    zero = create(Number);
+    ten = create(Number, 10);
   });
   it("has transitions", () => {
     expect(zero).toMatchObject({

@@ -14,11 +14,13 @@
   "license": "MIT",
   "author": "Charles Lowell <charles@frontside.io>, Taras Mankovski <taras@thisdot.co>",
   "files": [
-    "src/**/*",
-    "dist/index.js"
+    "src",
+    "dist",
+    "README.md"
   ],
-  "main": "dist/index.js",
-  "module": "src/index.js",
+  "main": "dist/microstates.umd.js",
+  "module": "dist/microstates.js",
+  "browser": "dist/microstates.umd.js",
   "repository": "git+ssh://git@github.com/cowboyd/microstates.js.git",
   "scripts": {
     "build": "rollup --config",
@@ -26,6 +28,7 @@
     "coverage:watch": "npm run coverage -- --watch",
     "prerelease": "npm test",
     "release": "npm pack",
+    "prepublish": "npm test",
     "test": "jest",
     "start": "npm test -- --watch"
   },
@@ -50,6 +53,7 @@
     "pretty-format": "22.1.0",
     "rollup": "^0.53.0",
     "rollup-plugin-babel": "^4.0.0-beta.0",
+    "rollup-plugin-filesize": "1.5.0",
     "standard-version": "^4.2.0"
   },
   "jest": {
@@ -58,12 +62,12 @@
       "js",
       "json"
     ],
-    "modulePaths": [
-      "<rootDir>/src",
-      "<rootDir>/node_modules"
+    "globalSetup": "./build.js",
+    "watchPathIgnorePatterns": [
+      "<rootDir>/dist/"
     ],
-    "transformIgnorePatterns": [
-      "/node_modules/(?!funcadelic)"
+    "collectCoverageFrom": [
+      "dist/microstates.umd.js"
     ]
   }
 }
