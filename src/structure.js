@@ -88,9 +88,6 @@ class Node {
   }
 
   stateAt(value) {
-    if (isSimple(this.Type)) {
-      return this.valueAt(value);
-    }
     let { Type } = this;
     let nodeValue = this.valueAt(value);
     let instance = new Type(nodeValue).valueOf();
@@ -120,7 +117,6 @@ class Node {
 
   transitionsAt(value, tree, invoke) {
     let { Type, path } = this;
-
     return map(method => (...args) => {
       let localValue = this.valueAt(value);
       let localTree = view(lensTree(path), tree);
