@@ -88,7 +88,7 @@ class Node {
   }
 
   stateAt(value) {
-    if (isSimple(Type)) {
+    if (isSimple(this.Type)) {
       return this.valueAt(value);
     }
     let { Type } = this;
