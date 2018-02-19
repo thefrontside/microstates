@@ -1,9 +1,11 @@
 import { foldl, append } from 'funcadelic';
+import toType from './types/to-type';
 
 const TYPE_PARAMETERS = Symbol('Type Parameters');
 
-export function parameterized(Class, ...substitutions) {
-  let defaults = params(Class);
+export function parameterized(Constructor, ...substitutions) {
+  let Type = toType(Constructor);
+  let defaults = params(Type);
   let keys = Object.keys(defaults);
   let parameters = foldl((parameters, param, index) => {
     if (typeof param === 'function') {
@@ -18,11 +20,14 @@ export function parameterized(Class, ...substitutions) {
     }
   }, defaults, substitutions);
 
-  return class Parameterized extends Class {
-    static [TYPE_PARAMETERS] = parameters;
+  return class Parameterized extends Type {
+    static get [TYPE_PARAMETERS]() { return parameters; };
   };
 }
 
-export function params(Class) {
-  return Class[TYPE_PARAMETERS] || {};
+export function params(Constructor) {
+  let Type = toType(Constructor);
+  return Type[TYPE_PARAMETERS] || {};
 }
+
+export const any = Symbol('any');

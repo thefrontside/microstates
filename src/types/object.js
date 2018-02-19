@@ -1,4 +1,6 @@
-export default class ObjectType {
+import { parameterized, any } from '../type-parameters';
+
+class ObjectType {
   constructor(value = {}) {
     return new Object(value);
   }
@@ -6,3 +8,6 @@ export default class ObjectType {
     return Object.assign({}, this.state, props);
   }
 }
+
+// export default ObjectType;
+export default parameterized(ObjectType, {T: any});

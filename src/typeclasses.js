@@ -1,4 +1,4 @@
-import { Applicative, Functor, map } from 'funcadelic';
+import { Applicative, Foldable, foldl, foldr, Functor, map } from 'funcadelic';
 import { Monad, flatMap } from './monad';
 import Microstate from './microstate';
 import { reveal } from './utils/secret';
@@ -38,9 +38,9 @@ Applicative.instance(Tree, {
     return new Tree({
       data() {
         return value;
-      },
+      }
     });
-  },
+  }
 });
 
 
@@ -56,4 +56,15 @@ Monad.instance(Tree, {
       },
     });
   },
+});
+
+Foldable.instance(Tree, {
+  foldl(fn, initial, tree) {
+    let start = fn(initial, tree);
+    return foldl((result, child) => foldl(fn, result, child), start, tree.children);
+  }
+  // foldr(fn, initial, tree) {
+  //   let fold = foldr((result, child) => foldr(fn, initial, child), tree.children);
+  //   return fn(fold, tree);
+  // }
 });

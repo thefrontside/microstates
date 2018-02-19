@@ -1,12 +1,43 @@
 import 'jest';
-import Microstate from '../src';
-import { parameterized, params } from '../src/type-parameters';
+import ArrayType from '../src/types/array';
+import ObjectType from '../src/types/object';
+import { parameterized, params, any } from '../src/type-parameters';
 
 describe('type parameters', () => {
   class Base {};
   it('has no parameters on something that has not been parameterized', () => {
     expect(params(Base)).toEqual({});
   });
+
+  describe('parameterizing an array', function () {
+    let ParameterizedArray = parameterized(Array, Base);
+
+    it('has the `T` parameter set to `any` by default', function() {
+      expect(params(Array).T).toBe(any);
+    });
+
+    it('transparently converts it to ArrayType', function() {
+      expect(ParameterizedArray.prototype).toBeInstanceOf(ArrayType);
+    });
+    it('has the `T` parameter set to Base', function() {
+      let { T } = params(ParameterizedArray);
+      expect(T).toBe(Base);
+    });
+  });
+
+  describe('parameterizing an object', function() {
+    let ParameterizedObject = parameterized(Object, Base);
+
+    it('has the `T` parameter set to `any` by default', function() {
+      let { T } = params(Object);
+      expect(T).toBe(any);
+    });
+
+    it('transparently converts it to ObjectType', function() {
+      expect(ParameterizedObject.prototype).toBeInstanceOf(ObjectType);
+    });
+  });
+
 
   describe('parameterizing a class', function() {
     class Parametric extends parameterized(Base, {T: Object, V: Array}) {}

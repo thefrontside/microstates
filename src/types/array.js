@@ -2,7 +2,9 @@ import set from 'ramda/src/set';
 import indexOf from 'ramda/src/indexOf';
 import lensPath from 'ramda/src/lensPath';
 
-export default class ArrayType {
+import { parameterized, any } from '../type-parameters';
+
+class ArrayType {
   constructor(value = []) {
     return value instanceof Array ? value : [value];
   }
@@ -36,3 +38,5 @@ export default class ArrayType {
     }
   }
 }
+
+export default parameterized(ArrayType, {T: any});

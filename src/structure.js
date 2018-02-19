@@ -1,5 +1,5 @@
 import $ from './utils/chain';
-import { map, append, pure } from 'funcadelic';
+import { map, append, pure, foldl } from 'funcadelic';
 import { flatMap } from './monad';
 import { view, set, lensTree, lensPath, lensIndex } from './lens';
 import Tree from './utils/tree';
@@ -8,6 +8,7 @@ import transitionsFor from './utils/transitions-for';
 import getOwnPropertyDescriptors from 'object.getownpropertydescriptors';
 import { reveal } from './utils/secret';
 import getType from './utils/get-type';
+import { isSimple } from './is-simple';
 
 const { assign } = Object;
 
@@ -78,7 +79,7 @@ function graft(path, tree) {
 }
 
 class Node {
-  constructor(Type, path) {
+  constructor(Type, path, tree) {
     assign(this, { Type, path });
   }
 
@@ -87,6 +88,9 @@ class Node {
   }
 
   stateAt(value) {
+    if (isSimple(Type)) {
+      return this.valueAt(value);
+    }
     let { Type } = this;
     let nodeValue = this.valueAt(value);
     let instance = new Type(nodeValue).valueOf();
