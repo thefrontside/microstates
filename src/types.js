@@ -11,3 +11,5 @@ export default {
   Array: ArrayType,
   Object: ObjectType
 };
+
+export { default as toType } from './types/to-type';

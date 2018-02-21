@@ -3,44 +3,34 @@ import { map, append, pure, foldl } from 'funcadelic';
 import { flatMap } from './monad';
 import { view, set, lensTree, lensPath, lensIndex } from './lens';
 import Tree from './utils/tree';
-import isPrimitive from './utils/is-primitive';
 import transitionsFor from './utils/transitions-for';
 import getOwnPropertyDescriptors from 'object.getownpropertydescriptors';
 import { reveal } from './utils/secret';
-import getType from './utils/get-type';
+import { toType } from './types';
 import isSimple  from './is-simple';
 
 const { assign } = Object;
 
 export default function analyze(Type, value) {
-  let types = flatMap(analyzeType, pure(Tree, new Node(Type, [])));
-  let values = map(analyzeValue(value), types);
-  return values;
+  return flatMap(analyzeType(value), pure(Tree, new Node(Type, [])));
 }
 
-function analyzeType(node) {
-  return new Tree({
-    data: () => node,
-    children() {
-      let type = getType(node.Type);
-      return $(new type())
-        .filter(({ value }) => !!value && value.call)
-        .map((ChildType, key) => pure(Tree, new Node(ChildType, append(node.path, key))))
-        .valueOf();
-    }
-  });
-}
-
-function analyzeValue(value) {
+function analyzeType(value) {
   return (node) => {
-    let { Type } = node;
-    let state = node.stateAt(value);
-    let initializedType = getType(state);
-    if (Type === initializedType) {
-      return node;
-    } else {
-      return append(node, { Type: initializedType });
-    }
+    let InitialType = node.Type;
+    let valueAt = node.valueAt(value);
+    let instance = new InitialType(valueAt);
+    let Type = toType(instance.constructor);
+
+    return new Tree({
+      data: () => Type === InitialType ? node : append(node, { Type }),
+      children() {
+        return $(new Type())
+          .filter(({ value }) => !!value && value.call)
+          .map((ChildType, key) => pure(Tree, new Node(ChildType, append(node.path, key))))
+          .valueOf();
+      }
+    });
   };
 }
 
@@ -91,9 +81,8 @@ class Node {
     let { Type } = this;
     let nodeValue = this.valueAt(value);
     let instance = new Type(nodeValue).valueOf();
-    // also don't know if this is the way to calculate state.
-    if (isPrimitive(Type)) {
-      return instance;
+    if (isSimple(Type)) {
+      return nodeValue || instance;
     } else {
       /**
        * TODO: reconsider scenario where user returned a POJO from constructor.
