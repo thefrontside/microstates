@@ -4,7 +4,6 @@ import { flatMap } from './monad';
 import { view, set, lensTree, lensPath, lensIndex } from './lens';
 import Tree from './utils/tree';
 import transitionsFor from './utils/transitions-for';
-import getOwnPropertyDescriptors from 'object.getownpropertydescriptors';
 import { reveal } from './utils/secret';
 import { toType } from './types';
 import isSimple  from './is-simple';
@@ -83,24 +82,10 @@ class Node {
     let instance = new Type(nodeValue).valueOf();
     if (isSimple(Type)) {
       return nodeValue || instance;
+    } else if (nodeValue) {
+      return append(instance, nodeValue);
     } else {
-      /**
-       * TODO: reconsider scenario where user returned a POJO from constructor.
-       * Decide if we want to merge POJOs into instantiated object.
-       *
-       * Cases:
-       *  1. No constructor specified
-       *  2. Returning an instance of original specified type
-       *  3. Returning a new type
-       *  4. Return a POJO and merging in
-       *  5. Sharing complex objects between instances
-       */
-      let descriptors = getOwnPropertyDescriptors(instance);
-      if (nodeValue) {
-        descriptors = append(getOwnPropertyDescriptors(nodeValue), descriptors);
-      }
-      let state = Object.create(Object.getPrototypeOf(instance), descriptors);
-      return state;
+      return instance;
     }
   }
 
