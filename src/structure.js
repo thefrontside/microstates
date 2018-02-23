@@ -136,6 +136,7 @@ class Node {
 
       let nextTree = set(lensTree(path), graft(path, nextLocalTree), tree);
       let nextValue = set(lensPath(path), nextLocalValue, value);
+      
       return { tree: nextTree, value: nextValue };
     }, transitionsFor(Type));
 
