@@ -7,6 +7,7 @@ import transitionsFor from './utils/transitions-for';
 import { reveal } from './utils/secret';
 import { toType } from './types';
 import isSimple  from './is-simple';
+import Microstate from './microstate';
 
 const { assign } = Object;
 
@@ -19,7 +20,14 @@ function analyzeType(value) {
     let InitialType = node.Type;
     let valueAt = node.valueAt(value);
     let instance = new InitialType(valueAt);
-    let Type = toType(instance.constructor);
+    
+    let Type; 
+    if (instance instanceof Microstate) {
+      let { tree } = reveal(instance);
+      Type = tree.data.Type;
+    } else {
+      Type  = toType(instance.constructor);
+    }
 
     return new Tree({
       data: () => Type === InitialType ? node : append(node, { Type }),
