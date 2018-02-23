@@ -6,23 +6,6 @@ it('exports create', function() {
   expect(create).toBeInstanceOf(Function);
 });
 
-it('throws an error when a transition called state is defined', () => {
-  expect(function() {
-    create(
-      class MyClass {
-        state() {}
-      }
-    );
-  }).toThrowError(
-    `You can not use 'state' as transition name because it'll conflict with state property on the microstate.`
-  );
-});
-it('throws an error when state property is set', () => {
-  expect(function() {
-    create(Number).state = 10;
-  }).toThrowError(`Setting state property will not do anything useful. Please don't do this.`);
-});
-
 describe('valueOf', () => {
   let ms;
   beforeEach(() => {
