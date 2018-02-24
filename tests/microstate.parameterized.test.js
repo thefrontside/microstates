@@ -34,7 +34,7 @@ describe("Parameterized Microstates: ", () => {
       });
     });
 
-    describe("root {} to parameterized(Object)", function() {
+    describe("root {} to parameterized(Object, parameterized(Array, Number))", function() {
       let Numbers = [Number];
       let Counters = { Numbers };
       let m, value;
@@ -56,7 +56,7 @@ describe("Parameterized Microstates: ", () => {
       });
     });
 
-    describe("composed {} to parameterized(Object)", function() {
+    describe("composed {[Numbers]} to parameterized(Object, parameterized(Array, Number))", function() {
       let Numbers = [Number];
       class Store {
         inventory = { Numbers };
