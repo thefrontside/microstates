@@ -1,7 +1,7 @@
 import $ from './utils/chain';
-import { map, append, pure, foldl } from 'funcadelic';
+import { map, append, pure } from 'funcadelic';
 import { flatMap } from './monad';
-import { view, set, lensTree, lensPath, lensIndex } from './lens';
+import { view, set, lensTree, lensPath } from './lens';
 import Tree from './utils/tree';
 import transitionsFor from './utils/transitions-for';
 import { reveal } from './utils/secret';
@@ -59,6 +59,28 @@ export function isa(Child, Ancestor) {
   return Child === Ancestor || Child.prototype instanceof Ancestor;
 }
 
+export function collapseState(tree, value) {
+  return new $(tree)
+      .flatMap(node => {
+        if (node.isSimple) {
+          if (isa(node.Type, types.Array)) {
+            return analyzeType(value)(new Node(types.Array, node.path))
+          }
+          if (isa(node.Type, types.Object)) {
+            return analyzeType(value)(new Node(types.Object, node.path));
+          }
+        }
+        return analyzeType(value)(node);
+      })
+    .map(node => {
+      if (node.isSimple) {
+        return node.valueAt(value) || new node.Type(node.valueAt(value)).valueOf();
+      } else {
+        return node.stateAt(value);
+      }
+    }).valueOf().collapsed;
+}
+
 /**
  * Turn any structure tree into a root tree.
  *
@@ -94,7 +116,7 @@ function graft(path, tree) {
 }
 
 export class Node {
-  constructor(Type, path, tree) {
+  constructor(Type, path) {
     assign(this, { Type, path });
   }
 
@@ -125,6 +147,7 @@ export class Node {
 
   transitionsAt(value, tree, invoke) {
     let { Type, path } = this;
+    
     return map(method => (...args) => {
       let localValue = this.valueAt(value);
       let localTree = view(lensTree(path), tree);
@@ -146,7 +169,5 @@ export class Node {
 
       return { tree: nextTree, value: nextValue };
     }, transitionsFor(Type));
-
-    return transitions;
   }
 }
