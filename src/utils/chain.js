@@ -9,12 +9,15 @@ class Chain {
       },
     });
   }
+
   map(fn) {
     return new Chain(map(fn, this.valueOf()));
   }
+
   flatMap(fn) {
     return new Chain(flatMap(fn, this.valueOf()));
   }
+  
   filter(fn) {
     return new Chain(filter(fn, this.valueOf()));
   }
