@@ -56,7 +56,7 @@ describe("Parameterized Microstates: ", () => {
       });
     });
 
-    describe("composed {[Numbers]} to parameterized(Object, parameterized(Array, Number))", function() {
+    describe("taras composed {[Numbers]} to parameterized(Object, parameterized(Array, Number))", function() {
       let Numbers = [Number];
       class Store {
         inventory = { Numbers };
@@ -76,11 +76,9 @@ describe("Parameterized Microstates: ", () => {
           m.inventory.apples[0].increment()
             .inventory.oranges[1].increment().state
         ).toEqual({
-          store: {
-            inventory: {
-              oranges: [50, 21],
-              apples: [2, 2, 45]
-            }
+          inventory: {
+            oranges: [50, 21],
+            apples: [2, 2, 45]
           }
         });
       });
