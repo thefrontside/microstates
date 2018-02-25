@@ -16,7 +16,7 @@ export default function analyze(Type, value) {
   return flatMap(analyzeType(value), pure(Tree, new Node(Type, [])));
 }
 
-function analyzeType(value) {
+export function analyzeType(value) {
   return (node) => {
     let SugarFreeType = isSugar(node.Type) ? desugar(node.Type) : node.Type;
     let valueAt = node.valueAt(value);
@@ -55,7 +55,7 @@ function analyzeType(value) {
   };
 }
 
-function isa(Child, Ancestor) {
+export function isa(Child, Ancestor) {
   return Child === Ancestor || Child.prototype instanceof Ancestor;
 }
 
@@ -93,7 +93,7 @@ function graft(path, tree) {
   }
 }
 
-class Node {
+export class Node {
   constructor(Type, path, tree) {
     assign(this, { Type, path });
   }
