@@ -1,6 +1,9 @@
-import { map } from 'funcadelic';
-import analyze from './structure';
+import { map, pure } from 'funcadelic';
+import analyze, { analyzeType, Node, isa } from './structure';
+import types from './types';
 import { keep, reveal } from './utils/secret';
+import { flatMap } from './monad';
+import Tree from './utils/tree';
 
 const { assign } = Object;
 
@@ -28,12 +31,26 @@ export default class Microstate {
    */
   get state() {
     let { tree, value } = reveal(this);
-    if (tree.data.isSimple) {
-      return value || new tree.data.Type(value).valueOf();
-    }
+
+    let simplified = flatMap(node => {
+      if (node.isSimple) {
+        if (isa(node.Type, types.Array)) {
+          return analyzeType(value)(new Node(types.Array, node.path))
+        }
+        if (isa(node.Type, types.Object)) {
+          return analyzeType(value)(new Node(types.Object, node.path));
+        }
+      }
+      return analyzeType(value)(node);
+    }, tree);
+
     return map(node => {
-      return node.stateAt(value);
-    }, tree).collapsed;
+      if (node.isSimple) {
+        return node.valueAt(value) || new node.Type(node.valueAt(value)).valueOf();
+      } else {
+        return node.stateAt(value);
+      }
+    }, simplified).collapsed;
   }
 
   /**
