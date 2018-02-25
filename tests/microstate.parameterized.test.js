@@ -12,7 +12,7 @@ describe("Parameterized Microstates: ", () => {
       items = [Item];
     }
 
-    describe("root [] to parameterized(Array)", function() {
+    describe("root [Item] to parameterized(Array)", function() {
       let m;
       beforeEach(function() {
         m = create([Item], [{ isCompleted: false }])[0].isCompleted.toggle();
@@ -22,7 +22,7 @@ describe("Parameterized Microstates: ", () => {
       });
     });
 
-    describe("composed [] to parameterized(Array)", function() {
+    describe("composed [Item] to parameterized(Array)", function() {
       let m;
       beforeEach(function() {
         m = create(TodoList, {
@@ -34,7 +34,7 @@ describe("Parameterized Microstates: ", () => {
       });
     });
 
-    describe("root {} to parameterized(Object, parameterized(Array, Number))", function() {
+    describe("root {[Number]} to parameterized(Object, parameterized(Array, Number))", function() {
       let Numbers = [Number];
       let Counters = { Numbers };
       let m, value;
@@ -56,7 +56,7 @@ describe("Parameterized Microstates: ", () => {
       });
     });
 
-    describe("taras composed {[Numbers]} to parameterized(Object, parameterized(Array, Number))", function() {
+    describe("composed {[Number]} to parameterized(Object, parameterized(Array, Number))", function() {
       let Numbers = [Number];
       class Store {
         inventory = { Numbers };
