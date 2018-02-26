@@ -7,7 +7,7 @@ import transitionsFor from './utils/transitions-for';
 import { reveal } from './utils/secret';
 import types, { params, any, toType } from './types';
 import isSimple  from './is-simple';
-import { isSugar, desugar } from './sugar';
+import desugar from './desugar';
 import Microstate from './microstate';
 
 const { assign } = Object;
@@ -18,16 +18,16 @@ export default function analyze(Type, value) {
 
 export function analyzeType(value) {
   return (node) => {
-    let SugarFreeType = isSugar(node.Type) ? desugar(node.Type) : node.Type;
+    let InitialType = desugar(node.Type);
     let valueAt = node.valueAt(value);
-    let instance = new SugarFreeType(valueAt);
+    let instance = new InitialType(valueAt);
 
     let Type;
     if (instance instanceof Microstate) {
       let { tree } = reveal(instance);
       Type = tree.data.Type;
     } else {
-      Type  = toType(SugarFreeType);
+      Type  = toType(InitialType);
     }
 
     return new Tree({
@@ -46,7 +46,7 @@ export function analyzeType(value) {
           }
         }
         return $(new Type())
-          .map(value => isSugar(value) ? desugar(value) : value)
+          .map(desugar)
           .filter(({ value }) => !!value && value.call)
           .map((ChildType, key) => pure(Tree, new Node(ChildType, append(node.path, key))))
           .valueOf();

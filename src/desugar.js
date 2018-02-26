@@ -23,13 +23,15 @@ export function isSugar(Type) {
   return isPossibleSugar(Type) && ContainsTypes.reduce(Type);
 }
 
-export function desugar(Type) {
-  let { constructor: c } = Type;
-  if (c === Array) {
-    return parameterized(Array, ...Type.map(desugar));
-  }
-  if (c === Object) {
-    return parameterized(Object, ...keys(Type).map(k => desugar(Type[k])));
+export default function desugar(Type) {
+  if (isSugar(Type)) {
+    let { constructor: c } = Type;
+    if (c === Array) {
+      return parameterized(Array, ...Type.map(desugar));
+    }
+    if (c === Object) {
+      return parameterized(Object, ...keys(Type).map(k => desugar(Type[k])));
+    }
   }
   return Type;
 }
