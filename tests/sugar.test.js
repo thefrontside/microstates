@@ -1,6 +1,6 @@
 import 'jest';
 
-import { isSugar, desugar } from '../src/sugar';
+import desugar, { isSugar } from '../src/desugar';
 import types, { params } from '../src/types';
 
 it('detects [Type] as sugar', () => {
