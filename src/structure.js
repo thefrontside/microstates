@@ -115,7 +115,7 @@ function graft(path, tree) {
   }
 }
 
-export class Node {
+class Node {
   constructor(Type, path) {
     assign(this, { Type, path });
   }
