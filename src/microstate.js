@@ -1,6 +1,7 @@
 import { map } from 'funcadelic';
 import analyze, { collapseState } from './structure';
 import { keep, reveal } from './utils/secret';
+import SymbolObservable from 'symbol-observable'
 
 export default class Microstate {
   constructor(tree, value) {
@@ -36,5 +37,27 @@ export default class Microstate {
   valueOf() {
     let { value } = reveal(this);
     return value;
+  }
+
+  [SymbolObservable]() {
+    let microstate = this;
+    return {
+      subscribe(observer) {
+        let next = observer.call ? observer : observer.next;
+
+        function nextOnTransition(transition) {
+          return function invoke(...args) {
+            let nextable = map(nextOnTransition, transition(...args));
+            next(nextable);
+            return nextable;
+          }
+        }
+    
+        next(map(nextOnTransition, microstate))
+      },
+      [SymbolObservable]() {
+        return this;
+      }
+    }
   }
 }
