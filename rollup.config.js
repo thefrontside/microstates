@@ -14,7 +14,8 @@ const globals = {
   "ramda/src/mergeDeepRight": "R.mergeDeepRight",
   "ramda/src/indexOf": "R.indexOf",
   "ramda/src/compose": "R.compose",
-  "object.getownpropertydescriptors": "Object.getownpropertydescriptors"
+  "object.getownpropertydescriptors": "Object.getownpropertydescriptors",
+  'symbol-observable': 'SymbolObservable'
 };
 
 module.exports = {

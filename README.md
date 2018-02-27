@@ -458,6 +458,32 @@ let today = create({Todo}, { t1: { title: 'Buy milk' }, t2: { title: 'Review PRs
 
 today.t2.isComplete.toggle().state
 // => { t1: Todo { title: 'Buy milk', isComplete: false }, t2: Todo { title: 'Review PRs', isComplete: true } }
+
+## Observable Integration
+
+You can create an observable from any microstate using the Observable.from method. 
+The resulting Observable will stream the next microstate for every transition. 
+When you subscribe to the observable microstate, you'll imidiately receive a microstate throught the stream.
+This microstate will have transitions that you can call to cause the next microstate to come through the tream.
+
+```js
+import { create } from 'microstates';
+
+let ms = create(Number, 42);
+let observable = Observable.from(ms);
+
+let last;
+
+observable.subscribe(microstate => {
+  last = microstate;
+  console.log(microstate.state);
+});
+// => 42
+
+last.increment().increment().increment();
+// => 43
+// => 44
+// => 45
 ```
 
 # Built-in types
@@ -520,7 +546,6 @@ Microstate.create(Number).sum(5, 10).state;
 ### subtract(number: Number, [, number: Number]) => microstate
 
 Return a microstate with result of subtraction of passed in values from current state.
-<<<<<<< HEAD
 
 ```js
 Microstate.create(Number, 42).subtract(2, 10).state;

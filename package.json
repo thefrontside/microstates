@@ -35,7 +35,8 @@
   "dependencies": {
     "funcadelic": "^0.3.2",
     "object.getownpropertydescriptors": "2.0.3",
-    "ramda": "^0.25.0"
+    "ramda": "^0.25.0",
+    "symbol-observable": "1.2.0"
   },
   "devDependencies": {
     "@babel/core": "^7.0.0-beta.38",
