@@ -15,7 +15,7 @@ Let's get some terminology out of the way so we're on the same page for the rest
   invoke a transition.
 * _Transition_ is an operation that receive state and return new state.
 
-To add microstates to your node project,
+To add microstates to your project,
 
 ```bash
 npm install --save microstates
@@ -413,6 +413,51 @@ create(MyApp, { session: { content: { name: 'Taras' } } }).state;
 // transition to AnonymousSession state with logout
 create(MyApp, { session: { content: { name: 'Taras' } } }).logout().state;
 // => { session: { content: null, isAuthenticated: false }}
+```
+
+## Parameterized Arrays & Objects
+
+It's often useful to be able to incidate that an array consists of certain type of items, 
+for example an array of todo items. Microstates provides a special syntax for this.
+
+```js
+class Todo {
+  title = String
+  isCompleted = Boolean
+}
+
+class TodoApp {
+  todos = [Todo]
+}
+```
+
+This tells Microstates that we're composing an array of Todo items. Microstates will use this information to generate state 
+and transitions for items in the array.
+
+```js
+let today = create(TodoApp, { todos: [{ title: 'Buy milk' }] }).state;
+// => { todos: [ Todo { title: 'Buy milk', isCompleted: false } ] }
+``` 
+
+It will also provide you with transitions array with objects for each data item. You can invoke,
+transitions from this array and they will behave as all other transitions in microstates.
+
+```js
+today.todos[0].title.set('Buy 2% milk').state;
+// => { todos: [ Todo { title: 'Buy 2% milk', isCompleted: false } ] }
+
+today.todos.push({ title: 'Review PRs' }).state
+// => { todos: [ Todo { title: 'Buy 2% milk', isCompleted: false }, Todo { title: 'Review PRs', isCompleted: false } ] }
+```
+
+You can do the same with Objects using `{Type}` syntax. 
+
+```js
+let today = create({Todo}, { t1: { title: 'Buy milk' }, t2: { title: 'Review PRs' } }).state
+// => { t1: Todo { title: 'Buy milk', isComplete: false }, t2: Todo { title: 'Review PRs', isComplete: false } }
+
+today.t2.isComplete.toggle().state
+// => { t1: Todo { title: 'Buy milk', isComplete: false }, t2: Todo { title: 'Review PRs', isComplete: true } }
 ```
 
 # Built-in types
