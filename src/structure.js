@@ -27,21 +27,19 @@ function analyzeType(value) {
     let valueAt = node.valueAt(value);
     let instance = new InitialType(valueAt);
 
-    let Type;
     if (instance instanceof Microstate) {
       let { tree } = reveal(instance);
-      Type = tree.data.Type;
+      return graft(node.path, tree);
     } else {
-      Type  = toType(InitialType);
+      let Type = toType(InitialType);
+      return new Tree({
+        data: () => Type === node.Type ? node : append(node, { Type }),
+        children() {
+          let childTypes = childrenAt(Type, node.valueAt(value));
+          return map((ChildType, path) => pure(Tree, new Node(ChildType, append(node.path, path))), childTypes);
+        }
+      });
     }
-
-    return new Tree({
-      data: () => Type === node.Type ? node : append(node, { Type }),
-      children() {
-        let childTypes = childrenAt(Type, node.valueAt(value));
-        return map((ChildType, path) => pure(Tree, new Node(ChildType, append(node.path, path))), childTypes);
-      }
-    });
   };
 }
 
