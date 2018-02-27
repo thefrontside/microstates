@@ -61,17 +61,14 @@ function isa(Child, Ancestor) {
 
 export function collapseState(tree, value) {
   return new $(tree)
-      .flatMap(node => {
-        if (node.isSimple) {
-          if (isa(node.Type, types.Array)) {
-            return analyzeType(value)(new Node(types.Array, node.path))
-          }
-          if (isa(node.Type, types.Object)) {
-            return analyzeType(value)(new Node(types.Object, node.path));
-          }
-        }
-        return analyzeType(value)(node);
-      })
+    .flatMap(node => {
+      let subtree = view(lensTree(node.path), tree);
+      if (node.isSimple) {
+        return append(subtree, { children: [] });
+      } else {
+        return subtree;
+      }
+    })
     .map(node => {
       return node.stateAt(value);
     }).valueOf().collapsed;
@@ -143,7 +140,7 @@ class Node {
 
   transitionsAt(value, tree, invoke) {
     let { Type, path } = this;
-    
+
     return map(method => (...args) => {
       let localValue = this.valueAt(value);
       let localTree = view(lensTree(path), tree);
