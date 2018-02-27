@@ -1,4 +1,6 @@
-import { type } from 'funcadelic';
+import { type, map } from 'funcadelic';
+
+const { keys } = Object;
 
 const Values = type(class Values {
   values(holder) {
@@ -11,7 +13,7 @@ Values.instance(Array, {
 });
 
 Values.instance(Object, {
-  values(object) { return Object.values(object); }
+  values(object) { return map(key => object[key], keys(object)); }
 });
 
 export const { values } = Values.prototype;
