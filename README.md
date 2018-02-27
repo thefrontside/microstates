@@ -458,8 +458,9 @@ let today = create({Todo}, { t1: { title: 'Buy milk' }, t2: { title: 'Review PRs
 
 today.t2.isComplete.toggle().state
 // => { t1: Todo { title: 'Buy milk', isComplete: false }, t2: Todo { title: 'Review PRs', isComplete: true } }
+```
 
-## Observable Integration
+## Observable Interoperability
 
 You can create an observable from any microstate using the Observable.from method. 
 The resulting Observable will stream the next microstate for every transition. 
