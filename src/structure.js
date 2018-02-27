@@ -1,5 +1,5 @@
 import $ from './utils/chain';
-import { map, append, pure } from 'funcadelic';
+import { type, map, append, pure } from 'funcadelic';
 import { flatMap } from './monad';
 import { view, set, lensTree, lensPath } from './lens';
 import Tree from './utils/tree';
@@ -16,7 +16,12 @@ export default function analyze(Type, value) {
   return flatMap(analyzeType(value), pure(Tree, new Node(Type, [])));
 }
 
-export function analyzeType(value) {
+export function collapseState(tree, value) {
+  let truncated = truncate(node => node.isSimple, tree);
+  return map(node => node.stateAt(value), truncated).collapsed;
+}
+
+function analyzeType(value) {
   return (node) => {
     let InitialType = desugar(node.Type);
     let valueAt = node.valueAt(value);
@@ -33,45 +38,69 @@ export function analyzeType(value) {
     return new Tree({
       data: () => Type === node.Type ? node : append(node, { Type }),
       children() {
-        if (isa(Type, types.Array)) {
-          let { T } = params(Type);
-          if (T !== any) {
-            return map((child, i) => pure(Tree, new Node(T, append(node.path, i))), node.valueAt(value));
-          }
-        }
-        if (isa(Type, types.Object)) {
-          let { T } = params(Type);
-          if (T !== any) {
-            return map((child, name) => pure(Tree, new Node(T, append(node.path, name))), node.valueAt(value));
-          }
-        }
-        return $(new Type())
-          .map(desugar)
-          .filter(({ value }) => !!value && value.call)
-          .map((ChildType, key) => pure(Tree, new Node(ChildType, append(node.path, key))))
-          .valueOf();
+        let childTypes = childrenAt(Type, node.valueAt(value));
+        return map((ChildType, path) => pure(Tree, new Node(ChildType, append(node.path, path))), childTypes);
       }
     });
   };
 }
 
-function isa(Child, Ancestor) {
-  return Child === Ancestor || Child.prototype instanceof Ancestor;
-}
+const Location = type(class Location {
+  stateAt(Type, instance, value) {
+    return this(Type.prototype).stateAt(instance, value);
+  }
+  childrenAt(Type, value) {
+    return this(Type.prototype).childrenAt(Type, value);
+  }
+});
 
-export function collapseState(tree, value) {
-  return new $(tree)
-    .flatMap(node => {
-      let subtree = view(lensTree(node.path), tree);
-      if (node.isSimple) {
-        return append(subtree, { children: [] });
-      } else {
-        return subtree;
-      }
-    })
-    .map(node => {
-      return node.stateAt(value);
-    }).valueOf().collapsed;
+const { stateAt, childrenAt } = Location.prototype;
+
+Location.instance(Object, {
+  stateAt(instance, value) {
+    if (value) {
+      return append(instance, value);
+    } else {
+      return instance;
+    }
+  },
+
+  childrenAt(Type, value) {
+    return $(new Type())
+      .map(desugar)
+      .filter(({ value }) => !!value && value.call)
+      .valueOf();
+  }
+});
+
+Location.instance(types.Object, {
+  stateAt: _ => {},
+  childrenAt(Type, value) {
+    let { T } = params(Type);
+    if (T !== any) {
+      return map(_ => T, value);
+    } else {
+      return Location.for(Object).childrenAt(Type, value);
+    }
+  }
+});
+
+Location.instance(types.Array, {
+  stateAt: _ => [],
+  childrenAt(...args) {
+    return Location.for(types.Object.prototype).childrenAt(...args);
+  }
+});
+
+function truncate(fn, tree) {
+  return flatMap(node => {
+    let subtree = view(lensTree(node.path), tree);
+    if (fn(subtree.data)) {
+      return append(subtree, { children: [] });
+    } else {
+      return subtree;
+    }
+  }, tree);
 }
 
 /**
@@ -123,18 +152,12 @@ class Node {
 
   stateAt(value) {
     let { Type } = this;
-    let nodeValue = this.valueAt(value);
-    let instance = new Type(nodeValue).valueOf();
+    let valueAt = this.valueAt(value);
+    let instance = new Type(valueAt).valueOf();
     if (isSimple(Type)) {
-      return nodeValue || instance;
-    } else if (isa(Type, types.Array)) {
-      return [];
-    } else if (isa(Type, types.Object)) {
-      return {};
-    } else if (nodeValue) {
-      return append(instance, nodeValue);
+      return valueAt || instance;
     } else {
-      return instance;
+      return stateAt(Type, instance, valueAt);
     }
   }
 
