@@ -73,11 +73,7 @@ export function collapseState(tree, value) {
         return analyzeType(value)(node);
       })
     .map(node => {
-      if (node.isSimple) {
-        return node.valueAt(value) || new node.Type(node.valueAt(value)).valueOf();
-      } else {
-        return node.stateAt(value);
-      }
+      return node.stateAt(value);
     }).valueOf().collapsed;
 }
 
