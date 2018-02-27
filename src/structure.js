@@ -55,7 +55,7 @@ export function analyzeType(value) {
   };
 }
 
-export function isa(Child, Ancestor) {
+function isa(Child, Ancestor) {
   return Child === Ancestor || Child.prototype instanceof Ancestor;
 }
 
