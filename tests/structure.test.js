@@ -1,6 +1,7 @@
 import 'jest';
 import { view, set } from '../src/lens';
-import { analyze, Tree } from 'microstates';
+import { analyze, Tree, parameterized } from 'microstates';
+import types from '../src/types';
 
 describe('Structure', () => {
   class Session {
@@ -111,4 +112,105 @@ describe('Structure', () => {
       user: { firstName: 'Charles', lastName: 'Super-tastic!'}
     });
   });
+
+  describe('A Parameterized Array', function() {
+    let array;
+    beforeEach(function() {
+      array = [true, false, false];
+      let Type = parameterized(Array, Boolean);
+      tree = analyze(Type, array);
+    });
+    it('has a node for each member of the array', function() {
+      expect(tree.children.length).toBe(3);
+      expect(tree.children[0]).toBeDefined();
+      expect(tree.children[1]).toBeDefined();
+      expect(tree.children[2]).toBeDefined();
+    });
+    it('re-uses the value of the array as both its value and state', function() {
+      expect(tree.data.valueAt(array)).toBe(array);
+      expect(tree.data.stateAt(array)).toBe(array);
+    });
+    it('can invoke transitions on the subtypes', function() {
+      let invoke = jest.fn(() => ({
+        tree: analyze(Boolean, true),
+        value: true
+      }));
+      let transitions = tree.children[2].data.transitionsAt([true, false, false], tree, invoke);
+
+      let { tree: nextTree, value: nextValue } = transitions.toggle();
+      expect(nextValue).toEqual([true, false, true]);
+    });
+
+    it('updates a tree to keep in sync with array transitions', function() {
+      let invoke = jest.fn(() => ({
+        tree: analyze(parameterized(Array, Boolean), [true, false]),
+        value: [true, false]
+      }));
+      let transitions = tree.data.transitionsAt([true, false, false], tree, invoke);
+      let { tree: nextTree, value: nextValue } = transitions.pop();
+      expect(nextValue).toEqual([true, false]);
+      expect(nextTree.children.length).toEqual(2);
+      expect(nextTree.children[0].data.Type.name).toBe("BooleanType");
+      expect(nextTree.children[1].data.Type.name).toBe("BooleanType");
+    });
+  });
+
+  describe('An Unparameterized Array', function() {
+    let array;
+    beforeEach(function() {
+      array = [1, 2, 3];
+      tree = analyze(Array, array);
+    });
+    it('does not have child nodes for its children', function() {
+      expect(tree.children.length).toBe(0);
+    });
+    it('re-uses the value as both its value and state', function() {
+      expect(tree.data.valueAt(array)).toBe(array);
+      expect(tree.data.stateAt(array)).toBe(array);
+    });
+  });
+
+  describe('A Parameterized Object', function() {
+    let object;
+    beforeEach(function() {
+      object = {one: 1, two: 2};
+      let Type = parameterized(Object, Number);
+      tree = analyze(Type, object);
+    });
+    it('has a node for each entry in the object', function() {
+      expect(tree.children.one).toBeDefined();
+      expect(tree.children.two).toBeDefined();
+    });
+    it('re-uses the value of the object as both its value and state', function() {
+      expect(tree.data.valueAt(object)).toBe(object);
+      expect(tree.data.stateAt(object)).toBe(object);
+    });
+    it('can invoke transitions on the subtypes', function() {
+      let invoke = jest.fn(() => ({
+        tree: analyze(Number, 2),
+        value: 2
+      }));
+      let transitions = tree.children.one.data.transitionsAt(object, tree, invoke);
+
+      let { tree: nextTree, value: nextValue } = transitions.increment();
+      expect(nextValue).toEqual({one: 2, two: 2});
+    });
+
+    it('updates a tree to keep in sync with array transitions', function() {
+      let invoke = jest.fn(() => ({
+        tree: analyze(parameterized(Object, Number), {one: 1, two: 2, three: 3}),
+        value: {one: 1, two: 2, three: 3}
+      }));
+      let transitions = tree.data.transitionsAt(object, tree, invoke);
+      let { tree: nextTree, value: nextValue } = transitions.assign({three: 3});
+      expect(nextValue).toEqual({one: 1, two: 2, three: 3});
+      expect(nextTree.children.one.data.Type.name).toBe("NumberType");
+      expect(nextTree.children.two.data.Type.name).toBe("NumberType");
+      expect(nextTree.children.three.data.Type.name).toBe("NumberType");
+    });
+  });
+
+
 });
+
+import logTree from '../src/utils/log-tree';

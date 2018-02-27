@@ -20,13 +20,13 @@ Functor.instance(Microstate, {
 
     // tree of transitions
     let next = map(node => {
-      let transitions = node.transitionsAt(value, tree, invoke);      
+      let transitions = node.transitionsAt(value, tree, invoke);
       return map(transition => {
         return (...args) => {
           let { tree, value } = transition(...args);
           return new Microstate(tree, value);
         };
-      }, transitions)
+      }, transitions);
     }, tree);
 
     let mapped = map(transitions => map(fn, transitions), next);
@@ -60,9 +60,9 @@ Applicative.instance(Tree, {
     return new Tree({
       data() {
         return value;
-      },
+      }
     });
-  },
+  }
 });
 
 

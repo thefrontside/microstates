@@ -2,12 +2,17 @@ import set from 'ramda/src/set';
 import indexOf from 'ramda/src/indexOf';
 import lensPath from 'ramda/src/lensPath';
 
-export default class ArrayType {
+import { parameterized, any } from './parameters0';
+
+class ArrayType {
   constructor(value = []) {
     return value instanceof Array ? value : [value];
   }
   push(...args) {
     return [...this.state, ...args];
+  }
+  pop() {
+    return this.state.pop();
   }
   filter(callback) {
     return Array.prototype.filter.call(this.state, callback);
@@ -36,3 +41,5 @@ export default class ArrayType {
     }
   }
 }
+
+export default parameterized(ArrayType, {T: any});
