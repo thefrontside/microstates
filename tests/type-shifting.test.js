@@ -2,14 +2,23 @@ import 'jest';
 import { create } from 'microstates';
 
 describe('type-shifting', () => {
-  class Line {
+  class Shape {
+    constructor({ a, b, c }) {
+      if (a && b && c) {
+        return create(Triangle, { a, b, c });
+      }
+    }
+  }
+
+  class Line extends Shape {
     a = Number;
     add(b) {
       let { a } = this.state;
-      return create(Corner, { a, b });
+      return create(Angle, { a, b });
     }
   }
-  class Corner extends Line {
+
+  class Angle extends Line {
     a = Number;
     b = Number;
     add(c) {
@@ -17,45 +26,65 @@ describe('type-shifting', () => {
       return create(Triangle, { a, b, c });
     }
   }
-  class Triangle extends Corner {
+  
+  class Triangle extends Angle {
     c = Number;
   }
-  let ms = create(Line);
-  let line, corner, triangle;
-  beforeEach(() => {
-    line = ms.a.set(10);
-    corner = line.add(20);
-    triangle = corner.add(30);
-  });
-  it('constructs a line', () => {
-    expect(line.state).toBeInstanceOf(Line);
-    expect(line.state).toMatchObject({
-      a: 10,
+
+  describe('from constructor', () => {
+    it('can type shift to a Triangle', function() {
+      let triangle = create(Shape, { a: 10, b: 20, c: 10 });
+      expect(triangle.state).toBeInstanceOf(Triangle);
+      expect(triangle.state).toMatchObject({
+        a: 10,
+        b: 20,
+        c: 10
+      });
     });
-    expect(line.valueOf()).toEqual({ a: 10 });
+    // it('can type shift to Line', function() {
+    //   let line = create(Shape, { a: 10 });
+    //   expect(line.state).toBeInstanceOf(Line);
+    // });
   });
-  it('constructs a Corner', () => {
-    expect(corner.state).toBeInstanceOf(Corner);
-    expect(corner.state).toMatchObject({
-      a: 10,
-      b: 20,
+
+  describe('transitions', function() {
+    let ms = create(Line);
+    let line, corner, triangle;
+    beforeEach(() => {
+      line = ms.a.set(10);
+      corner = line.add(20);
+      triangle = corner.add(30);
     });
-    expect(corner.valueOf()).toEqual({ a: 10, b: 20 });
-  });
-  it('constructs a Triangle', () => {
-    expect(triangle.state).toBeInstanceOf(Triangle);
-    expect(triangle.state).toMatchObject({
-      a: 10,
-      b: 20,
-      c: 30,
+    it('constructs a line', () => {
+      expect(line.state).toBeInstanceOf(Line);
+      expect(line.state).toMatchObject({
+        a: 10,
+      });
+      expect(line.valueOf()).toEqual({ a: 10 });
     });
-    expect(triangle.valueOf()).toEqual({ a: 10, b: 20, c: 30 });
-  });
-  it('can be done down tree', () => {
-    let string = create(String, '100');
-    let cString = triangle.c.set(string)
-    expect(cString.state.c).toBe('100');
-    expect(cString.c.concat).toBeDefined();
+    it('constructs a Corner', () => {
+      expect(corner.state).toBeInstanceOf(Angle);
+      expect(corner.state).toMatchObject({
+        a: 10,
+        b: 20,
+      });
+      expect(corner.valueOf()).toEqual({ a: 10, b: 20 });
+    });
+    it('constructs a Triangle', () => {
+      expect(triangle.state).toBeInstanceOf(Triangle);
+      expect(triangle.state).toMatchObject({
+        a: 10,
+        b: 20,
+        c: 30,
+      });
+      expect(triangle.valueOf()).toEqual({ a: 10, b: 20, c: 30 });
+    });
+    it('can be done down tree', () => {
+      let string = create(String, '100');
+      let cString = triangle.c.set(string)
+      expect(cString.state.c).toBe('100');
+      expect(cString.c.concat).toBeDefined();
+    });
   });
 });
 
