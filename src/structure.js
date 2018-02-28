@@ -28,8 +28,12 @@ function analyzeType(value) {
     let instance = new InitialType(valueAt);
 
     if (instance instanceof Microstate) {
-      let { tree } = reveal(instance);
-      return graft(node.path, tree);
+      let { tree , value } = reveal(instance);
+      let shift = new ShiftNode(tree.data, value);
+      return graft(node.path, new Tree({
+        data: () => shift,
+        children: () => tree.children
+      }));
     } else {
       let Type = toType(InitialType);
       return new Tree({
@@ -183,5 +187,16 @@ class Node {
 
       return { tree: nextTree, value: nextValue };
     }, transitionsFor(Type));
+  }
+}
+
+class ShiftNode extends Node {
+  constructor({ Type, path }, value) {
+    super(Type, path);
+    assign(this, { value });
+  }
+
+  valueAt() {
+    return this.value;
   }
 }
