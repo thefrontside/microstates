@@ -25,30 +25,31 @@ function analyzeType(value) {
   return (node) => {
     let InitialType = desugar(node.Type);
     let valueAt = node.valueAt(value);
+    let Type = toType(InitialType);
     
-    if (InitialType !== Object && InitialType.hasOwnProperty('create')) {
+    let instance = Type.hasOwnProperty('create') ? Type.create(valueAt) : undefined;
 
-      let instance = InitialType.create(valueAt);
-      if (!(instance instanceof Microstate)) {
-        throw new Error(`${InitialType.name}.create must return a Microstate instance instead returned ${instance}`);
-      }
-
+    if (instance instanceof Microstate) {
       let { tree , value } = reveal(instance);
-      let shift = new ShiftNode(tree.data, value);
-      return graft(node.path, new Tree({
-        data: () => shift,
-        children: () => tree.children
-      }));
-    } else {
-      let Type = toType(InitialType);
-      return new Tree({
-        data: () => Type === node.Type ? node : append(node, { Type }),
-        children() {
-          let childTypes = childrenAt(Type, node.valueAt(value));
-          return map((ChildType, path) => pure(Tree, new Node(ChildType, append(node.path, path))), childTypes);
-        }
-      });
+
+      if (tree.data.Type === Type && value === valueAt) {
+        return tree;
+      } else {
+        let shift = new ShiftNode(tree.data, value);
+        return graft(node.path, new Tree({
+          data: () => shift,
+          children: () => tree.children
+        }));
+      }
     }
+
+    return new Tree({
+      data: () => Type === node.Type ? node : append(node, { Type }),
+      children() {
+        let childTypes = childrenAt(Type, node.valueAt(value));
+        return map((ChildType, path) => pure(Tree, new Node(ChildType, append(node.path, path))), childTypes);
+      }
+    });
   };
 }
 
