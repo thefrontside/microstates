@@ -1,6 +1,25 @@
 import "jest";
 import { create } from "microstates";
 import SymbolObservable from 'symbol-observable';
+import { Observable } from 'rxjs';
+
+describe('rxjs interop', function() {
+  let observable, observer, last;
+  beforeEach(() => {
+    observer = jest.fn(next => last = next); 
+    observable = Observable.from(create(Number, 42));
+    let subscription = observable.subscribe(observer);
+    last.increment();
+    last.increment();
+    last.increment();
+  });
+  it('sent 4 states to obsever', function() {
+    expect(observer.mock.calls).toHaveLength(4);
+  });
+  it('incremented 3 times', function() {
+    expect(last.state).toBe(45);
+  });
+});
 
 describe('interop', function() {
   let ms, observable;

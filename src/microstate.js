@@ -43,7 +43,7 @@ export default class Microstate {
     let microstate = this;
     return {
       subscribe(observer) {
-        let next = observer.call ? observer : observer.next;
+        let next = observer.call ? observer : observer.next.bind(observer);
 
         function nextOnTransition(transition) {
           return function invoke(...args) {
