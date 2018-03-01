@@ -358,9 +358,9 @@ create(MyComponent).modal.show('Hello World', 'Rise and shine!').state;
 
 # Changing structure
 
-Microstates can change their own structure using custom transitions. This is useful when you're
-modeling state machines or want to be able to change the shape of the state after a transition. To
-change the structure of a microstate you replace it with new microstate in a custom transition.
+When modeling state machines, it's often helpful to be able to initialize into a particular
+state based on value. This can be accomplised by adding a static `create` method. This method
+should return the next state that you want the node to initialize into.
 
 ```js
 import { create } from 'microstates';
@@ -368,16 +368,21 @@ import { create } from 'microstates';
 class Session {
   content = null;
 
-  constructor(state) {
-    if (state) {
-      return create(AuthenticatedSession, state);
+  static create(session) {
+    if (session) {
+      return create(AuthenticatedSession, session);
     } else {
-      return create(AnonymousSession, state);
+      return create(AnonymousSession);
     }
   }
 }
+```
 
-class AuthenticatedSession {
+Once your state is initialized, you can return new microstates from transition to transition
+time of the node that the transition is attached to.
+
+```js
+class AuthenticatedSession extends Session {
   isAuthenticated = true;
   content = Object;
 
@@ -386,7 +391,7 @@ class AuthenticatedSession {
   }
 }
 
-class AnonymousSession {
+class AnonymousSession extends Session {
   content = null;
   isAuthenticated = false;
   authenticate(user) {

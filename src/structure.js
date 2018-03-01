@@ -25,21 +25,27 @@ function analyzeType(value) {
   return (node) => {
     let InitialType = desugar(node.Type);
     let valueAt = node.valueAt(value);
-    let instance = new InitialType(valueAt);
+    let Type = toType(InitialType);
+    
+    let instance = Type.hasOwnProperty('create') ? Type.create(valueAt) : undefined;
 
     if (instance instanceof Microstate) {
-      let { tree } = reveal(instance);
-      return graft(node.path, tree);
-    } else {
-      let Type = toType(InitialType);
-      return new Tree({
-        data: () => Type === node.Type ? node : append(node, { Type }),
-        children() {
-          let childTypes = childrenAt(Type, node.valueAt(value));
-          return map((ChildType, path) => pure(Tree, new Node(ChildType, append(node.path, path))), childTypes);
-        }
-      });
+      let { tree , value } = reveal(instance);
+
+      let shift = new ShiftNode(tree.data, value);
+      return graft(node.path, new Tree({
+        data: () => shift,
+        children: () => tree.children
+      }));
     }
+
+    return new Tree({
+      data: () => Type === node.Type ? node : append(node, { Type }),
+      children() {
+        let childTypes = childrenAt(Type, node.valueAt(value));
+        return map((ChildType, path) => pure(Tree, new Node(ChildType, append(node.path, path))), childTypes);
+      }
+    });
   };
 }
 
@@ -183,5 +189,16 @@ class Node {
 
       return { tree: nextTree, value: nextValue };
     }, transitionsFor(Type));
+  }
+}
+
+class ShiftNode extends Node {
+  constructor({ Type, path }, value) {
+    super(Type, path);
+    assign(this, { value });
+  }
+
+  valueAt() {
+    return this.value;
   }
 }

@@ -3,16 +3,15 @@ import { create } from 'microstates';
 
 class Session {
   content = null;
-  constructor(state) {
-    if (state) {
-      return create(AuthenticatedSession, state);
-    } else {
-      return create(AnonymousSession, state);
+  static create(session) {
+    if (session) {
+      return create(AuthenticatedSession, session);
     }
+    return create(AnonymousSession);
   }
 }
 
-class AuthenticatedSession {
+class AuthenticatedSession extends Session {
   isAuthenticated = true;
   content = Object;
 
@@ -21,7 +20,7 @@ class AuthenticatedSession {
   }
 }
 
-class AnonymousSession {
+class AnonymousSession extends Session {
   content = null;
   isAuthenticated = false;
   authenticate(user) {
