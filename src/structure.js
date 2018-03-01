@@ -25,9 +25,14 @@ function analyzeType(value) {
   return (node) => {
     let InitialType = desugar(node.Type);
     let valueAt = node.valueAt(value);
-    let instance = new InitialType(valueAt);
+    
+    if (InitialType !== Object && InitialType.hasOwnProperty('create')) {
 
-    if (instance instanceof Microstate) {
+      let instance = InitialType.create(valueAt);
+      if (!(instance instanceof Microstate)) {
+        throw new Error(`${InitialType.name}.create must return a Microstate instance instead returned ${instance}`);
+      }
+
       let { tree , value } = reveal(instance);
       let shift = new ShiftNode(tree.data, value);
       return graft(node.path, new Tree({

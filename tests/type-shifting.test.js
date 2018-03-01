@@ -2,10 +2,17 @@ import 'jest';
 import { create } from 'microstates';
 
 describe('type-shifting', () => {
+
   class Shape {
-    constructor({ a, b, c }) {
+    static create({ a, b, c } = {}) {
       if (a && b && c) {
         return create(Triangle, { a, b, c });
+      }
+      if (a && b) {
+        return create(Angle, { a, b });
+      }
+      if (a) {
+        return create(Line, { a });
       }
     }
   }
@@ -26,25 +33,79 @@ describe('type-shifting', () => {
       return create(Triangle, { a, b, c });
     }
   }
-  
+
   class Triangle extends Angle {
     c = Number;
   }
 
-  describe('from constructor', () => {
-    it('can type shift to a Triangle', function() {
-      let triangle = create(Shape, { a: 10, b: 20, c: 10 });
+  class Glass {
+    shape = Shape;
+  }
+
+  describe('create', function() {
+
+    it('initializes to first type', () => {
+      let triangle = Shape.create({a: 10, b: 20, c: 30 });
       expect(triangle.state).toBeInstanceOf(Triangle);
       expect(triangle.state).toMatchObject({
         a: 10,
         b: 20,
-        c: 10
+        c: 30
       });
     });
-    // it('can type shift to Line', function() {
-    //   let line = create(Shape, { a: 10 });
-    //   expect(line.state).toBeInstanceOf(Line);
-    // });
+
+    it('initializes to second type', () => {
+      let angle = Shape.create({a: 10, b: 20 });
+      expect(angle.state).toBeInstanceOf(Angle);
+      expect(angle.state).toMatchObject({
+        a: 10,
+        b: 20,
+      });
+    });
+
+    it(`can be initialized from descendant's create`, function() {
+      let line = Line.create({ a: 10 });      
+      expect(line.state).toBeInstanceOf(Line);
+      expect(line.state).toMatchObject({
+        a: 10
+      });
+    });
+
+    it('is used to initialize composed object', function() {     
+      let composed = create(Glass, { shape : {a: 10, b: 20, c: 30 }}); 
+      expect(composed.state.shape).toBeInstanceOf(Triangle);
+      expect(composed.state).toMatchObject({
+        shape: {
+          a: 10,
+          b: 20,
+          c: 30
+        }
+      });
+    });
+
+    it('throws an error when create does not return an instance of Shape', () => {
+      expect(() => {
+        class Alphabet {
+          a = class Letter {
+            static create() {
+  
+            }
+          }
+        }
+        create(Alphabet).state.a
+      }).toThrowError(/Letter.create must return a Microstate instance instead returned undefined/);
+    });
+
+    it('supports being initialized in parameterized arrays', () => {
+      class Drawing {
+        shapes = [Shape]
+      }
+      let drawing = create(Drawing, { shapes: [ { a: 10 }, { a: 20, b: 30 }, { a: 100, b: 200, c: 300 }]});
+      expect(drawing.state.shapes[0]).toBeInstanceOf(Line);
+      expect(drawing.state.shapes[1]).toBeInstanceOf(Angle);
+      expect(drawing.state.shapes[2]).toBeInstanceOf(Triangle);            
+    });
+
   });
 
   describe('transitions', function() {

@@ -5,6 +5,7 @@ class Modal {
   name = String;
   isOpen = Boolean;
 }
+
 describe('types', () => {
   describe('value', () => {
     let ms;
