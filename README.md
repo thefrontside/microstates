@@ -368,11 +368,11 @@ import { create } from 'microstates';
 class Session {
   content = null;
 
-  static create(state) {
-    if (state) {
-      return create(AuthenticatedSession, state);
+  static create(session) {
+    if (session) {
+      return create(AuthenticatedSession, session);
     } else {
-      return create(AnonymousSession, state);
+      return create(AnonymousSession);
     }
   }
 }
