@@ -98,6 +98,28 @@ describe('type-shifting', () => {
       expect(drawing.state.shapes[2]).toBeInstanceOf(Triangle);            
     });
 
+    describe('can typeshift into parameterized type', () => {
+      class Container {
+        static create(content) {
+          if (Array.isArray(content)) {
+            return create([String], content);
+          } else {
+            return create({String}, content);
+          }
+        }
+      }
+      it('can initialize into a parameterized array', () => {
+        let array = Container.create(['a', 'b', 'c']);
+        expect(array.state).toMatchObject(['a', 'b', 'c']);
+        expect(array[0].concat).toBeInstanceOf(Function);
+      });
+      it('can initialize into a parameterized object', () => {
+        let object = Container.create({a: 'A', b: 'B', c: 'C'});
+        expect(object.state).toMatchObject({a: 'A', b: 'B', c: 'C'});
+        expect(object.a.concat).toBeInstanceOf(Function);
+      });
+    });
+
   });
 
   describe('transitions', function() {
