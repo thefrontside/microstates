@@ -14,6 +14,7 @@ describe('type-shifting', () => {
       if (a) {
         return create(Line, { a });
       }
+      return create(Shape);
     }
   }
 
@@ -43,6 +44,11 @@ describe('type-shifting', () => {
   }
 
   describe('create', function() {
+
+    it('can initialize to itself', () => {
+      let shape = Shape.create();
+      expect(shape.state).toBeInstanceOf(Shape);
+    });
 
     it('initializes to first type', () => {
       let triangle = Shape.create({a: 10, b: 20, c: 30 });
@@ -81,19 +87,6 @@ describe('type-shifting', () => {
           c: 30
         }
       });
-    });
-
-    it('throws an error when create does not return an instance of Shape', () => {
-      expect(() => {
-        class Alphabet {
-          a = class Letter {
-            static create() {
-  
-            }
-          }
-        }
-        create(Alphabet).state.a
-      }).toThrowError(/Letter.create must return a Microstate instance instead returned undefined/);
     });
 
     it('supports being initialized in parameterized arrays', () => {

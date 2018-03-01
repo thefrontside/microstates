@@ -3,12 +3,11 @@ import { create } from 'microstates';
 
 class Session {
   content = null;
-  static create(state) {
-    if (state) {
-      return create(AuthenticatedSession, state);
-    } else {
-      return create(AnonymousSession, state);
+  static create(session) {
+    if (session) {
+      return create(AuthenticatedSession, session);
     }
+    return create(AnonymousSession);
   }
 }
 
