@@ -98,7 +98,7 @@ describe('type-shifting', () => {
       expect(drawing.state.shapes[2]).toBeInstanceOf(Triangle);            
     });
 
-    describe('can typeshift into parameterized type', () => {
+    describe('can type-shift into a parameterized type', () => {
       class Container {
         static create(content) {
           if (Array.isArray(content)) {

@@ -32,15 +32,11 @@ function analyzeType(value) {
     if (instance instanceof Microstate) {
       let { tree , value } = reveal(instance);
 
-      if (tree.data.Type === Type && value === valueAt) {
-        return graft(node.path, tree);
-      } else {
-        let shift = new ShiftNode(tree.data, value);
-        return graft(node.path, new Tree({
-          data: () => shift,
-          children: () => tree.children
-        }));
-      }
+      let shift = new ShiftNode(tree.data, value);
+      return graft(node.path, new Tree({
+        data: () => shift,
+        children: () => tree.children
+      }));
     }
 
     return new Tree({
