@@ -1,7 +1,7 @@
-import { map } from 'funcadelic';
-import analyze, { collapseState } from './structure';
-import { keep, reveal } from './utils/secret';
-import SymbolObservable from 'symbol-observable'
+import { map } from "funcadelic";
+import analyze, { collapseState } from "./structure";
+import { keep, reveal } from "./utils/secret";
+import SymbolObservable from "symbol-observable";
 
 export default class Microstate {
   constructor(tree, value) {
@@ -18,6 +18,7 @@ export default class Microstate {
    * @param {*} value
    */
   static create(Type, value) {
+    value = value != null ? value.valueOf() : value;
     let tree = analyze(Type, value);
     return new Microstate(tree, value);
   }
@@ -50,14 +51,14 @@ export default class Microstate {
             let nextable = map(nextOnTransition, transition(...args));
             next(nextable);
             return nextable;
-          }
+          };
         }
-    
-        next(map(nextOnTransition, microstate))
+
+        next(map(nextOnTransition, microstate));
       },
       [SymbolObservable]() {
         return this;
       }
-    }
+    };
   }
 }
