@@ -2,7 +2,6 @@ import { map } from "funcadelic";
 import analyze, { collapseState } from "./structure";
 import { keep, reveal } from "./utils/secret";
 import SymbolObservable from "symbol-observable";
-import isCallable from "./utils/is-callable";
 
 export default class Microstate {
   constructor(tree, value) {
@@ -19,7 +18,7 @@ export default class Microstate {
    * @param {*} value
    */
   static create(Type, value) {
-    value = value && isCallable(value.valueOf) ? value.valueOf() : value;
+    value = value != null ? value.valueOf() : value;
     let tree = analyze(Type, value);
     return new Microstate(tree, value);
   }
