@@ -3,7 +3,10 @@ import { Monad, flatMap } from './monad';
 import Microstate from './microstate';
 import { reveal } from './utils/secret';
 import Tree from './utils/tree';
+import { Collapse, collapse } from './typeclasses/collapse';
 import thunk from './thunk';
+
+const { keys } = Object;
 
 function invoke({ method, args, value, tree}) {
   let nextValue = method.apply(new Microstate(tree, value), args);
@@ -31,9 +34,20 @@ Functor.instance(Microstate, {
 
     let mapped = map(transitions => map(fn, transitions), next);
 
-    return append(microstate, mapped.collapsed);
+    return append(microstate, collapse(mapped));
   }
 });
+
+Collapse.instance(Tree, {
+  collapse(tree) {
+    let hasChildren = !!keys(tree.children).length;
+    if (hasChildren) {
+      return append(tree.data, map(child => collapse(child), tree.children));
+    } else {
+      return tree.data;
+    }
+  }
+})
 
 Functor.instance(Tree, {
   /**

@@ -1,6 +1,6 @@
 import { Monoid } from 'funcadelic';
 import { parameterized } from '../src/types';
-import { values } from './values';
+import { values } from './typeclasses/values';
 import { map } from 'funcadelic';
 
 let ContainsTypes = Monoid.create(class ContainsTypes {

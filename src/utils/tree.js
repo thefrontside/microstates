@@ -19,16 +19,4 @@ export default class Tree {
       },
     });
   }
-
-  get hasChildren() {
-    return !!keys(this.children).length;
-  }
-
-  get collapsed() {
-    if (this.hasChildren) {
-      return append(this.data, map(child => child.collapsed, this.children));
-    } else {
-      return this.data;
-    }
-  }
 }
