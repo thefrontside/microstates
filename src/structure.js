@@ -9,6 +9,7 @@ import types, { params, any, toType } from './types';
 import isSimple  from './is-simple';
 import desugar from './desugar';
 import Microstate from './microstate';
+import { collapse } from './typeclasses/collapse';
 
 const { assign } = Object;
 
@@ -18,7 +19,7 @@ export default function analyze(Type, value) {
 
 export function collapseState(tree, value) {
   let truncated = truncate(node => node.isSimple, tree);
-  return map(node => node.stateAt(value), truncated).collapsed;
+  return collapse(map(node => node.stateAt(value), truncated));
 }
 
 function analyzeType(value) {
