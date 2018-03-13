@@ -1,5 +1,5 @@
 import { map } from "funcadelic";
-import analyze, { collapseState } from "./structure";
+import analyze, { collapseState, analyzeFrom } from "./structure";
 import { keep, reveal } from "./utils/secret";
 import SymbolObservable from "symbol-observable";
 
@@ -20,6 +20,15 @@ export default class Microstate {
   static create(Type, value) {
     value = value != null ? value.valueOf() : value;
     let tree = analyze(Type, value);
+    return new Microstate(tree, value);
+  }
+
+  static from(value) {
+    // TODO: these should convert to Any
+    if (value === null || value === undefined) {
+      throw new Error(`Can not convert ${value} to a microstate with from.`)
+    }
+    let tree = analyzeFrom(value);
     return new Microstate(tree, value);
   }
 

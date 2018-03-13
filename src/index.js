@@ -2,7 +2,7 @@ import './typeclasses';
 import Microstate from './microstate';
 
 export default Microstate;
-export const { create } = Microstate;
+export const { create, from } = Microstate;
 
 export { default as Microstate } from './microstate';
 export { default as Tree } from './utils/tree';
