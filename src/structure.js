@@ -14,11 +14,7 @@ import { collapse } from './typeclasses/collapse';
 const { assign } = Object;
 
 export function analyzeFrom(value) {
-  return flatMap(analyzeValue(value), pure(Tree, new Node(value.constructor, [])));
-}
-
-function analyzeValue(value) {
-  return node => {
+  return flatMap(node => {
     if (node.Type === Object || node.Type === Array) {
       let valueAt = node.valueAt(value);
   
@@ -33,7 +29,7 @@ function analyzeValue(value) {
         data: () => node
       })
     }
-  }
+  }, pure(Tree, new Node(value.constructor, [])));
 }
 
 export default function analyze(Type, value) {

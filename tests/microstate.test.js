@@ -38,7 +38,7 @@ describe("from", () => {
   it("makes a number to microstate", () => {
     let ms = from(42);
     expect(ms).toMatchObject({
-      increment: expect.any(Function)
+      increment: expect.any(Function),
     });
     expect(ms.state).toBe(42);
     expect(ms.valueOf()).toBe(42);
@@ -47,7 +47,7 @@ describe("from", () => {
   it("makes a boolean into a microstate", () => {
     let ms = from(true);
     expect(ms).toMatchObject({
-      toggle: expect.any(Function)
+      toggle: expect.any(Function),
     });
     expect(ms.state).toBe(true);
     expect(ms.valueOf()).toBe(true);
@@ -56,7 +56,7 @@ describe("from", () => {
   it("makes a string into a microstate", () => {
     let ms = from("hello world");
     expect(ms).toMatchObject({
-      concat: expect.any(Function)
+      concat: expect.any(Function),
     });
     expect(ms.state).toBe("hello world");
     expect(ms.valueOf()).toBe("hello world");
@@ -76,14 +76,14 @@ describe("from", () => {
     let ms = from(value);
     expect(ms).toMatchObject({
       string: {
-        concat: expect.any(Function)
+        concat: expect.any(Function),
       },
       number: {
-        increment: expect.any(Function)
+        increment: expect.any(Function),
       },
       boolean: {
-        toggle: expect.any(Function)
-      }
+        toggle: expect.any(Function),
+      },
     });
     expect(ms.valueOf()).toBe(value);
   });
@@ -109,29 +109,34 @@ describe("from", () => {
     expect(shallowArray).toMatchObject({
       0: { toggle: expect.any(Function) },
       1: { concat: expect.any(Function) },
-      2: { increment: expect.any(Function) }
+      2: { increment: expect.any(Function) },
     });
     expect(shallowArray.valueOf()).toBe(value);
   });
 
-  it.only("allows to transition a primitive value in shallow array", () => {
-    expect(shallowArray[0].toggle().valueOf()).toEqual([
-      false,
-      "hello world",
-      42
-    ]);
+  it("allows to transition a primitive value in shallow array", () => {
+    let toggled = shallowArray[0].toggle();
+    expect(toggled.valueOf()).toEqual([false, "hello world", 42]);
     expect(value).toEqual([true, "hello world", 42]);
-    expect(shallowArray[1].concat("!!!").valueOf()).toEqual([
-      true,
-      "hello world!!!",
-      42
-    ]);
+
+    let longer = shallowArray[1].concat("!!!");
+    expect(longer.valueOf()).toEqual([true, "hello world!!!", 42]);
     expect(value).toEqual([true, "hello world", 42]);
-    expect(shallowArray[2].increment().valueOf()).toEqual([
-      false,
-      "hello world",
-      43
-    ]);
+
+    let incremented = shallowArray[2].increment();
+    expect(incremented.valueOf()).toEqual([true, "hello world", 43]);
     expect(value).toEqual([true, "hello world", 42]);
+  });
+
+  it("allows to transition an array with deeply nested objects", () => {
+    let value = [{ a: { b: { c: true } } }];
+    let toggled = from(value)[0].a.b.c.toggle();
+    expect(toggled.valueOf()).toEqual([{ a: { b: { c: false } } }]);
+  });
+
+  it("allows to transition an array composed into an array", () => {
+    let value = [[[ true ]]];
+    let toggled = from(value)[0][0][0].toggle();
+    expect(toggled.valueOf()).toEqual([[[false]]]);
   });
 });
