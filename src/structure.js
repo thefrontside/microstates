@@ -14,23 +14,25 @@ import { collapse } from './typeclasses/collapse';
 const { assign } = Object;
 
 export function analyzeFrom(value) {
-   if (typeof value === 'object') {
-    return flatMap(analyzeValue(value), pure(Tree, new Node(class {}, [])));
-  } else {
-    return pure(Tree, new Node(value.constructor, []));
-  }
+  return flatMap(analyzeValue(value), pure(Tree, new Node(value.constructor, [])));
 }
 
 function analyzeValue(value) {
   return node => {
-    let valueAt = node.valueAt(value);
-
-    return new Tree({
-      data: () => node,
-      children() {
-        return map((childValue, path) => graft(append(node.path, path), analyzeFrom(childValue)), valueAt);
-      }
-    })
+    if (node.Type === Object || node.Type === Array) {
+      let valueAt = node.valueAt(value);
+  
+      return new Tree({
+        data: () => node,
+        children() {
+          return map((childValue, path) => graft(append(node.path, path), analyzeFrom(childValue)), valueAt);
+        }
+      })
+    } else {
+      return new Tree({
+        data: () => node
+      })
+    }
   }
 }
 

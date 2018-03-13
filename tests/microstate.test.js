@@ -89,23 +89,49 @@ describe("from", () => {
   });
 
   it("allows to transition shallow composed object", () => {
-    let incremented = from({ counter: 42 }).counter.increment();
+    let original = { counter: 42 };
+    let incremented = from(original).counter.increment();
+    expect(original).toEqual({ counter: 42 });
     expect(incremented.state).toEqual({ counter: 43 });
   });
 
   it("allows to transition deeply composed object", () => {
-    let toggled = from({ a: { b: { c: true } } }).a.b.c.toggle();
+    let original = { a: { b: { c: true } } };
+    let toggled = from(original).a.b.c.toggle();
+    expect(original).toEqual({ a: { b: { c: true } } });
     expect(toggled.state).toMatchObject({ a: { b: { c: false } } });
   });
 
-  // it("builds microstate for an array of primitive values", () => {
-  //   let value = [true, "hello world", 42];
-  //   let ms = from(value);
-  //   expect(ms).toMatchObject([
-  //     { toggle: expect.any(Function) },
-  //     { concat: expect.any(Function) },
-  //     { increment: expect.any(Function) }
-  //   ]);
-  //   expect(ms.valueOf()).toBe(value);
-  // });
+  let value = [true, "hello world", 42];
+  let shallowArray = from(value);
+
+  it("builds microstate for an array of primitive values", () => {
+    expect(shallowArray).toMatchObject({
+      0: { toggle: expect.any(Function) },
+      1: { concat: expect.any(Function) },
+      2: { increment: expect.any(Function) }
+    });
+    expect(shallowArray.valueOf()).toBe(value);
+  });
+
+  it.only("allows to transition a primitive value in shallow array", () => {
+    expect(shallowArray[0].toggle().valueOf()).toEqual([
+      false,
+      "hello world",
+      42
+    ]);
+    expect(value).toEqual([true, "hello world", 42]);
+    expect(shallowArray[1].concat("!!!").valueOf()).toEqual([
+      true,
+      "hello world!!!",
+      42
+    ]);
+    expect(value).toEqual([true, "hello world", 42]);
+    expect(shallowArray[2].increment().valueOf()).toEqual([
+      false,
+      "hello world",
+      43
+    ]);
+    expect(value).toEqual([true, "hello world", 42]);
+  });
 });
