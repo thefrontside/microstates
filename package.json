@@ -33,9 +33,9 @@
     "start": "npm test -- --watch"
   },
   "dependencies": {
-    "funcadelic": "^0.3.2",
+    "funcadelic": "0.3.3",
     "object.getownpropertydescriptors": "2.0.3",
-    "ramda": "^0.25.0",
+    "ramda": "0.25.0",
     "symbol-observable": "1.2.0"
   },
   "devDependencies": {

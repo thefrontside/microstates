@@ -4,6 +4,7 @@ import { parameterized } from '../src/types/parameters';
 import analyze from '../src/structure';
 import { map } from 'funcadelic';
 import { collapse } from '../src/typeclasses/collapse';
+import { create } from 'microstates';
 
 function node(Type, value) {
   return analyze(Type, value).data;
@@ -42,6 +43,13 @@ describe('State', () => {
       expect(state.firstName).toEqual('Charles');
       expect(state.lastName).toEqual('Lowell');
       expect(state.fullName).toEqual('Charles Lowell');
+    });
+  });
+
+  describe('reading state twice', () => {
+    it('returns the same root state', () => {
+      let ms = create(User);
+      expect(ms.state).toBe(ms.state);
     });
   });
 });
