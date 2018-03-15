@@ -47,9 +47,16 @@ describe('State', () => {
   });
 
   describe('reading state twice', () => {
+    class Node {
+      node = Node
+    }
+    let ms = create(Node);
     it('returns the same root state', () => {
-      let ms = create(User);
       expect(ms.state).toBe(ms.state);
+    });
+    it('returns the same node when composed state is read twice', () => {
+      expect(ms.state.node).toBe(ms.state.node);
+      expect(ms.state.node.node).toBe(ms.state.node.node);
     });
   });
 });
