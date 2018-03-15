@@ -29,14 +29,20 @@ function analyzeType(value) {
     let Type = toType(InitialType);
 
     let instance = Type.hasOwnProperty('create') ? Type.create(valueAt) : undefined;
-
+    
     if (instance instanceof Microstate) {
       let { tree , value } = reveal(instance);
 
+      // when type shifting a node with a new value, the new value needs to be shifted
+      // into every child not just the shifted node.
       let shift = new ShiftNode(tree.data, value);
       return graft(node.path, new Tree({
         data: () => shift,
-        children: () => tree.children
+        children: () => map(tree => {
+          return map(node => {
+            return new ShiftNode(node, view(lensPath(node.path), value));
+          }, tree);
+        }, tree.children)
       }));
     }
 

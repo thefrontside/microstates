@@ -28,7 +28,6 @@ export default class Microstate {
    */
   get state() {
     let { tree, value } = reveal(this);
-
     return collapseState(tree, value);
   }
 
