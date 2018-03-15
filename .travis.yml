@@ -7,7 +7,8 @@ node_js:
   - "6"
 
 install:
-  - npm i -g coveralls
+  - npm install -g npm@latest
+  - npm install -g coveralls
   - npm install
 
 script:
