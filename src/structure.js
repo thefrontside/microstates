@@ -10,6 +10,7 @@ import isSimple  from './is-simple';
 import desugar from './desugar';
 import Microstate from './microstate';
 import { collapse } from './typeclasses/collapse';
+import truncate from './truncate';
 
 const { assign } = Object;
 
@@ -44,7 +45,7 @@ function analyzeType(value) {
         let childTypes = childrenAt(Type, node.valueAt(value));
         
         return map((ChildType, path) => {
-          
+
           let child = node.isShifted ? 
             new ShiftNode({Type: ChildType, path: append(node.path, path)}, view(lensPath([path]), node.valueAt())) : 
             new Node(ChildType, append(node.path, path));
@@ -85,7 +86,7 @@ Location.instance(Object, {
 });
 
 Location.instance(types.Object, {
-  stateAt: _ => {},
+  stateAt: _ => ({}),
   childrenAt(Type, value) {
     let { T } = params(Type);
     if (T !== any) {
@@ -102,17 +103,6 @@ Location.instance(types.Array, {
     return Location.for(types.Object.prototype).childrenAt(...args);
   }
 });
-
-function truncate(fn, tree) {
-  return flatMap(node => {
-    let subtree = view(lensTree(node.path), tree);
-    if (fn(subtree.data)) {
-      return append(subtree, { children: [] });
-    } else {
-      return subtree;
-    }
-  }, tree);
-}
 
 class Node {
   constructor(Type, path) {

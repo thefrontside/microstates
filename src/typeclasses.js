@@ -23,7 +23,9 @@ Functor.instance(Microstate, {
 
     // tree of transitions
     let next = map(node => {
+      
       let transitions = node.transitionsAt(value, tree, invoke);
+
       return map(transition => {
         return (...args) => {
           let { tree, value } = transition(...args);
