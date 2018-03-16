@@ -35,14 +35,7 @@ function analyzeType(value) {
 
       // when type shifting a node with a new value, the new value needs to be shifted
       // into every child not just the shifted node.
-      return graft(node.path, new Tree({
-        data: () => new ShiftNode(tree.data, value),
-        children: () => map(tree => {
-          return map(node => {
-            return new ShiftNode(node, view(lensPath(node.path), value));
-          }, tree);
-        }, tree.children)
-      }));
+      return graft(node.path, map(node => new ShiftNode(node, view(lensPath(node.path), value)), tree));
     }
     
     return new Tree({
