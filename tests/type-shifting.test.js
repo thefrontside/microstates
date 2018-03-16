@@ -286,5 +286,45 @@ describe("type-shifting into a deeply composed microstate", () => {
       })
     });
   });
-
 });
+
+describe("type-shifting in a getter", () => {
+  class Node {
+    depth = Number;
+
+    get next() {
+      return create(Node, { depth: this.depth + 1 }).state;
+    }
+  }
+
+  let root = create(Node);
+
+  it('allows to create nodes', () => {
+    expect(root.state.depth).toBe(0);
+    expect(root.state.next.depth).toBe(1);
+    expect(root.state.next.next.depth).toBe(2);
+  });
+});
+
+describe.skip("type-shifting recursively with create", () => {
+  // this fails with: RangeError: Maximum call stack size exceeded
+  // I suspect this is because `create` is eager, it would be cool if
+  // we could make this lazy and thereby allow tree to be pulled on demand
+
+  class Node {
+    depth = Number;
+    node = Node;
+
+    static create({ depth = 0 } = {}) {
+      return create(Node, { depth, node: { depth: depth + 1 } });
+    }
+  }
+
+  let root = create(Node);
+
+  it('allows to create nodes', () => {
+    expect(root.state.depth).toBe(0);
+    expect(root.state.node.depth).toBe(1)
+  });
+});
+
