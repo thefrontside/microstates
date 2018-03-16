@@ -348,12 +348,14 @@ describe('type-shifting from create to parameterized array', () => {
   }
 
   it('privides data to parameterized array', () => {
-    expect(create(Group).state).toMatchObject({
+    let { state } = create(Group);
+    expect(state).toMatchObject({
       members: [
         { name: 'Taras' },
         { name: 'Charles' },
         { name: 'Siva' }
       ]
     });
+    expect(state.members[0].name).toBe("Taras");
   });
 });

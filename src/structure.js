@@ -37,12 +37,20 @@ function analyzeType(value) {
       // into every child not just the shifted node.
       return graft(node.path, map(node => new ShiftNode(node, view(lensPath(node.path), value)), tree));
     }
-    
+
     return new Tree({
       data: () => Type === node.Type ? node : append(node, { Type }),
       children() {
         let childTypes = childrenAt(Type, node.valueAt(value));
-        return map((ChildType, path) => pure(Tree, new Node(ChildType, append(node.path, path))), childTypes);
+        
+        if (node.isShifted) {
+          return map((ChildType, path) => {
+            let shift = new ShiftNode({Type: ChildType, path: append(node.path, path)}, view(lensPath([path]), node.valueAt()));
+            return pure(Tree, shift);
+          }, childTypes);
+        } else {
+          return map((ChildType, path) => pure(Tree, new Node(ChildType, append(node.path, path))), childTypes)
+        }
       }
     });
   };
