@@ -347,15 +347,37 @@ describe('type-shifting from create to parameterized array', () => {
     }
   }
 
+  let group = create(Group);
+
   it('privides data to parameterized array', () => {
-    let { state } = create(Group);
-    expect(state).toMatchObject({
+    expect(group.state).toMatchObject({
       members: [
         { name: 'Taras' },
         { name: 'Charles' },
         { name: 'Siva' }
       ]
     });
-    expect(state.members[0].name).toBe("Taras");
+    expect(group.state.members[0]).toBeInstanceOf(Person);
+  });
+
+  it('has initialized valueOf', () => {
+    expect(group.valueOf()).toEqual({
+      members: [
+        { name: 'Taras' },
+        { name: 'Charles' },
+        { name: 'Siva' }
+      ]
+    })
+  });
+
+  it('can transition shifted value', () => {
+    let acclaimed = group.members[1].name.set('!!Charles!!');
+    expect(acclaimed.state).toMatchObject({
+      members: [
+        { name: 'Taras' },
+        { name: '!!Charles!!' },
+        { name: 'Siva' }
+      ]
+    })
   });
 });

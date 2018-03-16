@@ -43,14 +43,14 @@ function analyzeType(value) {
       children() {
         let childTypes = childrenAt(Type, node.valueAt(value));
         
-        if (node.isShifted) {
-          return map((ChildType, path) => {
-            let shift = new ShiftNode({Type: ChildType, path: append(node.path, path)}, view(lensPath([path]), node.valueAt()));
-            return pure(Tree, shift);
-          }, childTypes);
-        } else {
-          return map((ChildType, path) => pure(Tree, new Node(ChildType, append(node.path, path))), childTypes)
-        }
+        return map((ChildType, path) => {
+          
+          let child = node.isShifted ? 
+            new ShiftNode({Type: ChildType, path: append(node.path, path)}, view(lensPath([path]), node.valueAt())) : 
+            new Node(ChildType, append(node.path, path));
+
+          return pure(Tree, child);
+        }, childTypes);
       }
     });
   };
