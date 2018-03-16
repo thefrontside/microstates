@@ -5,7 +5,7 @@ export default function thunk(fn) {
     if (evaluated) {
       return result;
     } else {
-      result = fn();
+      result = fn.call(this);
       evaluated = true;
       return result;
     }
