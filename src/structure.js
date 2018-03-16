@@ -35,9 +35,8 @@ function analyzeType(value) {
 
       // when type shifting a node with a new value, the new value needs to be shifted
       // into every child not just the shifted node.
-      let shift = new ShiftNode(tree.data, value);
       return graft(node.path, new Tree({
-        data: () => shift,
+        data: () => new ShiftNode(tree.data, value),
         children: () => map(tree => {
           return map(node => {
             return new ShiftNode(node, view(lensPath(node.path), value));
@@ -45,7 +44,7 @@ function analyzeType(value) {
         }, tree.children)
       }));
     }
-
+    
     return new Tree({
       data: () => Type === node.Type ? node : append(node, { Type }),
       children() {
@@ -169,6 +168,10 @@ class ShiftNode extends Node {
   constructor({ Type, path }, value) {
     super(Type, path);
     assign(this, { value });
+  }
+
+  get isShifted() {
+    return true;
   }
 
   valueAt() {

@@ -328,3 +328,32 @@ describe.skip("type-shifting recursively with create", () => {
   });
 });
 
+describe('type-shifting from create to parameterized array', () => {
+  class Person {
+    name = String;
+  }
+
+  class Group {
+    members = [Person]
+
+    static create({ members } = {}) {
+      if (!members) {
+        return create(Group, { members: [
+          { name: 'Taras' },
+          { name: 'Charles' },
+          { name: 'Siva' }
+        ]});
+      }
+    }
+  }
+
+  it('privides data to parameterized array', () => {
+    expect(create(Group).state).toMatchObject({
+      members: [
+        { name: 'Taras' },
+        { name: 'Charles' },
+        { name: 'Siva' }
+      ]
+    });
+  });
+});
