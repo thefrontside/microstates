@@ -8,15 +8,17 @@ import thunk from './thunk';
 import truncate from './truncate';
 import State from './typeclasses/state';
 import Value from './typeclasses/value';
+import { Node } from './structure';
 
 const { keys } = Object;
 
 function invoke({ method, args, value, tree}) {
-  let nextValue = method.apply(new Microstate(tree, value), args);
+  let unshifted = map(node => node.isShifted ? new Node(node.Type, node.path) : node, tree);
+  let nextValue = method.apply(new Microstate(unshifted, value), args);
   if (nextValue instanceof Microstate) {
     return reveal(nextValue);
   } else {
-    return { tree, value: nextValue };
+    return { tree: unshifted, value: nextValue };
   }
 }
 
@@ -46,7 +48,7 @@ Functor.instance(Microstate, {
 
 Collapse.instance(Tree, {
   collapse(tree) {
-    let hasChildren = !!keys(tree.children).length;
+    let hasChildren = tree.data && !!keys(tree.children).length;
     if (hasChildren) {
       return append(tree.data, map(child => collapse(child), tree.children));
     } else {
@@ -64,7 +66,7 @@ Collapse.instance(State, {
 
 Collapse.instance(Value, {
   collapse(value) {
-    let truncated = truncate(node => node.isShifted, value.tree);
+    let truncated = truncate(node => node.isSimple || node.isShifted, value.tree);
     return collapse(map(node => node.valueAt(value.value), truncated));
   }
 });
