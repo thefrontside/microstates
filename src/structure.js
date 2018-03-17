@@ -15,7 +15,9 @@ import truncate from './truncate';
 const { assign } = Object;
 
 export default function analyze(Type, value) {
-  return flatMap(analyzeType(value), pure(Tree, new Node(Type, [])));
+  value = value != null ? value.valueOf() : value;  
+  let tree = flatMap(analyzeType(value), pure(Tree, new Node(Type, [])));
+  return { tree, value };
 }
 
 function analyzeType(value) {

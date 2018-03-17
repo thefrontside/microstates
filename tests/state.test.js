@@ -6,7 +6,8 @@ import { map } from 'funcadelic';
 import { collapse } from '../src/typeclasses/collapse';
 
 function node(Type, value) {
-  return analyze(Type, value).data;
+  let { tree } = analyze(Type, value);
+  return tree.data;
 }
 
 class User {
@@ -36,7 +37,7 @@ describe('State', () => {
   });
   describe('of a non-simple type', function() {
     it('is an instance of that type', function() {
-      let tree = analyze(User, {firstName: 'Charles', lastName: 'Lowell'});
+      let { tree } = analyze(User, {firstName: 'Charles', lastName: 'Lowell'});
       let state = collapse(map(node => node.stateAt({firstName: 'Charles', lastName: 'Lowell'}), tree));
       expect(state).toBeInstanceOf(User);
       expect(state.firstName).toEqual('Charles');

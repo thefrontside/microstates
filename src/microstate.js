@@ -17,11 +17,10 @@ export default class Microstate {
    * this value.
    *
    * @param {*} Type
-   * @param {*} value
+   * @param {*} initialValue
    */
-  static create(Type, value) {
-    value = value != null ? value.valueOf() : value;
-    let tree = analyze(Type, value);
+  static create(Type, initialValue) {
+    let { tree, value } = analyze(Type, initialValue);
     return new Microstate(tree, value);
   }
 
