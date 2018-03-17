@@ -1,5 +1,5 @@
 import $ from './utils/chain';
-import { type, map, append, pure } from 'funcadelic';
+import { type, map, append, pure, foldr } from 'funcadelic';
 import { flatMap } from './monad';
 import { view, set, lensTree, lensPath } from './lens';
 import Tree, { graft, prune } from './utils/tree';
@@ -11,13 +11,24 @@ import desugar from './desugar';
 import Microstate from './microstate';
 import { collapse } from './typeclasses/collapse';
 import truncate from './truncate';
+import Value from './typeclasses/value';
 
 const { assign } = Object;
 
+let valueOf = value => value != null ? value.valueOf() : value;
+
 export default function analyze(Type, value) {
-  value = value != null ? value.valueOf() : value;  
+  value = valueOf(value);
+
   let tree = flatMap(analyzeType(value), pure(Tree, new Node(Type, [])));
-  return { tree, value };
+
+  if (tree.data.isShifted) {
+    let collapsed = collapse(new Value(tree, value));
+    let unshifted = map(node => node.isShifted ? new Node(node.Type, node.path) : node, tree);  
+    return { tree: unshifted, value: collapsed };
+  } else {
+    return { tree, value };
+  }
 }
 
 function analyzeType(value) {

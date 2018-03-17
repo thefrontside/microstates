@@ -8,17 +8,15 @@ import thunk from './thunk';
 import truncate from './truncate';
 import State from './typeclasses/state';
 import Value from './typeclasses/value';
-import { Node } from './structure';
 
 const { keys } = Object;
 
 function invoke({ method, args, value, tree}) {
-  let unshifted = map(node => node.isShifted ? new Node(node.Type, node.path) : node, tree);
-  let nextValue = method.apply(new Microstate(unshifted, value), args);
+  let nextValue = method.apply(new Microstate(tree, value), args);
   if (nextValue instanceof Microstate) {
     return reveal(nextValue);
   } else {
-    return { tree: unshifted, value: nextValue };
+    return { tree, value: nextValue };
   }
 }
 
@@ -29,8 +27,7 @@ Functor.instance(Microstate, {
     // tree of transitions
     let next = map(node => {
       
-      let collapsed = collapse(new Value(tree, value));
-      let transitions = node.transitionsAt(collapsed, tree, invoke);
+      let transitions = node.transitionsAt(value, tree, invoke);
 
       return map(transition => {
         return (...args) => {
@@ -65,9 +62,9 @@ Collapse.instance(State, {
 });
 
 Collapse.instance(Value, {
-  collapse(value) {
-    let truncated = truncate(node => node.isSimple || node.isShifted, value.tree);
-    return collapse(map(node => node.valueAt(value.value), truncated));
+  collapse({ tree, value }) {
+    let truncated = truncate(node => node.isSimple || node.isShifted, tree);
+    return collapse(map(node => node.valueAt(value), truncated));
   }
 });
 

@@ -348,8 +348,30 @@ describe('type-shifting from create to parameterized array', () => {
   }
 
   let group = create(Group);
+  let value = group.valueOf();
 
-  it('privides data to parameterized array', () => {
+  it('initializes to value', () => {
+    expect(value).toMatchObject({
+      members: [
+        { name: 'Taras' },
+        { name: 'Charles' },
+        { name: 'Siva' }
+      ]
+    });
+  });
+
+  it('has a POJO as value', () => {
+    let descriptor = Object.getOwnPropertyDescriptor(value, 'members');
+    expect(descriptor).toHaveProperty('value', [
+      { name: 'Taras' },
+      { name: 'Charles' },
+      { name: 'Siva' }
+    ]);
+    expect(descriptor.get).toBeUndefined();
+  });
+
+  it('provides data to parameterized array', () => {
+    expect(group.state.members).toHaveLength(3);
     expect(group.state).toMatchObject({
       members: [
         { name: 'Taras' },
@@ -362,6 +384,7 @@ describe('type-shifting from create to parameterized array', () => {
 
   describe('transitioning shifted value', () => {
     let acclaimed = group.members[1].name.set('!!Charles!!');
+    let value = acclaimed.valueOf();
 
     it('has the transitioned state', () => {
       expect(acclaimed.state).toMatchObject({
@@ -374,13 +397,23 @@ describe('type-shifting from create to parameterized array', () => {
     });
 
     it('carries the value of', () => {
-      expect(acclaimed.valueOf()).toEqual({
+      expect(value).toEqual({
         members: [
           { name: 'Taras' },
           { name: '!!Charles!!' },
           { name: 'Siva' }
         ]
       });
+    });
+
+    it('has a POJO as value', () => {
+      let descriptor = Object.getOwnPropertyDescriptor(value, 'members');
+      expect(descriptor).toHaveProperty('value', [
+        { name: 'Taras' },
+        { name: '!!Charles!!' },
+        { name: 'Siva' }
+      ]);
+      expect(descriptor.get).toBeUndefined();
     });
   });
 
