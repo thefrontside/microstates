@@ -18,11 +18,6 @@ export default function analyze(Type, value) {
   return flatMap(analyzeType(value), pure(Tree, new Node(Type, [])));
 }
 
-export function collapseState(tree, value) {
-  let truncated = truncate(node => node.isSimple, tree);
-  return collapse(map(node => node.stateAt(value), truncated));
-}
-
 function analyzeType(value) {
   return (node) => {
     let InitialType = desugar(node.Type);

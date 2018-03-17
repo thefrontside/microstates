@@ -1,10 +1,12 @@
-import { Applicative, Functor, map, append } from 'funcadelic';
+import { Applicative, Functor, Foldable, map, append, foldr } from 'funcadelic';
 import { Monad, flatMap } from './monad';
 import Microstate from './microstate';
 import { reveal } from './utils/secret';
 import Tree from './utils/tree';
 import { Collapse, collapse } from './typeclasses/collapse';
 import thunk from './thunk';
+import truncate from './truncate';
+import State from './typeclasses/state';
 
 const { keys } = Object;
 
@@ -16,6 +18,17 @@ function invoke({ method, args, value, tree}) {
     return { tree, value: nextValue };
   }
 }
+
+Foldable.instance(Tree, {
+  foldr(fn, initial, tree) {
+    return foldr((memo, current) => {
+      return fn(memo, {
+        key: current.key,
+        get value() { return current.value.data }
+      });
+    }, fn(initial, tree.data), tree.children);
+  }
+})
 
 Functor.instance(Microstate, {
   map(fn, microstate) {
@@ -48,6 +61,13 @@ Collapse.instance(Tree, {
     } else {
       return tree.data;
     }
+  }
+});
+
+Collapse.instance(State, {
+  collapse(state) {
+    let truncated = truncate(node => node.isSimple, state.tree);
+    return collapse(map(node => node.stateAt(state.value), truncated)); 
   }
 })
 
