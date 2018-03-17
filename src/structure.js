@@ -34,8 +34,9 @@ function analyzeType(value) {
     if (instance instanceof Microstate) {
       let { tree , value } = reveal(instance);
 
-      // when type shifting a node with a new value, the new value needs to be shifted
-      // into every child not just the shifted node.
+      // when type shifting a node with a new value, 
+      // the new value needs to be shifted into every child,
+      // not just the shifted node.
       return graft(node.path, map(node => new ShiftNode(node, view(lensPath(node.path), value)), tree));
     }
 
@@ -46,9 +47,11 @@ function analyzeType(value) {
         
         return map((ChildType, path) => {
 
+          let childPath = append(node.path, path);
+
           let child = node.isShifted ? 
-            new ShiftNode({Type: ChildType, path: append(node.path, path)}, view(lensPath([path]), node.valueAt())) : 
-            new Node(ChildType, append(node.path, path));
+            new ShiftNode({Type: ChildType, path: childPath}, view(lensPath([path]), node.valueAt())) : 
+            new Node(ChildType, childPath);
 
           return pure(Tree, child);
         }, childTypes);
