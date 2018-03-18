@@ -418,3 +418,45 @@ describe('type-shifting from create to parameterized array', () => {
   });
 
 });
+
+describe('type-shifting from create nodes in single operation', () => {
+  class Root {
+    static create(params) {
+      if (!params) {
+        return create(Root, { name: 'Default for Root', first: { second: { name: 'Provided name for Second' } } })
+      }
+    }
+    name = String;
+    first = class First {
+      name = String;
+      second = class Second {
+        name = String;
+        third = class Third {
+          name = String;
+          static create(params) {
+            if (!params) {
+              return create(Third, { name: 'Default for Third' });
+            }
+          }
+        }
+      }
+    }
+  }
+
+  let root = create(Root);
+
+  it('has state for root', () => {
+    expect(root.state).toMatchObject({
+      name: 'Default for Root',
+      first: {
+        name: '',
+        second: {
+          name: 'Provided name for Second',
+          third: {
+            name: 'Default for Third'
+          }
+        }
+      }
+    })
+  })
+});

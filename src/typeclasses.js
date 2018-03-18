@@ -8,8 +8,10 @@ import thunk from './thunk';
 import truncate from './truncate';
 import State from './typeclasses/state';
 import Value from './typeclasses/value';
+import types from './types';
+import logTree from './utils/log-tree';
 
-const { keys } = Object;
+const { keys, getPrototypeOf } = Object;
 
 function invoke({ method, args, value, tree}) {
   let nextValue = method.apply(new Microstate(tree, value), args);
@@ -63,8 +65,8 @@ Collapse.instance(State, {
 
 Collapse.instance(Value, {
   collapse({ tree, value }) {
-    let truncated = truncate(node => node.isSimple || node.isShifted, tree);
-    return collapse(map(node => node.valueAt(value), truncated));
+    let truncated = truncate(node => node.isSimple || node.valueAt(value) === undefined, tree);
+    return collapse(map(node => getPrototypeOf(node.Type) === types.Array ? [] : node.valueAt(value), truncated));
   }
 });
 
