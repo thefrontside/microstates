@@ -450,7 +450,6 @@ describe('type-shifting from create to parameterized object', () => {
   class Parent {
     name = String;
   }
-
   class Person {
     parents = { Parent }
 
@@ -476,6 +475,7 @@ describe('type-shifting from create to parameterized object', () => {
   });
 
   it('has name with initial values', () => {
+    expect(person.state.parents.father).toBeInstanceOf(Parent);
     expect(person.state).toMatchObject({
       parents: {
         father: {
@@ -486,6 +486,19 @@ describe('type-shifting from create to parameterized object', () => {
         }
       }
     })
+  });
+
+  it('has valueOf', () => {
+    expect(person.valueOf()).toEqual({
+      parents: {
+        father: {
+          name: 'John Doe'
+        },
+        mother: {
+          name: 'Jane Doe'
+        }
+      }
+    });
   });
 });
 
@@ -531,7 +544,22 @@ describe('type-shifting from create nodes in single operation', () => {
         }
       }
     })
-  })
+  });
+
+  it('has valueOf', () => {
+    expect(root.valueOf()).toMatchObject({
+      name: 'Default for Root',
+      first: {
+        name: undefined,
+        second: {
+          name: 'Provided name for Second',
+          third: {
+            name: 'Default for Third'
+          }
+        }
+      }
+    })
+  });
 });
 
 describe('type-shifting with create in from none root node', () => {
