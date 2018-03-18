@@ -416,7 +416,6 @@ describe('type-shifting from create to parameterized array', () => {
       expect(descriptor.get).toBeUndefined();
     });
   });
-
 });
 
 describe('type-shifting from create nodes in single operation', () => {

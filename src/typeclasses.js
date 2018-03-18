@@ -1,4 +1,4 @@
-import { Applicative, Functor, map, append } from 'funcadelic';
+import { Applicative, Functor, map, append, foldl } from 'funcadelic';
 import { Monad, flatMap } from './monad';
 import Microstate from './microstate';
 import { reveal } from './utils/secret';
@@ -10,6 +10,7 @@ import State from './typeclasses/state';
 import Value from './typeclasses/value';
 import types from './types';
 import logTree from './utils/log-tree';
+import getOwnPropertyDescriptors from 'object.getownpropertydescriptors';
 
 const { keys, getPrototypeOf } = Object;
 
@@ -66,9 +67,23 @@ Collapse.instance(State, {
 Collapse.instance(Value, {
   collapse({ tree, value }) {
     let truncated = truncate(node => node.isSimple || node.valueAt(value) === undefined, tree);
-    return collapse(map(node => getPrototypeOf(node.Type) === types.Array ? [] : node.valueAt(value), truncated));
+    let values = map(node => getPrototypeOf(node.Type) === types.Array ? [] : node.valueAt(value), truncated);
+    return toPOJO(collapse(values));
   }
 });
+
+function toPOJO(value) {
+  if (Array.isArray(value)) {
+    return map(value => toPOJO(value), value);
+  } else if (typeof value === 'object') {
+    let descriptors = map(descriptor => ({
+      value: descriptor.get ? descriptor.get() : descriptor.value,
+      enumerable: descriptor.enumerable
+    }), getOwnPropertyDescriptors(value));
+    return Object.create(Object.prototype, descriptors);
+  }
+  return value;
+}
 
 Functor.instance(Tree, {
   /**
