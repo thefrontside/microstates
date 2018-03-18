@@ -12,7 +12,6 @@ import Microstate from './microstate';
 import { collapse } from './typeclasses/collapse';
 import truncate from './truncate';
 import Value from './typeclasses/value';
-import logTree from './utils/log-tree';
 
 const { assign } = Object;
 

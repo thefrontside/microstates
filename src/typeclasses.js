@@ -10,7 +10,6 @@ import truncate from './truncate';
 import State from './typeclasses/state';
 import Value from './typeclasses/value';
 import types from './types';
-import logTree from './utils/log-tree';
 import getDescriptors from 'object.getownpropertydescriptors';
 
 const { keys, getPrototypeOf } = Object;
@@ -61,8 +60,7 @@ Collapse.instance(Tree, {
 Collapse.instance(State, {
   collapse({ tree, value }) {
     let truncated = truncate(node => node.isSimple, tree);
-    let state = map(node => node.stateAt(value), truncated);
-    return collapse(state); 
+    return collapse(map(node => node.stateAt(value), truncated)); 
   }
 });
 
