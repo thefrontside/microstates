@@ -244,13 +244,19 @@ describe("type-shifting into a deeply composed microstate", () => {
     node = Node;
   }
 
-  let root = create(Node);
-
+  let root;
+  beforeEach(() => {
+    root = create(Node);
+  })
+  
   describe('shifting the root node', () => {
 
-    let shiftedRoot = root.set(
-      create(Node, { name: "n1", node: { name: "n2", node: { name: "n3" } } })
-    );
+    let shiftedRoot;
+    beforeEach(() => {
+      shiftedRoot = root.set(
+        create(Node, { name: "n1", node: { name: "n2", node: { name: "n3" } } })
+      )
+    });
 
     it("preserves type shifting value", () => {
       expect(
@@ -270,7 +276,11 @@ describe("type-shifting into a deeply composed microstate", () => {
   });
 
   describe('shifting deeply composted state with new value', () => {
-    let shiftedDeeply = root.node.node.node.set({ name: "soooo deep", node: { name: 'one more' }});
+
+    let shiftedDeeply;
+    beforeEach(() => {
+      shiftedDeeply = root.node.node.node.set({ name: "soooo deep", node: { name: 'one more' }});
+    });
 
     it("preserves type shifting value", () => {
       expect(
@@ -297,7 +307,10 @@ describe("type-shifting in a getter", () => {
     }
   }
 
-  let root = create(Node);
+  let root;
+  beforeEach(() => {
+    root = create(Node);
+  });
 
   it('allows to create nodes', () => {
     expect(root.state.depth).toBe(0);
@@ -320,7 +333,11 @@ describe.skip("type-shifting recursively with create", () => {
     }
   }
 
-  let root = create(Node);
+  let root;
+  beforeEach(() => {
+    root = create(Node);
+  });
+
 
   it('allows to create nodes', () => {
     expect(root.state.depth).toBe(0);
@@ -347,8 +364,14 @@ describe('type-shifting from create to parameterized array', () => {
     }
   }
 
-  let group = create(Group);
-  let value = group.valueOf();
+  let group;
+  let value;
+
+  beforeEach(() => {
+    group = create(Group);
+    value = group.valueOf();
+  });
+
 
   it('initializes to value', () => {
     expect(value).toMatchObject({
@@ -383,8 +406,13 @@ describe('type-shifting from create to parameterized array', () => {
   });
 
   describe('transitioning shifted value', () => {
-    let acclaimed = group.members[1].name.set('!!Charles!!');
-    let value = acclaimed.valueOf();
+    let acclaimed;
+    let value;
+
+    beforeEach(() => {
+      acclaimed = group.members[1].name.set('!!Charles!!');
+      value = acclaimed.valueOf();
+    });
 
     it('has the transitioned state', () => {
       expect(acclaimed.state).toMatchObject({
@@ -418,6 +446,49 @@ describe('type-shifting from create to parameterized array', () => {
   });
 });
 
+describe('type-shifting from create to parameterized object', () => {
+  class Parent {
+    name = String;
+  }
+
+  class Person {
+    parents = { Parent }
+
+    static create({ parents } = {}) {
+      if (!parents) {
+        return create(Person, {
+          parents: {
+            father: {
+              name: 'John Doe'
+            },
+            mother: {
+              name: 'Jane Doe'
+            }
+          }
+        });
+      }
+    }
+  }
+
+  let person;
+  beforeEach(() => {
+    person = create(Person);
+  });
+
+  it('has name with initial values', () => {
+    expect(person.state).toMatchObject({
+      parents: {
+        father: {
+          name: 'John Doe'
+        },
+        mother: {
+          name: 'Jane Doe'
+        }
+      }
+    })
+  });
+});
+
 describe('type-shifting from create nodes in single operation', () => {
   class Root {
     static create(params) {
@@ -442,7 +513,10 @@ describe('type-shifting from create nodes in single operation', () => {
     }
   }
 
-  let root = create(Root);
+  let root;
+  beforeEach(() => {
+    root = create(Root);
+  });
 
   it('has state for root', () => {
     expect(root.state).toMatchObject({
@@ -458,4 +532,48 @@ describe('type-shifting from create nodes in single operation', () => {
       }
     })
   })
+});
+
+describe('type-shifting with create in from none root node', () => {
+
+  class Root {
+    first = class First {
+      second = class Second {
+        name = String;
+        static create(props) {
+          if (!props) {
+            return create(Second, { name: 'default' });
+          }
+        }
+      }
+    }
+  }
+
+  let root, changed;
+  beforeEach(() => {
+    root = create(Root);
+    changed = root.first.second.name.concat('!!!');
+  });
+
+
+  it('has result of create of second node', () => {
+    expect(root.state).toMatchObject({
+      first: {
+        second: {
+          name: 'default'
+        }
+      }
+    });
+  });
+
+  it('has result after transition valueOf', () => {
+    expect(changed.valueOf()).toEqual({
+      first: {
+        second: {
+          name: 'default!!!'
+        }
+      }
+    });
+  });
+
 });

@@ -1,3 +1,4 @@
+import $ from './utils/chain';
 import { Applicative, Functor, map, append, foldl } from 'funcadelic';
 import { Monad, flatMap } from './monad';
 import Microstate from './microstate';
@@ -10,7 +11,7 @@ import State from './typeclasses/state';
 import Value from './typeclasses/value';
 import types from './types';
 import logTree from './utils/log-tree';
-import getOwnPropertyDescriptors from 'object.getownpropertydescriptors';
+import getDescriptors from 'object.getownpropertydescriptors';
 
 const { keys, getPrototypeOf } = Object;
 
@@ -58,9 +59,10 @@ Collapse.instance(Tree, {
 });
 
 Collapse.instance(State, {
-  collapse(state) {
-    let truncated = truncate(node => node.isSimple, state.tree);
-    return collapse(map(node => node.stateAt(state.value), truncated)); 
+  collapse({ tree, value }) {
+    let truncated = truncate(node => node.isSimple, tree);
+    let state = map(node => node.stateAt(value), truncated);
+    return collapse(state); 
   }
 });
 
@@ -68,19 +70,18 @@ Collapse.instance(Value, {
   collapse({ tree, value }) {
     let truncated = truncate(node => node.isSimple || node.valueAt(value) === undefined, tree);
     let values = map(node => getPrototypeOf(node.Type) === types.Array ? [] : node.valueAt(value), truncated);
-    return toPOJO(collapse(values));
+    let collapsed = collapse(values);
+    return toPOJO(collapsed);
   }
 });
 
 function toPOJO(value) {
   if (Array.isArray(value)) {
     return map(value => toPOJO(value), value);
-  } else if (typeof value === 'object') {
-    let descriptors = map(descriptor => ({
-      value: descriptor.get ? descriptor.get() : descriptor.value,
-      enumerable: descriptor.enumerable
-    }), getOwnPropertyDescriptors(value));
-    return Object.create(Object.prototype, descriptors);
+  } else if (value && typeof value === 'object') {
+    let descriptors = getDescriptors(value);
+    return keys(descriptors)
+      .reduce((memo, key) => append(memo, {[key]: toPOJO(descriptors[key].get())}), {});
   }
   return value;
 }

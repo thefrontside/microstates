@@ -12,6 +12,7 @@ import Microstate from './microstate';
 import { collapse } from './typeclasses/collapse';
 import truncate from './truncate';
 import Value from './typeclasses/value';
+import logTree from './utils/log-tree';
 
 const { assign } = Object;
 
@@ -22,10 +23,14 @@ export default function analyze(Type, value) {
 
   let tree = flatMap(analyzeType(value), pure(Tree, new Node(Type, [])));
 
+  // this happens when a type-shift is performed with `static create` function
+  // we need to combined the returned values to make sure that they are available
+  // for a transition to happen.  
   if (tree.data.isShifted) {
-    let collapsed = collapse(new Value(tree, value));
-    let unshifted = map(node => node.isShifted ? new Node(node.Type, node.path) : node, tree);  
-    return { tree: unshifted, value: collapsed };
+    return { 
+      tree: map(node => node.isShifted ? new Node(node.Type, node.path) : node, tree),
+      value: collapse(new Value(tree, value))
+    };
   } else {
     return { tree, value };
   }

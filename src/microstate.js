@@ -4,6 +4,7 @@ import { keep, reveal } from "./utils/secret";
 import SymbolObservable from "symbol-observable";
 import { collapse } from './typeclasses/collapse';
 import State from './typeclasses/state';
+import logTree from './utils/log-tree';
 
 export default class Microstate {
   constructor(tree, value) {
