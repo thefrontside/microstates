@@ -1,7 +1,45 @@
 [![Build Status](https://travis-ci.org/cowboyd/microstates.js.svg?branch=master)](https://travis-ci.org/cowboyd/microstates.js)
 [![Coverage Status](https://coveralls.io/repos/github/cowboyd/microstates.js/badge.svg?branch=master)](https://coveralls.io/github/cowboyd/microstates.js?branch=master)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
 # Microstates
+
+* [Intro](#intro)
+* [microstate constructor](#microstate-constructor)
+* [Composition](#composition)
+* [Static values](#static-values)
+* [Computed Properties](#computed-properties)
+* [Transitions](#transitions)
+* [Batch Transitions](#batch-transitions)
+* [Changing structure](#changing-structure)
+  * [Parameterized Arrays & Objects](#parameterized-arrays--objects)
+  * [Observable interoperability](#observable-interoperability)
+* [Built-in types](#built-in-types)
+  * [`Boolean`](#boolean)
+    * [set(value: any) => microstate](#setvalue-any--microstate)
+    * [toggle() => microstate](#toggle--microstate)
+  * [`Number`](#number)
+    * [set(value: any) => microstate](#setvalue-any--microstate-1)
+    * [sum(number: Number [, number: Number]) => microstate](#sumnumber-number--number-number--microstate)
+    * [subtract(number: Number, [, number: Number]) => microstate](#subtractnumber-number--number-number--microstate)
+    * [increment(step: Number = 1) => microstate](#incrementstep-number--1--microstate)
+    * [decrement(step: Number = 1) => microstate](#decrementstep-number--1--microstate)
+  * [`String`](#string)
+    * [set(value: any) => microstate](#setvalue-any--microstate-2)
+    * [concat(str: String [, str1: String]) => microstate](#concatstr-string--str1-string--microstate)
+  * [`Array`](#array)
+    * [set(value: any) => microstate](#setvalue-any--microstate-3)
+    * [push(value: any [, value1: any]) => microstate](#pushvalue-any--value1-any--microstate)
+    * [filter(fn: value => boolean) => microstate](#filterfn-value--boolean--microstate)
+    * [map(fn: (value, index) => any) => microstate](#mapfn-value-index--any--microstate)
+    * [replace(item: any, replacement; any) => microstate](#replaceitem-any-replacement-any--microstate)
+  * [`Object`](#object)
+    * [set(value: any) => microstate](#setvalue-any--microstate-4)
+    * [assign(object: Object) => microstate](#assignobject-object--microstate)
+* [FAQ](#faq)
+  * [What if I can't use class syntax?](#what-if-i-cant-use-class-syntax)
+  * [What if I can't use Class Properties?](#what-if-i-cant-use-class-properties)
+* [Run Tests](#run-tests)
 
 ## Intro
 
@@ -475,7 +513,7 @@ today.t2.isComplete.toggle().state
 // => { t1: Todo { title: 'Buy milk', isComplete: false }, t2: Todo { title: 'Review PRs', isComplete: true } }
 ```
 
-### Observable Interoperability
+### Observable interoperability
 
 You can create an observable from any microstate using the `Observable.from` method.
 The resulting Observable will stream the next microstate for every transition.
@@ -602,7 +640,7 @@ Microstate.create(Number)
 // => -6
 ```
 
-### String
+### `String`
 
 `String` represents string values. `String` has `concat` and `set` transitions. You can vote for additional transitions to be included in #27.
 
@@ -625,7 +663,7 @@ Microstate.create(String, 'hello ').concat('world').state;
 // => 'hello world'
 ```
 
-### Array
+### `Array`
 
 Represents an indexed collection of iterable instances of other types.
 
@@ -680,7 +718,7 @@ Microstate.create(Array, ['a', 'b', 'c']).replace('b', 'B').state;
 // => [ 'a', 'B', 'c' ]
 ```
 
-### Object
+### `Object`
 
 Represents a collection of values keyed by strings. Object types have `assign` and `set` transitions.
 
@@ -747,7 +785,7 @@ class Person {
 class Employee extends Person {
   constructor() {
     super();
-    this.employer = Person;
+    this.boss = Person;
   }
 }
 ```
