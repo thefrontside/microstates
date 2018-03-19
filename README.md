@@ -12,8 +12,8 @@
 * [Transitions](#transitions)
 * [Batch Transitions](#batch-transitions)
 * [Changing structure](#changing-structure)
-  * [Parameterized Arrays & Objects](#parameterized-arrays--objects)
-  * [Observable interoperability](#observable-interoperability)
+* [Parameterized Arrays & Objects](#parameterized-arrays--objects)
+* [Observable interoperability](#observable-interoperability)
 * [Built-in types](#built-in-types)
   * [`Boolean`](#boolean)
     * [set(value: any) => microstate](#setvalue-any--microstate)
@@ -468,7 +468,7 @@ create(MyApp, { session: { content: { name: 'Taras' } } }).logout().state;
 // => { session: { content: null, isAuthenticated: false }}
 ```
 
-### Parameterized Arrays & Objects
+## Parameterized Arrays & Objects
 
 It's often useful to be able to indicate that an array consists of a certain type of items, 
 for example, an array of todo items. Microstates provides a special syntax for this.
@@ -513,7 +513,7 @@ today.t2.isComplete.toggle().state
 // => { t1: Todo { title: 'Buy milk', isComplete: false }, t2: Todo { title: 'Review PRs', isComplete: true } }
 ```
 
-### Observable interoperability
+## Observable interoperability
 
 You can create an observable from any microstate using the `Observable.from` method.
 The resulting Observable will stream the next microstate for every transition.
