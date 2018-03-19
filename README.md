@@ -311,8 +311,8 @@ current state and transition local state.
 
 ```js
 class Person {
-  home: String;
-  location: String;
+  home = String;
+  location = String;
   goHome() {
     let { home, location } = this.state;
     if (home !== location) {
@@ -474,6 +474,7 @@ This microstate will have transitions that you can call to cause the next micros
 
 ```js
 import { create } from 'microstates';
+import { Observable } from 'rxjs';
 
 let ms = create(Number, 42);
 let observable = Observable.from(ms);
