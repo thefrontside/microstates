@@ -23,12 +23,12 @@
   "browser": "dist/microstates.umd.js",
   "repository": "git+ssh://git@github.com/cowboyd/microstates.js.git",
   "scripts": {
+    "prepare": "npm run build",
     "build": "rollup --config",
     "coverage": "npm test -- --coverage --no-cache",
     "coverage:watch": "npm run coverage -- --watch",
     "prerelease": "npm test",
     "release": "npm pack",
-    "prepublish": "npm test",
     "test": "jest",
     "start": "npm test -- --watch"
   },
