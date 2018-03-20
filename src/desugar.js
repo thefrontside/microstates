@@ -3,14 +3,14 @@ import { parameterized } from '../src/types';
 import { values } from './typeclasses/values';
 import { map } from 'funcadelic';
 
-let ContainsTypes = Monoid.create(class ContainsTypes {
+export const ContainsTypes = Monoid.create(class ContainsTypes {
   empty() { return true; }
   append(a, b) {
     return a && (b instanceof Function || isSugar(b));
   }
 });
 
-function isPossibleSugar(Type) {
+export function isPossibleSugar(Type) {
   return Type && (Type.constructor === Array || Type.constructor === Object);
 }
 

@@ -4,6 +4,7 @@ import { parameterized } from '../src/types/parameters';
 import analyze from '../src/structure';
 import { map } from 'funcadelic';
 import { collapse } from '../src/typeclasses/collapse';
+import { create } from 'microstates';
 
 function node(Type, value) {
   return analyze(Type, value).data;
@@ -42,6 +43,37 @@ describe('State', () => {
       expect(state.firstName).toEqual('Charles');
       expect(state.lastName).toEqual('Lowell');
       expect(state.fullName).toEqual('Charles Lowell');
+    });
+  });
+
+  describe('stability', () => {
+
+    describe('reading state root', () => {
+      class Node {
+        node = Node
+      }
+      let ms = create(Node);
+      it('returns the same root state', () => {
+        expect(ms.state).toBe(ms.state);
+      });
+      it('returns the same node when composed state is read twice', () => {
+        expect(ms.state.node).toBe(ms.state.node);
+        expect(ms.state.node.node).toBe(ms.state.node.node);
+      });
+    });
+    
+    describe('reading getters', () => {
+      class Node {
+        node = Node;
+  
+        get data() {
+          return {};
+        }
+      }
+      it('returns same value', () => {
+        let ms = create(Node);
+        expect(ms.state.data).toBe(ms.state.data);
+      });
     });
   });
 });

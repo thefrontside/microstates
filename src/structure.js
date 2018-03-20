@@ -10,6 +10,8 @@ import isSimple  from './is-simple';
 import desugar from './desugar';
 import Microstate from './microstate';
 import { collapse } from './typeclasses/collapse';
+import getPrototypeDescriptors from './utils/get-prototype-descriptors';
+import thunk from './thunk';
 
 const { assign } = Object;
 
@@ -142,6 +144,16 @@ function graft(path, tree) {
   }
 }
 
+function cachedGetters(Type) {
+  let descriptors = $(getPrototypeDescriptors(Type))
+    .filter(({ value }) => !!value.get)
+    .map(descriptor => append(descriptor, {
+      get: thunk(descriptor.get)
+    }))
+    .valueOf();
+  return Object.create(Type.prototype, descriptors);
+}
+
 class Node {
   constructor(Type, path) {
     assign(this, { Type, path });
@@ -162,7 +174,7 @@ class Node {
     if (isSimple(Type)) {
       return valueAt || instance;
     } else {
-      return stateAt(Type, instance, valueAt);
+      return stateAt(Type, append(instance, cachedGetters(Type)), valueAt);
     }
   }
 
