@@ -1,24 +1,82 @@
+import { append, foldl, map } from 'funcadelic';
 import set from 'ramda/src/set';
 import indexOf from 'ramda/src/indexOf';
 import lensPath from 'ramda/src/lensPath';
-
-import { parameterized, any } from './parameters0';
+import $ from '../utils/chain';
+import { reveal } from '../utils/secret';
+import Tree, { prune, graft } from '../utils/tree';
+import { parameterized, params, any } from './parameters0';
 
 class ArrayType {
   constructor(value = []) {
     return value instanceof Array ? value : [value];
   }
-  push(...args) {
-    return [...this.state, ...args];
+  push(item) {
+    return this.splice(this.state.length, 0, [item]);
   }
   pop() {
-    return this.state.pop();
+    return this.splice(this.state.length - 1, 1, []);
   }
-  filter(callback) {
-    return Array.prototype.filter.call(this.state, callback);
+  shift() {
+    return this.splice(0, 1, []);
+  }
+  unshift(item) {
+    return this.splice(0, 0, [item]);
+  }
+  filter(fn) {
+    return foldl(({array, removed}, state, i) => {
+      if (fn(state)) {
+        return { array, removed };
+      } else {
+        return {
+          array: array.splice(i - removed, 1, []),
+          removed: removed + 1
+        };
+      }
+    }, {array: this, removed: 0}, this.state).array;
   }
   map(callback) {
     return Array.prototype.map.call(this.state, callback);
+  }
+
+  splice(startIndex, length, values) {
+    let Microstate = this.constructor;
+    let { create } = Microstate;
+    let { tree } = reveal(this);
+    let value = (this.valueOf() || []).slice();
+    value.splice(startIndex, length, ...values);
+
+    let { T } = params(tree.data.Type);
+    if (T === any) {
+      return value;
+    }
+
+    let unchanged = tree.children.slice(0, startIndex);
+
+    let added = $(values)
+        .map(value => create(T, value))
+        .map(reveal)
+        .map(({ tree }) => tree)
+        .valueOf();
+
+    let moved = map(prune, tree.children.slice(startIndex + length));
+
+    function attach(index, tree) {
+      return graft(append(tree.data.path, index), tree);
+    }
+
+    let children = $(unchanged)
+        .append(map((child, i) => attach(i + unchanged.length, child), added))
+        .append(map((child, i) => attach(i + unchanged.length + added.length, child), moved))
+        .valueOf();
+
+    let structure = new Tree({
+      data: () => tree.data,
+      children: () => children
+    });
+
+
+    return new Microstate(structure, value);
   }
   /**
    * Return a new array with first occurance of found item
