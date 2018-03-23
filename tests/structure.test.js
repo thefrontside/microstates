@@ -23,7 +23,7 @@ describe('Structure', () => {
     }
   }
   let initialValue = { user: { firstName: 'Charles', lastName: 'Lowell' } };
-  let tree = analyze(Session);
+  let { tree } = analyze(Session);
 
   it('can fetch the value at each node', function() {
     expect(tree.data.valueAt(initialValue)).toMatchObject({
@@ -54,7 +54,7 @@ describe('Structure', () => {
       user: { firstName: 'Authentic Charles', lastName: 'Authentic Lowell'}
     };
 
-    let tree = analyze(Authenticated, returnValue);
+    let { tree } = analyze(Authenticated, returnValue);
 
     let invoke = jest.fn(() => ({
       value: returnValue,
@@ -85,10 +85,7 @@ describe('Structure', () => {
   it('can transition at child nodes', function() {
     class SuperString {}
 
-    let invoke = jest.fn(() => ({
-      tree: analyze(SuperString, 'Super-tastic!'),
-      value: 'Super-tastic!'
-    }));
+    let invoke = jest.fn(() => analyze(SuperString, 'Super-tastic!'));
 
     let { tree: nextTree, value: nextValue } = tree.children.user.children.lastName.data.transitionsAt(initialValue, tree, invoke).set('make super');
 
@@ -114,12 +111,8 @@ describe('Structure', () => {
   });
 
   describe('A Parameterized Array', function() {
-    let array;
-    beforeEach(function() {
-      array = [true, false, false];
-      let Type = parameterized(Array, Boolean);
-      tree = analyze(Type, array);
-    });
+    let array = [true, false, false];
+    let { tree, value } = analyze(parameterized(Array, Boolean), array);
     it('has a node for each member of the array', function() {
       expect(tree.children.length).toBe(3);
       expect(tree.children[0]).toBeDefined();
@@ -131,10 +124,7 @@ describe('Structure', () => {
       expect(tree.data.stateAt(array)).toBe(array);
     });
     it('can invoke transitions on the subtypes', function() {
-      let invoke = jest.fn(() => ({
-        tree: analyze(Boolean, true),
-        value: true
-      }));
+      let invoke = jest.fn(() => (analyze(Boolean, true)));
       let transitions = tree.children[2].data.transitionsAt([true, false, false], tree, invoke);
 
       let { tree: nextTree, value: nextValue } = transitions.toggle();
@@ -142,10 +132,7 @@ describe('Structure', () => {
     });
 
     it('updates a tree to keep in sync with array transitions', function() {
-      let invoke = jest.fn(() => ({
-        tree: analyze(parameterized(Array, Boolean), [true, false]),
-        value: [true, false]
-      }));
+      let invoke = jest.fn(() => analyze(parameterized(Array, Boolean), [true, false]));
       let transitions = tree.data.transitionsAt([true, false, false], tree, invoke);
       let { tree: nextTree, value: nextValue } = transitions.pop();
       expect(nextValue).toEqual([true, false]);
@@ -156,11 +143,8 @@ describe('Structure', () => {
   });
 
   describe('An Unparameterized Array', function() {
-    let array;
-    beforeEach(function() {
-      array = [1, 2, 3];
-      tree = analyze(Array, array);
-    });
+    let array = [1, 2, 3];
+    let { tree, value } = analyze(Array, array);
     it('does not have child nodes for its children', function() {
       expect(tree.children.length).toBe(0);
     });
@@ -171,12 +155,8 @@ describe('Structure', () => {
   });
 
   describe('A Parameterized Object', function() {
-    let object;
-    beforeEach(function() {
-      object = {one: 1, two: 2};
-      let Type = parameterized(Object, Number);
-      tree = analyze(Type, object);
-    });
+    let object = {one: 1, two: 2};
+    let { tree, value } = analyze(parameterized(Object, Number), object);
     it('has a node for each entry in the object', function() {
       expect(tree.children.one).toBeDefined();
       expect(tree.children.two).toBeDefined();
@@ -186,10 +166,7 @@ describe('Structure', () => {
       expect(tree.data.stateAt(object)).toBe(object);
     });
     it('can invoke transitions on the subtypes', function() {
-      let invoke = jest.fn(() => ({
-        tree: analyze(Number, 2),
-        value: 2
-      }));
+      let invoke = jest.fn(() => analyze(Number, 2));
       let transitions = tree.children.one.data.transitionsAt(object, tree, invoke);
 
       let { tree: nextTree, value: nextValue } = transitions.increment();
@@ -197,10 +174,7 @@ describe('Structure', () => {
     });
 
     it('updates a tree to keep in sync with array transitions', function() {
-      let invoke = jest.fn(() => ({
-        tree: analyze(parameterized(Object, Number), {one: 1, two: 2, three: 3}),
-        value: {one: 1, two: 2, three: 3}
-      }));
+      let invoke = jest.fn(() => analyze(parameterized(Object, Number), {one: 1, two: 2, three: 3}));
       let transitions = tree.data.transitionsAt(object, tree, invoke);
       let { tree: nextTree, value: nextValue } = transitions.assign({three: 3});
       expect(nextValue).toEqual({one: 1, two: 2, three: 3});
@@ -212,5 +186,3 @@ describe('Structure', () => {
 
 
 });
-
-import logTree from '../src/utils/log-tree';

@@ -10,16 +10,27 @@ import isSimple  from './is-simple';
 import desugar from './desugar';
 import Microstate from './microstate';
 import { collapse } from './typeclasses/collapse';
+import truncate from './truncate';
+import Value from './typeclasses/value';
 
 const { assign } = Object;
 
 export default function analyze(Type, value) {
-  return flatMap(analyzeType(value), pure(Tree, new Node(Type, [])));
-}
+  value = value ? value.valueOf() : value;
 
-export function collapseState(tree, value) {
-  let truncated = truncate(node => node.isSimple, tree);
-  return collapse(map(node => node.stateAt(value), truncated));
+  let tree = flatMap(analyzeType(value), pure(Tree, new Node(Type, [])));
+
+  // this happens when a type-shift is performed with `static create` function
+  // we need to combined the returned values to make sure that they are available
+  // for a transition to happen.  
+  if (tree.data.isShifted) {
+    return { 
+      tree: map(node => node.isShifted ? new Node(node.Type, node.path) : node, tree),
+      value: collapse(new Value(tree, value))
+    };
+  } else {
+    return { tree, value };
+  }
 }
 
 function analyzeType(value) {
@@ -29,22 +40,31 @@ function analyzeType(value) {
     let Type = toType(InitialType);
 
     let instance = Type.hasOwnProperty('create') ? Type.create(valueAt) : undefined;
-
+    
     if (instance instanceof Microstate) {
       let { tree , value } = reveal(instance);
 
-      let shift = new ShiftNode(tree.data, value);
-      return graft(node.path, new Tree({
-        data: () => shift,
-        children: () => tree.children
-      }));
+      // when type shifting a node with a new value, 
+      // the new value needs to be shifted into every child,
+      // not just the shifted node.
+      return graft(node.path, map(node => new ShiftNode(node, view(lensPath(node.path), value)), tree));
     }
 
     return new Tree({
       data: () => Type === node.Type ? node : append(node, { Type }),
       children() {
         let childTypes = childrenAt(Type, node.valueAt(value));
-        return map((ChildType, path) => pure(Tree, new Node(ChildType, append(node.path, path))), childTypes);
+        
+        return map((ChildType, path) => {
+
+          let childPath = append(node.path, path);
+
+          let child = node.isShifted ? 
+            new ShiftNode({Type: ChildType, path: childPath}, view(lensPath([path]), node.valueAt())) : 
+            new Node(ChildType, childPath);
+
+          return pure(Tree, child);
+        }, childTypes);
       }
     });
   };
@@ -79,7 +99,7 @@ Location.instance(Object, {
 });
 
 Location.instance(types.Object, {
-  stateAt: _ => {},
+  stateAt: _ => ({}),
   childrenAt(Type, value) {
     let { T } = params(Type);
     if (T !== any) {
@@ -96,17 +116,6 @@ Location.instance(types.Array, {
     return Location.for(types.Object.prototype).childrenAt(...args);
   }
 });
-
-function truncate(fn, tree) {
-  return flatMap(node => {
-    let subtree = view(lensTree(node.path), tree);
-    if (fn(subtree.data)) {
-      return append(subtree, { children: [] });
-    } else {
-      return subtree;
-    }
-  }, tree);
-}
 
 class Node {
   constructor(Type, path) {
@@ -153,7 +162,7 @@ class Node {
 
       let nextTree = set(lensTree(path), graft(path, nextLocalTree), tree);
       let nextValue = set(lensPath(path), nextLocalValue, value);
-
+      
       return { tree: nextTree, value: nextValue };
     }, transitionsFor(Type));
   }
@@ -163,6 +172,10 @@ class ShiftNode extends Node {
   constructor({ Type, path }, value) {
     super(Type, path);
     assign(this, { value });
+  }
+
+  get isShifted() {
+    return true;
   }
 
   valueAt() {

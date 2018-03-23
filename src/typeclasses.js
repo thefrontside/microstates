@@ -1,12 +1,18 @@
-import { Applicative, Functor, map, append } from 'funcadelic';
+import $ from './utils/chain';
+import { Applicative, Functor, map, append, foldl } from 'funcadelic';
 import { Monad, flatMap } from './monad';
 import Microstate from './microstate';
 import { reveal } from './utils/secret';
 import Tree from './utils/tree';
 import { Collapse, collapse } from './typeclasses/collapse';
 import thunk from './thunk';
+import truncate from './truncate';
+import State from './typeclasses/state';
+import Value from './typeclasses/value';
+import types from './types';
+import getDescriptors from 'object.getownpropertydescriptors';
 
-const { keys } = Object;
+const { keys, getPrototypeOf } = Object;
 
 function invoke({ method, args, value, tree}) {
   let nextValue = method.apply(new Microstate(tree, value), args);
@@ -23,7 +29,9 @@ Functor.instance(Microstate, {
 
     // tree of transitions
     let next = map(node => {
+      
       let transitions = node.transitionsAt(value, tree, invoke);
+
       return map(transition => {
         return (...args) => {
           let { tree, value } = transition(...args);
@@ -40,14 +48,41 @@ Functor.instance(Microstate, {
 
 Collapse.instance(Tree, {
   collapse(tree) {
-    let hasChildren = !!keys(tree.children).length;
+    let hasChildren = tree.data && !!keys(tree.children).length;
     if (hasChildren) {
       return append(tree.data, map(child => collapse(child), tree.children));
     } else {
       return tree.data;
     }
   }
-})
+});
+
+Collapse.instance(State, {
+  collapse({ tree, value }) {
+    let truncated = truncate(node => node.isSimple, tree);
+    return collapse(map(node => node.stateAt(value), truncated)); 
+  }
+});
+
+Collapse.instance(Value, {
+  collapse({ tree, value }) {
+    let truncated = truncate(node => node.isSimple || node.valueAt(value) === undefined, tree);
+    let values = map(node => getPrototypeOf(node.Type) === types.Array ? [] : node.valueAt(value), truncated);
+    let collapsed = collapse(values);
+    return toPOJO(collapsed);
+  }
+});
+
+function toPOJO(value) {
+  if (Array.isArray(value)) {
+    return map(value => toPOJO(value), value);
+  } else if (value && typeof value === 'object') {
+    let descriptors = getDescriptors(value);
+    return keys(descriptors)
+      .reduce((memo, key) => append(memo, {[key]: toPOJO(descriptors[key].get())}), {});
+  }
+  return value;
+}
 
 Functor.instance(Tree, {
   /**
