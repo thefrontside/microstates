@@ -1,5 +1,5 @@
 import $ from './utils/chain';
-import { type, map, append, pure, foldr } from 'funcadelic';
+import { type, map, append, pure } from 'funcadelic';
 import { flatMap } from './monad';
 import { view, set, lensTree, lensPath } from './lens';
 import Tree, { graft, prune } from './utils/tree';
@@ -15,10 +15,8 @@ import Value from './typeclasses/value';
 
 const { assign } = Object;
 
-let valueOf = value => value != null ? value.valueOf() : value;
-
 export default function analyze(Type, value) {
-  value = valueOf(value);
+  value = value ? value.valueOf() : value;
 
   let tree = flatMap(analyzeType(value), pure(Tree, new Node(Type, [])));
 
