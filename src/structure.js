@@ -15,16 +15,7 @@ const { assign } = Object;
 
 export default function analyze(Type, value) {
   value = value != null ? value.valueOf() : value;  
-  return flatMap(analyzeType(value), pure(Tree, new PrimaryValue(Type, [], value)));
-}
-
-export function collapseState(tree) {
-  let truncated = truncate(node => node.isSimple, tree);
-  return collapse(map(node => node.state, truncated));
-}
-
-function analyzeType(rootValue) {
-  return (node) => {
+  return flatMap((node) => {
     let { Type, value } = node;
     let instance = Type.hasOwnProperty('create') ? Type.create(value) : undefined;
 
@@ -45,7 +36,12 @@ function analyzeType(rootValue) {
         return map((ChildType, path) => pure(Tree, new NestedValue(ChildType, append(node.path, path), node instanceof PrimaryValue ? value : node.root)), childTypes);
       }
     });
-  };
+  }, pure(Tree, new PrimaryValue(Type, [], value != null ? value.valueOf() : value)));
+}
+
+export function collapseState(tree) {
+  let truncated = truncate(node => node.isSimple, tree);
+  return collapse(map(node => node.state, truncated));
 }
 
 const Location = type(class Location {
