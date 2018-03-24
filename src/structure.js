@@ -13,26 +13,26 @@ import { collapse } from './typeclasses/collapse';
 const { assign } = Object;
 
 export default function analyze(Type, value) {
-  return flatMap(analyzeType(value), pure(Tree, new Node(Type, [])));
+  return flatMap(analyzeType(value), pure(Tree, new PrimaryValue(Type, [], value)));
 }
 
 export function collapseState(tree, value) {
+  if (tree.data.value !== value) {
+    // console.warn("tree.data.value !== value", tree.data.value, value);
+  }
   let truncated = truncate(node => node.isSimple, tree);
   return collapse(map(node => node.stateAt(value), truncated));
 }
 
-function analyzeType(value) {
+function analyzeType(rootValue) {
   return (node) => {
-    let InitialType = desugar(node.Type);
-    let valueAt = node.valueAt(value);
-    let Type = toType(InitialType);
-
-    let instance = Type.hasOwnProperty('create') ? Type.create(valueAt) : undefined;
+    let { Type, value } = node;
+    let instance = Type.hasOwnProperty('create') ? Type.create(value) : undefined;
 
     if (instance instanceof Microstate) {
-      let { tree , value } = reveal(instance);
+      let { tree } = reveal(instance);
 
-      let shift = new ShiftNode(tree.data, value);
+      let shift = new PrimaryValue(tree.data.Type, tree.data.path, tree.data.value);
       return graft(node.path, new Tree({
         data: () => shift,
         children: () => tree.children
@@ -40,10 +40,10 @@ function analyzeType(value) {
     }
 
     return new Tree({
-      data: () => Type === node.Type ? node : append(node, { Type }),
+      data: () => node,
       children() {
-        let childTypes = childrenAt(Type, node.valueAt(value));
-        return map((ChildType, path) => pure(Tree, new Node(ChildType, append(node.path, path))), childTypes);
+        let childTypes = childrenAt(Type, value);
+        return map((ChildType, path) => pure(Tree, new NestedValue(ChildType, append(node.path, path), rootValue)), childTypes);
       }
     });
   };
@@ -78,7 +78,7 @@ Location.instance(Object, {
 });
 
 Location.instance(types.Object, {
-  stateAt: _ => {},
+  stateAt: _ => ({}),
   childrenAt(Type, value) {
     let { T } = params(Type);
     if (T !== any) {
@@ -99,7 +99,7 @@ Location.instance(types.Array, {
 function truncate(fn, tree) {
   return flatMap(node => {
     let subtree = view(lensTree(node.path), tree);
-    if (fn(subtree.data)) {
+    if (fn(node)) {
       return append(subtree, { children: [] });
     } else {
       return subtree;
@@ -107,22 +107,20 @@ function truncate(fn, tree) {
   }, tree);
 }
 
+import logTree from './utils/log-tree';
+
 class Node {
-  constructor(Type, path) {
-    assign(this, { Type, path });
+  constructor(InitialType, path) {
+    assign(this, { Type: toType(desugar(InitialType)), path });
   }
 
   get isSimple() {
     return isSimple(this.Type);
   }
 
-  valueAt(total) {
-    return view(lensPath(this.path), total);
-  }
-
   stateAt(value) {
     let { Type } = this;
-    let valueAt = this.valueAt(value);
+    let valueAt = this.value;
     let instance = new Type(valueAt).valueOf();
     if (isSimple(Type)) {
       return valueAt || instance;
@@ -131,18 +129,26 @@ class Node {
     }
   }
 
-  transitionsAt(value, tree, invoke) {
+  transitionsAt(valueX, tree, invoke) {
     let { Type, path } = this;
 
     return map(method => (...args) => {
-      let localValue = this.valueAt(value);
+      let localValue = this.value;
       let localTree = view(lensTree(path), tree);
+
+      let pruned = map(node => {
+        if (node.isNested) {
+          return append(node, { root: localValue });
+        } else {
+          return node;
+        }
+      }, prune(localTree));
 
       let transition = {
         method,
         args,
         value: localValue,
-        tree: prune(localTree)
+        tree: pruned
       };
 
       let {
@@ -150,21 +156,68 @@ class Node {
         tree: nextLocalTree
       } = invoke(transition);
 
-      let nextTree = set(lensTree(path), graft(path, nextLocalTree), tree);
-      let nextValue = set(lensPath(path), nextLocalValue, value);
+      let { data: node } = nextLocalTree;
 
-      return { tree: nextTree, value: nextValue };
+
+      let nextTree = set(lensTree(path), graft(path, nextLocalTree), tree);
+      let nextValue = set(lensPath(path), nextLocalValue, tree.data.value);
+
+
+      let next = map(node => {
+        if (node === nextTree.data) {
+          //it's the root. Update its primary vaule
+          return append(node, { value: nextValue});
+        } else if (node instanceof NestedValue) {
+          //it's a nested value that reads from the root
+          return append(node, { root: nextValue });
+        } else {
+          //it's a primary value
+          return node;
+        }
+      }, nextTree);
+
+      if (nextValue !== next.data.value) {
+        throw new Error('nope!');
+      }
+      return { tree: next, value: next.data.value };
     }, transitionsFor(Type));
   }
 }
 
-class ShiftNode extends Node {
-  constructor({ Type, path }, value) {
+class PrimaryValue extends Node {
+  constructor(Type, path, value) {
     super(Type, path);
     assign(this, { value });
   }
 
-  valueAt() {
-    return this.value;
+  get isPrimary() { return true; }
+
+  valueAt(root) {
+    if (root !== this.value) {
+      console.warn('primary value not equal to itself?? WAT', root, this.value);
+    }
+    return super.valueAt(root);
   }
 }
+
+class NestedValue extends Node {
+  constructor(Type, path, root) {
+    super(Type, path);
+    assign(this, { root });
+  }
+
+  get isNested() { return true; }
+}
+
+// This value is computed, but I want it to be enumerable.
+// Is there a better way to do this?
+Object.defineProperty(NestedValue.prototype, 'value', {
+  enumerable: true,
+  configurable: false,
+  get() {
+    if (!this._value) {
+      this._value = view(lensPath(this.path), this.root);
+    }
+    return this._value;
+  }
+});

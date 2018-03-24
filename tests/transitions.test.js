@@ -1,5 +1,7 @@
 import 'jest';
 import Microstate, { create }  from 'microstates';
+import { reveal } from 'microstates';
+import logTree from '../src/utils/log-tree';
 
 class Car {
   speed = Number;
@@ -37,8 +39,10 @@ describe('transition', () => {
     beforeEach(() => {
       ms = create(Road);
       m1 = ms.vehicle.increaseSpeed(10);
+      let { tree: m1t } = reveal(m1);
       v1 = m1.valueOf();
       m2 = m1.vehicle.increaseSpeed(20);
+      let { tree: m2t } = reveal(m2);
       v2 = m2.valueOf();
     });
     it('should maintain root after 1st transition', () => {

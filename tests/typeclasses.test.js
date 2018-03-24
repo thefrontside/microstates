@@ -24,13 +24,12 @@ describe("typeclasses", () => {
       let ms = create(Person, { name: "Taras", home: { city: "Toronto" } });
       mapped = map(fn, ms);
     });
-  
+
     it('has composed objects', () => {
-      // console.log(typeof mapped.home)/
       expect(mapped.home).toBeDefined()
       expect(mapped.home.set).toBeDefined();
     });
-  
+
     it('kept the valueOf', () => {
       expect(mapped.valueOf()).toEqual({ name: "Taras", home: { city: "Toronto" } });
     });

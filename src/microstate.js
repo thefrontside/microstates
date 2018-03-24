@@ -33,8 +33,8 @@ export default class Microstate {
    * Return boxed in value for this microstates
    */
   valueOf() {
-    let { value } = reveal(this);
-    return value;
+    let { tree } = reveal(this);
+    return tree.data.value;
   }
 
   [SymbolObservable]() {

@@ -23,17 +23,15 @@ describe('Structure', () => {
     }
   }
   let initialValue = { user: { firstName: 'Charles', lastName: 'Lowell' } };
-  let tree = analyze(Session);
+  let tree = analyze(Session, initialValue);
 
   it('can fetch the value at each node', function() {
-    expect(tree.data.valueAt(initialValue)).toMatchObject({
-      user: {}
-    });
-    expect(tree.children.user.data.valueAt(initialValue)).toMatchObject({
+    expect(tree.data.value).toBe(initialValue);
+    expect(tree.children.user.data.value).toMatchObject({
       firstName: 'Charles',
       lastName: 'Lowell'
     });
-    expect(tree.children.user.children.firstName.data.valueAt(initialValue)).toEqual('Charles');
+    expect(tree.children.user.children.firstName.data.value).toEqual('Charles');
   });
 
   it('can fetch the state at each node', function() {
@@ -127,7 +125,7 @@ describe('Structure', () => {
       expect(tree.children[2]).toBeDefined();
     });
     it('re-uses the value of the array as both its value and state', function() {
-      expect(tree.data.valueAt(array)).toBe(array);
+      expect(tree.data.value).toBe(array);
       expect(tree.data.stateAt(array)).toBe(array);
     });
     it('can invoke transitions on the subtypes', function() {
@@ -165,7 +163,7 @@ describe('Structure', () => {
       expect(tree.children.length).toBe(0);
     });
     it('re-uses the value as both its value and state', function() {
-      expect(tree.data.valueAt(array)).toBe(array);
+      expect(tree.data.value).toBe(array);
       expect(tree.data.stateAt(array)).toBe(array);
     });
   });
@@ -182,7 +180,7 @@ describe('Structure', () => {
       expect(tree.children.two).toBeDefined();
     });
     it('re-uses the value of the object as both its value and state', function() {
-      expect(tree.data.valueAt(object)).toBe(object);
+      expect(tree.data.value).toBe(object);
       expect(tree.data.stateAt(object)).toBe(object);
     });
     it('can invoke transitions on the subtypes', function() {

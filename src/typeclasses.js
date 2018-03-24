@@ -11,6 +11,8 @@ function invoke({ method, args, value, tree}) {
   let nextValue = method.apply(new Microstate(tree, value), args);
   if (nextValue instanceof Microstate) {
     return reveal(nextValue);
+  } else if (nextValue === value ) {
+    return { tree, value };
   } else {
     return { tree, value: nextValue };
   }
