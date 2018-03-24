@@ -42,7 +42,7 @@ class ArrayType {
   splice(startIndex, length, values) {
     let Microstate = this.constructor;
     let { create } = Microstate;
-    let { tree } = reveal(this);
+    let tree = reveal(this);
     let value = (this.valueOf() || []).slice();
     value.splice(startIndex, length, ...values);
 
@@ -56,7 +56,6 @@ class ArrayType {
     let added = $(values)
         .map(value => create(T, value))
         .map(reveal)
-        .map(({ tree }) => tree)
         .valueOf();
 
     let moved = map(prune, tree.children.slice(startIndex + length));
@@ -71,12 +70,11 @@ class ArrayType {
         .valueOf();
 
     let structure = new Tree({
-      data: () => tree.data,
+      data: () => new tree.data.constructor(tree.data.Type, tree.data.path, map(tree => tree.data.value, children)),
       children: () => children
     });
 
-
-    return new Microstate(structure, value);
+    return new Microstate(structure);
   }
   /**
    * Return a new array with first occurance of found item

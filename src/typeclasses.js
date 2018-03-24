@@ -8,9 +8,10 @@ import thunk from './thunk';
 const { keys } = Object;
 
 function invoke({ method, args, value, tree}) {
-  let nextValue = method.apply(new Microstate(tree, value), args);
+  let nextValue = method.apply(new Microstate(tree), args);
   if (nextValue instanceof Microstate) {
-    return reveal(nextValue);
+    let tree = reveal(nextValue);
+    return { tree, value: tree.data.value };
   } else if (nextValue === value ) {
     return { tree, value };
   } else {
@@ -20,7 +21,7 @@ function invoke({ method, args, value, tree}) {
 
 Functor.instance(Microstate, {
   map(fn, microstate) {
-    let { tree } = reveal(microstate);
+    let tree = reveal(microstate);
 
     // tree of transitions
     let next = map(node => {
@@ -28,7 +29,7 @@ Functor.instance(Microstate, {
       return map(transition => {
         return (...args) => {
           let { tree } = transition(...args);
-          return new Microstate(tree, tree.data.value);
+          return new Microstate(tree);
         };
       }, transitions);
     }, tree);

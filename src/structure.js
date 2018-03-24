@@ -32,7 +32,7 @@ function analyzeType(rootValue) {
     let instance = Type.hasOwnProperty('create') ? Type.create(value) : undefined;
 
     if (instance instanceof Microstate) {
-      let { tree } = reveal(instance);
+      let tree = reveal(instance);
 
       let shift = new PrimaryValue(tree.data.Type, tree.data.path, tree.data.value);
       return graft(node.path, new Tree({

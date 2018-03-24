@@ -393,7 +393,7 @@ describe('type-shifting from create to parameterized array', () => {
   });
 
   it('provides data to parameterized array', () => {
-    let { tree } = reveal(group);
+    let tree = reveal(group);
     expect(group.state.members).toHaveLength(3);
     expect(group.state).toMatchObject({
       members: [
