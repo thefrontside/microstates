@@ -37,22 +37,26 @@ describe("Parameterized Microstates: ", () => {
     describe("root {[Number]} to parameterized(Object, parameterized(Array, Number))", function() {
       let Numbers = [Number];
       let Counters = { Numbers };
-      let m, value;
+      let value = {
+        oranges: [50, 20],
+        apples: [1, 2, 45]
+      };
+      let m;
+      let transitioned;
       beforeEach(function() {
-        value = {
-          oranges: [50, 20],
-          apples: [1, 2, 45]
-        };
         m = create(Counters, value);
+        transitioned = m.apples[0].increment().oranges[1].increment();
       });
       it("uses the same value for state as the value ", function() {
         expect(m.state).toEqual(m.valueOf());
       });
       it("still respects transitions", function() {
-        expect(m.apples[0].increment().oranges[1].increment().state).toEqual({
+        let value = {
           oranges: [50, 21],
           apples: [2, 2, 45]
-        });
+        };
+        expect(transitioned.valueOf()).toEqual(value);
+        expect(transitioned.state).toEqual(value);
       });
     });
 

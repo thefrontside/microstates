@@ -162,14 +162,14 @@ class Node {
       let nextTree = set(lensTree(path), graft(path, nextLocalTree), tree);
       let nextValue = set(lensPath(path), nextLocalValue, tree.data.value);
 
-
+      
       let next = map(node => {
         if (node === nextTree.data) {
           //it's the root. Update its primary vaule
-          return append(node, { value: nextValue});
+          return append(node, { value: nextValue });
         } else if (node instanceof NestedValue) {
           //it's a nested value that reads from the root
-          return append(node, { root: nextValue });
+          return new NestedValue(node.Type, node.path, nextValue);
         } else {
           //it's a primary value
           return node;
