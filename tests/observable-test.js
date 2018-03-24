@@ -109,3 +109,24 @@ describe("complex type", function() {
     });
   });
 });
+
+describe('initialized microstate', () => {
+  class Modal {
+    isOpen = Boolean;
+
+    static create(value) {
+      if (!value) {
+        return create(Modal, { isOpen: true });
+      }
+    }
+  }
+
+  it('streams initialized microstate', () => {
+    let fn = jest.fn();
+    Observable.from(create(Modal)).subscribe(fn);
+    expect(fn).toHaveBeenCalledTimes(1);
+    expect(fn.mock.calls[0][0].state).toMatchObject({
+      isOpen: true
+    });
+  });
+});
