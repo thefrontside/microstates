@@ -527,8 +527,10 @@ describe('type-shifting from create nodes in single operation', () => {
   }
 
   let root;
+  let transitioned;
   beforeEach(() => {
     root = create(Root);
+    transitioned = root.first.second.third.name.concat('!!!');
   });
 
   it('has state for root', () => {
@@ -550,16 +552,27 @@ describe('type-shifting from create nodes in single operation', () => {
     expect(root.valueOf()).toMatchObject({
       name: 'Default for Root',
       first: {
-        name: undefined,
         second: {
-          name: 'Provided name for Second',
-          third: {
-            name: 'Default for Third'
-          }
+          name: 'Provided name for Second'
         }
       }
     })
   });
+
+  it('has value from third initialized value', () => {
+    expect(transitioned.valueOf()).toEqual({
+      name: 'Default for Root',
+      first: {
+        second: {
+          name: 'Provided name for Second',
+          third: {
+            name: 'Default for Third!!!'
+          }
+        }
+      }
+    });
+  });
+  
 });
 
 describe('type-shifting with create in from none root node', () => {
