@@ -24,9 +24,8 @@ export default class Microstate {
    * @param {*} value
    */
   static create(Type, value) {
-    value = value != null ? value.valueOf() : value;
     let tree = analyze(Type, value);
-    return new Microstate(tree, value);
+    return new Microstate(tree, tree.data.value);
   }
 
   /**

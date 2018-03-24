@@ -14,6 +14,7 @@ import logTree from './utils/log-tree';
 const { assign } = Object;
 
 export default function analyze(Type, value) {
+  value = value != null ? value.valueOf() : value;  
   return flatMap(analyzeType(value), pure(Tree, new PrimaryValue(Type, [], value)));
 }
 
