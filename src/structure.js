@@ -129,7 +129,7 @@ class Node {
     }
   }
 
-  transitionsAt(valueX, tree, invoke) {
+  transitionsAt(tree, invoke) {
     let { Type, path } = this;
 
     return map(method => (...args) => {
