@@ -234,3 +234,372 @@ describe('type-shifting with constant values', () => {
     });
   });
 });
+
+
+describe("type-shifting into a deeply composed microstate", () => {
+  class Node {
+    name = String;
+    node = Node;
+  }
+
+  let root;
+  beforeEach(() => {
+    root = create(Node);
+  })
+  
+  describe('shifting the root node', () => {
+
+    let shiftedRoot;
+    beforeEach(() => {
+      shiftedRoot = root.set(
+        create(Node, { name: "n1", node: { name: "n2", node: { name: "n3" } } })
+      )
+    });
+
+    it("preserves type shifting value", () => {
+      expect(
+        shiftedRoot.state
+      ).toMatchObject({
+        name: 'n1',
+        node: { name: 'n2', node: { name: "n3" }}
+      });
+    });
+
+    it('preserves valueOf', () => {
+      expect(shiftedRoot.valueOf()).toEqual({
+        name: 'n1',
+        node: { name: 'n2', node: { name: "n3" }}
+      })
+    });
+  });
+
+  describe('shifting deeply composted state with new value', () => {
+
+    let shiftedDeeply;
+    beforeEach(() => {
+      shiftedDeeply = root.node.node.node.set({ name: "soooo deep", node: { name: 'one more' }});
+    });
+
+    it("preserves type shifting value", () => {
+      expect(
+        shiftedDeeply.state
+      ).toMatchObject({
+        node: { node: { node: { name: 'soooo deep', node: { name: 'one more' }}}}
+      });
+    });
+
+    it('preserves valueOf', () => {
+      expect(shiftedDeeply.valueOf()).toEqual({
+        node: { node: { node: { name: 'soooo deep', node: { name: 'one more' }}}}
+      })
+    });
+  });
+});
+
+describe("type-shifting in a getter", () => {
+  class Node {
+    depth = Number;
+
+    get next() {
+      return create(Node, { depth: this.depth + 1 }).state;
+    }
+  }
+
+  let root;
+  beforeEach(() => {
+    root = create(Node);
+  });
+
+  it('allows to create nodes', () => {
+    expect(root.state.depth).toBe(0);
+    expect(root.state.next.depth).toBe(1);
+    expect(root.state.next.next.depth).toBe(2);
+  });
+});
+
+describe.skip("type-shifting recursively with create", () => {
+  // this fails with: RangeError: Maximum call stack size exceeded
+  // I suspect this is because `create` is eager, it would be cool if
+  // we could make this lazy and thereby allow tree to be pulled on demand
+
+  class Node {
+    depth = Number;
+    node = Node;
+
+    static create({ depth = 0 } = {}) {
+      return create(Node, { depth, node: { depth: depth + 1 } });
+    }
+  }
+
+  let root;
+  beforeEach(() => {
+    root = create(Node);
+  });
+
+
+  it('allows to create nodes', () => {
+    expect(root.state.depth).toBe(0);
+    expect(root.state.node.depth).toBe(1)
+  });
+});
+
+describe('type-shifting from create to parameterized array', () => {
+  class Person {
+    name = String;
+  }
+
+  class Group {
+    members = [Person]
+
+    static create({ members } = {}) {
+      if (!members) {
+        return create(Group, { members: [
+          { name: 'Taras' },
+          { name: 'Charles' },
+          { name: 'Siva' }
+        ]});
+      }
+    }
+  }
+
+  let group;
+  let value;
+
+  beforeEach(() => {
+    group = create(Group);
+    value = group.valueOf();
+  });
+
+
+  it('initializes to value', () => {
+    expect(value).toMatchObject({
+      members: [
+        { name: 'Taras' },
+        { name: 'Charles' },
+        { name: 'Siva' }
+      ]
+    });
+  });
+
+  it('has a POJO as value', () => {
+    let descriptor = Object.getOwnPropertyDescriptor(value, 'members');
+    expect(descriptor).toHaveProperty('value', [
+      { name: 'Taras' },
+      { name: 'Charles' },
+      { name: 'Siva' }
+    ]);
+    expect(descriptor.get).toBeUndefined();
+  });
+
+  it('provides data to parameterized array', () => {
+    expect(group.state.members).toHaveLength(3);
+    expect(group.state).toMatchObject({
+      members: [
+        { name: 'Taras' },
+        { name: 'Charles' },
+        { name: 'Siva' }
+      ]
+    });
+    expect(group.state.members[0]).toBeInstanceOf(Person);
+  });
+
+  describe('transitioning shifted value', () => {
+    let acclaimed;
+    let value;
+
+    beforeEach(() => {
+      acclaimed = group.members[1].name.set('!!Charles!!');
+      value = acclaimed.valueOf();
+    });
+
+    it('has the transitioned state', () => {
+      expect(acclaimed.state).toMatchObject({
+        members: [
+          { name: 'Taras' },
+          { name: '!!Charles!!' },
+          { name: 'Siva' }
+        ]
+      })
+    });
+
+    it('carries the value of', () => {
+      expect(value).toEqual({
+        members: [
+          { name: 'Taras' },
+          { name: '!!Charles!!' },
+          { name: 'Siva' }
+        ]
+      });
+    });
+
+    it('has a POJO as value', () => {
+      let descriptor = Object.getOwnPropertyDescriptor(value, 'members');
+      expect(descriptor).toHaveProperty('value', [
+        { name: 'Taras' },
+        { name: '!!Charles!!' },
+        { name: 'Siva' }
+      ]);
+      expect(descriptor.get).toBeUndefined();
+    });
+  });
+});
+
+describe('type-shifting from create to parameterized object', () => {
+  class Parent {
+    name = String;
+  }
+  class Person {
+    parents = { Parent }
+
+    static create({ parents } = {}) {
+      if (!parents) {
+        return create(Person, {
+          parents: {
+            father: {
+              name: 'John Doe'
+            },
+            mother: {
+              name: 'Jane Doe'
+            }
+          }
+        });
+      }
+    }
+  }
+
+  let person;
+  beforeEach(() => {
+    person = create(Person);
+  });
+
+  it('has name with initial values', () => {
+    expect(person.state.parents.father).toBeInstanceOf(Parent);
+    expect(person.state).toMatchObject({
+      parents: {
+        father: {
+          name: 'John Doe'
+        },
+        mother: {
+          name: 'Jane Doe'
+        }
+      }
+    })
+  });
+
+  it('has valueOf', () => {
+    expect(person.valueOf()).toEqual({
+      parents: {
+        father: {
+          name: 'John Doe'
+        },
+        mother: {
+          name: 'Jane Doe'
+        }
+      }
+    });
+  });
+});
+
+describe('type-shifting from create nodes in single operation', () => {
+  class Root {
+    static create(params) {
+      if (!params) {
+        return create(Root, { name: 'Default for Root', first: { second: { name: 'Provided name for Second' } } })
+      }
+    }
+    name = String;
+    first = class First {
+      name = String;
+      second = class Second {
+        name = String;
+        third = class Third {
+          name = String;
+          static create(params) {
+            if (!params) {
+              return create(Third, { name: 'Default for Third' });
+            }
+          }
+        }
+      }
+    }
+  }
+
+  let root;
+  beforeEach(() => {
+    root = create(Root);
+  });
+
+  it('has state for root', () => {
+    expect(root.state).toMatchObject({
+      name: 'Default for Root',
+      first: {
+        name: '',
+        second: {
+          name: 'Provided name for Second',
+          third: {
+            name: 'Default for Third'
+          }
+        }
+      }
+    })
+  });
+
+  it('has valueOf', () => {
+    expect(root.valueOf()).toMatchObject({
+      name: 'Default for Root',
+      first: {
+        name: undefined,
+        second: {
+          name: 'Provided name for Second',
+          third: {
+            name: 'Default for Third'
+          }
+        }
+      }
+    })
+  });
+});
+
+describe('type-shifting with create in from none root node', () => {
+
+  class Root {
+    first = class First {
+      second = class Second {
+        name = String;
+        static create(props) {
+          if (!props) {
+            return create(Second, { name: 'default' });
+          }
+        }
+      }
+    }
+  }
+
+  let root, changed;
+  beforeEach(() => {
+    root = create(Root);
+    changed = root.first.second.name.concat('!!!');
+  });
+
+
+  it('has result of create of second node', () => {
+    expect(root.state).toMatchObject({
+      first: {
+        second: {
+          name: 'default'
+        }
+      }
+    });
+  });
+
+  it('has result after transition valueOf', () => {
+    expect(changed.valueOf()).toEqual({
+      first: {
+        second: {
+          name: 'default!!!'
+        }
+      }
+    });
+  });
+
+});
