@@ -18,12 +18,9 @@ export default function analyze(Type, value) {
   return flatMap(analyzeType(value), pure(Tree, new PrimaryValue(Type, [], value)));
 }
 
-export function collapseState(tree, value) {
-  if (tree.data.value !== value) {
-    // console.warn("tree.data.value !== value", tree.data.value, value);
-  }
+export function collapseState(tree) {
   let truncated = truncate(node => node.isSimple, tree);
-  return collapse(map(node => node.stateAt(value), truncated));
+  return collapse(map(node => node.state, truncated));
 }
 
 function analyzeType(rootValue) {
@@ -118,7 +115,7 @@ class Node {
     return isSimple(this.Type);
   }
 
-  stateAt(value) {
+  get state() {
     let { Type } = this;
     let valueAt = this.value;
     let instance = new Type(valueAt).valueOf();

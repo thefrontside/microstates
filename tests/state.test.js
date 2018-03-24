@@ -22,23 +22,23 @@ class User {
 describe('State', () => {
   describe("of an Number", () => {
     it('is the same as the value', function() {
-      expect(node(Number, 5).stateAt(5)).toEqual(5);
+      expect(node(Number, 5).state).toEqual(5);
     });
   });
   describe('of a Boolean', function() {
     it('is the same as the value', function() {
-      expect(node(Boolean, true).stateAt(true)).toEqual(true);
+      expect(node(Boolean, true).state).toEqual(true);
     });
   });
   describe('of a String', function() {
     it('is the same as the value', function() {
-      expect(node(String, 'Hello').stateAt('Hello')).toEqual('Hello');
+      expect(node(String, 'Hello').state).toEqual('Hello');
     });
   });
   describe('of a non-simple type', function() {
     it('is an instance of that type', function() {
       let tree = analyze(User, {firstName: 'Charles', lastName: 'Lowell'});
-      let state = collapse(map(node => node.stateAt({firstName: 'Charles', lastName: 'Lowell'}), tree));
+      let state = collapse(map(node => node.state, tree));
       expect(state).toBeInstanceOf(User);
       expect(state.firstName).toEqual('Charles');
       expect(state.lastName).toEqual('Lowell');

@@ -35,11 +35,11 @@ describe('Structure', () => {
   });
 
   it('can fetch the state at each node', function() {
-    expect(tree.data.stateAt(initialValue)).toBeDefined();
-    expect(tree.data.stateAt(initialValue)).toBeInstanceOf(Session);
-    expect(tree.children.user.data.stateAt(initialValue).constructor.name).toEqual('User');
-    expect(tree.children.user.children.firstName.data.stateAt(initialValue)).toEqual('Charles');
-    expect(tree.children.user.children.lastName.data.stateAt(initialValue)).toEqual('Lowell');
+    expect(tree.data.state).toBeDefined();
+    expect(tree.data.state).toBeInstanceOf(Session);
+    expect(tree.children.user.data.state.constructor.name).toEqual('User');
+    expect(tree.children.user.children.firstName.data.state).toEqual('Charles');
+    expect(tree.children.user.children.lastName.data.state).toEqual('Lowell');
   });
 
   it('can transition at the root node', function () {
@@ -126,7 +126,7 @@ describe('Structure', () => {
     });
     it('re-uses the value of the array as both its value and state', function() {
       expect(tree.data.value).toBe(array);
-      expect(tree.data.stateAt(array)).toBe(array);
+      expect(tree.data.state).toBe(array);
     });
     it('can invoke transitions on the subtypes', function() {
       let invoke = jest.fn(() => ({
@@ -164,7 +164,7 @@ describe('Structure', () => {
     });
     it('re-uses the value as both its value and state', function() {
       expect(tree.data.value).toBe(array);
-      expect(tree.data.stateAt(array)).toBe(array);
+      expect(tree.data.state).toBe(array);
     });
   });
 
@@ -181,7 +181,7 @@ describe('Structure', () => {
     });
     it('re-uses the value of the object as both its value and state', function() {
       expect(tree.data.value).toBe(object);
-      expect(tree.data.stateAt(object)).toBe(object);
+      expect(tree.data.state).toBe(object);
     });
     it('can invoke transitions on the subtypes', function() {
       let invoke = jest.fn(() => ({
