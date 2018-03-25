@@ -13,8 +13,10 @@ import logTree from './utils/log-tree';
 
 const { assign } = Object;
 
-export default function analyze(Type, value) {
-  value = value != null ? value.valueOf() : value;  
+export default function analyze(Type, rootValue) {
+  let value = rootValue != null ? rootValue.valueOf() : rootValue;
+  let tree = pure(Tree, new PrimaryValue(Type, [], value));
+
   return flatMap((node) => {
     let { Type, value } = node;
     let instance = Type.hasOwnProperty('create') ? Type.create(value) : undefined;
@@ -36,7 +38,7 @@ export default function analyze(Type, value) {
         return map((ChildType, path) => pure(Tree, new NestedValue(ChildType, append(node.path, path), node instanceof PrimaryValue ? value : node.root)), childTypes);
       }
     });
-  }, pure(Tree, new PrimaryValue(Type, [], value != null ? value.valueOf() : value)));
+  }, tree);
 }
 
 export function collapseState(tree) {
