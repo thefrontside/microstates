@@ -42,22 +42,6 @@ export default function analyze(Type, rootValue) {
   }, tree);
 }
 
-export function collapseState(tree) {
-  let truncated = truncate(node => node.isSimple, tree);
-  return collapse(map(node => node.state, truncated));
-}
-
-function truncate(fn, tree) {
-  return flatMap(node => {
-    let subtree = view(lensTree(node.path), tree);
-    if (fn(node)) {
-      return append(subtree, { children: [] });
-    } else {
-      return subtree;
-    }
-  }, tree);
-}
-
 class Node {
   constructor(InitialType, path) {
     assign(this, { Type: toType(desugar(InitialType)), path });

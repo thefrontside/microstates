@@ -2,6 +2,7 @@ import { append, filter, map } from 'funcadelic';
 import $ from './chain';
 import thunk from '../thunk';
 import getOwnPropertyDescriptors from 'object.getownpropertydescriptors';
+import { Collapse, collapse } from '../typeclasses/collapse';
 
 let { keys } = Object;
 
@@ -20,6 +21,17 @@ export default class Tree {
     });
   }
 }
+
+Collapse.instance(Tree, {
+  collapse(tree) {
+    let hasChildren = !!keys(tree.children).length;
+    if (hasChildren) {
+      return append(tree.data, map(child => collapse(child), tree.children));
+    } else {
+      return tree.data;
+    }
+  }
+})
 
 /**
  * Turn any structure tree into a root tree.
@@ -55,3 +67,4 @@ export function graft(path, tree) {
     return map(node => append(node, { path: [...path, ...node.path]}), tree);
   }
 }
+
