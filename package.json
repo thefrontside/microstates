@@ -7,9 +7,9 @@
     "immutable",
     "microstates"
   ],
-  "homepage": "https://github.com/cowboyd/microstates.js#readme",
+  "homepage": "https://github.com/microstates/microstates.js#readme",
   "bugs": {
-    "url": "https://github.com/cowboyd/microstates.js/issues"
+    "url": "https://github.com/microstates/microstates.js/issues"
   },
   "license": "MIT",
   "author": "Charles Lowell <charles@frontside.io>, Taras Mankovski <taras@thisdot.co>",
@@ -21,7 +21,7 @@
   "main": "dist/microstates.umd.js",
   "module": "dist/microstates.js",
   "browser": "dist/microstates.umd.js",
-  "repository": "git+ssh://git@github.com/cowboyd/microstates.js.git",
+  "repository": "git+ssh://git@github.com/microstates/microstates.js.git",
   "scripts": {
     "prepare": "npm run build",
     "build": "rollup --config",
