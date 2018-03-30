@@ -4,6 +4,8 @@
 
 # Microstates
 
+[![Join the chat at https://gitter.im/microstates/microstates.js](https://badges.gitter.im/microstates/microstates.js.svg)](https://gitter.im/microstates/microstates.js?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+
 * [Intro](#intro)
 * [microstate constructor](#microstate-constructor)
 * [Composition](#composition)
