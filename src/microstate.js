@@ -1,12 +1,18 @@
-import { map } from "funcadelic";
+import { map, append } from "funcadelic";
 import analyze, { collapseState } from "./structure";
 import { keep, reveal } from "./utils/secret";
 import SymbolObservable from "symbol-observable";
 
 export default class Microstate {
   constructor(tree, value) {
+
     keep(this, { tree, value });
-    return map(transition => transition, this);
+
+    return append(map(transition => transition, this), {
+      get state() {
+        return collapseState(tree, value);
+      }
+    });
   }
 
   /**
@@ -21,15 +27,6 @@ export default class Microstate {
     value = value != null ? value.valueOf() : value;
     let tree = analyze(Type, value);
     return new Microstate(tree, value);
-  }
-
-  /**
-   * Evaluates to state for this microstate.
-   */
-  get state() {
-    let { tree, value } = reveal(this);
-
-    return collapseState(tree, value);
   }
 
   /**
