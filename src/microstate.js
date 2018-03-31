@@ -1,4 +1,4 @@
-import { map } from "funcadelic";
+import { map, append } from "funcadelic";
 import analyze from "./structure";
 import { keep, reveal } from "./utils/secret";
 import SymbolObservable from "symbol-observable";
