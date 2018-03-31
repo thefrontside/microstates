@@ -1,5 +1,4 @@
-import { map, filter, append } from 'funcadelic';
-import { flatMap } from '../monad';
+import { map, filter, append, flatMap } from 'funcadelic';
 
 class Chain {
   constructor(value) {
