@@ -143,7 +143,8 @@ class NestedValue extends Node {
 }
 
 // This value is computed, but I want it to be enumerable.
-// Is there a better way to do this?
+// charles > Is there a better way to do this?
+// taras > append(this, { get value() {} }) will make value an enumerable getter
 Object.defineProperty(NestedValue.prototype, 'value', {
   enumerable: true,
   configurable: false,
