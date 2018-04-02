@@ -1,5 +1,4 @@
-import { Applicative, Functor, map, append } from 'funcadelic';
-import { Monad, flatMap } from './monad';
+import { Applicative, Functor, map, append, Monad, flatMap } from 'funcadelic';
 import Microstate from './microstate';
 import { reveal } from './utils/secret';
 import Tree from './utils/tree';

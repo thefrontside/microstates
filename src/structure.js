@@ -1,6 +1,5 @@
 import $ from './utils/chain';
-import { type, map, append, pure } from 'funcadelic';
-import { flatMap } from './monad';
+import { type, map, append, pure, flatMap } from 'funcadelic';
 import { view, set, lensTree, lensPath } from './lens';
 import Tree, { graft, prune } from './utils/tree';
 import transitionsFor from './utils/transitions-for';

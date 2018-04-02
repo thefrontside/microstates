@@ -1,6 +1,5 @@
 import "jest";
-import { map } from "funcadelic";
-import { flatMap } from '../src/monad';
+import { map, flatMap } from "funcadelic";
 import Microstate, { create }  from "microstates";
 
 describe("typeclasses", () => {
