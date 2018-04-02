@@ -1,7 +1,7 @@
 import { append } from 'funcadelic';
 import getOwnPropertyDescriptors from 'object.getownpropertydescriptors';
 
-const { getPrototypeOf, create } = Object;
+const { getPrototypeOf } = Object;
 
 export default function getPrototypeDescriptors(Class) {
   let prototype = getPrototypeOf(Class);

@@ -1,23 +1,19 @@
 import { append, filter, map } from 'funcadelic';
 import $ from './chain';
-import thunk from '../thunk';
-import getOwnPropertyDescriptors from 'object.getownpropertydescriptors';
 import { Collapse, collapse } from '../typeclasses/collapse';
 
 let { keys } = Object;
 
+let empty = () => ({});
 export default class Tree {
-  constructor(props = {}) {
-    let { data = () => ({}), children = () => ({}) } = props;
-    return Object.create(Tree.prototype, {
-      data: {
-        get: thunk(data),
-        enumerable: true,
+  constructor({ data = empty, children = empty } = {}) {
+    return append(this, {
+      get data() {
+        return data();
       },
-      children: {
-        get: thunk(children),
-        enumerable: true,
-      },
+      get children() {
+        return children();
+      }
     });
   }
 }
