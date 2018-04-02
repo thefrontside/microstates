@@ -49,14 +49,14 @@ Functor.instance(Tree, {
    * @param {*} tree Tree
    */
   map(fn, tree) {
-    return new Tree({
-      data() {
+    return append(tree, {
+      get data() {
         return fn(tree.data);
       },
-      children() {
+      get children() {
         return map(child => map(fn, child), tree.children);
       },
-    });
+    })
   },
 });
 
@@ -74,13 +74,13 @@ Applicative.instance(Tree, {
 Monad.instance(Tree, {
   flatMap(fn, tree) {
     let next = thunk(() => fn(tree.data));
-    return new Tree({
-      data() {
+    return append(tree, {
+      get data() {
         return next().data;
       },
-      children() {
+      get children() {
         return map(child => flatMap(fn, child), next().children);
-      },
+      }
     });
   },
 });
