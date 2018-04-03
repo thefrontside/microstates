@@ -62,58 +62,64 @@ class Node {
     }
   }
 
-  transitionsAt(tree, invoke) {
+  get transitions() {
     let { Type, path } = this;
 
-    return map(method => (...args) => {
-      let localValue = this.value;
-      let localTree = view(lensTree(path), tree);
-
-      let pruned = map(node => {
-        if (node.isNested) {
-          return append(node, { root: localValue });
-        } else {
-          return node;
-        }
-      }, prune(localTree));
-
-      let transition = {
-        method,
-        args,
-        value: localValue,
-        tree: pruned
-      };
-
-      let {
-        value: nextLocalValue,
-        tree: nextLocalTree
-      } = invoke(transition);
-
-      let { data: node } = nextLocalTree;
-
-
-      let nextTree = set(lensTree(path), graft(path, nextLocalTree), tree);
-      let nextValue = set(lensPath(path), nextLocalValue, tree.data.value);
-
+    return $(transitionsFor(Type))
+      .map(method => {
+        return (tree, invoke) => {
+          return (...args) => {
+            let localValue = this.value;
+            let localTree = view(lensTree(path), tree);
       
-      let next = map(node => {
-        if (node === nextTree.data) {
-          //it's the root. Update its primary vaule
-          return append(node, { value: nextValue });
-        } else if (node instanceof NestedValue) {
-          //it's a nested value that reads from the root
-          return new NestedValue(node.Type, node.path, nextValue);
-        } else {
-          //it's a primary value
-          return node;
+            let pruned = map(node => {
+              if (node.isNested) {
+                return append(node, { root: localValue });
+              } else {
+                return node;
+              }
+            }, prune(localTree));
+      
+            let transition = {
+              method,
+              args,
+              value: localValue,
+              tree: pruned
+            };
+      
+            let {
+              value: nextLocalValue,
+              tree: nextLocalTree
+            } = invoke(transition);
+      
+            let { data: node } = nextLocalTree;
+      
+      
+            let nextTree = set(lensTree(path), graft(path, nextLocalTree), tree);
+            let nextValue = set(lensPath(path), nextLocalValue, tree.data.value);
+      
+            
+            let next = map(node => {
+              if (node === nextTree.data) {
+                //it's the root. Update its primary vaule
+                return append(node, { value: nextValue });
+              } else if (node instanceof NestedValue) {
+                //it's a nested value that reads from the root
+                return new NestedValue(node.Type, node.path, nextValue);
+              } else {
+                //it's a primary value
+                return node;
+              }
+            }, nextTree);
+      
+            if (nextValue !== next.data.value) {
+              throw new Error('nope!');
+            }
+            return { tree: next, value: next.data.value };
+          }
         }
-      }, nextTree);
-
-      if (nextValue !== next.data.value) {
-        throw new Error('nope!');
       }
-      return { tree: next, value: next.data.value };
-    }, transitionsFor(Type));
+    ).valueOf()
   }
 }
 

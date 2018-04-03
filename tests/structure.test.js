@@ -1,4 +1,5 @@
 import 'jest';
+import { map } from 'funcadelic';
 import { view, set } from '../src/lens';
 import { analyze, Tree, parameterized } from 'microstates';
 import types from '../src/types';
@@ -59,7 +60,7 @@ describe('Structure', () => {
       tree
     }));
 
-    let {tree: nextTree, value: nextValue} = tree.data.transitionsAt(tree, invoke).authenticate('username', 'password');
+    let {tree: nextTree, value: nextValue} = map(transition => (...args) => transition(tree, invoke)(...args), tree.data.transitions).authenticate('username', 'password');
     expect(invoke.mock.calls.length).toBe(1);
 
     // verify the arguments passed to the `invoke` callback.
@@ -88,7 +89,7 @@ describe('Structure', () => {
       value: 'Super-tastic!'
     }));
 
-    let { tree: nextTree, value: nextValue } = tree.children.user.children.lastName.data.transitionsAt(tree, invoke).set('make super');
+    let { tree: nextTree, value: nextValue } = map(transition => (...args) => transition(tree, invoke)(...args), tree.children.user.children.lastName.data.transitions).set('make super');
 
     expect(invoke.mock.calls.length).toBe(1);
 
@@ -133,7 +134,7 @@ describe('Structure', () => {
         tree: analyze(Boolean, true),
         value: true
       }));
-      let transitions = tree.children[2].data.transitionsAt(tree, invoke);
+      let transitions = map(transition => (...args) => transition(tree, invoke)(...args), tree.children[2].data.transitions);
 
       let { tree: nextTree, value: nextValue } = transitions.toggle();
       expect(nextValue).toEqual([true, false, true]);
@@ -144,7 +145,7 @@ describe('Structure', () => {
         tree: analyze(parameterized(Array, Boolean), [true, false]),
         value: [true, false]
       }));
-      let transitions = tree.data.transitionsAt(tree, invoke);
+      let transitions = map(transition => (...args) => transition(tree, invoke)(...args), tree.data.transitions);
       let { tree: nextTree, value: nextValue } = transitions.pop();
       expect(nextValue).toEqual([true, false]);
       expect(nextTree.children.length).toEqual(2);
@@ -188,7 +189,7 @@ describe('Structure', () => {
         tree: analyze(Number, 2),
         value: 2
       }));
-      let transitions = tree.children.one.data.transitionsAt(tree, invoke);
+      let transitions = map(transition => (...args) => transition(tree, invoke)(...args), tree.children.one.data.transitions);
 
       let { tree: nextTree, value: nextValue } = transitions.increment();
       expect(nextValue).toEqual({one: 2, two: 2});
@@ -199,7 +200,7 @@ describe('Structure', () => {
         tree: analyze(parameterized(Object, Number), {one: 1, two: 2, three: 3}),
         value: {one: 1, two: 2, three: 3}
       }));
-      let transitions = tree.data.transitionsAt(tree, invoke);
+      let transitions = map(transition => (...args) => transition(tree, invoke)(...args), tree.data.transitions);
       let { tree: nextTree, value: nextValue } = transitions.assign({three: 3});
       expect(nextValue).toEqual({one: 1, two: 2, three: 3});
       expect(nextTree.children.one.data.Type.name).toBe("NumberType");

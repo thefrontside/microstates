@@ -21,18 +21,17 @@ function invoke({ method, args, value, tree}) {
 
 Functor.instance(Microstate, {
   map(fn, microstate) {
-    let tree = reveal(microstate);
+    let _tree = reveal(microstate);
 
     // tree of transitions
     let next = map(node => {
-      let transitions = node.transitionsAt(tree, invoke);
       return map(transition => {
         return (...args) => {
-          let { tree } = transition(...args);
+          let { tree } = transition(_tree, invoke)(...args);
           return new Microstate(tree);
         };
-      }, transitions);
-    }, tree);
+      }, node.transitions);
+    }, _tree);
 
     let mapped = map(transitions => map(fn, transitions), next);
 
