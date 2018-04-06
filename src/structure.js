@@ -25,10 +25,10 @@ export default function analyze(Type, rootValue) {
     if (instance instanceof Microstate) {
       let tree = reveal(instance);
 
-      // TODO: this is not right. When value changes, it must be lensed into original value
-      return graft(node.path, append(tree, {
-        get data() { return new PrimaryValue(tree.data.Type, tree.data.path, tree.data.value) },
-        get children() { return tree.children }
+      let shift = new PrimaryValue(tree.data.Type, tree.data.path, tree.data.value);
+      return graft(node.path, new Tree({
+        data: () => shift,
+        children: () => tree.children
       }));
     }
 
