@@ -1,6 +1,6 @@
 import { append, map, flatMap } from 'funcadelic';
 import { Collapse, collapse } from './typeclasses/collapse';
-import { view, lensTree } from './lens';
+import { view, lensTreeValue } from './lens';
 
 export default class State {
   constructor(tree) {
@@ -17,7 +17,7 @@ Collapse.instance(State, {
 
 function truncate(fn, tree) {
   return flatMap(node => {
-    let subtree = view(lensTree(node.path), tree);
+    let subtree = view(lensTreeValue(node.path), tree);
     if (fn(node)) {
       return append(subtree, { children: [] });
     } else {

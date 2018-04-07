@@ -1,6 +1,6 @@
 import $ from './utils/chain';
 import { type, map, append, pure, flatMap } from 'funcadelic';
-import { view, set, over, lensTree, lensPath, lensTreeValue } from './lens';
+import { view, set, over, lensPath, lensTreeValue } from './lens';
 import Tree, { prune, graft } from './utils/tree';
 import transitionsFor from './utils/transitions-for';
 import { reveal } from './utils/secret';
