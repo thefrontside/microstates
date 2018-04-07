@@ -3,7 +3,7 @@ import 'jest';
 import ArrayType from '../../src/types/array';
 import { create } from 'microstates';
 
-describe.skip('ArrayType', function() {
+describe('ArrayType', function() {
   let array = ['a', 'b', 'c'];
 
   describe('when unparameterized', function() {

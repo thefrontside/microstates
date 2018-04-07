@@ -70,7 +70,7 @@ class ArrayType {
         .valueOf();
 
     let structure = new Tree({
-      data: () => new tree.data.constructor(tree.data.Type, tree.data.path, map(tree => tree.data.value, children)),
+      data: () => new tree.data.constructor({path: [], root: map(tree => tree.data.value, children), Type: tree.data.Type }),
       children: () => children
     });
 
