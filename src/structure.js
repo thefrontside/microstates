@@ -39,8 +39,8 @@ class Node {
       enumerable: true,
       get: thunk(() => view(lensPath(path), root))
     });
-
   }
+
   get Type() {
     return toType(desugar(this.InitialType));
   }
@@ -81,14 +81,14 @@ class Node {
   }
 
   createChild(Type, name) {
-    return new Node({path: append(this.path, name), Type, root: this.root});
+    return new Node({path: append(this.path, name), Type, root: this.value});
   }
 
   replaceValue(key, childValue) {
-    let { Type, path } = this;
+    let { Type, path, value } = this;
     return append(this, {
       get value() {
-        return set(lensPath([key]), childValue, this.value);
+        return set(lensPath([key]), childValue, value);
       }
     });
   }

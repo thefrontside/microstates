@@ -1,5 +1,6 @@
 import 'jest';
-import { create } from 'microstates';
+import { create, reveal } from 'microstates';
+import logTree from '../src/utils/log-tree';
 
 class Modal {
   name = String;
