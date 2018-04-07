@@ -21,7 +21,6 @@ describe('types', () => {
     it('has transitions', () => {
       expect(ms).toMatchObject({
         set: expect.any(Function),
-        merge: expect.any(Function),
         name: {
           set: expect.any(Function),
           concat: expect.any(Function),
@@ -40,20 +39,16 @@ describe('types', () => {
     });
   });
   describe('no value', () => {
-    let ms, set, merged;
+    let ms, set;
     beforeEach(() => {
       ms = create(Modal, { isOpen: true });
       set = ms.name.set('taras');
-      merged = ms.merge({ name: 'taras' });
     });
     it('uses provided state', () => {
       expect(ms.state).toEqual({ name: '', isOpen: true });
     });
     it('replaces value when set is called but uses provided value', () => {
       expect(set.valueOf()).toEqual({ name: 'taras', isOpen: true });
-    });
-    it('merges value on merge transition', () => {
-      expect(merged.valueOf()).toEqual({ name: 'taras', isOpen: true });
     });
   });
 });

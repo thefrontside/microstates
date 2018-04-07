@@ -81,7 +81,6 @@ describe('context', () => {
       items: {
         push: expect.any(Function),
       },
-      merge: expect.any(Function),
       set: expect.any(Function),
     });
   });
