@@ -33,6 +33,7 @@ export default function analyze(Type, rootValue) {
 class Node {
   constructor({path, root, Type: InitialType }) {
     this.InitialType = InitialType;
+    this.path = path;
 
     Object.defineProperty(this, 'value', {
       enumerable: true,
@@ -67,9 +68,13 @@ class Node {
         return (tree) => {
           return (...args) => {
             return over(lensTreeValue(path), (tree) => {
-              console.log(tree);
-              return reveal(method.apply(new Microstate(prune(tree)), args));
-            });
+              let next = method.apply(new Microstate(prune(tree)), args);
+              if (next instanceof Microstate) {
+                return reveal(next);
+              } else {
+                return analyze(tree.data.InitialType, next);
+              }
+            }, tree);
           };
         };
       }).valueOf();

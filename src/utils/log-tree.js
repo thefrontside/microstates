@@ -7,7 +7,7 @@ export function visualize(tree, level = 0) {
   let preamble = Array(level).fill(0).map(() => '|  ').join('');
 
   // render the line for this child
-  let lines = [`${preamble}${path.length ? path[path.length - 1] + "::" : ''}${node.isNested ? 'Nested' : 'Primary'}${JSON.stringify({ Type: Type.name, path, value: node.value, root: node.root })}`];
+  let lines = [`${preamble}${path.length ? path[path.length - 1] + "::" : ''}${node.constructor.name}${JSON.stringify({ Type: Type.name, path, value: node.value, root: node.root })}`];
 
   // convert all children into arrays
   let children = tree.children instanceof Array ? tree.children : Object.values(tree.children);

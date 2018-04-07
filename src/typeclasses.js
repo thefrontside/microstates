@@ -10,12 +10,11 @@ const { keys } = Object;
 Functor.instance(Microstate, {
   map(fn, microstate) {
     let _tree = reveal(microstate);
-
     // tree of transitions
     let next = map(node => {
       return map(transition => {
         return (...args) => {
-          let tree  = transition(_tree)(...args);
+          let tree = transition(_tree)(...args);
           return new Microstate(tree);
         };
       }, node.transitions);
