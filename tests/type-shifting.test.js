@@ -2,7 +2,7 @@ import 'jest';
 import { create, reveal } from 'microstates';
 import logTree from '../src/utils/log-tree';
 
-describe('type-shifting', () => {
+describe.skip('type-shifting', () => {
 
   class Shape {
     static create({ a, b, c } = {}) {
@@ -237,7 +237,7 @@ describe('type-shifting with constant values', () => {
 });
 
 
-describe("type-shifting into a deeply composed microstate", () => {
+describe.skip("type-shifting into a deeply composed microstate", () => {
   class Node {
     name = String;
     node = Node;
@@ -297,7 +297,7 @@ describe("type-shifting into a deeply composed microstate", () => {
   });
 });
 
-describe("type-shifting in a getter", () => {
+describe.skip("type-shifting in a getter", () => {
   class Node {
     depth = Number;
 

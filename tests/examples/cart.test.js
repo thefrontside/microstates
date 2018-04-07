@@ -1,7 +1,7 @@
 import 'jest';
 import { create } from 'microstates';
 
-describe('cart example', () => {
+describe.skip('cart example', () => {
   class Cart {
     products = Array;
     get price() {

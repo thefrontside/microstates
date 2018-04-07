@@ -3,7 +3,7 @@ import { create } from "microstates";
 import SymbolObservable from 'symbol-observable';
 import { Observable } from 'rxjs';
 
-describe('rxjs interop', function() {
+describe.skip('rxjs interop', function() {
   let observable, observer, last;
   beforeEach(() => {
     observer = jest.fn(next => last = next);
@@ -21,7 +21,7 @@ describe('rxjs interop', function() {
   });
 });
 
-describe('interop', function() {
+describe.skip('interop', function() {
   let ms, observable;
   beforeEach(() => {
     ms = create(Number, 10);
@@ -39,7 +39,7 @@ describe('interop', function() {
   });
 });
 
-describe("initial value", function() {
+describe.skip("initial value", function() {
   let observable, last, unsubscribe;
   beforeEach(function() {
     let ms = create(Number, 10);
@@ -51,7 +51,7 @@ describe("initial value", function() {
   });
 });
 
-describe("single transition", function() {
+describe.skip("single transition", function() {
   let observable, last, unsubscribe;
   beforeEach(function() {
     let ms = create(Number, 10);
@@ -64,7 +64,7 @@ describe("single transition", function() {
   });
 });
 
-describe("many transitions", function() {
+describe.skip("many transitions", function() {
   let observable, last, unsubscribe;
   beforeEach(function() {
     let ms = create(Number, 10);
@@ -80,7 +80,7 @@ describe("many transitions", function() {
   });
 });
 
-describe("complex type", function() {
+describe.skip("complex type", function() {
   class A {
     b = class B {
       c = class C {

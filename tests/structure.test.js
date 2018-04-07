@@ -4,7 +4,7 @@ import { view, set } from '../src/lens';
 import { analyze, Tree, parameterized } from 'microstates';
 import types from '../src/types';
 
-describe('Structure', () => {
+describe.skip('Structure', () => {
   class Session {
     user = class User {
       firstName = String;

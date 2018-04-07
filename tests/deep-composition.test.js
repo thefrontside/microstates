@@ -11,7 +11,7 @@ class Authentication {
 class State {
   authentication = Authentication;
 }
-describe('without initial state', () => {
+describe.skip('without initial state', () => {
   let ms;
   beforeEach(() => {
     ms = create(State);
@@ -33,7 +33,7 @@ describe('without initial state', () => {
     });
   });
 });
-describe('with initial state', () => {
+describe.skip('with initial state', () => {
   let ms;
   beforeEach(() => {
     ms = create(State, {
@@ -51,4 +51,3 @@ describe('with initial state', () => {
     });
   });
 });
-

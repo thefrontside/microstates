@@ -11,7 +11,7 @@ class Type {
   greeting = String;
 }
 
-describe('constants support', () => {
+describe.skip('constants support', () => {
   let ms, next;
   beforeEach(() => {
     ms = create(Type);
