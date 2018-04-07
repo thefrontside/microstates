@@ -15,7 +15,7 @@ import { stateAt, childrenAt } from './typeclasses/location';
 
 export default function analyze(Type, value) {
   let topValue = value != null ? value.valueOf() : value;
-  let tree = pure(Tree, new Node({ Type, path: [], root: value}));
+  let tree = pure(Tree, new Node({ Type, path: [], root: topValue}));
 
   return flatMap((node) => {
     let { Type, value: valueAt } = node;

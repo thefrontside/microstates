@@ -6,7 +6,7 @@ it('exports create', function() {
   expect(create).toBeInstanceOf(Function);
 });
 
-describe.skip('create', () => {
+describe('create', () => {
   it(`uses valueOf microstates instance that's passed to it`, () => {
     class Person {
       name = String;
@@ -17,7 +17,7 @@ describe.skip('create', () => {
   });
 });
 
-describe.skip('valueOf', () => {
+describe('valueOf', () => {
   let ms;
   beforeEach(() => {
     ms = create(Number, 10);
