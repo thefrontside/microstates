@@ -24,7 +24,7 @@ export default function analyze(Type, rootValue) {
       data: () => node,
       children() {
         let childTypes = childrenAt(Type, value);
-        return map((ChildType, path) => pure(Tree, node.createChild(ChildType, path, rootValue)), childTypes);
+        return map((ChildType, path) => pure(Tree, node.createChild(ChildType, path, value)), childTypes);
       }
     });
   }, tree);
