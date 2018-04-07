@@ -19,6 +19,7 @@ describe("number", () => {
       expect(zero.state).toBe(0);
     });
     it("subtract", () => {
+      console.log(zero.subtract);
       expect(zero.subtract(5).valueOf()).toBe(-5);
     });
     it("sum", () => {

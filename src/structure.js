@@ -13,9 +13,6 @@ import { collapse } from './typeclasses/collapse';
 import logTree from './utils/log-tree';
 import { stateAt, childrenAt } from './typeclasses/location';
 
-
-const { assign } = Object;
-
 export default function analyze(Type, rootValue) {
   let value = rootValue != null ? rootValue.valueOf() : rootValue;
   let tree = pure(Tree, new Node({ Type, path: [], root: rootValue}));
@@ -32,7 +29,6 @@ export default function analyze(Type, rootValue) {
     });
   }, tree);
 }
-
 
 class Node {
   constructor({path, root, Type: InitialType }) {
@@ -71,6 +67,7 @@ class Node {
         return (tree) => {
           return (...args) => {
             return over(lensTreeValue(path), (tree) => {
+              console.log(tree);
               return reveal(method.apply(new Microstate(prune(tree)), args));
             });
           };
