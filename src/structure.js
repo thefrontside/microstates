@@ -1,7 +1,7 @@
 import $ from './utils/chain';
 import { type, map, append, pure, flatMap } from 'funcadelic';
 import { view, set, over, lensTree, lensPath, lensTreeValue } from './lens';
-import Tree, { prune } from './utils/tree';
+import Tree, { prune, graft } from './utils/tree';
 import transitionsFor from './utils/transitions-for';
 import { reveal } from './utils/secret';
 import types, { params, any, toType } from './types';
@@ -13,18 +13,18 @@ import { collapse } from './typeclasses/collapse';
 import logTree from './utils/log-tree';
 import { stateAt, childrenAt } from './typeclasses/location';
 
-export default function analyze(Type, rootValue) {
-  let value = rootValue != null ? rootValue.valueOf() : rootValue;
-  let tree = pure(Tree, new Node({ Type, path: [], root: rootValue}));
+export default function analyze(Type, value) {
+  let topValue = value != null ? value.valueOf() : value;
+  let tree = pure(Tree, new Node({ Type, path: [], root: value}));
 
   return flatMap((node) => {
-    let { Type, value } = node;
+    let { Type, value: valueAt } = node;
 
     return new Tree({
       data: () => node,
       children() {
-        let childTypes = childrenAt(Type, value);
-        return map((ChildType, path) => pure(Tree, node.createChild(ChildType, path, value)), childTypes);
+        let childTypes = childrenAt(Type, valueAt);
+        return map((ChildType, path) => pure(Tree, node.createChild(ChildType, path, topValue)), childTypes);
       }
     });
   }, tree);
@@ -70,9 +70,9 @@ class Node {
             return over(lensTreeValue(path), (tree) => {
               let next = method.apply(new Microstate(prune(tree)), args);
               if (next instanceof Microstate) {
-                return reveal(next);
+                return graft(path, reveal(next));
               } else {
-                return analyze(tree.data.InitialType, next);
+                return graft(path, analyze(tree.data.InitialType, next));
               }
             }, tree);
           };
@@ -85,7 +85,7 @@ class Node {
   }
 
   replaceValue(key, childValue) {
-    let { Type, path, value } = this;
+    let { Type, value } = this;
     return append(this, {
       get value() {
         return set(lensPath([key]), childValue, value);

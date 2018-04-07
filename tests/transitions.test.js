@@ -28,7 +28,6 @@ describe('transition', () => {
     let ms, faster;
     beforeEach(() => {
       ms = create(Road, { vehicle: { speed: 10 } });
-      let tree = reveal(ms);
       faster = ms.vehicle.increaseSpeed(10);
     });
     it('creates initial value', () => {
@@ -40,10 +39,8 @@ describe('transition', () => {
     beforeEach(() => {
       ms = create(Road);
       m1 = ms.vehicle.increaseSpeed(10);
-      let m1t = reveal(m1);
       v1 = m1.valueOf();
       m2 = m1.vehicle.increaseSpeed(20);
-      let m2t = reveal(m2);
       v2 = m2.valueOf();
     });
     it('should maintain root after 1st transition', () => {
@@ -58,7 +55,7 @@ describe('transition', () => {
   });
 });
 
-describe.skip('context', () => {
+describe('context', () => {
   let context;
   let result;
   beforeEach(() => {
