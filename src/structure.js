@@ -24,7 +24,7 @@ export default function analyze(Type, rootValue) {
       data: () => node,
       children() {
         let childTypes = childrenAt(Type, value);
-        return map((ChildType, path) => pure(Tree, node.createChild(ChildType, path)), childTypes);
+        return map((ChildType, path) => pure(Tree, node.createChild(ChildType, path, rootValue)), childTypes);
       }
     });
   }, tree);
@@ -80,8 +80,8 @@ class Node {
       }).valueOf();
   }
 
-  createChild(Type, name) {
-    return new Node({path: append(this.path, name), Type, root: this.value});
+  createChild(Type, name, rootValue) {
+    return new Node({path: append(this.path, name), Type, root: rootValue });
   }
 
   replaceValue(key, childValue) {
