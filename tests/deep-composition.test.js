@@ -33,7 +33,7 @@ describe.skip('without initial state', () => {
     });
   });
 });
-describe.skip('with initial state', () => {
+describe('with initial state', () => {
   let ms;
   beforeEach(() => {
     ms = create(State, {
