@@ -1,51 +1,54 @@
 import 'jest';
 import { create } from 'microstates';
 
-class Confirmation {
-  get isArmed() {
-    return false;
-  }
-  get isConfirmed() {
-    return false;
-  }
+describe("transition inheritance", () => {
 
-  arm() {
-    return create(Armed);
-  }
+  class Confirmation {
+    get isArmed() {
+      return false;
+    }
+    get isConfirmed() {
+      return false;
+    }
 
-  reset() {
-    return create(Confirmation);
-  }
-}
+    arm() {
+      return create(Armed);
+    }
 
-class Armed extends Confirmation {
-  get isArmed() {
-    return false;
+    reset() {
+      return create(Confirmation);
+    }
   }
 
-  confirm() {
-    return create(Confirmed);
+  class Armed extends Confirmation {
+    get isArmed() {
+      return false;
+    }
+
+    confirm() {
+      return create(Confirmed);
+    }
   }
-}
 
-class Confirmed extends Confirmation {
-  get isConfirmed() {
-    return true;
+  class Confirmed extends Confirmation {
+    get isConfirmed() {
+      return true;
+    }
   }
-}
 
-let dnd = create(Confirmation);
-let armed, confirmed, reset, rearmed, state;
-beforeEach(() => {
-  armed = dnd.arm();
-  confirmed = armed.confirm();
-  reset = confirmed.reset();
-  rearmed = reset.arm();
-  state = rearmed.state;
-});
+  let dnd = create(Confirmation);
+  let armed, confirmed, reset, rearmed, state;
+  beforeEach(() => {
+    armed = dnd.arm();
+    confirmed = armed.confirm();
+    reset = confirmed.reset();
+    rearmed = reset.arm();
+    state = rearmed.state;
+  });
 
-it('can transition to inherited transition', () => {
-  expect(
-    state
-  ).toBeInstanceOf(Armed);
+  it('can transition to inherited transition', () => {
+    expect(
+      state
+    ).toBeInstanceOf(Armed);
+  });
 });
