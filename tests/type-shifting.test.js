@@ -282,9 +282,9 @@ describe("type-shifting into a deeply composed microstate", () => {
           name: "",
           node: {
             name: "",
-            node: { 
-              name: "soooo deep", 
-              node: { name: "one more" } 
+            node: {
+              name: "soooo deep",
+              node: { name: "one more" }
             },
           },
         },
@@ -548,7 +548,7 @@ describe.skip("type-shifting from create nodes in single operation", () => {
   });
 });
 
-describe.skip("type-shifting with create in from none root node", () => {
+describe("type-shifting with create in from none root node", () => {
   class Root {
     first = class First {
       second = class Second {

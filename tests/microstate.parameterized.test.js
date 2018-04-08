@@ -2,7 +2,7 @@ import "jest";
 
 import { create, parameterized } from "microstates";
 
-describe.skip("Parameterized Microstates: ", () => {
+describe("Parameterized Microstates: ", () => {
   describe("sugar", function() {
     class Item {
       isCompleted = Boolean;

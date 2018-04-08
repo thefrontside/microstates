@@ -7,7 +7,7 @@ class Container {
   y = Number;
 }
 
-describe.skip('without initial value', () => {
+describe('without initial value', () => {
   let ms;
   beforeEach(() => {
     ms = create(Container);
@@ -43,7 +43,7 @@ describe.skip('without initial value', () => {
     });
   });
 });
-describe.skip('with initial value', () => {
+describe('with initial value', () => {
   let ms;
   beforeEach(() => {
     ms = create(Container, {

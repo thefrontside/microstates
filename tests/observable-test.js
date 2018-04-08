@@ -110,7 +110,7 @@ describe("complex type", function() {
   });
 });
 
-describe.skip('initialized microstate', () => {
+describe('initialized microstate', () => {
   class Modal {
     isOpen = Boolean;
 

@@ -11,7 +11,7 @@ class Authentication {
 class State {
   authentication = Authentication;
 }
-describe.skip('without initial state', () => {
+describe('without initial state', () => {
   let ms;
   beforeEach(() => {
     ms = create(State);
