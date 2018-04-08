@@ -89,6 +89,8 @@ class Node {
               if (next instanceof Microstate) {
                 return graft(path, reveal(next));
               } else {
+                // this only grafts the path (again)
+                // we need it to graft the value as well
                 return graft(path, analyze(tree.data.InitialType, next));
               }
             }, tree);
@@ -105,7 +107,7 @@ class Node {
     let { Type, value } = this;
     return append(this, {
       get value() {
-        return set(lensPath([key]), childValue, value);
+        return set(lensPath(key), childValue, value);
       }
     });
   }

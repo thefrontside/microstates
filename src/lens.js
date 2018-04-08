@@ -23,8 +23,7 @@ export function lensTreeValue(path = []) {
     } else {
       return new Tree({
         data: () => {
-          let [key, ...rest] = current;
-          return tree.data.replaceValue(key, subtree.data.value);
+          return tree.data.replaceValue(current, subtree.data.value);
         },
         children: () =>
           map((child, childName) => {
