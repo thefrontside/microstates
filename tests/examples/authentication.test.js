@@ -32,27 +32,32 @@ class MyApp {
   session = Session;
 }
 
-describe.skip('AnonymousSession', () => {
-  let ms, authenticated;
+describe('AnonymousSession', () => {
+  let ms;
   beforeEach(() => {
     ms = create(MyApp);
-    authenticated = ms.session.authenticate({
-      name: 'Charles',
-    });
   })
   it('initializes into AnonymousSession without initial state', () => {
     expect(ms.state.session).toBeInstanceOf(AnonymousSession);
   });
-  it('transitions AnonymousSession to Authenticated with authenticate', () => {
-    expect(authenticated.state.session).toBeInstanceOf(AuthenticatedSession);
-    expect(authenticated.state.session).toEqual({
-      content: { name: 'Charles' },
-      isAuthenticated: true,
+  describe('transition', () => {
+    let authenticated;
+    beforeEach(() => {
+      authenticated = ms.session.authenticate({
+        name: 'Charles',
+      });
+    });
+    it('transitions AnonymousSession to Authenticated with authenticate', () => {
+      expect(authenticated.state.session).toBeInstanceOf(AuthenticatedSession);
+      expect(authenticated.state.session).toEqual({
+        content: { name: 'Charles' },
+        isAuthenticated: true,
+      });
     });
   });
 });
 
-describe.skip('AuthenticatedSession', () => {
+describe('AuthenticatedSession', () => {
   let ms, anonymous;
   beforeEach(() => {
     ms = create(MyApp, { session: { name: 'Taras' } })

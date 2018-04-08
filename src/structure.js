@@ -20,13 +20,30 @@ export default function analyze(Type, value) {
   return flatMap((node) => {
     let { Type, value: valueAt } = node;
 
-    return new Tree({
+    let uninitialized = new Tree({
       data: () => node,
       children() {
         let childTypes = childrenAt(Type, valueAt);
         return map((ChildType, path) => pure(Tree, node.createChild(ChildType, path, topValue)), childTypes);
       }
     });
+
+    if (Type.hasOwnProperty("create")) {
+      let initialized = thunk(() => {
+        let created = Type.create(uninitialized.data.value);
+        if (created instanceof Microstate) {
+          return graft(uninitialized.data.path, reveal(created));
+        } else {
+          return uninitialized;
+        }
+      });
+      return new Tree({
+        data: () => initialized().data,
+        children: () => initialized().children
+      });
+    } else {
+      return uninitialized;
+    }
   }, tree);
 }
 
