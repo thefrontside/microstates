@@ -345,7 +345,7 @@ describe.skip("type-shifting recursively with create", () => {
   });
 });
 
-describe.skip("type-shifting from create to parameterized array", () => {
+describe("type-shifting from create to parameterized array", () => {
   class Person {
     name = String;
   }
@@ -420,7 +420,7 @@ describe.skip("type-shifting from create to parameterized array", () => {
   });
 });
 
-describe.skip("type-shifting from create to parameterized object", () => {
+describe("type-shifting from create to parameterized object", () => {
   class Parent {
     name = String;
   }
@@ -476,7 +476,7 @@ describe.skip("type-shifting from create to parameterized object", () => {
   });
 });
 
-describe.skip("type-shifting from create nodes in single operation", () => {
+describe("type-shifting from create nodes in single operation", () => {
   class Root {
     static create(params) {
       if (!params) {
