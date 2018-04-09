@@ -24,7 +24,7 @@ export default function analyze(Type, value) {
       data: () => node,
       children() {
         let childTypes = childrenAt(Type, valueAt);
-        return map((ChildType, path) => pure(Tree, node.createChild(ChildType, path, topValue)), childTypes);
+        return map((ChildType, path) => pure(Tree, node.createChild(ChildType, path, valueAt)), childTypes);
       }
     });
 
@@ -54,7 +54,7 @@ class Node {
 
     Object.defineProperty(this, 'value', {
       enumerable: true,
-      get: thunk(() => view(lensPath(path), root))
+      get: thunk(() => view(lensPath(path.slice(-1)), root))
     });
   }
 
