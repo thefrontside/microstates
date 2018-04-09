@@ -83,7 +83,7 @@ describe('context', () => {
     });
   });
 });
-describe.skip('merging', () => {
+describe('merging', () => {
   class ModalContent {
     text = String;
   }
