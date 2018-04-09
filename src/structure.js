@@ -9,8 +9,6 @@ import isSimple  from './is-simple';
 import desugar from './desugar';
 import thunk from './thunk';
 import Microstate from './microstate';
-import { collapse } from './typeclasses/collapse';
-import logTree from './utils/log-tree';
 import { stateAt, childrenAt } from './typeclasses/location';
 
 export default function analyze(Type, value) {

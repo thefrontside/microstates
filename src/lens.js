@@ -3,9 +3,7 @@ export { default as view } from 'ramda/src/view';
 export { default as set } from 'ramda/src/set';
 export { default as over } from 'ramda/src/over';
 export { default as lensPath } from 'ramda/src/lensPath';
-export { default as lensIndex } from 'ramda/src/lensIndex';
 export { default as compose } from 'ramda/src/compose';
-import logTree from './utils/log-tree';
 
 import lens from 'ramda/src/lens';
 import view from 'ramda/src/view';
