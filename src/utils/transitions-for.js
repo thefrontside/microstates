@@ -4,7 +4,17 @@ import getPrototypeDescriptors from './get-prototype-descriptors';
 import { toType } from '../types';
 
 function setTransition(value) {
-  return value;
+  
+  const { 
+    constructor: Microstate, 
+    state: { constructor: Type } 
+  } = this;
+
+  if (value instanceof Microstate) {
+    return value;
+  } else {
+    return Microstate.create(Type, value);
+  }
 };
 
 export default function transitionsFor(Type) {

@@ -83,14 +83,7 @@ class Node {
         return (tree) => {
           return (...args) => {
             return over(lensTreeValue(path), (tree) => {
-              let next = method.apply(new Microstate(prune(tree)), args);
-              if (next instanceof Microstate) {
-                return graft(path, reveal(next));
-              } else {
-                // this only grafts the path (again)
-                // we need it to graft the value as well
-                return graft(path, analyze(tree.data.InitialType, next));
-              }
+              return graft(path, reveal(method.apply(new Microstate(prune(tree)), args)));
             }, tree);
           };
         };

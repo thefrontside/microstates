@@ -5,7 +5,7 @@ class ObjectType {
     return new Object(value);
   }
   assign(props) {
-    return Object.assign({}, this.state, props);
+    return this.set(Object.assign({}, this.state, props));
   }
 }
 

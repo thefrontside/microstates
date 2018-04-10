@@ -3,6 +3,6 @@ export default class BooleanType {
     return new Boolean(value);
   }
   toggle() {
-    return !this.state;
+    return this.set(!this.state);
   }
 }

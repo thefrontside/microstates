@@ -3,6 +3,6 @@ export default class StringType {
     return new String(value);
   }
   concat(...args) {
-    return String.prototype.concat.apply(this.state, args);
+    return this.set(String.prototype.concat.apply(this.state, args));
   }
 }

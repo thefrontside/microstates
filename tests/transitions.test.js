@@ -63,6 +63,7 @@ describe('context', () => {
       items = Array;
       custom() {
         context = this;
+        return this.set([]);
       }
     }
     let { custom } = create(State);

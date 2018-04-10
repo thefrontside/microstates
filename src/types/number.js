@@ -3,9 +3,9 @@ export default class NumberType {
     return new Number(value);
   }
   increment(step = 1) {
-    return this.state + step;
+    return this.set(this.state + step);
   }
   decrement(step = 1) {
-    return this.state - step;
+    return this.set(this.state - step);
   }
 }

@@ -24,7 +24,8 @@ class ArrayType {
     return this.splice(0, 0, [item]);
   }
   filter(fn) {
-    return foldl(({array, removed}, state, i) => {
+
+    let result = foldl(({array, removed}, state, i) => {
       if (fn(state)) {
         return { array, removed };
       } else {
@@ -34,9 +35,12 @@ class ArrayType {
         };
       }
     }, {array: this, removed: 0}, this.state).array;
+
+    return this.set(result);
   }
+  
   map(callback) {
-    return Array.prototype.map.call(this.state, callback);
+    return this.set(Array.prototype.map.call(this.state, callback));
   }
 
   splice(startIndex, length, values) {
@@ -45,14 +49,14 @@ class ArrayType {
     let tree = reveal(this);
     let value = (this.valueOf() || []).slice();
     value.splice(startIndex, length, ...values);
-
+    
     let { T } = params(tree.data.Type);
     if (T === any) {
-      return value;
+      return this.set(value);
     }
-
+    
     let unchanged = tree.children.slice(0, startIndex);
-
+    
     let added = $(values)
         .map(value => create(T, value))
         .map(reveal)
@@ -91,9 +95,9 @@ class ArrayType {
   replace(item, replacement) {
     let index = indexOf(item, this.state);
     if (index === -1) {
-      return this.state;
+      return this.set(this.state);
     } else {
-      return set(lensPath([index]), replacement, this.state);
+      return this.set(set(lensPath([index]), replacement, this.state));
     }
   }
 }
