@@ -114,10 +114,11 @@ describe('initialized microstate', () => {
   class Modal {
     isOpen = Boolean;
 
-    static create(value) {
+    initialize(value) {
       if (!value) {
         return create(Modal, { isOpen: true });
       }
+      return this;
     }
   }
 

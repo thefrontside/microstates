@@ -10,6 +10,7 @@ import desugar from './desugar';
 import thunk from './thunk';
 import Microstate from './microstate';
 import { stateAt, childrenAt } from './typeclasses/location';
+import logTree from './utils/log-tree';
 
 export default function analyze(Type, value) {
   let topValue = value != null ? value.valueOf() : value;
@@ -26,14 +27,10 @@ export default function analyze(Type, value) {
       }
     });
 
-    if (Type.hasOwnProperty("create")) {
+    if (Type.prototype.hasOwnProperty("initialize")) {
       let initialized = thunk(() => {
-        let created = Type.create(uninitialized.data.value);
-        if (created instanceof Microstate) {
-          return graft(uninitialized.data.path, reveal(created));
-        } else {
-          return uninitialized;
-        }
+        let initialized = new Microstate(prune(uninitialized)).initialize(uninitialized.data.value);
+        return graft(uninitialized.data.path, reveal(initialized));
       });
       return new Tree({
         data: () => initialized().data,

@@ -4,7 +4,7 @@ import logTree from "../src/utils/log-tree";
 
 describe("type-shifting", () => {
   class Shape {
-    static create({ a, b, c } = {}) {
+    initialize({ a, b, c } = {}) {
       if (a && b && c) {
         return create(Triangle, { a, b, c });
       }
@@ -14,6 +14,7 @@ describe("type-shifting", () => {
       if (a) {
         return create(Line, { a });
       }
+      return this;
     }
   }
 
@@ -49,7 +50,7 @@ describe("type-shifting", () => {
     });
 
     it("initializes to first type", () => {
-      let triangle = Shape.create({ a: 10, b: 20, c: 30 });
+      let triangle = create(Shape, { a: 10, b: 20, c: 30 });
       expect(triangle.state).toBeInstanceOf(Triangle);
       expect(triangle.state).toMatchObject({
         a: 10,
@@ -59,7 +60,7 @@ describe("type-shifting", () => {
     });
 
     it("initializes to second type", () => {
-      let angle = Shape.create({ a: 10, b: 20 });
+      let angle = create(Shape, { a: 10, b: 20 });
       expect(angle.state).toBeInstanceOf(Angle);
       expect(angle.state).toMatchObject({
         a: 10,
@@ -68,7 +69,7 @@ describe("type-shifting", () => {
     });
 
     it(`can be initialized from descendant's create`, function() {
-      let line = Line.create({ a: 10 });
+      let line = create(Line, { a: 10 });
       expect(line.state).toBeInstanceOf(Line);
       expect(line.state).toMatchObject({
         a: 10,
@@ -329,7 +330,7 @@ describe.skip("type-shifting recursively with create", () => {
     depth = Number;
     node = Node;
 
-    static create({ depth = 0 } = {}) {
+    initialize({ depth = 0 } = {}) {
       return create(Node, { depth, node: { depth: depth + 1 } });
     }
   }
@@ -353,12 +354,13 @@ describe("type-shifting from create to parameterized array", () => {
   class Group {
     members = [Person];
 
-    static create({ members } = {}) {
+    initialize({ members } = {}) {
       if (!members) {
         return create(Group, {
           members: [{ name: "Taras" }, { name: "Charles" }, { name: "Siva" }],
         });
       }
+      return this;
     }
   }
 
@@ -427,7 +429,7 @@ describe("type-shifting from create to parameterized object", () => {
   class Person {
     parents = { Parent };
 
-    static create({ parents } = {}) {
+    initialize({ parents } = {}) {
       if (!parents) {
         return create(Person, {
           parents: {
@@ -440,6 +442,7 @@ describe("type-shifting from create to parameterized object", () => {
           },
         });
       }
+      return this;
     }
   }
 
@@ -478,10 +481,11 @@ describe("type-shifting from create to parameterized object", () => {
 
 describe("type-shifting from create nodes in single operation", () => {
   class Root {
-    static create(params) {
+    initialize(params) {
       if (!params) {
         return create(Root, { name: "Default for Root", first: { second: { name: "Provided name for Second" } } });
       }
+      return this;
     }
     name = String;
     first = class First {
@@ -490,10 +494,11 @@ describe("type-shifting from create nodes in single operation", () => {
         name = String;
         third = class Third {
           name = String;
-          static create(params) {
+          initialize(params) {
             if (!params) {
               return create(Third, { name: "Default for Third" });
             }
+            return this;
           }
         };
       };
@@ -553,10 +558,11 @@ describe("type-shifting with create in from none root node", () => {
     first = class First {
       second = class Second {
         name = String;
-        static create(props) {
+        initialize(props) {
           if (!props) {
             return create(Second, { name: "default" });
           }
+          return this;
         }
       };
     };

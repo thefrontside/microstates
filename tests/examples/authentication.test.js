@@ -1,9 +1,10 @@
 import 'jest';
-import { create } from 'microstates';
+import { create, reveal } from 'microstates';
+import logTree from '../../src/utils/log-tree';
 
 class Session {
   content = null;
-  static create(session) {
+  initialize(session) {
     if (session) {
       return create(AuthenticatedSession, session);
     }
@@ -23,6 +24,7 @@ class AuthenticatedSession extends Session {
 class AnonymousSession extends Session {
   content = null;
   isAuthenticated = false;
+
   authenticate(user) {
     return create(AuthenticatedSession, { content: user });
   }
