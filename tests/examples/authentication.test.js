@@ -1,9 +1,10 @@
 import 'jest';
-import { create } from 'microstates';
+import { create, reveal } from 'microstates';
+import logTree from '../../src/utils/log-tree';
 
 class Session {
   content = null;
-  static create(session) {
+  initialize(session) {
     if (session) {
       return create(AuthenticatedSession, session);
     }
@@ -23,6 +24,7 @@ class AuthenticatedSession extends Session {
 class AnonymousSession extends Session {
   content = null;
   isAuthenticated = false;
+
   authenticate(user) {
     return create(AuthenticatedSession, { content: user });
   }
@@ -33,21 +35,26 @@ class MyApp {
 }
 
 describe('AnonymousSession', () => {
-  let ms, authenticated;
+  let ms;
   beforeEach(() => {
     ms = create(MyApp);
-    authenticated = ms.session.authenticate({
-      name: 'Charles',
-    });
   })
   it('initializes into AnonymousSession without initial state', () => {
     expect(ms.state.session).toBeInstanceOf(AnonymousSession);
   });
-  it('transitions AnonymousSession to Authenticated with authenticate', () => {
-    expect(authenticated.state.session).toBeInstanceOf(AuthenticatedSession);
-    expect(authenticated.state.session).toEqual({
-      content: { name: 'Charles' },
-      isAuthenticated: true,
+  describe('transition', () => {
+    let authenticated;
+    beforeEach(() => {
+      authenticated = ms.session.authenticate({
+        name: 'Charles',
+      });
+    });
+    it('transitions AnonymousSession to Authenticated with authenticate', () => {
+      expect(authenticated.state.session).toBeInstanceOf(AuthenticatedSession);
+      expect(authenticated.state.session).toEqual({
+        content: { name: 'Charles' },
+        isAuthenticated: true,
+      });
     });
   });
 });

@@ -20,13 +20,7 @@ export function isSugar(Type) {
 
 export default function desugar(Type) {
   if (isSugar(Type)) {
-    let { constructor: c } = Type;
-    if (c === Array) {
-      return parameterized(Array, ...map(desugar, values(Type)));
-    }
-    if (c === Object) {
-      return parameterized(Object, ...map(desugar, values(Type)));
-    }
+    return parameterized(Type.constructor, ...map(desugar, values(Type)));
   }
   return Type;
 }

@@ -46,7 +46,6 @@ it('gets composed type transitions', () => {
     MyClass
   )).toMatchObject({
     set: expect.any(Function),
-    merge: expect.any(Function),
   });
 });
 

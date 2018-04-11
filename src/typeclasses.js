@@ -2,33 +2,21 @@ import { Applicative, Functor, map, append, Monad, flatMap } from 'funcadelic';
 import Microstate from './microstate';
 import { reveal } from './utils/secret';
 import Tree from './utils/tree';
-import { Collapse, collapse } from './typeclasses/collapse';
 import thunk from './thunk';
+import { collapse } from './typeclasses/collapse';
 
 const { keys } = Object;
 
-function invoke({ method, args, value, tree}) {
-  let nextValue = method.apply(new Microstate(tree, value), args);
-  if (nextValue instanceof Microstate) {
-    return reveal(nextValue);
-  } else {
-    return { tree, value: nextValue };
-  }
-}
-
 Functor.instance(Microstate, {
   map(fn, microstate) {
-    let { tree, value } = reveal(microstate);
-
     // tree of transitions
+    let tree = reveal(microstate);
     let next = map(node => {
-      let transitions = node.transitionsAt(value, tree, invoke);
       return map(transition => {
         return (...args) => {
-          let { tree, value } = transition(...args);
-          return new Microstate(tree, value);
+          return new Microstate(transition(tree, args));
         };
-      }, transitions);
+      }, node.transitions);
     }, tree);
 
     let mapped = map(transitions => map(fn, transitions), next);
@@ -36,17 +24,6 @@ Functor.instance(Microstate, {
     return append(microstate, collapse(mapped));
   }
 });
-
-Collapse.instance(Tree, {
-  collapse(tree) {
-    let hasChildren = !!keys(tree.children).length;
-    if (hasChildren) {
-      return append(tree.data, map(child => collapse(child), tree.children));
-    } else {
-      return tree.data;
-    }
-  }
-})
 
 Functor.instance(Tree, {
   /**

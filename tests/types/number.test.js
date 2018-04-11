@@ -12,17 +12,12 @@ describe("number", () => {
     expect(zero).toMatchObject({
       set: expect.any(Function),
       increment: expect.any(Function),
+      decrement: expect.any(Function)
     });
   });
   describe("without value", () => {
     it("has state", () => {
       expect(zero.state).toBe(0);
-    });
-    it("subtract", () => {
-      expect(zero.subtract(5).valueOf()).toBe(-5);
-    });
-    it("sum", () => {
-      expect(zero.sum(5).valueOf()).toBe(5);
     });
     it("increment", () => {
       expect(zero.increment().valueOf()).toBe(1);
@@ -35,12 +30,6 @@ describe("number", () => {
   describe("with value", () => {
     it("has state", () => {
       expect(ten.state).toBe(10);
-    });
-    it("subtract", () => {
-      expect(ten.subtract(5).valueOf()).toBe(5);
-    });
-    it("sum", () => {
-      expect(ten.sum(5).valueOf()).toBe(15);
     });
     it("increment", () => {
       expect(ten.increment().valueOf()).toBe(11);

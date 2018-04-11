@@ -6,7 +6,7 @@ import { Observable } from 'rxjs';
 describe('rxjs interop', function() {
   let observable, observer, last;
   beforeEach(() => {
-    observer = jest.fn(next => last = next); 
+    observer = jest.fn(next => last = next);
     observable = Observable.from(create(Number, 42));
     let subscription = observable.subscribe(observer);
     last.increment();
@@ -106,6 +106,28 @@ describe("complex type", function() {
     });
     it("changed the state", function() {
       expect(last.state.b.c.values).toEqual(["hello", "world", "!!!"]);
+    });
+  });
+});
+
+describe('initialized microstate', () => {
+  class Modal {
+    isOpen = Boolean;
+
+    initialize(value) {
+      if (!value) {
+        return create(Modal, { isOpen: true });
+      }
+      return this;
+    }
+  }
+
+  it('streams initialized microstate', () => {
+    let fn = jest.fn();
+    Observable.from(create(Modal)).subscribe(fn);
+    expect(fn).toHaveBeenCalledTimes(1);
+    expect(fn.mock.calls[0][0].state).toMatchObject({
+      isOpen: true
     });
   });
 });

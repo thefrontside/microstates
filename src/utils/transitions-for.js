@@ -1,18 +1,20 @@
 import { append } from 'funcadelic';
 import $ from './chain';
-import mergeDeepRight from 'ramda/src/mergeDeepRight';
 import getPrototypeDescriptors from './get-prototype-descriptors';
-import Microstate from '../microstate';
 import { toType } from '../types';
 
-import isPrimitive from './is-primitive';
-
 function setTransition(value) {
-  return value;
-};
+  
+  const { 
+    constructor: Microstate, 
+    state: { constructor: Type } 
+  } = this;
 
-function mergeTransition(...args) {
-  return mergeDeepRight(this.state, ...args);
+  if (value instanceof Microstate) {
+    return value;
+  } else {
+    return Microstate.create(Type, value);
+  }
 };
 
 export default function transitionsFor(Type) {
@@ -24,8 +26,7 @@ export default function transitionsFor(Type) {
     .filter(({ key }) => key !== 'constructor')
     .valueOf();
 
-  let common = isPrimitive(Type) ? { set: setTransition } : { set: setTransition, merge: mergeTransition };
-  return append(common, transitionFns);
+  return append(transitionFns, { set: setTransition });
 }
 
 function isFunctionDescriptor(descriptor) {

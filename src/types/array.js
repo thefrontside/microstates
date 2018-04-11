@@ -24,7 +24,8 @@ class ArrayType {
     return this.splice(0, 0, [item]);
   }
   filter(fn) {
-    return foldl(({array, removed}, state, i) => {
+
+    let result = foldl(({array, removed}, state, i) => {
       if (fn(state)) {
         return { array, removed };
       } else {
@@ -34,29 +35,31 @@ class ArrayType {
         };
       }
     }, {array: this, removed: 0}, this.state).array;
+
+    return this.set(result);
   }
+  
   map(callback) {
-    return Array.prototype.map.call(this.state, callback);
+    return this.set(Array.prototype.map.call(this.state, callback));
   }
 
   splice(startIndex, length, values) {
     let Microstate = this.constructor;
     let { create } = Microstate;
-    let { tree } = reveal(this);
+    let tree = reveal(this);
     let value = (this.valueOf() || []).slice();
     value.splice(startIndex, length, ...values);
-
+    
     let { T } = params(tree.data.Type);
     if (T === any) {
-      return value;
+      return this.set(value);
     }
-
+    
     let unchanged = tree.children.slice(0, startIndex);
-
+    
     let added = $(values)
         .map(value => create(T, value))
         .map(reveal)
-        .map(({ tree }) => tree)
         .valueOf();
 
     let moved = map(prune, tree.children.slice(startIndex + length));
@@ -71,12 +74,11 @@ class ArrayType {
         .valueOf();
 
     let structure = new Tree({
-      data: () => tree.data,
+      data: () => new tree.data.constructor({path: [], root: map(tree => tree.data.value, children), Type: tree.data.Type }),
       children: () => children
     });
 
-
-    return new Microstate(structure, value);
+    return new Microstate(structure);
   }
   /**
    * Return a new array with first occurance of found item
@@ -93,9 +95,9 @@ class ArrayType {
   replace(item, replacement) {
     let index = indexOf(item, this.state);
     if (index === -1) {
-      return this.state;
+      return this.set(this.state);
     } else {
-      return set(lensPath([index]), replacement, this.state);
+      return this.set(set(lensPath([index]), replacement, this.state));
     }
   }
 }

@@ -6,12 +6,11 @@ const { keys } = Object;
 
 const globals = {
   funcadelic: "funcadelic",
+  "ramda/src/over": "R.over",
   "ramda/src/lens": "R.lens",
   "ramda/src/view": "R.view",
   "ramda/src/set": "R.set",
   "ramda/src/lensPath": "R.lensPath",
-  "ramda/src/lensIndex": "R.lensIndex",
-  "ramda/src/mergeDeepRight": "R.mergeDeepRight",
   "ramda/src/indexOf": "R.indexOf",
   "ramda/src/compose": "R.compose",
   "object.getownpropertydescriptors": "Object.getownpropertydescriptors",

@@ -1,10 +1,12 @@
 import 'jest';
 import Microstate, { create }  from 'microstates';
+import { reveal } from 'microstates';
+import logTree from '../src/utils/log-tree';
 
 class Car {
   speed = Number;
   increaseSpeed(amount) {
-    return this.speed.sum(amount);
+    return this.speed.increment(amount);
   }
 }
 class Road {
@@ -61,6 +63,7 @@ describe('context', () => {
       items = Array;
       custom() {
         context = this;
+        return this.set([]);
       }
     }
     let { custom } = create(State);
@@ -77,7 +80,6 @@ describe('context', () => {
       items: {
         push: expect.any(Function),
       },
-      merge: expect.any(Function),
       set: expect.any(Function),
     });
   });

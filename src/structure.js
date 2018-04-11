@@ -1,128 +1,68 @@
 import $ from './utils/chain';
 import { type, map, append, pure, flatMap } from 'funcadelic';
-import { view, set, lensTree, lensPath } from './lens';
-import Tree, { graft, prune } from './utils/tree';
+import { view, set, over, lensPath, lensTreeValue } from './lens';
+import Tree, { prune, graft } from './utils/tree';
 import transitionsFor from './utils/transitions-for';
 import { reveal } from './utils/secret';
 import types, { params, any, toType } from './types';
 import isSimple  from './is-simple';
 import desugar from './desugar';
+import thunk from './thunk';
 import Microstate from './microstate';
-import { collapse } from './typeclasses/collapse';
-
-const { assign } = Object;
+import { stateAt, childrenAt } from './typeclasses/location';
 
 export default function analyze(Type, value) {
-  return flatMap(analyzeType(value), pure(Tree, new Node(Type, [])));
-}
+  let topValue = value != null ? value.valueOf() : value;
+  let tree = pure(Tree, new Node({ Type, path: [], root: topValue}));
 
-export function collapseState(tree, value) {
-  let truncated = truncate(node => node.isSimple, tree);
-  return collapse(map(node => node.stateAt(value), truncated));
-}
+  return flatMap((node) => {
+    let { Type, value: valueAt } = node;
 
-function analyzeType(value) {
-  return (node) => {
-    let InitialType = desugar(node.Type);
-    let valueAt = node.valueAt(value);
-    let Type = toType(InitialType);
-
-    let instance = Type.hasOwnProperty('create') ? Type.create(valueAt) : undefined;
-
-    if (instance instanceof Microstate) {
-      let { tree , value } = reveal(instance);
-
-      let shift = new ShiftNode(tree.data, value);
-      return graft(node.path, new Tree({
-        data: () => shift,
-        children: () => tree.children
-      }));
-    }
-
-    return new Tree({
-      data: () => Type === node.Type ? node : append(node, { Type }),
+    let uninitialized = new Tree({
+      data: () => node,
       children() {
-        let childTypes = childrenAt(Type, node.valueAt(value));
-        return map((ChildType, path) => pure(Tree, new Node(ChildType, append(node.path, path))), childTypes);
+        let childTypes = childrenAt(Type, valueAt);
+        return map((ChildType, path) => pure(Tree, node.createChild(ChildType, path, valueAt)), childTypes);
       }
     });
-  };
-}
 
-const Location = type(class Location {
-  stateAt(Type, instance, value) {
-    return this(Type.prototype).stateAt(instance, value);
-  }
-  childrenAt(Type, value) {
-    return this(Type.prototype).childrenAt(Type, value);
-  }
-});
-
-const { stateAt, childrenAt } = Location.prototype;
-
-Location.instance(Object, {
-  stateAt(instance, value) {
-    if (value) {
-      return append(instance, value);
+    if (Type.prototype.hasOwnProperty("initialize")) {
+      let initialized = thunk(() => {
+        let initialized = new Microstate(prune(uninitialized)).initialize(uninitialized.data.value);
+        return graft(uninitialized.data.path, reveal(initialized));
+      });
+      return new Tree({
+        data: () => initialized().data,
+        children: () => initialized().children
+      });
     } else {
-      return instance;
-    }
-  },
-
-  childrenAt(Type, value) {
-    return $(new Type())
-      .map(desugar)
-      .filter(({ value }) => !!value && value.call)
-      .valueOf();
-  }
-});
-
-Location.instance(types.Object, {
-  stateAt: _ => {},
-  childrenAt(Type, value) {
-    let { T } = params(Type);
-    if (T !== any) {
-      return map(_ => T, value);
-    } else {
-      return Location.for(Object).childrenAt(Type, value);
-    }
-  }
-});
-
-Location.instance(types.Array, {
-  stateAt: _ => [],
-  childrenAt(...args) {
-    return Location.for(types.Object.prototype).childrenAt(...args);
-  }
-});
-
-function truncate(fn, tree) {
-  return flatMap(node => {
-    let subtree = view(lensTree(node.path), tree);
-    if (fn(subtree.data)) {
-      return append(subtree, { children: [] });
-    } else {
-      return subtree;
+      return uninitialized;
     }
   }, tree);
 }
 
 class Node {
-  constructor(Type, path) {
-    assign(this, { Type, path });
+  constructor({path, root, Type: InitialType }) {
+    this.InitialType = InitialType;
+    this.path = path;
+
+    Object.defineProperty(this, 'value', {
+      enumerable: true,
+      get: thunk(() => view(lensPath(path.slice(-1)), root))
+    });
+  }
+
+  get Type() {
+    return toType(desugar(this.InitialType));
   }
 
   get isSimple() {
     return isSimple(this.Type);
   }
 
-  valueAt(total) {
-    return view(lensPath(this.path), total);
-  }
-
-  stateAt(value) {
+  get state() {
     let { Type } = this;
-    let valueAt = this.valueAt(value);
+    let valueAt = this.value;
     let instance = new Type(valueAt).valueOf();
     if (isSimple(Type)) {
       return valueAt || instance;
@@ -131,40 +71,29 @@ class Node {
     }
   }
 
-  transitionsAt(value, tree, invoke) {
+  get transitions() {
     let { Type, path } = this;
 
-    return map(method => (...args) => {
-      let localValue = this.valueAt(value);
-      let localTree = view(lensTree(path), tree);
-
-      let transition = {
-        method,
-        args,
-        value: localValue,
-        tree: prune(localTree)
-      };
-
-      let {
-        value: nextLocalValue,
-        tree: nextLocalTree
-      } = invoke(transition);
-
-      let nextTree = set(lensTree(path), graft(path, nextLocalTree), tree);
-      let nextValue = set(lensPath(path), nextLocalValue, value);
-
-      return { tree: nextTree, value: nextValue };
-    }, transitionsFor(Type));
-  }
-}
-
-class ShiftNode extends Node {
-  constructor({ Type, path }, value) {
-    super(Type, path);
-    assign(this, { value });
+    return $(transitionsFor(Type))
+      .map(method => {
+        return (tree, args) => {
+          return over(lensTreeValue(path), (tree) => {
+            return graft(path, reveal(method.apply(new Microstate(prune(tree)), args)));
+          }, tree);
+        };
+      }).valueOf();
   }
 
-  valueAt() {
-    return this.value;
+  createChild(Type, name, rootValue) {
+    return new Node({path: append(this.path, name), Type, root: rootValue });
+  }
+
+  replaceValue(key, childValue) {
+    let { Type, value } = this;
+    return append(this, {
+      get value() {
+        return set(lensPath(key), childValue, value);
+      }
+    });
   }
 }
