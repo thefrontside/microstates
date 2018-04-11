@@ -76,12 +76,10 @@ class Node {
 
     return $(transitionsFor(Type))
       .map(method => {
-        return (tree) => {
-          return (...args) => {
-            return over(lensTreeValue(path), (tree) => {
-              return graft(path, reveal(method.apply(new Microstate(prune(tree)), args)));
-            }, tree);
-          };
+        return (tree, args) => {
+          return over(lensTreeValue(path), (tree) => {
+            return graft(path, reveal(method.apply(new Microstate(prune(tree)), args)));
+          }, tree);
         };
       }).valueOf();
   }
