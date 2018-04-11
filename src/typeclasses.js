@@ -7,18 +7,6 @@ import { collapse } from './typeclasses/collapse';
 
 const { keys } = Object;
 
-function invoke({ method, args, value, tree}) {
-  let nextValue = method.apply(new Microstate(tree), args);
-  if (nextValue instanceof Microstate) {
-    let tree = reveal(nextValue);
-    return { tree, value: tree.data.value };
-  } else if (nextValue === value ) {
-    return { tree, value };
-  } else {
-    return { tree, value: nextValue };
-  }
-}
-
 Functor.instance(Microstate, {
   map(fn, microstate) {
     let _tree = reveal(microstate);
@@ -27,7 +15,7 @@ Functor.instance(Microstate, {
     let next = map(node => {
       return map(transition => {
         return (...args) => {
-          let { tree } = transition(_tree, invoke)(...args);
+          let tree  = transition(_tree)(...args);
           return new Microstate(tree);
         };
       }, node.transitions);

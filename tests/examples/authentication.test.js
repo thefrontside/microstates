@@ -32,7 +32,7 @@ class MyApp {
   session = Session;
 }
 
-describe('AnonymousSession', () => {
+describe.skip('AnonymousSession', () => {
   let ms, authenticated;
   beforeEach(() => {
     ms = create(MyApp);
@@ -52,7 +52,7 @@ describe('AnonymousSession', () => {
   });
 });
 
-describe('AuthenticatedSession', () => {
+describe.skip('AuthenticatedSession', () => {
   let ms, anonymous;
   beforeEach(() => {
     ms = create(MyApp, { session: { name: 'Taras' } })

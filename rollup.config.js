@@ -6,6 +6,7 @@ const { keys } = Object;
 
 const globals = {
   funcadelic: "funcadelic",
+  "ramda/src/over": "R.over",
   "ramda/src/lens": "R.lens",
   "ramda/src/view": "R.view",
   "ramda/src/set": "R.set",

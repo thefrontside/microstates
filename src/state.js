@@ -1,5 +1,4 @@
-import { append, map } from 'funcadelic';
-import { flatMap } from './monad';
+import { append, map, flatMap } from 'funcadelic';
 import { Collapse, collapse } from './typeclasses/collapse';
 import { view, lensTree } from './lens';
 

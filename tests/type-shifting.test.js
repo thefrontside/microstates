@@ -43,7 +43,7 @@ describe('type-shifting', () => {
     shape = Shape;
   }
 
-  describe('create', function() {
+  describe.skip('create', function() {
 
     it('can initialize to itself', () => {
       let shape = create(Shape);
@@ -70,15 +70,15 @@ describe('type-shifting', () => {
     });
 
     it(`can be initialized from descendant's create`, function() {
-      let line = Line.create({ a: 10 });      
+      let line = Line.create({ a: 10 });
       expect(line.state).toBeInstanceOf(Line);
       expect(line.state).toMatchObject({
         a: 10
       });
     });
 
-    it('is used to initialize composed object', function() {     
-      let composed = create(Glass, { shape : {a: 10, b: 20, c: 30 }}); 
+    it('is used to initialize composed object', function() {
+      let composed = create(Glass, { shape : {a: 10, b: 20, c: 30 }});
       expect(composed.state.shape).toBeInstanceOf(Triangle);
       expect(composed.state).toMatchObject({
         shape: {
@@ -96,7 +96,7 @@ describe('type-shifting', () => {
       let drawing = create(Drawing, { shapes: [ { a: 10 }, { a: 20, b: 30 }, { a: 100, b: 200, c: 300 }]});
       expect(drawing.state.shapes[0]).toBeInstanceOf(Line);
       expect(drawing.state.shapes[1]).toBeInstanceOf(Angle);
-      expect(drawing.state.shapes[2]).toBeInstanceOf(Triangle);            
+      expect(drawing.state.shapes[2]).toBeInstanceOf(Triangle);
     });
 
     describe('can type-shift into a parameterized type', () => {
@@ -247,7 +247,7 @@ describe("type-shifting into a deeply composed microstate", () => {
   beforeEach(() => {
     root = create(Node);
   })
-  
+
   describe('shifting the root node', () => {
 
     let shiftedRoot;
@@ -344,7 +344,7 @@ describe.skip("type-shifting recursively with create", () => {
   });
 });
 
-describe('type-shifting from create to parameterized array', () => {
+describe.skip('type-shifting from create to parameterized array', () => {
   class Person {
     name = String;
   }
@@ -446,7 +446,7 @@ describe('type-shifting from create to parameterized array', () => {
   });
 });
 
-describe('type-shifting from create to parameterized object', () => {
+describe.skip('type-shifting from create to parameterized object', () => {
   class Parent {
     name = String;
   }
@@ -502,7 +502,7 @@ describe('type-shifting from create to parameterized object', () => {
   });
 });
 
-describe('type-shifting from create nodes in single operation', () => {
+describe.skip('type-shifting from create nodes in single operation', () => {
   class Root {
     static create(params) {
       if (!params) {
@@ -572,10 +572,10 @@ describe('type-shifting from create nodes in single operation', () => {
       }
     });
   });
-  
+
 });
 
-describe('type-shifting with create in from none root node', () => {
+describe.skip('type-shifting with create in from none root node', () => {
 
   class Root {
     first = class First {
