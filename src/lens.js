@@ -9,7 +9,6 @@ import lens from 'ramda/src/lens';
 import view from 'ramda/src/view';
 import Tree from './utils/tree';
 import { map, foldl } from 'funcadelic';
-import logTree from './utils/log-tree';
 
 export function lensTreeValue(path = []) {
   function get(tree) {

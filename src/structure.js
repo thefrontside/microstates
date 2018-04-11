@@ -10,7 +10,6 @@ import desugar from './desugar';
 import thunk from './thunk';
 import Microstate from './microstate';
 import { stateAt, childrenAt } from './typeclasses/location';
-import logTree from './utils/log-tree';
 
 export default function analyze(Type, value) {
   let topValue = value != null ? value.valueOf() : value;

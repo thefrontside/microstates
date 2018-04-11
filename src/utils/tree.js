@@ -56,7 +56,6 @@ export function prune(tree) {
  * @param {*} path
  */
 export function graft(path, tree) {
-  // console.log('graft=', path, tree.data.value);
   if (path.length === 0) {
     return tree;
   } else {
