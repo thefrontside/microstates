@@ -68,7 +68,8 @@
         "runner": "jest-runner-eslint",
         "displayName": "lint",
         "testMatch": ["<rootDir>/src/**/*.js"],
-        "watchPathIgnorePatterns": ["<rootDir>/dist/"]
+        "watchPathIgnorePatterns": ["<rootDir>/dist/"],
+        "collectCoverage": false
       }
     ]
   }
