@@ -5,7 +5,7 @@ import { toType } from '../types';
 
 function setTransition(value) {
   
-  const { 
+  let { 
     constructor: Microstate, 
     state: { constructor: Type } 
   } = this;
@@ -15,7 +15,7 @@ function setTransition(value) {
   } else {
     return Microstate.create(Type, value);
   }
-};
+}
 
 export default function transitionsFor(Type) {
   let descriptors = getPrototypeDescriptors(toType(Type));

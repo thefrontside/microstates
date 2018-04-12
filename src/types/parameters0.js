@@ -34,7 +34,7 @@ export function parameterized(Type, ...substitutions) {
       });
       return () => `${Type.name}<${names.join(',')}>`;
     }
-    static get [TYPE_PARAMETERS]() { return parameters; };
+    static get [TYPE_PARAMETERS]() { return parameters; }
   };
 }
 
