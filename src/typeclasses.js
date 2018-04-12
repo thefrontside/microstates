@@ -5,8 +5,6 @@ import Tree from './utils/tree';
 import thunk from './thunk';
 import { collapse } from './typeclasses/collapse';
 
-const { keys } = Object;
-
 Functor.instance(Microstate, {
   map(fn, microstate) {
     // tree of transitions

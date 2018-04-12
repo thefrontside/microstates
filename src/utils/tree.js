@@ -1,5 +1,4 @@
-import { append, filter, map } from 'funcadelic';
-import $ from './chain';
+import { append, map } from 'funcadelic';
 import { Collapse, collapse } from '../typeclasses/collapse';
 
 let { keys } = Object;

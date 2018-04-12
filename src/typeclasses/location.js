@@ -21,7 +21,7 @@ Location.instance(Object, {
     }
   },
 
-  childrenAt(Type, value) {
+  childrenAt(Type) {
     return $(new Type())
       .map(desugar)
       .filter(({ value }) => !!value && value.call)
@@ -30,11 +30,11 @@ Location.instance(Object, {
 });
 
 Location.instance(types.Object, {
-  stateAt: _ => ({}),
+  stateAt: () => ({}),
   childrenAt(Type, value) {
     let { T } = params(Type);
     if (T !== any) {
-      return map(_ => T, value);
+      return map(() => T, value);
     } else {
       return Location.for(Object).childrenAt(Type, value);
     }
@@ -42,7 +42,7 @@ Location.instance(types.Object, {
 });
 
 Location.instance(types.Array, {
-  stateAt: _ => [],
+  stateAt: () => [],
   childrenAt(...args) {
     return Location.for(types.Object.prototype).childrenAt(...args);
   }

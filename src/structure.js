@@ -1,10 +1,10 @@
 import $ from './utils/chain';
-import { type, map, append, pure, flatMap } from 'funcadelic';
+import { map, append, pure, flatMap } from 'funcadelic';
 import { over, lensTreeValue } from './lens';
 import Tree, { prune, graft } from './utils/tree';
 import transitionsFor from './utils/transitions-for';
 import { reveal } from './utils/secret';
-import types, { params, any, toType } from './types';
+import { toType } from './types';
 import isSimple  from './is-simple';
 import desugar from './desugar';
 import thunk from './thunk';
