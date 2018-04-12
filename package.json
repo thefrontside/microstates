@@ -56,20 +56,19 @@
   },
   "jest": {
     "globalSetup": "./build.js",
+    "collectCoverageFrom": ["dist/microstates.umd.js"],    
     "projects": [
       {
         "displayName": "test",
         "testRegex": "(/tests/.*|\\.(test|spec))\\.(js)$",
         "moduleFileExtensions": ["js", "json"],
-        "collectCoverageFrom": ["dist/microstates.umd.js"],
         "watchPathIgnorePatterns": ["<rootDir>/dist/"]
       },
       {
         "runner": "jest-runner-eslint",
         "displayName": "lint",
         "testMatch": ["<rootDir>/src/**/*.js"],
-        "watchPathIgnorePatterns": ["<rootDir>/dist/"],
-        "collectCoverage": false
+        "watchPathIgnorePatterns": ["<rootDir>/dist/"]
       }
     ]
   }
