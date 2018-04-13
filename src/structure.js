@@ -1,6 +1,6 @@
 import $ from './utils/chain';
 import { type, map, append, pure, flatMap } from 'funcadelic';
-import { view, set, over, lensPath, lensTreeValue } from './lens';
+import { over, lensTreeValue } from './lens';
 import Tree, { prune, graft } from './utils/tree';
 import transitionsFor from './utils/transitions-for';
 import { reveal } from './utils/secret';
@@ -46,9 +46,15 @@ class Node {
     this.InitialType = InitialType;
     this.path = path;
 
-    Object.defineProperty(this, 'value', {
-      enumerable: true,
-      get: thunk(() => view(lensPath(path.slice(-1)), root))
+    return append(this, {
+      get value() {
+        if (path.length === 0) {
+          return root;
+        } else {
+          let key = path.slice(-1)[0];
+          return root != null ? root[key] : root;
+        }
+      }
     });
   }
 
@@ -86,14 +92,5 @@ class Node {
 
   createChild(Type, name, rootValue) {
     return new Node({path: append(this.path, name), Type, root: rootValue });
-  }
-
-  replaceValue(key, childValue) {
-    let { Type, value } = this;
-    return append(this, {
-      get value() {
-        return set(lensPath(key), childValue, value);
-      }
-    });
   }
 }

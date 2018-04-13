@@ -32,20 +32,6 @@ describe('ArrayType', function() {
     it('map applies to every item', () => {
       expect(ms.map(v => v.toUpperCase()).valueOf()).toEqual(['A', 'B', 'C']);
     });
-
-    it('replace replaces first element', () => {
-      expect(ms.replace('a', 'd').valueOf()).toEqual(['d', 'b', 'c']);
-    });
-
-    it('replace does nont throw when replacing non-existing item', () => {
-      expect(() => {
-        ms.replace('e', 'd');
-      }).not.toThrow();
-    });
-
-    it('replace returns same array when value not found', () => {
-      expect(ms.replace('e', 'd').valueOf()).toBe(array);
-    });
   });
 
 
