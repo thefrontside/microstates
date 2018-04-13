@@ -38,7 +38,7 @@ class ArrayType {
 
     return this.set(result);
   }
-  
+
   map(callback) {
     return this.set(Array.prototype.map.call(this.state, callback));
   }
@@ -49,14 +49,14 @@ class ArrayType {
     let tree = reveal(this);
     let value = (this.valueOf() || []).slice();
     value.splice(startIndex, length, ...values);
-    
+
     let { T } = params(tree.data.Type);
     if (T === any) {
       return this.set(value);
     }
-    
+
     let unchanged = tree.children.slice(0, startIndex);
-    
+
     let added = $(values)
         .map(value => create(T, value))
         .map(reveal)
@@ -79,26 +79,6 @@ class ArrayType {
     });
 
     return new Microstate(structure);
-  }
-  /**
-   * Return a new array with first occurance of found item
-   * replaced with the replacement. It is very optimistic and
-   * will not throw even when item is not found.
-   *
-   * ```js
-   * let ms = microstate(MS.Array, ['a', 'b', 'c']);
-   * // => [ d, b, c ]
-   * ```
-   * @param {any} item
-   * @param {any} replacement
-   */
-  replace(item, replacement) {
-    let index = indexOf(item, this.state);
-    if (index === -1) {
-      return this.set(this.state);
-    } else {
-      return this.set(set(lensPath([index]), replacement, this.state));
-    }
   }
 }
 

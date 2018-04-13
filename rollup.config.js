@@ -10,7 +10,6 @@ const globals = {
   "ramda/src/lens": "R.lens",
   "ramda/src/view": "R.view",
   "ramda/src/set": "R.set",
-  "ramda/src/lensPath": "R.lensPath",
   "ramda/src/indexOf": "R.indexOf",
   "ramda/src/compose": "R.compose",
   "object.getownpropertydescriptors": "Object.getownpropertydescriptors",

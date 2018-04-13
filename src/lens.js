@@ -7,8 +7,11 @@ export { default as compose } from 'ramda/src/compose';
 
 import lens from 'ramda/src/lens';
 import view from 'ramda/src/view';
+import lset from 'ramda/src/set';
+import lensPath from 'ramda/src/lensPath';
 import Tree from './utils/tree';
-import { map, foldl } from 'funcadelic';
+import { append, map, foldl } from 'funcadelic';
+
 
 export function lensTreeValue(path = []) {
   function get(tree) {
@@ -21,7 +24,11 @@ export function lensTreeValue(path = []) {
     } else {
       return new Tree({
         data: () => {
-          return tree.data.replaceValue(current, subtree.data.value);
+          return append(tree.data, {
+            get value() {
+              return lset(lensPath(current), subtree.data.value, tree.data.value);
+            }
+          });
         },
         children: () =>
           map((child, childName) => {
