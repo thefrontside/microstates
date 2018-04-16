@@ -1,4 +1,4 @@
-import { map, append, foldl } from 'funcadelic';
+import { map, foldl } from 'funcadelic';
 
 export function visualize(tree, level = 0) {
   let node = tree.data;
@@ -18,5 +18,5 @@ export function visualize(tree, level = 0) {
   return lines.concat(foldl((lines, l) => lines.concat(l), [], childLines));
 }
 export default function logTree(tree) {
-  console.log(visualize(tree).join("\n"));
+  console.log(visualize(tree).join("\n")); // eslint-disable-line
 }

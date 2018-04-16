@@ -6,7 +6,6 @@ export { default as lensPath } from 'ramda/src/lensPath';
 export { default as compose } from 'ramda/src/compose';
 
 import lens from 'ramda/src/lens';
-import view from 'ramda/src/view';
 import lset from 'ramda/src/set';
 import lensPath from 'ramda/src/lensPath';
 import Tree from './utils/tree';
