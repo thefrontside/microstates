@@ -5,6 +5,7 @@ export { default as over } from 'ramda/src/over';
 export { default as lensPath } from 'ramda/src/lensPath';
 export { default as compose } from 'ramda/src/compose';
 
+import lens from 'ramda/src/lens';
 import lset from 'ramda/src/set';
 import lensPath from 'ramda/src/lensPath';
 import Tree from './utils/tree';

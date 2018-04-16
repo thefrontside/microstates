@@ -1,7 +1,4 @@
 import { append, foldl, map } from 'funcadelic';
-import set from 'ramda/src/set';
-import indexOf from 'ramda/src/indexOf';
-import lensPath from 'ramda/src/lensPath';
 import $ from '../utils/chain';
 import { reveal } from '../utils/secret';
 import Tree, { prune, graft } from '../utils/tree';
