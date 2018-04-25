@@ -1,4 +1,7 @@
 import { append, map } from 'funcadelic';
+import $ from './utils/chain';
+import transitionsFor from './utils/transitions-for';
+
 const { keys } = Object;
 
 export default class Tree {
@@ -8,8 +11,13 @@ export default class Tree {
     this.path = path;
     this.stable = {
       value: new Value(value),
-      state: new State(this)
+      state: new State(this),
+      transitions: new Transitions(Type)
     }
+  }
+
+  get transitions() {
+    return this.stable.transitions.value;
   }
 
   get state() {
@@ -31,6 +39,15 @@ export default class Tree {
   }
 }
 
+class Transitions {
+  constructor(Type) {
+    this.Type = Type;
+  }
+
+  get value() {
+    return transitionsFor(this.Type);
+  }
+}
 
 class Value {
   constructor(valueOrFn) {
@@ -65,16 +82,16 @@ class State {
 }
 
 
-function childTypesAt() {
-  return [];
+function childTypesAt(Type) {
+  // return [];
   // if (Type === types.Object || Type.prototype instanceof types.Object || Type === types.Array || Type.prototype instanceof types.Array) {
   //   let { T } = params(Type);
   //   if (T !== any) {
   //     return map(() => T, value);
   //   }
   // }
-  // return $(new Type())
-  //   .map(desugar)
-  //   .filter(({ value }) => !!value && value.call)
-  //   .valueOf();
+  return $(new Type())
+    // .map(desugar)
+    .filter(({ value }) => !!value && value.call)
+    .valueOf();
 }
