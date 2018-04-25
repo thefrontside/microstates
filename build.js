@@ -1,5 +1,9 @@
 const rollup = require("rollup");
 const config = require("./rollup.config");
+const PrettyError = require('pretty-error');
+const pe = new PrettyError();
+pe.skipNodeFiles();
+pe.skipPackage('rollup');
 
 module.exports = function() {
   console.log("\n"); // eslint-disable-line
@@ -10,5 +14,5 @@ module.exports = function() {
       let built = config.output.map(options => bundle.write(options));
       return Promise.all(built);
     })
-    .then(() => console.log()); // eslint-disable-line
+    .catch(e => console.log(pe.render(e))); // eslint-disable-line
 };
