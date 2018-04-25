@@ -1,8 +1,9 @@
-import { append, map } from 'funcadelic';
-import $ from './utils/chain';
-import transitionsFor from './utils/transitions-for';
+import { append, foldr, map } from 'funcadelic';
+import getOwnPropertyDescriptors from 'object.getownpropertydescriptors';
 
-const { keys, defineProperty } = Object;
+import $ from './utils/chain';
+
+const { assign, keys, defineProperty, getPrototypeOf } = Object;
 
 export default class Tree {
   // value can be either a function or a value.
@@ -12,7 +13,7 @@ export default class Tree {
     this.stable = {
       value: new Value(value),
       state: new State(this),
-      transitions: new Transitions(Type)
+      transitions: new Transitions(this)
     }
   }
 
@@ -28,7 +29,7 @@ export default class Tree {
     return this.stable.value.value;
   }
 
-  @stable  
+  @stable
   get children() {
     let { Type, value, path } = this;
     let childTypes = childTypesAt(Type, value);
@@ -41,13 +42,14 @@ export default class Tree {
 }
 
 class Transitions {
-  constructor(Type) {
-    this.Type = Type;
+  constructor(tree) {
+    this.tree = tree;
   }
 
   @stable
   get value() {
-    return transitionsFor(this.Type);
+    let TransitionsConstructor = transitionsConstructorFor(this.tree.Type);
+    return append(new TransitionsConstructor(), map(child => child.transitions, this.tree.children));
   }
 }
 
@@ -94,7 +96,7 @@ function childTypesAt(Type) {
   //   }
   // }
   return $(new Type())
-    // .map(desugar)
+  // .map(desugar)
     .filter(({ value }) => !!value && value.call)
     .valueOf();
 }
@@ -107,4 +109,37 @@ function stable(target, key, descriptor) {
     return value;
   }
   return descriptor;
+}
+
+// TODO: stableize this.
+function transitionsConstructorFor(Type) {
+  return foldr((Parent, Type) => {
+    let TransitionsType = class Transitions extends Parent {};
+    let descriptors = getOwnPropertyDescriptors(Type.prototype);
+    let functions = $(descriptors)
+        .filter(({ key: name }) => name !== 'constructor')
+        .filter(({ value: descriptor }) => typeof descriptor.value === 'function')
+        .map(({ value }) => value)
+        .valueOf();
+
+    assign(TransitionsType.prototype, functions);
+
+    return TransitionsType;
+  }, class {}, hierarchy(Type));
+}
+
+
+class Any {
+  set(value) {
+    return value;
+  }
+}
+
+function hierarchy(Type, ancestors = []) {
+  let prototype = getPrototypeOf(Type);
+  if (prototype === getPrototypeOf(Object)) {
+    return ancestors.concat(Any);
+  } else {
+    return hierarchy(prototype.constructor, ancestors.concat(Type));
+  }
 }
