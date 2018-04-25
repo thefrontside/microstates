@@ -28,7 +28,7 @@ export default class Tree {
     return this.stable.value.value;
   }
 
-  @memoize  
+  @stable  
   get children() {
     let { Type, value, path } = this;
     let childTypes = childTypesAt(Type, value);
@@ -45,7 +45,7 @@ class Transitions {
     this.Type = Type;
   }
 
-  @memoize
+  @stable
   get value() {
     return transitionsFor(this.Type);
   }
@@ -71,7 +71,7 @@ class State {
     this.tree = tree;
   }
 
-  @memoize
+  @stable
   get value() {
     let { tree } = this;
     let { Type, value } = this.tree;
@@ -99,7 +99,7 @@ function childTypesAt(Type) {
     .valueOf();
 }
 
-function memoize(target, key, descriptor) {
+function stable(target, key, descriptor) {
   let { get } = descriptor;
   descriptor.get = function memoizedGetter() {
     let value = get.call(this);
