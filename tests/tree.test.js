@@ -29,6 +29,9 @@ describe("A Boolean Tree with a value provided", () => {
   it('has a toggle transition', () => {
     expect(tree.transitions.toggle).toBeInstanceOf(Function);
   });
+  it('has stable transitions', () => {
+    expect(tree.transitions).toBe(tree.transitions);
+  });
 });
 
 describe("A Composed Tree with value provided", () => {
@@ -44,6 +47,13 @@ describe("A Composed Tree with value provided", () => {
   });
   it('has name child', () => {
     expect(tree.children.name).toBeInstanceOf(Tree);
+  });
+  it('has stable children', () => {
+    expect(tree.children).toBe(tree.children);
+  });
+  it('has stable state', () => {
+    expect(tree.state).toBeInstanceOf(Person);
+    expect(tree.state).toBe(tree.state);
   });
   describe('name child', () => {
     it('is of Type String', () => {

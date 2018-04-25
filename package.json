@@ -35,6 +35,7 @@
   },
   "dependencies": {
     "funcadelic": "0.4.0",
+    "memoize-getters": "0.5.0",
     "object.getownpropertydescriptors": "2.0.3",
     "ramda": "^0.25.0",
     "symbol-observable": "1.2.0"
@@ -67,28 +68,13 @@
     "collectCoverageFrom": [
       "dist/microstates.umd.js"
     ],
-    "projects": [
-      {
-        "displayName": "test",
-        "testRegex": "(/tests/.*|\\.(test|spec))\\.(js)$",
-        "moduleFileExtensions": [
-          "js",
-          "json"
-        ],
-        "watchPathIgnorePatterns": [
-          "<rootDir>/dist/"
-        ]
-      },
-      {
-        "runner": "jest-runner-eslint",
-        "displayName": "lint",
-        "testMatch": [
-          "<rootDir>/src/**/*.js"
-        ],
-        "watchPathIgnorePatterns": [
-          "<rootDir>/dist/"
-        ]
-      }
+    "testRegex": "(/tests/.*|\\.(test|spec))\\.(js)$",
+    "moduleFileExtensions": [
+      "js",
+      "json"
+    ],
+    "watchPathIgnorePatterns": [
+      "<rootDir>/dist/"
     ]
   }
 }

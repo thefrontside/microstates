@@ -2,7 +2,7 @@ import { append, map } from 'funcadelic';
 import $ from './utils/chain';
 import transitionsFor from './utils/transitions-for';
 
-const { keys } = Object;
+const { keys, defineProperty } = Object;
 
 export default class Tree {
   // value can be either a function or a value.
@@ -28,6 +28,7 @@ export default class Tree {
     return this.stable.value.value;
   }
 
+  @memoize  
   get children() {
     let { Type, value, path } = this;
     let childTypes = childTypesAt(Type, value);
@@ -44,6 +45,7 @@ class Transitions {
     this.Type = Type;
   }
 
+  @memoize
   get value() {
     return transitionsFor(this.Type);
   }
@@ -69,6 +71,7 @@ class State {
     this.tree = tree;
   }
 
+  @memoize
   get value() {
     let { tree } = this;
     let { Type, value } = this.tree;
@@ -94,4 +97,14 @@ function childTypesAt(Type) {
     // .map(desugar)
     .filter(({ value }) => !!value && value.call)
     .valueOf();
+}
+
+function memoize(target, key, descriptor) {
+  let { get } = descriptor;
+  descriptor.get = function memoizedGetter() {
+    let value = get.call(this);
+    defineProperty(this, key, { value });
+    return value;
+  }
+  return descriptor;
 }
