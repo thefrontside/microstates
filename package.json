@@ -2,14 +2,22 @@
   "name": "microstates",
   "version": "0.6.2",
   "description": "Graceful state transitions for data of any shape.",
-  "keywords": ["blood", "immutable", "microstates"],
+  "keywords": [
+    "blood",
+    "immutable",
+    "microstates"
+  ],
   "homepage": "https://github.com/microstates/microstates.js#readme",
   "bugs": {
     "url": "https://github.com/microstates/microstates.js/issues"
   },
   "license": "MIT",
   "author": "Charles Lowell <charles@frontside.io>, Taras Mankovski <taras@thisdot.co>",
-  "files": ["src", "dist", "README.md"],
+  "files": [
+    "src",
+    "dist",
+    "README.md"
+  ],
   "main": "dist/microstates.umd.js",
   "module": "dist/microstates.js",
   "browser": "dist/microstates.umd.js",
@@ -32,13 +40,13 @@
     "symbol-observable": "1.2.0"
   },
   "devDependencies": {
-    "@babel/core": "^7.0.0-beta.38",
-    "@babel/plugin-proposal-class-properties": "^7.0.0-beta.38",
-    "@babel/preset-env": "^7.0.0-beta.38",
-    "babel-cli": "6.26.0",
+    "@babel/core": "7.0.0-beta.44",
+    "@babel/plugin-proposal-class-properties": "7.0.0-beta.44",
+    "@babel/preset-env": "7.0.0-beta.44",
+    "babel-core": "7.0.0-bridge.0",
+    "babel-eslint": "8.2.3",
     "babel-jest": "22.4.3",
-    "babel-plugin-transform-class-properties": "6.24.1",
-    "babel-preset-env": "1.6.0",
+    "babel-plugin-transform-decorators-legacy": "1.3.4",
     "eslint": "4.19.1",
     "eslint-plugin-prefer-let": "1.0.1",
     "husky": "0.14.3",
@@ -56,19 +64,30 @@
   },
   "jest": {
     "globalSetup": "./build.js",
-    "collectCoverageFrom": ["dist/microstates.umd.js"],    
+    "collectCoverageFrom": [
+      "dist/microstates.umd.js"
+    ],
     "projects": [
       {
         "displayName": "test",
         "testRegex": "(/tests/.*|\\.(test|spec))\\.(js)$",
-        "moduleFileExtensions": ["js", "json"],
-        "watchPathIgnorePatterns": ["<rootDir>/dist/"]
+        "moduleFileExtensions": [
+          "js",
+          "json"
+        ],
+        "watchPathIgnorePatterns": [
+          "<rootDir>/dist/"
+        ]
       },
       {
         "runner": "jest-runner-eslint",
         "displayName": "lint",
-        "testMatch": ["<rootDir>/src/**/*.js"],
-        "watchPathIgnorePatterns": ["<rootDir>/dist/"]
+        "testMatch": [
+          "<rootDir>/src/**/*.js"
+        ],
+        "watchPathIgnorePatterns": [
+          "<rootDir>/dist/"
+        ]
       }
     ]
   }

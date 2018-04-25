@@ -2,8 +2,6 @@ import { map, append } from "funcadelic";
 import analyze from "./structure";
 import { keep, reveal } from "./utils/secret";
 import SymbolObservable from "symbol-observable";
-import { collapse } from './typeclasses/collapse';
-import State from './state';
 
 export default class Microstate {
   constructor(tree) {

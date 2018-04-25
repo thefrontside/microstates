@@ -1,4 +1,7 @@
 {
-  "presets": ["env"],
-  "plugins": ["transform-class-properties"]
+  "presets": ["@babel/preset-env"],
+  "plugins": [
+    "transform-decorators-legacy",
+    "@babel/plugin-proposal-class-properties"
+  ]
 }

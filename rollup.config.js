@@ -35,7 +35,10 @@ module.exports = {
     babel({
       babelrc: false,
       comments: false,
-      plugins: ["@babel/plugin-proposal-class-properties"],
+      plugins: [
+        "transform-decorators-legacy",
+        "@babel/plugin-proposal-class-properties"
+      ],
       presets: [
         [
           "@babel/preset-env",
