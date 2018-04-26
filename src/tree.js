@@ -189,6 +189,25 @@ export function transitionsConstructorFor(Class) {
   return TransitionsConstructor;
 }
 
+/**
+ * Tree Functor allows a developer to map a tree without changing
+ * the tree's structure. The functor instance will enforce maintaing
+ * the structure by copying over Type and overriding returned chidren.
+ * 
+ * The purpose of this mechanism is to allow a developer to change the
+ * path of a tree and cary over the stable value or change the value
+ * for a tree of the same structure.
+ * 
+ * To change the path and keep stable values,
+ * ```
+ * map(tree => ({ path: compute(tree.path) }), tree)
+ * ```
+ * 
+ * To change the stable values,
+ * ```
+ * map(tree => new Tree({ Type: tree.Type, value }), tree)
+ * ```
+ */
 Functor.instance(Tree, {
   map(fn, tree) {
 
