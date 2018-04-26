@@ -93,3 +93,10 @@ describe('Transitions', () => {
   });
 
 });
+
+describe('value', () => {
+  it('is stable when passed a function', () => {
+    let tree = new Tree({ Type: String, value: () => ({}) });
+    expect(tree.value).toBe(tree.value);
+  });
+});

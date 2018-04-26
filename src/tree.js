@@ -11,6 +11,8 @@ export default class Tree {
   constructor({ Type, value, path = [] }) {
     this.Type = Type;
     this.path = path;
+    // stable object has all of the data that will be
+    // copied to a new tree when mapping trees.
     this.stable = {
       value: new Value(value),
       state: new State(this)
@@ -21,6 +23,7 @@ export default class Tree {
     return keys(this.children).length > 0
   }
 
+  // transitions are cached but are unique for every tree instance
   @stable
   get transitions() {
     return new Transitions(this).value;
@@ -70,6 +73,7 @@ class Value {
     this.valueOrFn = valueOrFn;
   }
 
+  @stable
   get value() {
     let { valueOrFn } = this;
     if (typeof valueOrFn === 'function') {
