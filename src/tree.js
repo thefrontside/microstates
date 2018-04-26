@@ -4,7 +4,7 @@ import { toType } from './types';
 import $ from './utils/chain';
 import getPrototypeDescriptors from './utils/get-prototype-descriptors';
 
-const { assign, keys, defineProperty } = Object;
+const { assign, keys, defineProperty, defineProperties } = Object;
 
 export default class Tree {
   // value can be either a function or a value.
@@ -144,20 +144,16 @@ class Any {
  * This factory takes a class and returns a class.
  */
 export function transitionsConstructorFor(Class) {
-
+  class TransitionsConstructor {}
+  
   let transitions = $(assign({}, getPrototypeDescriptors(toType(Class)), getPrototypeDescriptors(Any)))
     .filter(({ key, value }) => typeof value.value === 'function' && key !== 'constructor')
-    .map(({ value }) => transition(value))
+    .map(descriptor => assign({}, descriptor, { value: transition(descriptor.value) }))
     .valueOf();
 
-  return class TransitionsConstructor {
-    constructor() {
-      // assigning each transitions onto the object to make
-      // these transitions portable
-      for (let key in transitions) {
-        this[key] = transitions[key].bind(this);
-      }
-    }
-  }
+
+  defineProperties(TransitionsConstructor.prototype, transitions);
+
+  return TransitionsConstructor;
 }
 
