@@ -13,8 +13,7 @@ export default class Tree {
     this.path = path;
     this.stable = {
       value: new Value(value),
-      state: new State(this),
-      transitions: new Transitions(this)
+      state: new State(this)
     }
   }
 
@@ -22,8 +21,9 @@ export default class Tree {
     return keys(this.children).length > 0
   }
 
+  @stable
   get transitions() {
-    return this.stable.transitions.value;
+    return new Transitions(this).value;
   }
 
   get state() {
@@ -150,7 +150,6 @@ export function transitionsConstructorFor(Class) {
     .filter(({ key, value }) => typeof value.value === 'function' && key !== 'constructor')
     .map(descriptor => assign({}, descriptor, { value: transition(descriptor.value) }))
     .valueOf();
-
 
   defineProperties(TransitionsConstructor.prototype, transitions);
 
