@@ -1,6 +1,6 @@
 import 'jest';
 
-import Tree from '../src/tree';
+import Tree, { transitionsConstructorFor } from '../src/tree';
 
 describe("A Boolean Tree with a value provided", () => {
   let tree;
@@ -26,7 +26,7 @@ describe("A Boolean Tree with a value provided", () => {
   it('has a set transition', () => {
     expect(tree.transitions.set).toBeInstanceOf(Function);
   });
-  it.skip('has a toggle transition', () => {
+  it('has a toggle transition', () => {
     expect(tree.transitions.toggle).toBeInstanceOf(Function);
   });
   it('has stable transitions', () => {
@@ -63,8 +63,33 @@ describe("A Composed Tree with value provided", () => {
       expect(tree.children.name.value).toBe('Taras');
     });
   });
+  describe('transitions', () => {
+    it('has composed transition', () => {
+      expect(tree.transitions.name).toBeDefined();
+    });
+    it('has set on name', () => {
+      expect(tree.transitions.name.set).toBeInstanceOf(Function);
+    });
+  });
 });
 
-describe('A Boolean Tree with no value provided', () => {
+describe('Transitions', () => {
+
+  class Person { 
+    read(book) {
+      return `reading ${book}`;
+    }
+  }
+
+  describe('transitionsConstructorFor', () => {
+
+    let PersonTransitions = transitionsConstructorFor(Person);
+
+    it('allows transitions to be moved', () => {
+      let { read } = new PersonTransitions();
+      expect(read('comics')).toBe('reading comics');
+    });
+
+  });
 
 });

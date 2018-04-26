@@ -1,9 +1,10 @@
-import { append, foldr, map } from 'funcadelic';
-import getOwnPropertyDescriptors from 'object.getownpropertydescriptors';
+import { append, map } from 'funcadelic';
+import { toType } from './types';
 
 import $ from './utils/chain';
+import getPrototypeDescriptors from './utils/get-prototype-descriptors';
 
-const { assign, keys, defineProperty, getPrototypeOf } = Object;
+const { assign, keys, defineProperty } = Object;
 
 export default class Tree {
   // value can be either a function or a value.
@@ -15,6 +16,10 @@ export default class Tree {
       state: new State(this),
       transitions: new Transitions(this)
     }
+  }
+
+  get hasChildren() {
+    return keys(this.children).length > 0
   }
 
   get transitions() {
@@ -48,8 +53,15 @@ class Transitions {
 
   @stable
   get value() {
-    let TransitionsConstructor = transitionsConstructorFor(this.tree.Type);
-    return append(new TransitionsConstructor(), map(child => child.transitions, this.tree.children));
+    let { Type, children, hasChildren } = this.tree;
+    // this needs to come from some place
+    let TransitionsConstructor = transitionsConstructorFor(Type);
+    let transitions = new TransitionsConstructor();
+    if (hasChildren) {
+      return append(transitions, map(child => child.transitions, children));
+    } else {
+      return transitions;
+    }
   }
 }
 
@@ -78,7 +90,7 @@ class State {
     let { tree } = this;
     let { Type, value } = this.tree;
     let initial = new Type(value);
-    if (keys(tree.children).length > 0) {
+    if (tree.hasChildren) {
       return append(initial, map(child => child.state, tree.children));
     } else {
       return initial.valueOf();
@@ -101,6 +113,11 @@ function childTypesAt(Type) {
     .valueOf();
 }
 
+/**
+ * This descriptor can be applied to a getter. When applied to a getter, 
+ * the result of the getter's computation will be cached on first read 
+ * and reused on consequent reads.
+ */
 function stable(target, key, descriptor) {
   let { get } = descriptor;
   descriptor.get = function memoizedGetter() {
@@ -111,35 +128,36 @@ function stable(target, key, descriptor) {
   return descriptor;
 }
 
-// TODO: stableize this.
-function transitionsConstructorFor(Type) {
-  return foldr((Parent, Type) => {
-    let TransitionsType = class Transitions extends Parent {};
-    let descriptors = getOwnPropertyDescriptors(Type.prototype);
-    let functions = $(descriptors)
-        .filter(({ key: name }) => name !== 'constructor')
-        .filter(({ value: descriptor }) => typeof descriptor.value === 'function')
-        .map(({ value }) => value)
-        .valueOf();
-
-    assign(TransitionsType.prototype, functions);
-
-    return TransitionsType;
-  }, class {}, hierarchy(Type));
+function transition(method) {
+  return function(...args) {
+    return method.apply(this, args);
+  }
 }
-
 
 class Any {
-  set(value) {
-    return value;
+  set() {
+
   }
 }
 
-function hierarchy(Type, ancestors = []) {
-  let prototype = getPrototypeOf(Type);
-  if (prototype === getPrototypeOf(Object)) {
-    return ancestors.concat(Any);
-  } else {
-    return hierarchy(prototype.constructor, ancestors.concat(Type));
+/**
+ * This factory takes a class and returns a class.
+ */
+export function transitionsConstructorFor(Class) {
+
+  let transitions = $(assign({}, getPrototypeDescriptors(toType(Class)), getPrototypeDescriptors(Any)))
+    .filter(({ key, value }) => typeof value.value === 'function' && key !== 'constructor')
+    .map(({ value }) => transition(value))
+    .valueOf();
+
+  return class TransitionsConstructor {
+    constructor() {
+      // assigning each transitions onto the object to make
+      // these transitions portable
+      for (let key in transitions) {
+        this[key] = transitions[key].bind(this);
+      }
+    }
   }
 }
+

@@ -21,7 +21,7 @@ export default class Microstate {
    * @param {*} Type
    * @param {*} value
    */
-  static create(Type, value) {
+  static create(Type, value) {    
     let tree = analyze(Type, value);
     return new Microstate(tree);
   }
