@@ -1,6 +1,6 @@
-import { append, map } from 'funcadelic';
+import { append, map, Functor } from 'funcadelic';
 import { toType } from './types';
-
+import thunk from './thunk';
 import $ from './utils/chain';
 import getPrototypeDescriptors from './utils/get-prototype-descriptors';
 
@@ -19,25 +19,50 @@ export default class Tree {
     }
   }
 
+/**
+ * Returns a new tree where the current tree is the root. The stable
+ * values are carried over to the new tree. 
+ */
+  prune() {
+    return map(tree => ({ path: tree.path.slice(this.path.length)}), this);
+  }
+
+  /**
+   * Change the path of a tree.
+   *
+   * This lets you take any tree, sitting at any context and 
+   * prefix the context with additional path.
+   */
+  graft(path = []) {
+    if (path.length === 0) {
+      return this;
+    } else {
+      return map(tree => ({ path: [...path, ...tree.path]}), this);
+    }
+  }
+
   get hasChildren() {
     return keys(this.children).length > 0
   }
 
-  // transitions are cached but are unique for every tree instance
   @stable
+  // transitions are stable per tree instance
   get transitions() {
     return new Transitions(this).value;
   }
 
+  // state is stable across mapped trees
   get state() {
     return this.stable.state.value;
   }
 
+  // value is stable across mapped trees
   get value() {
     return this.stable.value.value;
   }
 
   @stable
+  // children are stable for a tree instance
   get children() {
     let { Type, value, path } = this;
     let childTypes = childTypesAt(Type, value);
@@ -124,12 +149,16 @@ function childTypesAt(Type) {
  */
 function stable(target, key, descriptor) {
   let { get } = descriptor;
-  descriptor.get = function memoizedGetter() {
-    let value = get.call(this);
+  descriptor.get = stabilizeOn(key, get);
+  return descriptor;
+}
+
+function stabilizeOn(key, fn) {
+  return function stabilized() {
+    let value = fn.call(this);
     defineProperty(this, key, { value });
     return value;
   }
-  return descriptor;
 }
 
 function transition(method) {
@@ -159,4 +188,39 @@ export function transitionsConstructorFor(Class) {
 
   return TransitionsConstructor;
 }
+
+Functor.instance(Tree, {
+  map(fn, tree) {
+
+    let mapped = thunk(() => fn(tree));
+
+    return Object.create(Tree.prototype, {
+      Type: {
+        enumerable: true, 
+        value: tree.Type 
+      },
+      path: {
+        enumerable: true,
+        get() {
+          let { path } = mapped();
+          return path ? path : tree.path;
+        }
+      },
+      stable: {
+        enumerable: true,
+        get() {
+          let { stable } = mapped();
+          return stable ? stable : tree.stable;
+        }
+      },
+      children: {
+        enumerable: false,
+        configurable: true,
+        get: stabilizeOn('children', function stableChildren() {
+          return map(child => map(fn, child), tree.children);
+        })
+      }
+    })
+  }
+});
 
