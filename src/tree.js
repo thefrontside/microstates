@@ -1,8 +1,14 @@
-import { append, map, Functor } from 'funcadelic';
+import { append, map, foldl, Functor } from 'funcadelic';
 import { toType } from './types';
 import thunk from './thunk';
 import $ from './utils/chain';
 import getPrototypeDescriptors from './utils/get-prototype-descriptors';
+import lens from 'ramda/src/lens';
+import lensPath from 'ramda/src/lensPath';
+import lset from 'ramda/src/set';
+import intersection from 'lodash.intersection';
+import view from 'ramda/src/view';
+import over from 'ramda/src/over';
 
 const { assign, keys, defineProperty, defineProperties } = Object;
 
@@ -17,6 +23,30 @@ export default class Tree {
       value: new Value(value),
       state: new State(this)
     }
+  }
+
+  /**
+   * Evaluates to a lens that can be used with ramda lenses to view/set/over value
+   * of other trees. Think about this as a branch that you overlap on another tree,
+   * the place where the branch ends is the focus point.
+   */
+  get lens() {
+    let get = tree => foldl((subtree, key) => subtree.children[key], tree, this.path).prune();
+    let set = (value, root) => {
+      let nextValue = lset(lensPath(this.path), value.value, root.value);
+      return map(tree => {
+        if (intersects(tree.path, this.path)) {
+          return new Tree({ Type: tree.Type, value: () => view(lensPath(tree.path), nextValue)})
+        } else {
+          return tree;
+        }
+      }, root);
+    }
+    return lens(get, set);
+  }
+
+  over(lens, fn) {
+    return over(lens, fn, this);
   }
 
 /**
@@ -161,6 +191,13 @@ function stabilizeOn(key, fn) {
   }
 }
 
+// function transition(method) {
+//   return function(root, invoke) {
+//     return root.over(this.tree, focus => invoke(focus, method));
+//   }
+// }
+
+
 function transition(method) {
   return function(...args) {
     return method.apply(this, args);
@@ -243,3 +280,6 @@ Functor.instance(Tree, {
   }
 });
 
+function intersects(a, b) {
+  return intersection(a, b).length === a.length;
+}

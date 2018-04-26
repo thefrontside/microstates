@@ -2,6 +2,9 @@ import 'jest';
 
 import Tree, { transitionsConstructorFor } from '../src/tree';
 import { map } from 'funcadelic';
+import view from 'ramda/src/view';
+import set from 'ramda/src/set';
+import over from 'ramda/src/over';
 
 describe("A Boolean Tree with a value provided", () => {
   let tree;
@@ -193,6 +196,60 @@ describe('Tree', () => {
     it('does not change the state', () => {
       expect(grafted.state).toBe(things.state);
     });
+  });
+
+  describe('lens', () => {
+    let viewed, changed, overed;
+    beforeEach(() => {
+      let { lens } = new Tree({ Type: String, path: ['a', 'name'] });
+      viewed = view(lens, things);
+      changed = set(lens, new Tree({ value: 'boo' }), things);
+      overed = over(lens, focus => new Tree({ value: () => `${focus.value} BUAHAHA` }), things);
+    });
+
+    it('can be used as a lens', () => {
+      expect(viewed.Type).toBe(String);
+    });
+
+    it('prunes the focused value', () => {
+      expect(viewed.path).toEqual([]);
+    });
+
+    it('view keeps the value unchanged', () => {
+      expect(viewed.value).toBe('A');
+    });
+
+    it('sets the value into every node in the branch', () => {
+      expect(changed.value).toEqual({ a: { name: 'boo' }, b: { name: 'B' }});
+      expect(changed.children.a.value).toEqual({ name: 'boo' });
+      expect(changed.children.a.children.name.value).toEqual('boo');
+    });
+
+    it('does not set nodes in other branch', () => {
+      expect(changed.children.b.value).toEqual({ name: 'B' });
+      expect(changed.children.b.children.name.value).toEqual('B');
+    });
+
+    it('overed the value', () => {
+      expect(overed.value).toEqual({ a: { name: 'A BUAHAHA' }, b: { name: 'B' }});
+      expect(overed.children.b.value).toEqual({ name: 'B' });
+      expect(overed.children.a.children.name.value).toEqual('A BUAHAHA');
+    });
+
+    it('overed state is stable', () => {
+      expect(overed.state).toBe(overed.state);
+    });
+
+    it('overed state is different from original state', () => {
+      expect(overed.state).not.toBe(things.state);
+    });
+
+    it('allows over to be called on the tree', () => {
+      let { lens } = new Tree({ Type: String, path: ['a', 'name'] });
+      let fn = focus => new Tree({ value: () => `${focus.value} BUAHAHA` });
+      expect(things.over(lens, fn).value).toEqual({ a: { name: 'A BUAHAHA' }, b: { name: 'B' }});
+    });
+
   });
 
 });
