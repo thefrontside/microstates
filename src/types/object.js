@@ -1,4 +1,5 @@
-import { parameterized, any } from './parameters0';
+import { parameterized } from './parameters0';
+import Any from './any';
 
 class ObjectType {
   constructor(value = {}) {
@@ -9,4 +10,4 @@ class ObjectType {
   }
 }
 
-export default parameterized(ObjectType, {T: any});
+export default parameterized(ObjectType, {T: Any});

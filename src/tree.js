@@ -1,5 +1,5 @@
 import { append, map, foldl, foldr, Functor } from 'funcadelic';
-import { toType } from './types';
+import types, { toType, params } from './types';
 import thunk from './thunk';
 import $ from './utils/chain';
 import getPrototypeDescriptors from './utils/get-prototype-descriptors';
@@ -8,6 +8,7 @@ import lensPath from 'ramda/src/lensPath';
 import lset from 'ramda/src/set';
 import view from 'ramda/src/view';
 import over from 'ramda/src/over';
+import desugar from './desugar';
 
 const { assign, keys, defineProperty, defineProperties } = Object;
 
@@ -177,17 +178,15 @@ class State {
   }
 }
 
-
-function childTypesAt(Type) {
-  // return [];
-  // if (Type === types.Object || Type.prototype instanceof types.Object || Type === types.Array || Type.prototype instanceof types.Array) {
-  //   let { T } = params(Type);
-  //   if (T !== any) {
-  //     return map(() => T, value);
-  //   }
-  // }
+function childTypesAt(Type, value) {
+  if (Type === types.Object || Type.prototype instanceof types.Object || Type === types.Array || Type.prototype instanceof types.Array) {
+    let { T } = params(Type);
+    if (T !== types.Any) {
+      return map(() => T, value);
+    }
+  }
   return $(new Type())
-  // .map(desugar)
+    .map(desugar)
     .filter(({ value }) => !!value && value.call)
     .valueOf();
 }
@@ -217,12 +216,6 @@ function transition(method) {
   }
 }
 
-class Any {
-  set() {
-
-  }
-}
-
 /**
  * This factory takes a class and returns a class.
  */
@@ -233,7 +226,7 @@ export function transitionsConstructorFor(Class) {
     }
   }
 
-  let transitions = $(assign({}, getPrototypeDescriptors(toType(Class)), getPrototypeDescriptors(Any)))
+  let transitions = $(assign({}, getPrototypeDescriptors(toType(Class)), getPrototypeDescriptors(types.Any)))
       .filter(({ key, value }) => typeof value.value === 'function' && key !== 'constructor')
       .map(descriptor => assign({}, descriptor, { value: transition(descriptor.value) }))
       .valueOf();

@@ -41,5 +41,3 @@ export function parameterized(Type, ...substitutions) {
 export function params(Constructor) {
   return Constructor[TYPE_PARAMETERS] || {};
 }
-
-export const any = 'any';

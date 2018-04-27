@@ -3,13 +3,15 @@ import NumberType from './types/number';
 import BooleanType from './types/boolean';
 import ArrayType from './types/array';
 import ObjectType from './types/object';
+import Any from './types/any';
 
 export default {
   String: StringType,
   Number: NumberType,
   Boolean: BooleanType,
   Array: ArrayType,
-  Object: ObjectType
+  Object: ObjectType,
+  Any
 };
 
 export function toType(Constructor) {
@@ -29,4 +31,4 @@ export function toType(Constructor) {
   }
 }
 
-export { parameterized, params, any } from './types/parameters';
+export { parameterized, params } from './types/parameters';

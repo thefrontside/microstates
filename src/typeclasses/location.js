@@ -1,5 +1,5 @@
 import { map, append, type } from 'funcadelic';
-import types, { params, any } from '../types';
+import types, { params } from '../types';
 import $ from '../utils/chain';
 import desugar from '../desugar';
 
@@ -33,7 +33,7 @@ Location.instance(types.Object, {
   stateAt: () => ({}),
   childrenAt(Type, value) {
     let { T } = params(Type);
-    if (T !== any) {
+    if (T !== types.Any) {
       return map(() => T, value);
     } else {
       return Location.for(Object).childrenAt(Type, value);

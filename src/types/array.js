@@ -2,7 +2,8 @@ import { append, foldl, map } from 'funcadelic';
 import $ from '../utils/chain';
 import { reveal } from '../utils/secret';
 import Tree, { prune, graft } from '../utils/tree';
-import { parameterized, params, any } from './parameters0';
+import { parameterized, params } from './parameters0';
+import Any from './any';
 
 class ArrayType {
   constructor(value = []) {
@@ -48,7 +49,7 @@ class ArrayType {
     value.splice(startIndex, length, ...values);
 
     let { T } = params(tree.data.Type);
-    if (T === any) {
+    if (T === Any) {
       return this.set(value);
     }
 
@@ -79,4 +80,4 @@ class ArrayType {
   }
 }
 
-export default parameterized(ArrayType, {T: any});
+export default parameterized(ArrayType, {T: Any});
