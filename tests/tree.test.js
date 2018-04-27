@@ -80,18 +80,72 @@ describe("A Composed Tree with value provided", () => {
 describe('Transitions', () => {
 
   class Person {
+    parent = Person;
     read(book) {
       return `reading ${book}`;
     }
   }
 
-  describe('transitionsConstructorFor', () => {
+  describe('calling transition at root tree', () => {
+    let root, callback, result;
 
-    let PersonTransitions = transitionsConstructorFor(Person);
+    beforeEach(() => {
+      callback = jest.fn((tree, method) => new Tree({ Type: tree.Type, value: 'hello world'} ));      
+      root = new Tree({ Type: Person });
+      result = root.transitions.read(root, callback);      
+    });
 
-    it('allows transitions to be moved', () => {
-      let { read } = new PersonTransitions();
-      expect(read('comics')).toBe('reading comics');
+    it('returns a tree', () => {
+      expect(result).toBeInstanceOf(Tree);
+    });
+
+    it('callback is called', () => {
+      expect(callback).toHaveBeenCalledTimes(1);
+    });
+
+    it('callback receives tree and function', () => {
+      expect(callback).toHaveBeenCalledWith(expect.any(Tree), expect.any(Function));
+    });
+
+    it('received tree is rooted', () => {
+      expect(callback.mock.calls[0][0].path).toEqual([]);
+      expect(callback.mock.calls[0][0].Type).toBe(Person);      
+    });
+
+    it('has returned value', () => {
+      expect(result.value).toEqual('hello world');
+    });
+  
+  });
+
+  describe('calling transition on deeply nested tree', () => {
+    let root, callback, result;
+
+    beforeEach(() => {
+      callback = jest.fn((tree, method) => new Tree({ Type: tree.Type, value: 'hello world'} ));      
+      root = new Tree({ Type: Person });
+      result = root.transitions.parent.parent.read(root, callback);
+    });
+
+    it('returns a tree', () => {
+      expect(result).toBeInstanceOf(Tree);
+    });
+
+    it('callback is called', () => {
+      expect(callback).toHaveBeenCalledTimes(1);
+    });
+
+    it('callback receives tree and function', () => {
+      expect(callback).toHaveBeenCalledWith(expect.any(Tree), expect.any(Function));
+    });
+
+    it('received tree is rooted', () => {
+      expect(callback.mock.calls[0][0].path).toEqual([]);
+      expect(callback.mock.calls[0][0].Type).toBe(Person);      
+    });
+
+    it('has returned value', () => {
+      expect(result.value).toEqual({ parent: { parent: 'hello world' }});
     });
 
   });

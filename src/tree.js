@@ -118,7 +118,7 @@ export default class Tree {
     let childTypes = childTypesAt(Type, value);
     return map((ChildType, childPath) => new Tree({
       Type: ChildType,
-      value: () => value[childPath],
+      value: () => value && value[childPath] ? value[childPath] : undefined,
       path: append(path, childPath)
     }), childTypes);
   }
@@ -134,7 +134,7 @@ class Transitions {
     let { Type, children, hasChildren } = this.tree;
     // this needs to come from some place
     let TransitionsConstructor = transitionsConstructorFor(Type);
-    let transitions = new TransitionsConstructor();
+    let transitions = new TransitionsConstructor(this.tree);
     if (hasChildren) {
       return append(transitions, map(child => child.transitions, children));
     } else {
@@ -211,16 +211,9 @@ function stabilizeOn(key, fn) {
   }
 }
 
-// function transition(method) {
-//   return function(root, invoke) {
-//     return root.over(this.tree, focus => invoke(focus, method));
-//   }
-// }
-
-
 function transition(method) {
-  return function(...args) {
-    return method.apply(this, args);
+  return function(root, invoke) {
+    return root.over(this.tree.lens, focus => invoke(focus, method));
   }
 }
 
@@ -234,7 +227,11 @@ class Any {
  * This factory takes a class and returns a class.
  */
 export function transitionsConstructorFor(Class) {
-  class TransitionsConstructor {}
+  class TransitionsConstructor {
+    constructor(tree) {
+      this.tree = tree;
+    }
+  }
 
   let transitions = $(assign({}, getPrototypeDescriptors(toType(Class)), getPrototypeDescriptors(Any)))
       .filter(({ key, value }) => typeof value.value === 'function' && key !== 'constructor')
