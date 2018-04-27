@@ -296,7 +296,3 @@ Functor.instance(Tree, {
     })
   }
 });
-
-function intersects(a, b) {
-  return intersection(a, b).length === a.length;
-}
