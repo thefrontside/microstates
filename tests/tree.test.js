@@ -79,7 +79,7 @@ describe("A Composed Tree with value provided", () => {
 
 describe('Transitions', () => {
 
-  class Person { 
+  class Person {
     read(book) {
       return `reading ${book}`;
     }

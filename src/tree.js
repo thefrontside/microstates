@@ -1,4 +1,4 @@
-import { append, map, foldl, Functor } from 'funcadelic';
+import { append, map, foldl, foldr, Functor } from 'funcadelic';
 import { toType } from './types';
 import thunk from './thunk';
 import $ from './utils/chain';
@@ -30,67 +30,39 @@ export default class Tree {
    * the place where the branch ends is the focus point.
    */
   get lens() {
-    let get = (tree, path = this.path) => foldl((subtree, key) => subtree.children[key], tree, path).prune();
+    let get = tree => tree.treeAt(this.path).prune();
+
     let set = (tree, root) => {
       let nextValue = lset(lensPath(this.path), tree.value, root.value);
-
-      let currentPath = this.path.slice();
-      let nextTree = tree;
-      while (currentPath.length > 0) {
-        let path = currentPath.slice();
-        let parentPath = path.slice(-1);
-        let replacement = nextTree;
-        let parent = get(root, parentPath);
-        nextTree = new Tree({
+      return foldr(({ tree, parentPath}, name) => {
+        let parent = root.treeAt(parentPath);
+        let replacement = new Tree({
           Type: parent.Type,
           path: parentPath,
-          value: () =>  view(lensPath(parentPath), nextValue)
+          value: () => view(lensPath(parentPath), nextValue)
         })
-        defineProperty(nextTree, 'children', {
+        defineProperty(replacement, 'children', {
           enumerable: false,
           configurable: true,
           get: stabilizeOn('children', function stableChildren() {
-            return map((child, key) => key === path[path.length - 1] ? replacement : child, parent.children);
+            return map((child, key) => key === name ? tree : child, parent.children);
           })
         });
-        currentPath.pop();
-      }
-      return nextTree;
-
-
-      // return foldr((acc) => {
-      //   let [key, ...rest] = acc.path;
-      //   let current = get(root, acc.path);
-      //   return {
-      //     path: rest,
-      //     tree: append(current, {
-      //       path,
-      //       value: () => view(lensPath(acc.path), nextValue),
-      //       get children() {
-      //         map(child => {
-      //           if (child)
-      //         }, current.children);
-      //       }
-      //     })
-      //   };
-      // }, {tree, path: this.path}, this.path);
-      // if (path.length === 0) {
-      //   return subtree;
-      // } else {
-      //   return new Tree({
-      //     Type: parent.Type,
-      //     value: () => lset(lensPath(path), subtree.value, parent.value)
-      //   })
-      // }
-      // return map(tree => {
-      //   if (intersects(tree.path, this.path)) {
-      //     return new Tree({ Type: tree.Type, value: () => view(lensPath(tree.path), nextValue)})
-      //   } else {
-      //     return tree;
-      //   }
-      // }, root);
+        return {
+          parentPath: parentPath.slice(0, -1),
+          tree: replacement
+        }
+      }, { tree, parentPath: this.path.slice(0, -1) }, this.path).tree;
     }
+
     return lens(get, set);
+  }
+
+  /**
+   * Lookup a subtree in this tree at `path`.
+   */
+  treeAt(path) {
+    return foldl((subtree, key) => subtree ? subtree.children[key]: undefined, this, path);
   }
 
   over(lens, fn) {
