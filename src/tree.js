@@ -6,7 +6,6 @@ import getPrototypeDescriptors from './utils/get-prototype-descriptors';
 import lens from 'ramda/src/lens';
 import lensPath from 'ramda/src/lensPath';
 import lset from 'ramda/src/set';
-import intersection from 'lodash.intersection';
 import view from 'ramda/src/view';
 import over from 'ramda/src/over';
 
@@ -31,16 +30,65 @@ export default class Tree {
    * the place where the branch ends is the focus point.
    */
   get lens() {
-    let get = tree => foldl((subtree, key) => subtree.children[key], tree, this.path).prune();
-    let set = (value, root) => {
-      let nextValue = lset(lensPath(this.path), value.value, root.value);
-      return map(tree => {
-        if (intersects(tree.path, this.path)) {
-          return new Tree({ Type: tree.Type, value: () => view(lensPath(tree.path), nextValue)})
-        } else {
-          return tree;
-        }
-      }, root);
+    let get = (tree, path = this.path) => foldl((subtree, key) => subtree.children[key], tree, path).prune();
+    let set = (tree, root) => {
+      let nextValue = lset(lensPath(this.path), tree.value, root.value);
+
+      let currentPath = this.path.slice();
+      let nextTree = tree;
+      while (currentPath.length > 0) {
+        let path = currentPath.slice();
+        let parentPath = path.slice(-1);
+        let replacement = nextTree;
+        let parent = get(root, parentPath);
+        nextTree = new Tree({
+          Type: parent.Type,
+          path: parentPath,
+          value: () =>  view(lensPath(parentPath), nextValue)
+        })
+        defineProperty(nextTree, 'children', {
+          enumerable: false,
+          configurable: true,
+          get: stabilizeOn('children', function stableChildren() {
+            return map((child, key) => key === path[path.length - 1] ? replacement : child, parent.children);
+          })
+        });
+        currentPath.pop();
+      }
+      return nextTree;
+
+
+      // return foldr((acc) => {
+      //   let [key, ...rest] = acc.path;
+      //   let current = get(root, acc.path);
+      //   return {
+      //     path: rest,
+      //     tree: append(current, {
+      //       path,
+      //       value: () => view(lensPath(acc.path), nextValue),
+      //       get children() {
+      //         map(child => {
+      //           if (child)
+      //         }, current.children);
+      //       }
+      //     })
+      //   };
+      // }, {tree, path: this.path}, this.path);
+      // if (path.length === 0) {
+      //   return subtree;
+      // } else {
+      //   return new Tree({
+      //     Type: parent.Type,
+      //     value: () => lset(lensPath(path), subtree.value, parent.value)
+      //   })
+      // }
+      // return map(tree => {
+      //   if (intersects(tree.path, this.path)) {
+      //     return new Tree({ Type: tree.Type, value: () => view(lensPath(tree.path), nextValue)})
+      //   } else {
+      //     return tree;
+      //   }
+      // }, root);
     }
     return lens(get, set);
   }
@@ -49,10 +97,10 @@ export default class Tree {
     return over(lens, fn, this);
   }
 
-/**
- * Returns a new tree where the current tree is the root. The stable
- * values are carried over to the new tree. 
- */
+  /**
+   * Returns a new tree where the current tree is the root. The stable
+   * values are carried over to the new tree.
+   */
   prune() {
     return map(tree => ({ path: tree.path.slice(this.path.length)}), this);
   }
@@ -60,7 +108,7 @@ export default class Tree {
   /**
    * Change the path of a tree.
    *
-   * This lets you take any tree, sitting at any context and 
+   * This lets you take any tree, sitting at any context and
    * prefix the context with additional path.
    */
   graft(path = []) {
@@ -173,8 +221,8 @@ function childTypesAt(Type) {
 }
 
 /**
- * This descriptor can be applied to a getter. When applied to a getter, 
- * the result of the getter's computation will be cached on first read 
+ * This descriptor can be applied to a getter. When applied to a getter,
+ * the result of the getter's computation will be cached on first read
  * and reused on consequent reads.
  */
 function stable(target, key, descriptor) {
@@ -215,11 +263,11 @@ class Any {
  */
 export function transitionsConstructorFor(Class) {
   class TransitionsConstructor {}
-  
+
   let transitions = $(assign({}, getPrototypeDescriptors(toType(Class)), getPrototypeDescriptors(Any)))
-    .filter(({ key, value }) => typeof value.value === 'function' && key !== 'constructor')
-    .map(descriptor => assign({}, descriptor, { value: transition(descriptor.value) }))
-    .valueOf();
+      .filter(({ key, value }) => typeof value.value === 'function' && key !== 'constructor')
+      .map(descriptor => assign({}, descriptor, { value: transition(descriptor.value) }))
+      .valueOf();
 
   defineProperties(TransitionsConstructor.prototype, transitions);
 
@@ -230,16 +278,16 @@ export function transitionsConstructorFor(Class) {
  * Tree Functor allows a developer to map a tree without changing
  * the tree's structure. The functor instance will enforce maintaing
  * the structure by copying over Type and overriding returned chidren.
- * 
+ *
  * The purpose of this mechanism is to allow a developer to change the
  * path of a tree and cary over the stable value or change the value
  * for a tree of the same structure.
- * 
+ *
  * To change the path and keep stable values,
  * ```
  * map(tree => ({ path: compute(tree.path) }), tree)
  * ```
- * 
+ *
  * To change the stable values,
  * ```
  * map(tree => new Tree({ Type: tree.Type, value }), tree)
@@ -252,8 +300,8 @@ Functor.instance(Tree, {
 
     return Object.create(Tree.prototype, {
       Type: {
-        enumerable: true, 
-        value: tree.Type 
+        enumerable: true,
+        value: tree.Type
       },
       path: {
         enumerable: true,
