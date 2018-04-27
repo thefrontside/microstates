@@ -181,9 +181,7 @@ class State {
 function childTypesAt(Type, value) {
   if (Type === types.Object || Type.prototype instanceof types.Object || Type === types.Array || Type.prototype instanceof types.Array) {
     let { T } = params(Type);
-    if (T !== types.Any) {
-      return map(() => T, value);
-    }
+    return map(() => T, value);
   }
   return $(new Type())
     .map(desugar)
