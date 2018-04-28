@@ -87,12 +87,12 @@ describe('Transitions', () => {
   }
 
   describe('calling transition at root tree', () => {
-    let root, callback, result;
+    let root, invoke, result;
 
     beforeEach(() => {
-      callback = jest.fn((tree, method) => new Tree({ Type: tree.Type, value: 'hello world'} ));      
-      root = new Tree({ Type: Person });
-      result = root.transitions.read(root, callback);      
+      invoke = jest.fn((tree, method) => new Tree({ Type: tree.Type, value: 'hello world'} ));      
+      root = new Tree({ Type: Person, invoke });
+      result = root.transitions.read(root);      
     });
 
     it('returns a tree', () => {
@@ -100,16 +100,16 @@ describe('Transitions', () => {
     });
 
     it('callback is called', () => {
-      expect(callback).toHaveBeenCalledTimes(1);
+      expect(invoke).toHaveBeenCalledTimes(1);
     });
 
     it('callback receives tree and function', () => {
-      expect(callback).toHaveBeenCalledWith(expect.any(Tree), expect.any(Function));
+      expect(invoke).toHaveBeenCalledWith(expect.any(Tree), expect.any(Function));
     });
 
     it('received tree is rooted', () => {
-      expect(callback.mock.calls[0][0].path).toEqual([]);
-      expect(callback.mock.calls[0][0].Type).toBe(Person);      
+      expect(invoke.mock.calls[0][0].path).toEqual([]);
+      expect(invoke.mock.calls[0][0].Type).toBe(Person);      
     });
 
     it('has returned value', () => {
@@ -119,12 +119,12 @@ describe('Transitions', () => {
   });
 
   describe('calling transition on deeply nested tree', () => {
-    let root, callback, result;
+    let root, invoke, result;
 
     beforeEach(() => {
-      callback = jest.fn((tree, method) => new Tree({ Type: tree.Type, value: 'hello world'} ));      
-      root = new Tree({ Type: Person });
-      result = root.transitions.parent.parent.read(root, callback);
+      invoke = jest.fn((tree, method) => new Tree({ Type: tree.Type, value: 'hello world'} ));      
+      root = new Tree({ Type: Person, invoke });
+      result = root.transitions.parent.parent.read(root);
     });
 
     it('returns a tree', () => {
@@ -132,16 +132,16 @@ describe('Transitions', () => {
     });
 
     it('callback is called', () => {
-      expect(callback).toHaveBeenCalledTimes(1);
+      expect(invoke).toHaveBeenCalledTimes(1);
     });
 
     it('callback receives tree and function', () => {
-      expect(callback).toHaveBeenCalledWith(expect.any(Tree), expect.any(Function));
+      expect(invoke).toHaveBeenCalledWith(expect.any(Tree), expect.any(Function));
     });
 
     it('received tree is rooted', () => {
-      expect(callback.mock.calls[0][0].path).toEqual([]);
-      expect(callback.mock.calls[0][0].Type).toBe(Person);      
+      expect(invoke.mock.calls[0][0].path).toEqual([]);
+      expect(invoke.mock.calls[0][0].Type).toBe(Person);      
     });
 
     it('has returned value', () => {

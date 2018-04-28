@@ -12,16 +12,19 @@ import desugar from './desugar';
 
 const { assign, keys, defineProperty, defineProperties } = Object;
 
+const noop = () => { throw new Error(/noop invoke was called/) }
+
 export default class Tree {
   // value can be either a function or a value.
-  constructor({ Type, value, path = [] }) {
+  constructor({ Type, value, path = [], invoke = noop }) {
     this.Type = Type;
     this.path = path;
     // stable object has all of the data that will be
     // copied to a new tree when mapping trees.
     this.stable = {
       value: new Value(value),
-      state: new State(this)
+      state: new State(this),
+      invoke
     }
   }
 
@@ -96,10 +99,14 @@ export default class Tree {
     return keys(this.children).length > 0
   }
 
+  get TransitionsConstructor() {
+    return Transitions.for(this.Type);
+  }
+
   @stable
-  // transitions are stable per tree instance
   get transitions() {
-    return new Transitions(this).value;
+    let { TransitionsConstructor } = this;
+    return new TransitionsConstructor(this);
   }
 
   // state is stable across mapped trees
@@ -112,35 +119,23 @@ export default class Tree {
     return this.stable.value.value;
   }
 
+  get invoke() {
+    // here we could wrap context provided invoke function
+    // the function returned from here will be passed to children
+    return this.stable.invoke
+  }
+
   @stable
   // children are stable for a tree instance
   get children() {
-    let { Type, value, path } = this;
+    let { Type, value, path, invoke } = this;
     let childTypes = childTypesAt(Type, value);
     return map((ChildType, childPath) => new Tree({
       Type: ChildType,
       value: () => value && value[childPath] ? value[childPath] : undefined,
-      path: append(path, childPath)
+      path: append(path, childPath),
+      invoke
     }), childTypes);
-  }
-}
-
-class Transitions {
-  constructor(tree) {
-    this.tree = tree;
-  }
-
-  @stable
-  get value() {
-    let { Type, children, hasChildren } = this.tree;
-    // this needs to come from some place
-    let TransitionsConstructor = transitionsConstructorFor(Type);
-    let transitions = new TransitionsConstructor(this.tree);
-    if (hasChildren) {
-      return append(transitions, map(child => child.transitions, children));
-    } else {
-      return transitions;
-    }
   }
 }
 
@@ -209,29 +204,30 @@ function stabilizeOn(key, fn) {
 }
 
 function transition(method) {
-  return function(root, invoke) {
-    return root.over(this.tree.lens, focus => invoke(focus, method));
+  return function(root) {
+    return root.over(this.tree.lens, focus => this.tree.invoke(focus, method));
   }
 }
 
-/**
- * This factory takes a class and returns a class.
- */
-export function transitionsConstructorFor(Class) {
-  class TransitionsConstructor {
-    constructor(tree) {
-      this.tree = tree;
-    }
+export class Transitions {
+  constructor(tree) {
+    this.tree = tree;
+
+    return append(this, map(child => child.transitions, tree.children));
   }
 
-  let transitions = $(assign({}, getPrototypeDescriptors(toType(Class)), getPrototypeDescriptors(types.Any)))
+  static for(Class) {
+    class TypeTransitions extends Transitions {}
+
+    let transitions = $(assign({}, getPrototypeDescriptors(toType(Class)), getPrototypeDescriptors(types.Any)))
       .filter(({ key, value }) => typeof value.value === 'function' && key !== 'constructor')
-      .map(descriptor => assign({}, descriptor, { value: transition(descriptor.value) }))
+      .map(descriptor => assign({}, descriptor, { enumerable: true, value: transition(descriptor.value) }))
       .valueOf();
 
-  defineProperties(TransitionsConstructor.prototype, transitions);
+    defineProperties(TypeTransitions.prototype, transitions);
 
-  return TransitionsConstructor;
+    return TypeTransitions;
+  }
 }
 
 /**
