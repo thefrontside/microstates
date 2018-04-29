@@ -9,10 +9,42 @@ import lset from 'ramda/src/set';
 import view from 'ramda/src/view';
 import over from 'ramda/src/over';
 import desugar from './desugar';
+import { reveal, keep } from './utils/secret';
 
 const { assign, keys, defineProperty, defineProperties } = Object;
 
 const noop = () => { throw new Error(/noop invoke was called/) }
+
+// export class Microstate {
+
+//   constructor(tree) {
+//     keep(this, tree);
+
+//     return append(this, map(transition => (...args) => transition(tree, args), tree.transitions));
+//   }
+
+//   static create(Type, value) {
+
+//     let invoke = (focus, method, args) => {
+//       let next = method.apply(new Microstate(focus), args);
+//       if (next instanceof Microstate) {
+//         return reveal(next);
+//       } else {
+//         return new Tree({ Type: focus.Type, value: next, invoke: focus.invoke });
+//       }
+//     }
+
+//     return new Microstate(new Tree({ Type, value, invoke }))
+//   }
+// }
+
+// Functor.instance(Microstate, {
+//   map(fn, microstate) {
+//     let tree = reveal(microstate);
+
+//     return new Microstate(new Tree({ Type: tree.Type, value: tree.value, stable: tree.stable, invoke: (...args) => fn(tree.invoke)(...args)}))
+//   }
+// })
 
 export default class Tree {
   // value can be either a function or a value.
@@ -67,10 +99,6 @@ export default class Tree {
    */
   treeAt(path) {
     return foldl((subtree, key) => subtree ? subtree.children[key]: undefined, this, path);
-  }
-
-  over(lens, fn) {
-    return over(lens, fn, this);
   }
 
   /**
@@ -204,35 +232,70 @@ function stabilizeOn(key, fn) {
 }
 
 function transition(method) {
-  return function(root) {
-    return root.over(this.tree.lens, focus => this.tree.invoke(focus, method));
+  return function(root/*, args*/) {
+    let { lens, invoke } = reveal(this);
+    return over(lens, focus => invoke(focus, method/*, args */), root);
   }
 }
 
 export class Transitions {
   constructor(tree) {
-    this.tree = tree;
-
-    if (tree.hasChildren) {
-      return append(this, map(child => child.transitions, tree.children));
-    } else {
-      return this;
-    }
+    keep(this, tree);
   }
 
+  /**
+   * Transitions.for takes a class and returns a class. The returned classes
+   * has each method wrapped in `transition` function. Ideally, this constructor
+   * would return an object that is aware of composed types but this is not
+   * possible without a proxy to allow the composed types to be dynamically
+   * looked up.
+   */
   static for(Class) {
-    class TypeTransitions extends Transitions {}
 
     let transitions = $(assign({}, getPrototypeDescriptors(toType(Class)), getPrototypeDescriptors(types.Any)))
         .filter(({ key, value }) => typeof value.value === 'function' && key !== 'constructor')
-        .map(descriptor => assign({}, descriptor, { enumerable: true, value: transition(descriptor.value) }))
+        .map(descriptor => transition(descriptor.value))
         .valueOf();
 
-    defineProperties(TypeTransitions.prototype, transitions);
+    class TypeTransitions extends Transitions {
+      static transitions = transitions;
+    }
+
+    defineProperties(TypeTransitions.prototype, map(transition => ({ enumerable: true, configurable: true, value: transition }), transitions));
 
     return TypeTransitions;
   }
 }
+
+Functor.instance(Transitions, {
+  map(fn, transitions) {
+    let tree = reveal(transitions);
+
+    let mapped = new Transitions(tree);
+
+    for (let name in tree.TransitionsConstructor.transitions) {
+      defineProperty(mapped, name, {
+        configurable: true,
+        enumerable: true,
+        get: stabilizeOn(name, function stableMappedTransition() {
+          return fn(transitions[name].bind(transitions));
+        })
+      })
+    }
+    
+    for (let childName in tree.children) {
+      defineProperty(mapped, childName, {
+        configurable: true,
+        enumerable: true,
+        get: stabilizeOn(childName, function stableMappedTransitionsChild() {
+          return map(fn, tree.children[childName].transitions)
+        })
+      });
+    }
+
+    return mapped;
+  }
+})
 
 /**
  * Tree Functor allows a developer to map a tree without changing

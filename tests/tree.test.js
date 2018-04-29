@@ -1,6 +1,6 @@
 import 'jest';
 
-import Tree, { transitionsConstructorFor } from '../src/tree';
+import Tree, { Transitions } from '../src/tree';
 import { flatMap, map } from 'funcadelic';
 import view from 'ramda/src/view';
 import set from 'ramda/src/set';
@@ -39,7 +39,7 @@ describe("A Boolean Tree with a value provided", () => {
 });
 
 describe("A Composed Tree with value provided", () => {
-  let tree;
+  let tree, transitions;
   class Person {
     name = String;
   }
@@ -48,6 +48,7 @@ describe("A Composed Tree with value provided", () => {
       Type: Person,
       value: { name: 'Taras' },
     })
+    transitions = map(transition => transition, tree.transitions);
   });
   it('has name child', () => {
     expect(tree.children.name).toBeInstanceOf(Tree);
@@ -69,10 +70,10 @@ describe("A Composed Tree with value provided", () => {
   });
   describe('transitions', () => {
     it('has composed transition', () => {
-      expect(tree.transitions.name).toBeDefined();
+      expect(transitions.name).toBeDefined();
     });
     it('has set on name', () => {
-      expect(tree.transitions.name.set).toBeInstanceOf(Function);
+      expect(transitions.name.set).toBeInstanceOf(Function);
     });
   });
 });
@@ -86,8 +87,23 @@ describe('Transitions', () => {
     }
   }
 
+  describe('Functor', () => {
+    let root, mapped, invoke;
+
+    beforeEach(() => {
+      invoke = jest.fn();
+      root = new Tree({ Type: Person, invoke });
+      mapped = map(transition => (...args) => transition(root, args), root.transitions);
+    });
+
+    it('returns transitions', () => {
+      expect(mapped).toBeInstanceOf(Transitions);
+    });
+
+  });
+
   describe('calling transition at root tree', () => {
-    let root, invoke, result;
+    let root, invoke, result, mapped;
 
     beforeEach(() => {
       invoke = jest.fn((tree, method) => new Tree({ Type: tree.Type, value: method('hello world') } ));
@@ -124,7 +140,10 @@ describe('Transitions', () => {
     beforeEach(() => {
       invoke = jest.fn((tree, method) => new Tree({ Type: tree.Type, value: method('hello world') } ));
       root = new Tree({ Type: Person, invoke });
-      result = root.transitions.parent.parent.read(root);
+      // for nested transitions, we have to map otherwise children transitions are not added
+      // to the transitions object. Once we start using proxies, this can be removed.
+      let transitions = map(transition => transition, root.transitions);
+      result = transitions.parent.parent.read(root);
     });
 
     it('returns a tree', () => {
@@ -328,12 +347,6 @@ describe('Tree', () => {
 
     it('overed state is different from original state', () => {
       expect(overed.state).not.toBe(things.state);
-    });
-
-    it('allows over to be called on the tree', () => {
-      let { lens } = new Tree({ Type: String, path: ['a', 'name'] });
-      let fn = focus => new Tree({ value: () => `${focus.value} BUAHAHA` });
-      expect(things.over(lens, fn).value).toEqual({ a: { name: 'A BUAHAHA' }, b: { name: 'B' }});
     });
 
   });
