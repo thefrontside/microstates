@@ -213,7 +213,11 @@ export class Transitions {
   constructor(tree) {
     this.tree = tree;
 
-    return append(this, map(child => child.transitions, tree.children));
+    if (tree.hasChildren) {
+      return append(this, map(child => child.transitions, tree.children));
+    } else {
+      return this;
+    }
   }
 
   static for(Class) {
