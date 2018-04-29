@@ -105,14 +105,8 @@ export default class Tree {
 
   @stable
   get transitions() {
-    let { TransitionsConstructor, hasChildren } = this;
-    let transitions = new TransitionsConstructor(this);
-
-    if (hasChildren) {
-      return append(transitions, map(child => child.transitions, this.children));
-    } else {
-      return transitions;
-    }
+    let { TransitionsConstructor } = this;
+    return new TransitionsConstructor(this);
   }
 
   // state is stable across mapped trees
@@ -218,6 +212,12 @@ function transition(method) {
 export class Transitions {
   constructor(tree) {
     this.tree = tree;
+
+    if (tree.hasChildren) {
+      return append(this, map(child => child.transitions, tree.children));
+    } else {
+      return this;
+    }
   }
 
   static for(Class) {
