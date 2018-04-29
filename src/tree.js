@@ -1,5 +1,5 @@
-import { append, map, foldl, foldr, Functor } from 'funcadelic';
-import types, { toType, params } from './types';
+import { append, map, flatMap, foldl, foldr, Functor, Monad } from 'funcadelic';
+import types, { Any, toType, params } from './types';
 import thunk from './thunk';
 import $ from './utils/chain';
 import getPrototypeDescriptors from './utils/get-prototype-descriptors';
@@ -220,9 +220,9 @@ export class Transitions {
     class TypeTransitions extends Transitions {}
 
     let transitions = $(assign({}, getPrototypeDescriptors(toType(Class)), getPrototypeDescriptors(types.Any)))
-      .filter(({ key, value }) => typeof value.value === 'function' && key !== 'constructor')
-      .map(descriptor => assign({}, descriptor, { enumerable: true, value: transition(descriptor.value) }))
-      .valueOf();
+        .filter(({ key, value }) => typeof value.value === 'function' && key !== 'constructor')
+        .map(descriptor => assign({}, descriptor, { enumerable: true, value: transition(descriptor.value) }))
+        .valueOf();
 
     defineProperties(TypeTransitions.prototype, transitions);
 
@@ -283,3 +283,68 @@ Functor.instance(Tree, {
     })
   }
 });
+
+
+Monad.instance(Tree, {
+
+  /**
+   * Enclose any value into the most essential Type tree.
+   * In this instance, it takes any value, and places it in a tree
+   * whose  type is `Any` (which is basically an id type).
+   */
+  pure(value) {
+    return new Tree({ value, Type: Any});
+  },
+
+  /**
+   * Recursively alter the structure of a Tree.
+   *
+   * The flat mapping function is invoked on each node in the tree's
+   * graph. The returned Tree's `Type`, `value`, `stable` and
+   * `children` properties will replace the existing tree in the
+   * return vlaue. However, the `path` attribute may not be
+   * altered. This is because the flat mapped node must _necessarily_
+   * occupy the exact same position in the tree as the node it was
+   * mapped from.
+   *
+   * The flat mapping function is applied recursively to the
+   * children of the Tree _returned_ by the mapping function, not the
+   * children of the original tree.
+   *
+   * TODO: Since the mapping function can alter the value of a
+   * node in the tree, is it the responsibility of `flatMap` to
+   * percolate that value change all the way up to the root of the
+   * ultimately returned tree?
+   */
+  flatMap(fn, tree) {
+    let next = thunk(() => fn(tree));
+    return Object.create(Tree.prototype, {
+      Type: {
+        enumerable: true,
+        value: next().Type
+      },
+      value: {
+        enumerable: true,
+        get: () => next().value
+      },
+      path: {
+        enumerable: true,
+        value: tree.path
+      },
+      stable: {
+        enumerable: true,
+        get() {
+          let { stable } = next();
+          return stable ? stable : tree.stable;
+        }
+      },
+      children: {
+        enumerable: false,
+        configurable: true,
+        get: stabilizeOn('children', function stableChildren() {
+          return map(child => flatMap(fn, child), next().children);
+        })
+      }
+    })
+  }
+})

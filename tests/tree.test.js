@@ -1,7 +1,7 @@
 import 'jest';
 
 import Tree, { transitionsConstructorFor } from '../src/tree';
-import { map } from 'funcadelic';
+import { flatMap, map } from 'funcadelic';
 import view from 'ramda/src/view';
 import set from 'ramda/src/set';
 import over from 'ramda/src/over';
@@ -90,9 +90,9 @@ describe('Transitions', () => {
     let root, invoke, result;
 
     beforeEach(() => {
-      invoke = jest.fn((tree, method) => new Tree({ Type: tree.Type, value: 'hello world'} ));      
+      invoke = jest.fn((tree, method) => new Tree({ Type: tree.Type, value: 'hello world'} ));
       root = new Tree({ Type: Person, invoke });
-      result = root.transitions.read(root);      
+      result = root.transitions.read(root);
     });
 
     it('returns a tree', () => {
@@ -109,20 +109,20 @@ describe('Transitions', () => {
 
     it('received tree is rooted', () => {
       expect(invoke.mock.calls[0][0].path).toEqual([]);
-      expect(invoke.mock.calls[0][0].Type).toBe(Person);      
+      expect(invoke.mock.calls[0][0].Type).toBe(Person);
     });
 
     it('has returned value', () => {
       expect(result.value).toEqual('hello world');
     });
-  
+
   });
 
   describe('calling transition on deeply nested tree', () => {
     let root, invoke, result;
 
     beforeEach(() => {
-      invoke = jest.fn((tree, method) => new Tree({ Type: tree.Type, value: 'hello world'} ));      
+      invoke = jest.fn((tree, method) => new Tree({ Type: tree.Type, value: 'hello world'} ));
       root = new Tree({ Type: Person, invoke });
       result = root.transitions.parent.parent.read(root);
     });
@@ -141,7 +141,7 @@ describe('Transitions', () => {
 
     it('received tree is rooted', () => {
       expect(invoke.mock.calls[0][0].path).toEqual([]);
-      expect(invoke.mock.calls[0][0].Type).toBe(Person);      
+      expect(invoke.mock.calls[0][0].Type).toBe(Person);
     });
 
     it('has returned value', () => {
@@ -210,8 +210,40 @@ describe('Tree', () => {
       expect(mapped.children).toBe(mapped.children);
       expect(mapped.children.a).toBe(mapped.children.a);
     });
-
   });
+
+  describe('Monad', () => {
+    class Thang {
+      name = String;
+    }
+    class Thangs {
+      a = Thang;
+      b = Thang;
+    }
+
+    let flatMapped;
+    beforeEach(() => {
+      flatMapped = flatMap((tree) => {
+        if (tree.Type === Things) {
+          return new Tree({ Type: Thangs, value: () => tree.value});
+        } else if (tree.Type === Thang) {
+          return new Tree({ Type: Thang, value: { name: `Hallo ${tree.children.name.value}!` }, path: ['wut', 'heck', 'no'] });
+        } else {
+          return tree;
+        }
+      }, things);
+    });
+
+    it('allows you to change the type of a tree', function() {
+      expect(flatMapped.Type).toBe(Thangs);
+    });
+    it('recursively flatMaps the children', function() {
+      expect(flatMapped.children.a.children.name.value).toBe('Hallo A!');
+    });
+    it('preserves the path', function() {
+      expect(flatMapped.children.a.path).toEqual(['a']);
+    });
+  })
 
   describe('prune', () => {
     let pruned;
