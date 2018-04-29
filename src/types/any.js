@@ -1,5 +1,5 @@
 export default class Any {
-  set() {
-
+  set(value) {
+    return value;
   }
 }

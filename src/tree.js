@@ -10,33 +10,42 @@ import view from 'ramda/src/view';
 import over from 'ramda/src/over';
 import desugar from './desugar';
 import { reveal, keep } from './utils/secret';
+export { reveal } from './utils/secret';
 
 const { assign, keys, defineProperty, defineProperties } = Object;
 
 const noop = () => { throw new Error(/noop invoke was called/) }
 
-// export class Microstate {
+export class Microstate {
 
-//   constructor(tree) {
-//     keep(this, tree);
+  constructor(tree) {
+    keep(this, tree);
 
-//     return append(this, map(transition => (...args) => transition(tree, args), tree.transitions));
-//   }
+    return append(this, map(transition => (...args) => new Microstate(transition(tree, args)), tree.transitions));
+  }
 
-//   static create(Type, value) {
+  static create(Type, value) {
 
-//     let invoke = (focus, method, args) => {
-//       let next = method.apply(new Microstate(focus), args);
-//       if (next instanceof Microstate) {
-//         return reveal(next);
-//       } else {
-//         return new Tree({ Type: focus.Type, value: next, invoke: focus.invoke });
-//       }
-//     }
+    let invoke = (focus, method, args) => {
+      let next = method.apply(new Microstate(focus), args);
+      if (next instanceof Microstate) {
+        return reveal(next);
+      } else {
+        return new Tree({ Type: focus.Type, value: next, invoke: focus.invoke });
+      }
+    }
 
-//     return new Microstate(new Tree({ Type, value, invoke }))
-//   }
-// }
+    return new Microstate(new Tree({ Type, value, invoke }))
+  }
+
+  valueOf() {
+    return reveal(this).value;
+  }
+
+  get state() {
+    return reveal(this).state;
+  }
+}
 
 // Functor.instance(Microstate, {
 //   map(fn, microstate) {
@@ -232,9 +241,9 @@ function stabilizeOn(key, fn) {
 }
 
 function transition(method) {
-  return function(root/*, args*/) {
+  return function(root, args) {
     let { lens, invoke } = reveal(this);
-    return over(lens, focus => invoke(focus, method/*, args */), root);
+    return over(lens, focus => invoke(focus, method, args), root);
   }
 }
 

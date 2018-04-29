@@ -1,6 +1,6 @@
 import 'jest';
 
-import Tree, { Transitions } from '../src/tree';
+import Tree, { Transitions, Microstate, reveal } from '../src/tree';
 import { flatMap, map } from 'funcadelic';
 import view from 'ramda/src/view';
 import set from 'ramda/src/set';
@@ -106,9 +106,9 @@ describe('Transitions', () => {
     let root, invoke, result, mapped;
 
     beforeEach(() => {
-      invoke = jest.fn((tree, method) => new Tree({ Type: tree.Type, value: method('hello world') } ));
+      invoke = jest.fn((tree, method, args) => new Tree({ Type: tree.Type, value: method.apply(null, args) } ));
       root = new Tree({ Type: Person, invoke });
-      result = root.transitions.read(root);
+      result = root.transitions.read(root, ['hello world']);
     });
 
     it('returns a tree', () => {
@@ -120,7 +120,7 @@ describe('Transitions', () => {
     });
 
     it('callback receives tree and function', () => {
-      expect(invoke).toHaveBeenCalledWith(expect.any(Tree), expect.any(Function));
+      expect(invoke).toHaveBeenCalledWith(expect.any(Tree), expect.any(Function), ['hello world']);
     });
 
     it('received tree is rooted', () => {
@@ -138,12 +138,12 @@ describe('Transitions', () => {
     let root, invoke, result;
 
     beforeEach(() => {
-      invoke = jest.fn((tree, method) => new Tree({ Type: tree.Type, value: method('hello world') } ));
+      invoke = jest.fn((tree, method, args) => new Tree({ Type: tree.Type, value: method.apply(null, args) } ));
       root = new Tree({ Type: Person, invoke });
       // for nested transitions, we have to map otherwise children transitions are not added
       // to the transitions object. Once we start using proxies, this can be removed.
       let transitions = map(transition => transition, root.transitions);
-      result = transitions.parent.parent.read(root);
+      result = transitions.parent.parent.read(root, ['hello world']);
     });
 
     it('returns a tree', () => {
@@ -155,7 +155,7 @@ describe('Transitions', () => {
     });
 
     it('callback receives tree and function', () => {
-      expect(invoke).toHaveBeenCalledWith(expect.any(Tree), expect.any(Function));
+      expect(invoke).toHaveBeenCalledWith(expect.any(Tree), expect.any(Function), ['hello world']);
     });
 
     it('received tree is rooted', () => {
@@ -351,4 +351,38 @@ describe('Tree', () => {
 
   });
 
+});
+
+describe('Microstate', () => {
+  describe('number', () => {
+    let number, next;
+    beforeEach(() => {
+      number = Microstate.create(Number, 42);
+      next = number.increment();
+    });
+
+    it('has state', () => {
+      expect(number.state).toBe(42);
+    });
+
+    it('has value', () => {
+      expect(number.valueOf()).toBe(42);
+    });
+
+    it('has increment', () => {
+      expect(number.increment).toBeInstanceOf(Function);
+    });
+
+    it('returns a microstate from a transtion', () => {
+      expect(next).toBeInstanceOf(Microstate);
+    });
+
+    it('returns same type', () => {
+      expect(reveal(next).Type).toBe(Number);
+    });
+
+    it('incremented the value', () => {
+      expect(next.valueOf()).toBe(43);
+    });
+  });
 });
