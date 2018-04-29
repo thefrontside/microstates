@@ -90,7 +90,7 @@ describe('Transitions', () => {
     let root, invoke, result;
 
     beforeEach(() => {
-      invoke = jest.fn((tree, method) => new Tree({ Type: tree.Type, value: 'hello world'} ));
+      invoke = jest.fn((tree, method) => new Tree({ Type: tree.Type, value: method('hello world') } ));
       root = new Tree({ Type: Person, invoke });
       result = root.transitions.read(root);
     });
@@ -113,7 +113,7 @@ describe('Transitions', () => {
     });
 
     it('has returned value', () => {
-      expect(result.value).toEqual('hello world');
+      expect(result.value).toEqual('reading hello world');
     });
 
   });
@@ -122,7 +122,7 @@ describe('Transitions', () => {
     let root, invoke, result;
 
     beforeEach(() => {
-      invoke = jest.fn((tree, method) => new Tree({ Type: tree.Type, value: 'hello world'} ));
+      invoke = jest.fn((tree, method) => new Tree({ Type: tree.Type, value: method('hello world') } ));
       root = new Tree({ Type: Person, invoke });
       result = root.transitions.parent.parent.read(root);
     });
@@ -145,7 +145,7 @@ describe('Transitions', () => {
     });
 
     it('has returned value', () => {
-      expect(result.value).toEqual({ parent: { parent: 'hello world' }});
+      expect(result.value).toEqual({ parent: { parent: 'reading hello world' }});
     });
 
   });
