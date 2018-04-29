@@ -385,4 +385,42 @@ describe('Microstate', () => {
       expect(next.valueOf()).toBe(43);
     });
   });
+
+  describe('composed type', () => {
+    class Person {
+      mother = Person;
+      father = Person;
+      name = String;
+    }
+
+    let person, withFather;
+    beforeEach(() => {
+      person = Microstate.create(Person, { name: 'Bart', mother: { name: 'Marge' } });
+      withFather = person.father.set({ name: 'Homer' });
+    });
+
+    it('has stable state', () => {
+      expect(person.state).toBe(person.state);
+    });
+
+    it('has state', () => {
+      expect(person.state).toBeInstanceOf(Person);
+      expect(person.state.mother).toBeInstanceOf(Person);
+      expect(person.state.name).toBe('Bart');
+      expect(person.state.mother.name).toBe('Marge');
+    });
+
+    it('maintained state after transition', () => {
+      expect(withFather.state.mother.name).toBe('Marge');
+    });
+
+    it('has transitioned state', () => {
+      expect(withFather.state.father.name).toBe('Homer');
+    });
+
+    it('mother is stable after transition', () => {
+      expect(withFather.state.mother).toBe(person.state.mother);
+    });
+
+  });
 });
