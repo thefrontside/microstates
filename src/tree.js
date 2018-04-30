@@ -79,7 +79,7 @@ export default class Tree {
 
     let set = (tree, root) => {
       let nextValue = lset(lensPath(this.path), tree.value, root.value);
-      return foldr(({ tree, parentPath}, name) => {
+      return foldr(({ tree, parentPath }, name) => {
         let parent = root.treeAt(parentPath);
         let replacement = new Tree({
           Type: parent.Type,
@@ -90,7 +90,13 @@ export default class Tree {
           enumerable: false,
           configurable: true,
           get: stabilizeOn('children', function stableChildren() {
-            return map((child, key) => key === name ? tree : child, parent.children);
+            return map((child, key) => {
+              if (key === name) {
+                return tree.path.length === 0 ? tree.graft(child.path) : tree;
+              } else {
+                return child;
+              }
+            }, parent.children);
           })
         });
         return {

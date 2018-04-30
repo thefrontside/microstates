@@ -355,10 +355,11 @@ describe('Tree', () => {
 
 describe('Microstate', () => {
   describe('number', () => {
-    let number, next;
+    let number, next, again;
     beforeEach(() => {
       number = Microstate.create(Number, 42);
-      next = number.increment();
+      next = number.increment();      
+      again = next.increment();
     });
 
     it('has state', () => {
@@ -384,6 +385,14 @@ describe('Microstate', () => {
     it('incremented the value', () => {
       expect(next.valueOf()).toBe(43);
     });
+
+    it('return a microstate for second transition', () => {
+      expect(again).toBeInstanceOf(Microstate);
+    });
+
+    it('passes value after 2nd transition', () => {
+      expect(again.valueOf()).toBe(44);
+    });
   });
 
   describe('composed type', () => {
@@ -393,10 +402,11 @@ describe('Microstate', () => {
       name = String;
     }
 
-    let person, withFather;
+    let person, withFather, seniorHomer;
     beforeEach(() => {
       person = Microstate.create(Person, { name: 'Bart', mother: { name: 'Marge' } });
       withFather = person.father.set({ name: 'Homer' });
+      seniorHomer = withFather.father.name.set('Senior Homer');
     });
 
     it('has stable state', () => {
@@ -422,5 +432,20 @@ describe('Microstate', () => {
       expect(withFather.state.mother).toBe(person.state.mother);
     });
 
+    it('has value after 2nd transition', () => {
+      expect(seniorHomer.valueOf()).toEqual({ name: 'Bart', mother: { name: 'Marge' }, father: { name: 'Senior Homer'} })
+    });
   });
+
+  // describe('Functor', () => {
+  //   describe('shallow', () => {
+  //     let number, mapped, fn;
+  //     beforeEach(() => {
+  //       number = Microstate.create(Number, 42);
+  //       fn = jest.fn();
+  //       mapped = map(fn, number);
+        
+  //     });
+  //   });
+  // });
 });
