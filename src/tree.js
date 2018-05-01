@@ -14,28 +14,16 @@ export { reveal } from './utils/secret';
 
 const { assign, keys, defineProperty, defineProperties } = Object;
 
-const noop = () => { throw new Error(/noop invoke was called/) }
-
 export class Microstate {
 
   constructor(tree) {
     keep(this, tree);
 
-    return append(this, map(transition => (...args) => new Microstate(transition(tree, args)), tree.transitions));
+    return append(this, map(child => child.microstate, tree.children));    
   }
 
   static create(Type, value) {
-
-    let invoke = (focus, method, args) => {
-      let next = method.apply(new Microstate(focus), args);
-      if (next instanceof Microstate) {
-        return reveal(next);
-      } else {
-        return new Tree({ Type: focus.Type, value: next, invoke: focus.invoke });
-      }
-    }
-
-    return new Microstate(new Tree({ Type, value, invoke }))
+    return new Tree({ Type, value }).microstate;
   }
 
   valueOf() {
@@ -49,15 +37,15 @@ export class Microstate {
 
 export default class Tree {
   // value can be either a function or a value.
-  constructor({ Type, value, path = [], invoke = noop }) {
+  constructor({ Type, value, path = [], root }) {
     this.Type = Type;
     this.path = path;
+    this.root = root || this;
     // stable object has all of the data that will be
     // copied to a new tree when mapping trees.
     this.stable = {
       value: new Value(value),
-      state: new State(this),
-      invoke
+      state: new State(this)
     }
   }
 
@@ -67,7 +55,7 @@ export default class Tree {
    * the place where the branch ends is the focus point.
    */
   get lens() {
-    let get = tree => tree.treeAt(this.path).prune();
+    let get = tree => tree.treeAt(this.path).prune()
 
     let set = (tree, root) => {
       let nextValue = lset(lensPath(this.path), tree.value, root.value);
@@ -93,7 +81,8 @@ export default class Tree {
         }
       }, bottom, this.path);
 
-      return top.tree;
+      // TODO: Remove this? this ensures that every node receives the root
+      return map(tree => tree, top.tree);
     }
 
     return lens(get, set);
@@ -111,7 +100,7 @@ export default class Tree {
    * values are carried over to the new tree.
    */
   prune() {
-    return map(tree => ({ path: tree.path.slice(this.path.length), root: this }), this);
+    return map(tree => ({ path: tree.path.slice(this.path.length) }), this);
   }
 
   /**
@@ -132,24 +121,15 @@ export default class Tree {
     return keys(this.children).length > 0
   }
 
-  // get TransitionsConstructor() {
-  //   return Transitions.for(this.Type);
-  // }
+  get MicrostateConstructor() {
 
-  // @stable
-  // get transitions() {
-  //   let { TransitionsConstructor } = this;
-  //   return new TransitionsConstructor(this);
-  // }
-
-  get microstate() {
     let transitions = $(assign({}, getPrototypeDescriptors(toType(this.Type)), getPrototypeDescriptors(types.Any)))
         .filter(({ key, value }) => typeof value.value === 'function' && key !== 'constructor')
         .map(descriptor => ({
           enumerable: true,
           configurable: true,
-          value: function(root, args) {
-            let { tree } = reveal(this);
+          value(...args) {
+            let tree = reveal(this);
             let method = descriptor.value;
             return over(tree.lens, focus => {
               let next = method.apply(focus.microstate, args);
@@ -159,14 +139,15 @@ export default class Tree {
         }))
         .valueOf();
 
-    class MicrostateWithTransitions extends Microstate {
-      static transitions = transitions;
-    }
+    class MicrostateWithTransitions extends Microstate {}
 
     defineProperties(MicrostateWithTransitions.prototype, transitions);
 
-    let tree = reveal(this);
-    return append(new MicrostateWithTransitions(this), append(child => child.microstate, tree.children));
+    return MicrostateWithTransitions;
+  }
+
+  get microstate() {
+    return new this.MicrostateConstructor(this);
   }
 
   // state is stable across mapped trees
@@ -179,22 +160,16 @@ export default class Tree {
     return this.stable.value.value;
   }
 
-  get invoke() {
-    // here we could wrap context provided invoke function
-    // the function returned from here will be passed to children
-    return this.stable.invoke
-  }
-
   @stable
   // children are stable for a tree instance
   get children() {
-    let { Type, value, path, invoke } = this;
+    let { Type, value, path, root } = this;
     let childTypes = childTypesAt(Type, value);
     return map((ChildType, childPath) => new Tree({
       Type: ChildType,
       value: () => value && value[childPath] ? value[childPath] : undefined,
       path: append(path, childPath),
-      invoke
+      root
     }), childTypes);
   }
 }
@@ -274,57 +249,6 @@ function stabilizeOn(key, fn) {
   }
 }
 
-// export class Transitions {
-//   constructor(tree) {
-//     keep(this, tree);
-//   }
-
-//   /**
-//    * Transitions.for takes a class and returns a class. The returned classes
-//    * has each method wrapped in `transition` function. Ideally, this constructor
-//    * would return an object that is aware of composed types but this is not
-//    * possible without a proxy to allow the composed types to be dynamically
-//    * looked up.
-//    */
-//   static for(Class) {
-
-//     let transitions = $(assign({}, getPrototypeDescriptors(toType(Class)), getPrototypeDescriptors(types.Any)))
-//         .filter(({ key, value }) => typeof value.value === 'function' && key !== 'constructor')
-//         .map(descriptor => transition(descriptor.value))
-//         .valueOf();
-
-//     class TypeTransitions extends Transitions {
-//       static transitions = transitions;
-//     }
-
-//     defineProperties(TypeTransitions.prototype, map(transition => ({ enumerable: true, configurable: true, value: transition }), transitions));
-
-//     return TypeTransitions;
-//   }
-// }
-
-// Functor.instance(Transitions, {
-//   map(fn, transitions) {
-//     let tree = reveal(transitions);
-
-//     let mapped = new Transitions(tree);
-
-//     for (let name in tree.TransitionsConstructor.transitions) {
-//       defineStable(mapped, name, function stableMappedTransition() {
-//         return fn(transitions[name].bind(transitions));
-//       });
-//     }
-
-//     for (let childName in tree.children) {
-//       defineStable(mapped, childName, function stableMappedTransitionsChild() {
-//         return map(fn, tree.children[childName].transitions)
-//       });
-//     }
-
-//     return mapped;
-//   }
-// })
-
 /**
  * Tree Functor allows a developer to map a tree without changing
  * the tree's structure. The functor instance will enforce maintaing
@@ -385,35 +309,6 @@ Functor.instance(Tree, {
       return next;
     }
     return remap(fn, tree);
-    // let mapped = thunk(() => fn(tree));
-
-    // return Object.create(Tree.prototype, {
-    //   Type: {
-    //     enumerable: true,
-    //     value: tree.Type
-    //   },
-    //   path: {
-    //     enumerable: true,
-    //     get() {
-    //       let { path } = mapped();
-    //       return path ? path : tree.path;
-    //     }
-    //   },
-    //   stable: {
-    //     enumerable: true,
-    //     get() {
-    //       let { stable } = mapped();
-    //       return stable ? stable : tree.stable;
-    //     }
-    //   },
-    //   children: {
-    //     enumerable: false,
-    //     configurable: true,
-    //     get: stabilizeOn('children', function stableChildren() {
-    //       return map(child => map(fn, child), tree.children);
-    //     })
-    //   }
-    // })
   }
 });
 

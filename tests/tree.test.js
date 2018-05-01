@@ -6,6 +6,10 @@ import view from 'ramda/src/view';
 import set from 'ramda/src/set';
 import over from 'ramda/src/over';
 
+// describe('lensing', () => {
+
+// });
+
 describe("A Boolean Tree with a value provided", () => {
   let tree;
   beforeEach(function() {
@@ -28,18 +32,15 @@ describe("A Boolean Tree with a value provided", () => {
     expect(tree.state).toEqual(false);
   });
   it('has a set transition', () => {
-    expect(tree.transitions.set).toBeInstanceOf(Function);
+    expect(tree.microstate.set).toBeInstanceOf(Function);
   });
   it('has a toggle transition', () => {
-    expect(tree.transitions.toggle).toBeInstanceOf(Function);
-  });
-  it('has stable transitions', () => {
-    expect(tree.transitions).toBe(tree.transitions);
+    expect(tree.microstate.toggle).toBeInstanceOf(Function);
   });
 });
 
 describe("A Composed Tree with value provided", () => {
-  let tree, transitions;
+  let tree;
   class Person {
     name = String;
   }
@@ -48,7 +49,6 @@ describe("A Composed Tree with value provided", () => {
       Type: Person,
       value: { name: 'Taras' },
     })
-    transitions = map(transition => transition, tree.transitions);
   });
   it('has name child', () => {
     expect(tree.children.name).toBeInstanceOf(Tree);
@@ -70,111 +70,11 @@ describe("A Composed Tree with value provided", () => {
   });
   describe('transitions', () => {
     it('has composed transition', () => {
-      expect(transitions.name).toBeDefined();
+      expect(tree.microstate.name).toBeDefined();
     });
     it('has set on name', () => {
-      expect(transitions.name.set).toBeInstanceOf(Function);
+      expect(tree.microstate.name.set).toBeInstanceOf(Function);
     });
-  });
-});
-
-describe('Transitions', () => {
-
-  class Person {
-    parent = Person;
-    read(book) {
-      return `reading ${book}`;
-    }
-  }
-
-  describe('Functor', () => {
-    let root, mapped, invoke;
-
-    beforeEach(() => {
-      invoke = jest.fn();
-      root = new Tree({ Type: Person, invoke });
-      mapped = map(transition => (...args) => transition(root, args), root.transitions);
-    });
-
-    // it('returns transitions', () => {
-    //   expect(mapped).toBeInstanceOf(Transitions);
-    // });
-
-  });
-
-  describe('calling transition at root tree', () => {
-    let root, invoke, result, mapped;
-
-    beforeEach(() => {
-      invoke = jest.fn((tree, method, args) => new Tree({ Type: tree.Type, value: method.apply(null, args) } ));
-      root = new Tree({ Type: Person, invoke });
-      result = root.transitions.read(root, ['hello world']);
-    });
-
-    it('returns a tree', () => {
-      expect(result).toBeInstanceOf(Tree);
-    });
-
-    it('callback is called', () => {
-      expect(invoke).toHaveBeenCalledTimes(1);
-    });
-
-    it('callback receives tree and function', () => {
-      expect(invoke).toHaveBeenCalledWith(expect.any(Tree), expect.any(Function), ['hello world']);
-    });
-
-    it('received tree is rooted', () => {
-      expect(invoke.mock.calls[0][0].path).toEqual([]);
-      expect(invoke.mock.calls[0][0].Type).toBe(Person);
-    });
-
-    it('has returned value', () => {
-      expect(result.value).toEqual('reading hello world');
-    });
-
-  });
-
-  describe('calling transition on deeply nested tree', () => {
-    let root, invoke, result;
-
-    beforeEach(() => {
-      invoke = jest.fn((tree, method, args) => new Tree({ Type: tree.Type, value: method.apply(null, args) } ));
-      root = new Tree({ Type: Person, invoke });
-      // for nested transitions, we have to map otherwise children transitions are not added
-      // to the transitions object. Once we start using proxies, this can be removed.
-      let transitions = map(transition => transition, root.transitions);
-      result = transitions.parent.parent.read(root, ['hello world']);
-    });
-
-    it('returns a tree', () => {
-      expect(result).toBeInstanceOf(Tree);
-    });
-
-    it('callback is called', () => {
-      expect(invoke).toHaveBeenCalledTimes(1);
-    });
-
-    it('callback receives tree and function', () => {
-      expect(invoke).toHaveBeenCalledWith(expect.any(Tree), expect.any(Function), ['hello world']);
-    });
-
-    it('received tree is rooted', () => {
-      expect(invoke.mock.calls[0][0].path).toEqual([]);
-      expect(invoke.mock.calls[0][0].Type).toBe(Person);
-    });
-
-    it('has returned value', () => {
-      expect(result.value).toEqual({ parent: { parent: 'reading hello world' }});
-    });
-
-  });
-
-});
-
-describe('value', () => {
-  it('is stable when passed a function', () => {
-    let tree = new Tree({ Type: String, value: () => ({}) });
-    expect(tree.value).toBe(tree.value);
   });
 });
 
@@ -355,11 +255,9 @@ describe('Tree', () => {
 
 describe('Microstate', () => {
   describe('number', () => {
-    let number, next, again;
+    let number;
     beforeEach(() => {
       number = Microstate.create(Number, 42);
-      next = number.increment();
-      again = next.increment();
     });
 
     it('has state', () => {
@@ -374,24 +272,38 @@ describe('Microstate', () => {
       expect(number.increment).toBeInstanceOf(Function);
     });
 
-    it('returns a microstate from a transtion', () => {
-      expect(next).toBeInstanceOf(Microstate);
-    });
+    describe('first transition', () => {
+      let next;
+      beforeEach(() => {
+        next = number.increment();
+      });
 
-    it('returns same type', () => {
-      expect(reveal(next).Type).toBe(Number);
-    });
+      it('returns a microstate from a transtion', () => {
+        expect(next).toBeInstanceOf(Microstate);
+      });
+  
+      it('returns same type', () => {
+        expect(reveal(next).Type).toBe(Number);
+      });
+  
+      it('incremented the value', () => {
+        expect(next.valueOf()).toBe(43);
+      });
 
-    it('incremented the value', () => {
-      expect(next.valueOf()).toBe(43);
-    });
+      describe('second transition', () => {
+        let again;
+        beforeEach(() => {
+          again = next.increment();
+        });
 
-    it('return a microstate for second transition', () => {
-      expect(again).toBeInstanceOf(Microstate);
-    });
-
-    it('passes value after 2nd transition', () => {
-      expect(again.valueOf()).toBe(44);
+        it('return a microstate for second transition', () => {
+          expect(again).toBeInstanceOf(Microstate);
+        });
+    
+        it('passes value after 2nd transition', () => {
+          expect(again.valueOf()).toBe(44);
+        });
+      });
     });
   });
 
@@ -402,11 +314,9 @@ describe('Microstate', () => {
       name = String;
     }
 
-    let person, withFather, seniorHomer;
+    let person;
     beforeEach(() => {
       person = Microstate.create(Person, { name: 'Bart', mother: { name: 'Marge' } });
-      withFather = person.father.set({ name: 'Homer' });
-      seniorHomer = withFather.father.name.set('Senior Homer');
     });
 
     it('has stable state', () => {
@@ -420,20 +330,49 @@ describe('Microstate', () => {
       expect(person.state.mother.name).toBe('Marge');
     });
 
-    it('maintained state after transition', () => {
-      expect(withFather.state.mother.name).toBe('Marge');
+    it('has value', () => {
+      expect(person.valueOf()).toEqual({ name: 'Bart', mother: { name: 'Marge' } });
     });
 
-    it('has transitioned state', () => {
-      expect(withFather.state.father.name).toBe('Homer');
-    });
+    describe('second transition', () => {
+      let withFather, root, motherTree, fatherNameTree;
+      beforeEach(() => {
+        withFather = person.father.set({ name: 'Homer' });
+        root = reveal(withFather);
+        motherTree = reveal(withFather.mother);
+        fatherNameTree = reveal(withFather.father.name);
+      });
 
-    it('mother is stable after transition', () => {
-      expect(withFather.state.mother).toBe(person.state.mother);
-    });
+      it('maintained state after transition', () => {
+        expect(withFather.state.mother.name).toBe('Marge');
+      });
+  
+      it('has transitioned state', () => {
+        expect(withFather.state.father.name).toBe('Homer');
+      });
+  
+      it('mother is stable after transition', () => {
+        expect(withFather.state.mother).toBe(person.state.mother);
+      });
 
-    it('has value after 2nd transition', () => {
-      expect(seniorHomer.valueOf()).toEqual({ name: 'Bart', mother: { name: 'Marge' }, father: { name: 'Senior Homer'} })
+      it('has value', () => {
+        expect(withFather.valueOf()).toEqual({ name: 'Bart', mother: { name: 'Marge' }, father: { name: 'Homer' } })
+      });
+
+      it('root on updated branch is same as unchanged branch', () => {
+        expect(motherTree.root).toBe(root);
+        expect(fatherNameTree.root).toBe(root);
+      });
+
+      describe('third transition', () => {
+        let seniorHomer;
+        beforeEach(() => {
+          seniorHomer = withFather.father.name.set('Senior Homer');
+        });
+        it('has value after 2nd transition', () => {
+          expect(seniorHomer.valueOf()).toEqual({ name: 'Bart', mother: { name: 'Marge' }, father: { name: 'Senior Homer'} })
+        });
+      });
     });
   });
 
