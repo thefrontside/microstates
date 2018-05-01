@@ -5,6 +5,7 @@ import { flatMap, map } from 'funcadelic';
 import view from 'ramda/src/view';
 import set from 'ramda/src/set';
 import over from 'ramda/src/over';
+import { SIGQUIT } from 'constants';
 
 describe("A Boolean Tree with a value provided", () => {
   let tree;
@@ -437,15 +438,53 @@ describe('Microstate', () => {
     });
   });
 
-  // describe('Functor', () => {
-  //   describe('shallow', () => {
-  //     let number, mapped, fn;
-  //     beforeEach(() => {
-  //       number = Microstate.create(Number, 42);
-  //       fn = jest.fn();
-  //       mapped = map(fn, number);
-        
-  //     });
-  //   });
-  // });
+  describe.skip('Functor', () => {
+    describe('shallow', () => {
+      let boolean, mapped, toggled, toggledTwice, callback;
+      beforeEach(() => {
+        boolean = Microstate.create(Boolean, true);
+        callback = jest.fn(m => m);
+        mapped = map(onTransition => (...args) => callback(onTransition(...args)), boolean);
+        toggled = mapped.toggle();
+        toggledTwice = toggled.toggle();
+      });
+
+      it('returns a microstate', () => {
+        expect(mapped).toBeInstanceOf(Microstate);
+      });
+
+      it('has state', () => {
+        expect(mapped.state).toBe(true);
+      });
+
+      it('has value', () => {
+        expect(mapped.valueOf()).toBe(true);
+      });
+
+      it('returns a microstate after transition', () => {
+        expect(toggled).toBeInstanceOf(Microstate);
+      });
+
+      it('after transition it has the value', () => {
+        expect(toggled.valueOf()).toBe(false);
+      });
+
+      it('after second transition it has the value', () => {
+        expect(toggledTwice.valueOf()).toBe(true);
+      });
+
+      it('called the callback twice', () => {
+        expect(callback).toHaveBeenCalledTimes(2);
+      });
+
+      it('passed microstates to the callback', () => {
+        expect(callback).toHaveBeenCalledWith(expect.any(Microstate));
+      });
+
+      it('passed correct value to the callback', () => {
+        expect(callback.mock.calls[0][0].state).toBe(false);
+        expect(callback.mock.calls[1][0].state).toBe(true);
+      });
+    });
+  });
 });
