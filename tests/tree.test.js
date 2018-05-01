@@ -1,11 +1,10 @@
 import 'jest';
 
-import Tree, { Transitions, Microstate, reveal } from '../src/tree';
+import Tree, { Microstate, reveal } from '../src/tree';
 import { flatMap, map } from 'funcadelic';
 import view from 'ramda/src/view';
 import set from 'ramda/src/set';
 import over from 'ramda/src/over';
-import { SIGQUIT } from 'constants';
 
 describe("A Boolean Tree with a value provided", () => {
   let tree;
@@ -97,9 +96,9 @@ describe('Transitions', () => {
       mapped = map(transition => (...args) => transition(root, args), root.transitions);
     });
 
-    it('returns transitions', () => {
-      expect(mapped).toBeInstanceOf(Transitions);
-    });
+    // it('returns transitions', () => {
+    //   expect(mapped).toBeInstanceOf(Transitions);
+    // });
 
   });
 
@@ -359,7 +358,7 @@ describe('Microstate', () => {
     let number, next, again;
     beforeEach(() => {
       number = Microstate.create(Number, 42);
-      next = number.increment();      
+      next = number.increment();
       again = next.increment();
     });
 
