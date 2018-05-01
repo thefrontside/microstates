@@ -91,14 +91,10 @@ export default class Tree {
           Type: parent.Type,
           path: parentPath,
           value: () => view(lensPath(parentPath), nextValue)
-        })
-        defineProperty(replacement, 'children', {
-          enumerable: false,
-          configurable: true,
-          get: stabilizeOn('children', function stableChildren() {
-            return map((child, key) => key === name ? tree : child, parent.children);
-          })
         });
+        defineStable(replacement, 'children', function stableChildren() {
+          return map((child, key) => key === name ? tree : child, parent.children);
+        }, false);
         return {
           parentPath: parentPath.slice(0, -1),
           tree: replacement
@@ -240,6 +236,17 @@ function stable(target, key, descriptor) {
   return descriptor;
 }
 
+/**
+ * Define a stable getter on target object at specified key.
+ */
+function defineStable(target, key, fn, enumerable = true, configurable = true) {
+  return defineProperty(target, key, {
+    configurable,
+    enumerable,
+    get: stabilizeOn(key, fn)
+  })
+}
+
 function stabilizeOn(key, fn) {
   return function stabilized() {
     let value = fn.call(this);
@@ -291,22 +298,14 @@ Functor.instance(Transitions, {
     let mapped = new Transitions(tree);
 
     for (let name in tree.TransitionsConstructor.transitions) {
-      defineProperty(mapped, name, {
-        configurable: true,
-        enumerable: true,
-        get: stabilizeOn(name, function stableMappedTransition() {
-          return fn(transitions[name].bind(transitions));
-        })
-      })
+      defineStable(mapped, name, function stableMappedTransition() {
+        return fn(transitions[name].bind(transitions));
+      });
     }
     
     for (let childName in tree.children) {
-      defineProperty(mapped, childName, {
-        configurable: true,
-        enumerable: true,
-        get: stabilizeOn(childName, function stableMappedTransitionsChild() {
-          return map(fn, tree.children[childName].transitions)
-        })
+      defineStable(mapped, childName, function stableMappedTransitionsChild() {
+        return map(fn, tree.children[childName].transitions)
       });
     }
 
