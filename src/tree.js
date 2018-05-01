@@ -22,6 +22,31 @@ export class Microstate {
     return append(this, map(child => child.microstate, tree.children));    
   }
 
+  static for(Type) {
+    
+    let transitions = $(assign({}, getPrototypeDescriptors(toType(Type)), getPrototypeDescriptors(types.Any)))
+      .filter(({ key, value }) => typeof value.value === 'function' && key !== 'constructor')
+      .map(descriptor => ({
+        enumerable: true,
+        configurable: true,
+        value(...args) {
+          let tree = reveal(this);
+          let method = descriptor.value;
+          return over(tree.lens, focus => {
+            let next = method.apply(focus.microstate, args);
+            return next instanceof Microstate ? reveal(next) : new Tree({Type: focus.Type, value: next})
+          }, tree.root).microstate;
+        }
+      }))
+      .valueOf();
+
+    class MicrostateWithTransitions extends Microstate {}
+
+    defineProperties(MicrostateWithTransitions.prototype, transitions);
+
+    return MicrostateWithTransitions;
+  }
+
   static create(Type, value) {
     return new Tree({ Type, value }).microstate;
   }
@@ -81,7 +106,7 @@ export default class Tree {
         }
       }, bottom, this.path);
 
-      // TODO: Remove this? this ensures that every node receives the root
+      // this ensures that every node receives the root
       return map(tree => tree, top.tree);
     }
 
@@ -125,33 +150,9 @@ export default class Tree {
     return keys(this.children).length > 0
   }
 
-  get MicrostateConstructor() {
-
-    let transitions = $(assign({}, getPrototypeDescriptors(toType(this.Type)), getPrototypeDescriptors(types.Any)))
-        .filter(({ key, value }) => typeof value.value === 'function' && key !== 'constructor')
-        .map(descriptor => ({
-          enumerable: true,
-          configurable: true,
-          value(...args) {
-            let tree = reveal(this);
-            let method = descriptor.value;
-            return over(tree.lens, focus => {
-              let next = method.apply(focus.microstate, args);
-              return next instanceof Microstate ? reveal(next) : new Tree({Type: focus.Type, value: next})
-            }, tree.root).microstate;
-          }
-        }))
-        .valueOf();
-
-    class MicrostateWithTransitions extends Microstate {}
-
-    defineProperties(MicrostateWithTransitions.prototype, transitions);
-
-    return MicrostateWithTransitions;
-  }
-
   get microstate() {
-    return new this.MicrostateConstructor(this);
+    let Constructor = Microstate.for(this.Type);
+    return new Constructor(this);
   }
 
   // state is stable across mapped trees

@@ -374,13 +374,11 @@ describe('Microstate', () => {
 
   describe.skip('Functor', () => {
     describe('shallow', () => {
-      let boolean, mapped, toggled, toggledTwice, callback;
+      let boolean, mapped, callback;
       beforeEach(() => {
         boolean = Microstate.create(Boolean, true);
         callback = jest.fn(m => m);
         mapped = map(onTransition => (...args) => callback(onTransition(...args)), boolean);
-        toggled = mapped.toggle();
-        toggledTwice = toggled.toggle();
       });
 
       it('returns a microstate', () => {
@@ -395,29 +393,45 @@ describe('Microstate', () => {
         expect(mapped.valueOf()).toBe(true);
       });
 
-      it('returns a microstate after transition', () => {
-        expect(toggled).toBeInstanceOf(Microstate);
-      });
+      describe('first transition', () => {
+        let toggled; 
+        beforeEach(() => {
+          toggled = mapped.toggle();
+          toggledTwice = toggled.toggle();
+        });
 
-      it('after transition it has the value', () => {
-        expect(toggled.valueOf()).toBe(false);
-      });
+        it('returns a microstate after transition', () => {
+          expect(toggled).toBeInstanceOf(Microstate);
+        });
+  
+        it('after transition it has the value', () => {
+          expect(toggled.valueOf()).toBe(false);
+        });
 
-      it('after second transition it has the value', () => {
-        expect(toggledTwice.valueOf()).toBe(true);
-      });
+        it('called the callback once', () => {
+          expect(callback).toHaveBeenCalledTimes(1);
+        });
 
-      it('called the callback twice', () => {
-        expect(callback).toHaveBeenCalledTimes(2);
-      });
+        describe('second transtion', () => {
+          let toggledTwice;
 
-      it('passed microstates to the callback', () => {
-        expect(callback).toHaveBeenCalledWith(expect.any(Microstate));
-      });
+          it('after second transition it has the value', () => {
+            expect(toggledTwice.valueOf()).toBe(true);
+          });
 
-      it('passed correct value to the callback', () => {
-        expect(callback.mock.calls[0][0].state).toBe(false);
-        expect(callback.mock.calls[1][0].state).toBe(true);
+          it('called the callback twice', () => {
+            expect(callback).toHaveBeenCalledTimes(2);
+          });
+    
+          it('passed microstates to the callback', () => {
+            expect(callback).toHaveBeenCalledWith(expect.any(Microstate));
+          });
+    
+          it('passed correct value to the callback', () => {
+            expect(callback.mock.calls[0][0].state).toBe(false);
+            expect(callback.mock.calls[1][0].state).toBe(true);
+          });
+        });
       });
     });
   });
