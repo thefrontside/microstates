@@ -6,10 +6,6 @@ import view from 'ramda/src/view';
 import set from 'ramda/src/set';
 import over from 'ramda/src/over';
 
-// describe('lensing', () => {
-
-// });
-
 describe("A Boolean Tree with a value provided", () => {
   let tree;
   beforeEach(function() {

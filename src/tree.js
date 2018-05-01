@@ -117,6 +117,10 @@ export default class Tree {
     }
   }
 
+  get isRoot() {
+    return this.root === this;
+  }
+
   get hasChildren() {
     return keys(this.children).length > 0
   }
