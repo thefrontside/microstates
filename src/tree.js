@@ -1,4 +1,4 @@
-import { append, map, flatMap, foldl, foldr, Functor, Monad } from 'funcadelic';
+import { append, map, flatMap, foldl, foldr, Functor, Monad, Semigroup } from 'funcadelic';
 import types, { Any, toType, params } from './types';
 import thunk from './thunk';
 import $ from './utils/chain';
@@ -92,19 +92,7 @@ export default class Tree {
   }
 
   use(fn) {
-    return this.replaceMiddleware(fn(this.stable.middleware));
-  }
-
-  replaceMiddleware(middleware) {
-    return map(tree => {
-      if (tree.stable === this.stable) {
-        return  {
-          stable: assign({}, this.stable, { middleware })
-        };
-      } else {
-        return tree;
-      }
-    }, this);
+    return append(this, { middleware: fn(this.stable.middleware) });
   }
 
   /**
@@ -114,9 +102,8 @@ export default class Tree {
    */
   apply(fn) {
     return over(this.lens, focus => {
-      let { middleware } = focus.stable;
-      let applied = fn(focus.replaceMiddleware(defaultMiddleware));
-      return applied.replaceMiddleware(middleware);
+      let applied = fn(append(focus, { middleware: defaultMiddleware }));
+      return append(applied, { middleware: focus.stable.middleware });
     }, this.root);
   }
   
@@ -224,6 +211,24 @@ export default class Tree {
     }), childTypes);
   }
 }
+
+/**
+ * Tree Semigroup allows to add data to stable object on the root
+ * of the tree. 
+ */
+Semigroup.instance(Tree, {
+  append(tree, stable = {}) {
+    return map(current => {
+      if (current.stable === tree.stable) {
+        return  {
+          stable: assign({}, tree.stable, stable)
+        };
+      } else {
+        return current;
+      }
+    }, tree);
+  }
+})
 
 class Value {
   constructor(valueOrFn) {
