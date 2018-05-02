@@ -576,6 +576,17 @@ describe('Microstate', () => {
       it('has signin transition', () => {
         expect(initialized.signin).toBeInstanceOf(Function);
       });
+
+      describe('calling initialize on initialized microstate', () => {
+        let reinitialized;
+        beforeEach(() => {
+          reinitialized = initialized.initialize('foo');
+        });
+
+        it('initilizes into Authenticated', () => {
+          expect(reinitialized.state).toBeInstanceOf(Authenticated);
+        });
+      });
     });
 
     describe('initialize with data', () => {
@@ -584,7 +595,7 @@ describe('Microstate', () => {
         initialized = Microstate.create(Session, 'SECRET');
       });
   
-      it('initilizes into another type', () => {
+      it('initilizes into Authenticated', () => {
         expect(initialized.state).toBeInstanceOf(Authenticated);
       });
 
