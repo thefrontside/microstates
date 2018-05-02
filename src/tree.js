@@ -63,7 +63,7 @@ export class Microstate {
   }
 
   static create(Type, value) {
-    return new Tree({ Type, value }).microstate;
+    return flatMap(tree => tree, new Tree({ Type, value })).microstate;
   }
 
   valueOf() {
@@ -411,34 +411,47 @@ Monad.instance(Tree, {
    * ultimately returned tree?
    */
   flatMap(fn, tree) {
-    let next = thunk(() => fn(tree));
-    return Object.create(Tree.prototype, {
-      Type: {
-        enumerable: true,
-        value: next().Type
-      },
-      value: {
-        enumerable: true,
-        get: () => next().value
-      },
-      path: {
-        enumerable: true,
-        value: tree.path
-      },
-      stable: {
-        enumerable: true,
-        get() {
-          let { stable } = next();
-          return stable ? stable : tree.stable;
+
+    function reflatmap(fn, tree, root) {
+      let mapped = thunk(() => fn(tree));
+
+      let next = Object.create(Tree.prototype, {
+        Type: {
+          enumerable: true,
+          value: mapped().Type
+        },
+        value: {
+          enumerable: true,
+          get: () => mapped().value
+        },
+        root: {
+          enumerable: true,
+          get() { return root; }
+        },
+        path: {
+          enumerable: true,
+          value: tree.path
+        },
+        stable: {
+          enumerable: true,
+          get() {
+            let { stable } = mapped();
+            return stable ? stable : tree.stable;
+          }
+        },
+        children: {
+          enumerable: false,
+          configurable: true,
+          get: stabilizeOn('children', function stableChildren() {
+            return map(child => reflatmap(fn, child, root), mapped().children);
+          })
         }
-      },
-      children: {
-        enumerable: false,
-        configurable: true,
-        get: stabilizeOn('children', function stableChildren() {
-          return map(child => flatMap(fn, child), next().children);
-        })
-      }
-    })
+      })
+
+      root = root || next;
+      return next;
+    }
+
+    return reflatmap(fn, tree);
   }
 })
