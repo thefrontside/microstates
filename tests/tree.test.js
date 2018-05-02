@@ -152,6 +152,9 @@ describe('Tree', () => {
     it('allows you to change the type of a tree', function() {
       expect(flatMapped.Type).toBe(Thangs);
     });
+    it('makes sure all of the values have referential integrety', function() {
+      expect(flatMapped.value.a).toBe(flatMapped.children.a.value);
+    });
     it('recursively flatMaps the children', function() {
       expect(flatMapped.children.a.children.name.value).toBe('Hallo A!');
     });
@@ -277,11 +280,11 @@ describe('Microstate', () => {
       it('returns a microstate from a transtion', () => {
         expect(next).toBeInstanceOf(Microstate);
       });
-  
+
       it('returns same type', () => {
         expect(reveal(next).Type).toBe(Number);
       });
-  
+
       it('incremented the value', () => {
         expect(next.valueOf()).toBe(43);
       });
@@ -295,7 +298,7 @@ describe('Microstate', () => {
         it('return a microstate for second transition', () => {
           expect(again).toBeInstanceOf(Microstate);
         });
-    
+
         it('passes value after 2nd transition', () => {
           expect(again.valueOf()).toBe(44);
         });
@@ -342,11 +345,11 @@ describe('Microstate', () => {
       it('maintained state after transition', () => {
         expect(withFather.state.mother.name).toBe('Marge');
       });
-  
+
       it('has transitioned state', () => {
         expect(withFather.state.father.name).toBe('Homer');
       });
-  
+
       it('mother is stable after transition', () => {
         expect(withFather.state.mother).toBe(person.state.mother);
       });
@@ -401,7 +404,7 @@ describe('Microstate', () => {
       });
 
       describe('first transition', () => {
-        let toggled; 
+        let toggled;
         beforeEach(() => {
           toggled = mapped.toggle();
         });
@@ -409,7 +412,7 @@ describe('Microstate', () => {
         it('returns a microstate after transition', () => {
           expect(toggled).toBeInstanceOf(Microstate);
         });
-  
+
         it('after transition it has the value', () => {
           expect(toggled.valueOf()).toBe(false);
         });
@@ -429,7 +432,7 @@ describe('Microstate', () => {
 
         describe('second transtion', () => {
           let toggledTwice;
-          
+
           beforeEach(() => {
             toggledTwice = toggled.toggle();
           });
@@ -441,11 +444,11 @@ describe('Microstate', () => {
           it('called the callback twice', () => {
             expect(beforeTransition).toHaveBeenCalledTimes(2);
           });
-    
+
           it('passed microstates to the callback', () => {
             expect(beforeTransition).toHaveBeenCalledWith(expect.any(Microstate), expect.any(Function), []);
           });
-    
+
           it('before transition state is false after its true', () => {
             expect(beforeTransition.mock.calls[1][0].state).toBe(false);
             expect(afterTransition.mock.calls[1][0].state).toBe(true);
@@ -460,7 +463,7 @@ describe('Microstate', () => {
         father = Person;
         name = String;
       }
-  
+
       let person, mapped, beforeTransition, afterTransition;
       beforeEach(() => {
         person = Microstate.create(Person, { name: 'Bart', mother: { name: 'Marge' } });
@@ -473,33 +476,33 @@ describe('Microstate', () => {
           return result;
         }), person);
       });
-  
+
       it('returns a microstate', () => {
         expect(mapped).toBeInstanceOf(Microstate);
       });
-  
+
       describe('first transition', () => {
         let withFather;
         beforeEach(() => {
           withFather = mapped.father.set({ name: 'Homer' });
-        });      
-  
+        });
+
         it('returns a microstate', () => {
           expect(withFather).toBeInstanceOf(Microstate);
         });
-  
+
         it('has value', () => {
           expect(withFather.valueOf()).toEqual({ name: 'Bart', mother: { name: 'Marge' }, father: { name: 'Homer' } })
         });
-  
+
         it('called the beforeTransition once', () => {
           expect(beforeTransition).toHaveBeenCalledTimes(1);
         });
-  
+
         it('called afterTransition once', () => {
           expect(afterTransition).toHaveBeenCalledTimes(1);
         });
-  
+
         it('captured before and after state', () => {
           expect(beforeTransition.mock.calls[0][0].state).toMatchObject({
             name: 'undefined'
@@ -510,29 +513,29 @@ describe('Microstate', () => {
             father: { name: 'Homer' }
           });
         });
-  
+
         describe('second transition', () => {
           let fatherNameTree;
           beforeEach(() => {
             fatherNameTree = withFather.father.name.set('Senior Homer');
-          }); 
-    
+          });
+
           it('returns a microstate', () => {
             expect(fatherNameTree).toBeInstanceOf(Microstate);
           });
-    
+
           it('has value', () => {
             expect(fatherNameTree.valueOf()).toEqual({ name: 'Bart', mother: { name: 'Marge' }, father: { name: 'Senior Homer' } })
           });
-    
+
           it('called the beforeTransition once', () => {
             expect(beforeTransition).toHaveBeenCalledTimes(2);
           });
-    
+
           it('called afterTransition once', () => {
             expect(afterTransition).toHaveBeenCalledTimes(2);
           });
-    
+
           it('captured before and after state', () => {
             expect(beforeTransition.mock.calls[1][0].state).toEqual('Homer');
             expect(afterTransition.mock.calls[1][0].state).toMatchObject({
@@ -543,7 +546,7 @@ describe('Microstate', () => {
           });
         });
       });
-  
+
     });
   });
 
@@ -554,7 +557,7 @@ describe('Microstate', () => {
           return Microstate.create(Authenticated, data);
         }
         return Microstate.create(Anonymous);
-      } 
+      }
     }
     class Authenticated extends Session {
       logout() {}
@@ -568,7 +571,7 @@ describe('Microstate', () => {
       beforeEach(() => {
         initialized = Microstate.create(Session);
       });
-  
+
       it('initilizes into another type', () => {
         expect(initialized.state).toBeInstanceOf(Anonymous);
       });
@@ -594,7 +597,7 @@ describe('Microstate', () => {
       beforeEach(() => {
         initialized = Microstate.create(Session, 'SECRET');
       });
-  
+
       it('initilizes into Authenticated', () => {
         expect(initialized.state).toBeInstanceOf(Authenticated);
       });

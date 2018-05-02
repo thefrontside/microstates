@@ -16,10 +16,10 @@ const { assign, keys, defineProperty, defineProperties } = Object;
 
 /**
  * Apply a transition to a microstate and return the next
- * microstate. 
- * @param {Microstate} localMicrostate 
- * @param {Function} transition 
- * @param {Array<any>} args 
+ * microstate.
+ * @param {Microstate} localMicrostate
+ * @param {Function} transition
+ * @param {Array<any>} args
  */
 const defaultMiddleware = (localMicrostate, transition, args) => {
   let tree = reveal(localMicrostate);
@@ -34,7 +34,7 @@ const defaultMiddleware = (localMicrostate, transition, args) => {
 
 const defaultConstructorFactory = Type => {
   class MicrostateWithTransitions extends Microstate {}
-  
+
   let descriptors = Type === types.Any ? getPrototypeDescriptors(types.Any) : assign(getPrototypeDescriptors(toType(Type)), getPrototypeDescriptors(types.Any))
 
   let transitions = $(descriptors)
@@ -59,13 +59,13 @@ export class Microstate {
   constructor(tree) {
     keep(this, tree);
 
-    return append(this, map(child => child.microstate, tree.children));    
+    return append(this, map(child => child.microstate, tree.children));
   }
 
   static create(Type, value) {
     return flatMap(tree => {
       if (tree.Type.prototype.hasOwnProperty("initialize")) {
-        let initialized = tree.Type.prototype.initialize(tree.value);
+        let initialized = tree.microstate.initialize(tree.value);
         if (initialized) {
           return reveal(initialized);
         } else {
@@ -126,7 +126,7 @@ export default class Tree {
     // carry into the next microstate
     return append(nextRoot, { middleware });
   }
-  
+
   /**
    * Evaluates to a lens that can be used with ramda lenses to view/set/over value
    * of other trees. Think about this as a branch that you overlap on another tree,
@@ -234,7 +234,7 @@ export default class Tree {
 
 /**
  * Tree Semigroup allows to add data to stable object on the root
- * of the tree. 
+ * of the tree.
  */
 Semigroup.instance(Tree, {
   append(tree, stable = {}) {
@@ -432,7 +432,14 @@ Monad.instance(Tree, {
         },
         value: {
           enumerable: true,
-          get: () => mapped().value
+          configurable: true,
+          get: stabilizeOn('value', function stableValue() {
+            if (mapped() === tree) {
+              return tree.value;
+            } else {
+              return Object.keys(this.children).reduce((value, key) => append(value, { [key]: this.children[key].value }), mapped().value);
+            }
+          })
         },
         root: {
           enumerable: true,
@@ -461,7 +468,6 @@ Monad.instance(Tree, {
       root = root || next;
       return next;
     }
-
     return reflatmap(fn, tree);
   }
 })
