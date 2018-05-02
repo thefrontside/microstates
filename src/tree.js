@@ -14,6 +14,8 @@ export { reveal } from './utils/secret';
 
 const { assign, keys, defineProperty, defineProperties } = Object;
 
+const defaultMiddleware = (microstate, transition, args) => transition.apply(microstate, args);
+
 export class Microstate {
 
   constructor(tree) {
@@ -30,12 +32,20 @@ export class Microstate {
         enumerable: true,
         configurable: true,
         value(...args) {
-          let tree = reveal(this);
+          // transition that the user is invoking
           let method = descriptor.value;
-          return over(tree.lens, focus => {
-            let next = method.apply(focus.microstate, args);
+          // the tree the user is targeting
+          let tree = reveal(this);
+          // capture the middleware from the root to apply after transition
+          let { middleware } = tree.root.stable;
+
+          let { microstate } = tree.apply(focus => {
+            // apply the middleware from the root node
+            let next = middleware(focus.microstate, method, args);
             return next instanceof Microstate ? reveal(next) : new Tree({Type: focus.Type, value: next})
-          }, tree.root).microstate;
+          });
+
+          return microstate;
         }
       }))
       .valueOf();
@@ -60,9 +70,15 @@ export class Microstate {
   }
 }
 
+Functor.instance(Microstate, {
+  map(fn, microstate) {
+    return fn(reveal(microstate)).microstate;
+  }
+})
+
 export default class Tree {
   // value can be either a function or a value.
-  constructor({ Type, value, path = [], root }) {
+  constructor({ Type, value, path = [], root, middleware = defaultMiddleware}) {
     this.Type = Type;
     this.path = path;
     this.root = root || this;
@@ -70,10 +86,40 @@ export default class Tree {
     // copied to a new tree when mapping trees.
     this.stable = {
       value: new Value(value),
-      state: new State(this)
+      state: new State(this),
+      middleware
     }
   }
 
+  use(fn) {
+    return this.replaceMiddleware(fn(this.stable.middleware));
+  }
+
+  replaceMiddleware(middleware) {
+    return map(tree => {
+      if (tree.stable === this.stable) {
+        return  {
+          stable: assign({}, this.stable, { middleware })
+        };
+      } else {
+        return tree;
+      }
+    }, this);
+  }
+
+  /**
+   * Returns a new root tree with after applying the function argument to the current tree.
+   * Apply will backup the middleware on this tree to ensure that context specific middleware
+   * is not applied when the tree is pruned.
+   */
+  apply(fn) {
+    return over(this.lens, focus => {
+      let { middleware } = focus.stable;
+      let applied = fn(focus.replaceMiddleware(defaultMiddleware));
+      return applied.replaceMiddleware(middleware);
+    }, this.root);
+  }
+  
   /**
    * Evaluates to a lens that can be used with ramda lenses to view/set/over value
    * of other trees. Think about this as a branch that you overlap on another tree,
