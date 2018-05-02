@@ -372,7 +372,8 @@ describe('Microstate', () => {
     });
   });
 
-  describe('Functor', () => {
+  describe('Middleware', () => {
+
     describe('shallow', () => {
       let boolean, mapped, beforeTransition, afterTransition;
       beforeEach(() => {

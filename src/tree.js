@@ -16,45 +16,46 @@ const { assign, keys, defineProperty, defineProperties } = Object;
 
 const defaultMiddleware = (microstate, transition, args) => transition.apply(microstate, args);
 
+const defaultConstructorFactory = Type => {
+  class MicrostateWithTransitions extends Microstate {}
+  
+  let descriptors = Type === types.Any ? getPrototypeDescriptors(types.Any) : assign(getPrototypeDescriptors(toType(Type)), getPrototypeDescriptors(types.Any))
+
+  let transitions = $(descriptors)
+    .filter(({ key, value }) => typeof value.value === 'function' && key !== 'constructor')
+    .map(descriptor => ({
+      enumerable: true,
+      configurable: true,
+      value(...args) {
+        // transition that the user is invoking
+        let method = descriptor.value;
+        // the tree the user is targeting
+        let tree = reveal(this);
+        // capture the middleware from the root to apply after transition
+        let { middleware } = tree.root.stable;
+
+        let { microstate } = tree.apply(focus => {
+          // apply the middleware from the root node
+          let next = middleware(focus.microstate, method, args);
+          return next instanceof Microstate ? reveal(next) : new Tree({Type: focus.Type, value: next})
+        });
+
+        return microstate;
+      }
+    }))
+    .valueOf();
+
+  defineProperties(MicrostateWithTransitions.prototype, transitions);
+
+  return MicrostateWithTransitions;
+}
+
 export class Microstate {
 
   constructor(tree) {
     keep(this, tree);
 
     return append(this, map(child => child.microstate, tree.children));    
-  }
-
-  static for(Type) {
-    
-    let transitions = $(assign({}, getPrototypeDescriptors(toType(Type)), getPrototypeDescriptors(types.Any)))
-      .filter(({ key, value }) => typeof value.value === 'function' && key !== 'constructor')
-      .map(descriptor => ({
-        enumerable: true,
-        configurable: true,
-        value(...args) {
-          // transition that the user is invoking
-          let method = descriptor.value;
-          // the tree the user is targeting
-          let tree = reveal(this);
-          // capture the middleware from the root to apply after transition
-          let { middleware } = tree.root.stable;
-
-          let { microstate } = tree.apply(focus => {
-            // apply the middleware from the root node
-            let next = middleware(focus.microstate, method, args);
-            return next instanceof Microstate ? reveal(next) : new Tree({Type: focus.Type, value: next})
-          });
-
-          return microstate;
-        }
-      }))
-      .valueOf();
-
-    class MicrostateWithTransitions extends Microstate {}
-
-    defineProperties(MicrostateWithTransitions.prototype, transitions);
-
-    return MicrostateWithTransitions;
   }
 
   static create(Type, value) {
@@ -78,7 +79,7 @@ Functor.instance(Microstate, {
 
 export default class Tree {
   // value can be either a function or a value.
-  constructor({ Type, value, path = [], root, middleware = defaultMiddleware}) {
+  constructor({ Type = types.Any, value, path = [], root, middleware = defaultMiddleware, constructorFactory = defaultConstructorFactory}) {
     this.Type = Type;
     this.path = path;
     this.root = root || this;
@@ -87,6 +88,7 @@ export default class Tree {
     this.stable = {
       value: new Value(value),
       state: new State(this),
+      Constructor: constructorFactory(Type),
       middleware
     }
   }
@@ -184,7 +186,7 @@ export default class Tree {
   }
 
   get microstate() {
-    let Constructor = Microstate.for(this.Type);
+    let { stable: { Constructor } } = this;
     return new Constructor(this);
   }
 
