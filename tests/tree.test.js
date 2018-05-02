@@ -372,7 +372,7 @@ describe('Microstate', () => {
     });
   });
 
-  describe('Middleware', () => {
+  describe('middleware', () => {
 
     describe('shallow', () => {
       let boolean, mapped, beforeTransition, afterTransition;
@@ -544,6 +544,53 @@ describe('Microstate', () => {
         });
       });
   
+    });
+  });
+
+  describe('initialization', () => {
+    class Session {
+      initialize(data) {
+        if (data) {
+          return Microstate.create(Authenticated, data);
+        }
+        return Microstate.create(Anonymous);
+      } 
+    }
+    class Authenticated extends Session {
+      logout() {}
+    }
+    class Anonymous extends Session {
+      signin() {}
+    }
+
+    describe('initialize without data', () => {
+      let initialized;
+      beforeEach(() => {
+        initialized = Microstate.create(Session);
+      });
+  
+      it('initilizes into another type', () => {
+        expect(initialized.state).toBeInstanceOf(Anonymous);
+      });
+
+      it('has signin transition', () => {
+        expect(initialized.signin).toBeInstanceOf(Function);
+      });
+    });
+
+    describe('initialize with data', () => {
+      let initialized;
+      beforeEach(() => {
+        initialized = Microstate.create(Session, 'SECRET');
+      });
+  
+      it('initilizes into another type', () => {
+        expect(initialized.state).toBeInstanceOf(Authenticated);
+      });
+
+      it('has signin transition', () => {
+        expect(initialized.logout).toBeInstanceOf(Function);
+      });
     });
   });
 });
