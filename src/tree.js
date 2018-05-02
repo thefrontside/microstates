@@ -14,7 +14,23 @@ export { reveal } from './utils/secret';
 
 const { assign, keys, defineProperty, defineProperties } = Object;
 
-const defaultMiddleware = (microstate, transition, args) => transition.apply(microstate, args);
+/**
+ * Apply a transition to a microstate and return the next
+ * microstate. 
+ * @param {Microstate} localMicrostate 
+ * @param {Function} transition 
+ * @param {Array<any>} args 
+ */
+const defaultMiddleware = (localMicrostate, transition, args) => {
+  let tree = reveal(localMicrostate);
+
+  let { microstate } = tree.apply(focus => {
+    let next = transition.apply(focus.microstate, args);
+    return next instanceof Microstate ? reveal(next) : new Tree({ Type: focus.Type, value: next })
+  });
+
+  return microstate;
+};
 
 const defaultConstructorFactory = Type => {
   class MicrostateWithTransitions extends Microstate {}
@@ -28,19 +44,7 @@ const defaultConstructorFactory = Type => {
       configurable: true,
       value(...args) {
         // transition that the user is invoking
-        let method = descriptor.value;
-        // the tree the user is targeting
-        let tree = reveal(this);
-        // capture the middleware from the root to apply after transition
-        let { middleware } = tree.root.stable;
-
-        let { microstate } = tree.apply(focus => {
-          // apply the middleware from the root node
-          let next = middleware(focus.microstate, method, args);
-          return next instanceof Microstate ? reveal(next) : new Tree({Type: focus.Type, value: next})
-        });
-
-        return microstate;
+        return reveal(this).root.stable.middleware(this, descriptor.value, args);
       }
     }))
     .valueOf();
@@ -103,10 +107,14 @@ export default class Tree {
    * is not applied when the tree is pruned.
    */
   apply(fn) {
-    return over(this.lens, focus => {
-      let applied = fn(append(focus, { middleware: defaultMiddleware }));
-      return append(applied, { middleware: focus.stable.middleware });
-    }, this.root);
+    let { middleware } = this.root.stable;
+    // overload custom middleware to allow context free transitions
+    let root = append(this.root, { middleware: defaultMiddleware });
+    // focus on current tree and apply the function to it
+    let nextRoot = over(this.lens, fn, root);
+    // put the original middleware into the next root tree so the middleware will
+    // carry into the next microstate
+    return append(nextRoot, { middleware });
   }
   
   /**

@@ -454,4 +454,96 @@ describe('Microstate', () => {
       });
     });
   });
+
+  describe('deeply composed', () => {
+    class Person {
+      mother = Person;
+      father = Person;
+      name = String;
+    }
+
+    let person, mapped, beforeTransition, afterTransition;
+    beforeEach(() => {
+      person = Microstate.create(Person, { name: 'Bart', mother: { name: 'Marge' } });
+      beforeTransition = jest.fn();
+      afterTransition = jest.fn();
+      mapped = map(tree => tree.use(next => (microstate, transition, args) => {
+        beforeTransition(microstate, transition, args);
+        let result = next(microstate, transition, args);
+        afterTransition(result);
+        return result;
+      }), person);
+    });
+
+    it('returns a microstate', () => {
+      expect(mapped).toBeInstanceOf(Microstate);
+    });
+
+    describe('first transition', () => {
+      let withFather;
+      beforeEach(() => {
+        withFather = mapped.father.set({ name: 'Homer' });
+      });      
+
+      it('returns a microstate', () => {
+        expect(withFather).toBeInstanceOf(Microstate);
+      });
+
+      it('has value', () => {
+        expect(withFather.valueOf()).toEqual({ name: 'Bart', mother: { name: 'Marge' }, father: { name: 'Homer' } })
+      });
+
+      it('called the beforeTransition once', () => {
+        expect(beforeTransition).toHaveBeenCalledTimes(1);
+      });
+
+      it('called afterTransition once', () => {
+        expect(afterTransition).toHaveBeenCalledTimes(1);
+      });
+
+      it('captured before and after state', () => {
+        expect(beforeTransition.mock.calls[0][0].state).toMatchObject({
+          name: 'undefined'
+        });
+        expect(afterTransition.mock.calls[0][0].state).toMatchObject({
+          name: 'Bart',
+          mother: { name: 'Marge' },
+          father: { name: 'Homer' }
+        });
+      });
+
+      describe('second transition', () => {
+        let fatherNameTree;
+        beforeEach(() => {
+          fatherNameTree = withFather.father.name.set('Senior Homer');
+        }); 
+  
+        it('returns a microstate', () => {
+          expect(fatherNameTree).toBeInstanceOf(Microstate);
+        });
+  
+        it('has value', () => {
+          expect(fatherNameTree.valueOf()).toEqual({ name: 'Bart', mother: { name: 'Marge' }, father: { name: 'Senior Homer' } })
+        });
+  
+        it('called the beforeTransition once', () => {
+          expect(beforeTransition).toHaveBeenCalledTimes(2);
+        });
+  
+        it('called afterTransition once', () => {
+          expect(afterTransition).toHaveBeenCalledTimes(2);
+        });
+  
+        it('captured before and after state', () => {
+          expect(beforeTransition.mock.calls[1][0].state).toEqual('Homer');
+          expect(afterTransition.mock.calls[1][0].state).toMatchObject({
+            name: 'Bart',
+            mother: { name: 'Marge' },
+            father: { name: 'Senior Homer' }
+          });
+        });
+      });
+    });
+
+  });
 });
