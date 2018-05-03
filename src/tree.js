@@ -2,7 +2,7 @@ import { append, map, flatMap, foldl, foldr, Functor, Monad, Semigroup } from 'f
 import types, { toType, params } from './types';
 import thunk from './thunk';
 import $ from './utils/chain';
-import getPrototypeDescriptors from './utils/get-prototype-descriptors';
+import getPrototypeDescriptors from 'get-prototype-descriptors';
 import lens from 'ramda/src/lens';
 import lensPath from 'ramda/src/lensPath';
 import lset from 'ramda/src/set';

@@ -14,7 +14,8 @@ const globals = {
   "ramda/src/indexOf": "R.indexOf",
   "ramda/src/compose": "R.compose",
   "object.getownpropertydescriptors": "Object.getownpropertydescriptors",
-  'symbol-observable': 'SymbolObservable'
+  "symbol-observable": "SymbolObservable",
+  "get-prototype-descriptors": "getPrototypeDescriptors"
 };
 
 module.exports = {

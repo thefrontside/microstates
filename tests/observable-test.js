@@ -3,8 +3,6 @@ import { create } from "microstates";
 import SymbolObservable from 'symbol-observable';
 import { Observable, from } from 'rxjs';
 
-console.log(Observable);
-
 describe('rxjs interop', function() {
   let ms, observable, observer, last;
   beforeEach(() => {
