@@ -19,6 +19,9 @@ export function parameterized(Type, ...substitutions) {
   }, defaults, substitutions);
 
   return class Parameterized extends Type {
+    initialize(value) {
+      return Type.prototype.hasOwnProperty('initialize') ? Type.prototype.initialize.call(this, value) : value;
+    }
     static get name() { return Type.name; }
     static get toString() {
       let names = Object.keys(parameters).map(k => {

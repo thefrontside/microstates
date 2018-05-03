@@ -129,6 +129,10 @@ export default class Tree {
     }
   }
 
+  get isPrimitive() {
+    return [types.String, types.Boolean, types.Number].indexOf(this.Type) !== -1;
+  }
+
   use(fn) {
     return append(this, { middleware: fn(this.stable.middleware) });
   }
@@ -245,6 +249,7 @@ export default class Tree {
   get children() {
     let { Type, value, path, root } = this;
     let childTypes = childTypesAt(Type, value);
+
     return map((ChildType, childPath) => new Tree({
       Type: ChildType,
       value: () => value && value[childPath] ? value[childPath] : undefined,
@@ -295,21 +300,38 @@ class State {
 
   @stable
   get value() {
-    let { tree } = this;
-    let { Type, value } = this.tree;
-    let initial = new Type(value);
-    if (tree.hasChildren) {
-      return append(initial, map(child => child.state, tree.children));
+    let { tree, tree: { Type, value } } = this;
+
+    if (tree.isPrimitive || value === undefined) {
+      return value;
     } else {
-      return initial.valueOf();
+      return append(new Type(value), map(child => child.state, tree.children));
     }
   }
+}
+
+/**
+ * When a microstate is created with create(Object) or create(Array) value is undefined. 
+ * We need a default value so the map will know which functor to use. Ideally, we
+ * would allow `initialize` to provide a default value but this is not possible currently
+ * because children are used to create a microstate which is used to create initialize.
+ */
+function ensureDefault(Type, value) {
+  if (value === undefined) {
+    if (Type === types.Object || Type.prototype instanceof types.Object) {
+      return {};
+    }
+    if (Type === types.Array || Type.prototype instanceof types.Array) {
+      return [];
+    }
+  }
+  return value;
 }
 
 function childTypesAt(Type, value) {
   if (Type === types.Object || Type.prototype instanceof types.Object || Type === types.Array || Type.prototype instanceof types.Array) {
     let { T } = params(Type);
-    return map(() => T, value);
+    return map(() => T, ensureDefault(Type, value));
   }
   return $(new Type())
     .map(desugar)
@@ -477,7 +499,7 @@ Monad.instance(Tree, {
                     return lset(lensPath([key]), this.children[key].value, value);
                   }, value);
                 }
-                return tree.value;
+                return value;
               }),
               state: new State(this)
             });

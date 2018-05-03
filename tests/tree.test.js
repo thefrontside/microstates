@@ -251,6 +251,31 @@ describe('Tree', () => {
 
   });
 
+  describe('isPrimitive', () => {
+    it('is true for Boolean', () => {
+      expect(new Tree({ Type: Boolean })).toHaveProperty('isPrimitive', true);
+      expect(new Tree({ Type: Boolean, value: true })).toHaveProperty('isPrimitive', true);
+    });
+    it('is true for String', () => {
+      expect(new Tree({ Type: String })).toHaveProperty('isPrimitive', true);
+      expect(new Tree({ Type: String, value: 'foo' })).toHaveProperty('isPrimitive', true);
+    });
+    it('is true for Number', () => {
+      expect(new Tree({ Type: Number })).toHaveProperty('isPrimitive', true);
+      expect(new Tree({ Type: Number, value: 10 })).toHaveProperty('isPrimitive', true);
+    });
+    it('is false for Object', () => {
+      expect(new Tree({ Type: Object })).toHaveProperty('isPrimitive', false);
+      expect(new Tree({ Type: Object, value: {} })).toHaveProperty('isPrimitive', false);
+      expect(new Tree({ Type: Object, value: { foo: 'bar' } })).toHaveProperty('isPrimitive', false);
+    });
+    it('is false for Array', () => {
+      expect(new Tree({ Type: Array })).toHaveProperty('isPrimitive', false);
+      expect(new Tree({ Type: Array, value: [] })).toHaveProperty('isPrimitive', false);
+      expect(new Tree({ Type: Array, value: [123] })).toHaveProperty('isPrimitive', false);
+    });
+  });
+
 });
 
 describe('Microstate', () => {
@@ -505,9 +530,7 @@ describe('Microstate', () => {
         });
 
         it('captured before and after state', () => {
-          expect(beforeTransition.mock.calls[0][0].state).toMatchObject({
-            name: ''
-          });
+          expect(beforeTransition.mock.calls[0][0].state).toBeUndefined();
           expect(afterTransition.mock.calls[0][0].state).toMatchObject({
             name: 'Bart',
             mother: { name: 'Marge' },
@@ -554,21 +577,22 @@ describe('Microstate', () => {
   describe('initialization', () => {
     describe('at root', () => {
       class Session {
-        initialize(data) {
-          if (data) {
+        initialize(data = { token: null }) {
+          if (data.token) {
             return Microstate.create(Authenticated, data);
           }
-          return Microstate.create(Anonymous);
+          return Microstate.create(Anonymous, data);
         }
       }
       class Authenticated extends Session {
+        token = String;
         logout() {}
       }
       class Anonymous extends Session {
         signin() {}
       }
   
-      describe('initialize without data', () => {
+      describe('initialize without token', () => {
         let initialized;
         beforeEach(() => {
           initialized = Microstate.create(Session);
@@ -585,7 +609,7 @@ describe('Microstate', () => {
         describe('calling initialize on initialized microstate', () => {
           let reinitialized;
           beforeEach(() => {
-            reinitialized = initialized.initialize('foo');
+            reinitialized = initialized.initialize({ token: 'foo' });
           });
   
           it('initilizes into Authenticated', () => {
@@ -594,10 +618,10 @@ describe('Microstate', () => {
         });
       });
   
-      describe('initialize with data', () => {
+      describe('initialize with token', () => {
         let initialized;
         beforeEach(() => {
-          initialized = Microstate.create(Session, 'SECRET');
+          initialized = Microstate.create(Session, { token: 'SECRET' });
         });
   
         it('initilizes into Authenticated', () => {
@@ -629,7 +653,7 @@ describe('Microstate', () => {
         let root;
         
         beforeEach(() => {
-          root = Microstate.create(Root);
+          root = Microstate.create(Root, { first: { } });
         });
 
         it("has result of create of second node", () => {
@@ -663,4 +687,67 @@ describe('Microstate', () => {
       });
     });
   });
+
+  describe("State", () => {
+    describe("recursive type", () => {
+      class Person {
+        father = Person;
+        mother = Person;
+        name = String;
+      }
+
+      describe("with data", () => {
+        let person;
+        beforeEach(() => {
+          person = Microstate.create(Person, { name: 'Bart', mother: { name: 'Marge' }, father: { name: 'Homer' }});
+        });
+        it('root is instance of Person', () => {
+          expect(person.state).toBeInstanceOf(Person);
+        });
+        it('root has primitive value', () => {
+          expect(person.state.name).toBe('Bart');
+        });
+        it('composted types are instances of Person', () => {
+          expect(person.state.mother).toBeInstanceOf(Person);
+          expect(person.state.father).toBeInstanceOf(Person);
+        });
+        it('composted types have primivite values', () => {
+          expect(person.state.mother.name).toBe('Marge');
+          expect(person.state.father.name).toBe('Homer');
+        });
+      });
+      describe("with partial data", () => {
+        let person;
+        beforeEach(() => {
+          person = Microstate.create(Person, { name: 'Bart', mother: { } });
+        });
+        it('root is instance of Person', () => {
+          expect(person.state).toBeInstanceOf(Person);
+        });
+        it('root has primitive value', () => {
+          expect(person.state.name).toBe('Bart');
+        });
+        it('composted type with partial data is an instance', () => {
+          expect(person.state.mother).toBeInstanceOf(Person);
+        });
+        it('composed type without data is undefined', () => {
+          expect(person.state.father).toBeUndefined();          
+        })
+        it('composted types have primivite values', () => {
+          expect(person.state.mother.name).toBe('');
+        });
+      });
+      describe("without data", () => {
+        let person;
+        beforeEach(() => {
+          person = Microstate.create(Person);
+        });
+        it('root is undefined', () => {
+          expect(person.state).toBeUndefined()
+        });
+      });
+    });
+
+  });
+
 });

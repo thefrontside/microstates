@@ -2,11 +2,11 @@ import { parameterized } from './parameters0';
 import Any from './any';
 
 class ObjectType {
-  constructor(value = {}) {
-    return new Object(value);
+  initialize(value = {}) {
+    return value;
   }
-  assign(props) {
-    return this.set(Object.assign({}, this.state, props));
+  assign(props = {}) {
+    return Object.assign({}, this.state, props);
   }
 }
 
