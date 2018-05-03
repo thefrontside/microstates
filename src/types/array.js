@@ -1,7 +1,7 @@
 import { append, foldl, map } from 'funcadelic';
 import $ from '../utils/chain';
 import { reveal } from '../utils/secret';
-import Tree, { prune, graft } from '../utils/tree';
+import Tree from '../tree';
 import { parameterized, params } from './parameters0';
 import Any from './any';
 

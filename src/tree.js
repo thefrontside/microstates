@@ -1,5 +1,5 @@
 import { append, map, flatMap, foldl, foldr, Functor, Monad, Semigroup } from 'funcadelic';
-import types, { Any, toType, params } from './types';
+import types, { toType, params } from './types';
 import thunk from './thunk';
 import $ from './utils/chain';
 import getPrototypeDescriptors from './utils/get-prototype-descriptors';
@@ -11,6 +11,7 @@ import over from 'ramda/src/over';
 import desugar from './desugar';
 import { reveal, keep } from './utils/secret';
 export { reveal } from './utils/secret';
+import SymbolObservable from "symbol-observable";
 
 const { assign, keys, defineProperty, defineProperties } = Object;
 
@@ -82,6 +83,26 @@ export class Microstate {
 
   get state() {
     return reveal(this).state;
+  }
+
+  [SymbolObservable]() {
+    let microstate = this;
+    return {
+      subscribe(observer) {
+        let next = observer.call ? observer : observer.next.bind(observer);
+
+        let mapped = map(tree => tree.use(middleware => (...args) => {
+          let microstate = middleware(...args);
+          next(microstate);
+          return microstate;
+        }), microstate);
+
+        next(mapped);
+      },
+      [SymbolObservable]() {
+        return this;
+      }
+    };
   }
 }
 
@@ -397,7 +418,7 @@ Monad.instance(Tree, {
    * whose  type is `Any` (which is basically an id type).
    */
   pure(value) {
-    return new Tree({ value, Type: Any});
+    return new Tree({ value, Type: types.Any});
   },
 
   /**

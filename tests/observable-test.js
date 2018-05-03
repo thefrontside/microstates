@@ -1,13 +1,16 @@
 import "jest";
 import { create } from "microstates";
 import SymbolObservable from 'symbol-observable';
-import { Observable } from 'rxjs';
+import { Observable, from } from 'rxjs';
+
+console.log(Observable);
 
 describe('rxjs interop', function() {
-  let observable, observer, last;
+  let ms, observable, observer, last;
   beforeEach(() => {
+    ms = create(Number, 42);
     observer = jest.fn(next => last = next);
-    observable = Observable.from(create(Number, 42));
+    observable = from(ms);
     let subscription = observable.subscribe(observer);
     last.increment();
     last.increment();
@@ -124,7 +127,7 @@ describe('initialized microstate', () => {
 
   it('streams initialized microstate', () => {
     let fn = jest.fn();
-    Observable.from(create(Modal)).subscribe(fn);
+    from(create(Modal)).subscribe(fn);
     expect(fn).toHaveBeenCalledTimes(1);
     expect(fn.mock.calls[0][0].state).toMatchObject({
       isOpen: true
