@@ -1,5 +1,6 @@
 import 'jest';
 
+import types from '../src/types';
 import Tree, { Microstate, reveal } from '../src/tree';
 import { flatMap, map } from 'funcadelic';
 import view from 'ramda/src/view';
@@ -15,7 +16,7 @@ describe("A Boolean Tree with a value provided", () => {
     });
   });
   it('has a type', () => {
-    expect(tree.Type).toEqual(Boolean);
+    expect(tree.Type).toEqual(types.Boolean);
   });
   it('has a value', () => {
     expect(tree.value).toEqual(false);
@@ -58,7 +59,7 @@ describe("A Composed Tree with value provided", () => {
   });
   describe('name child', () => {
     it('is of Type String', () => {
-      expect(tree.children.name.Type).toBe(String);
+      expect(tree.children.name.Type).toBe(types.String);
     });
     it('has value', () => {
       expect(tree.children.name.value).toBe('Taras');
@@ -212,7 +213,7 @@ describe('Tree', () => {
     });
 
     it('can be used as a lens', () => {
-      expect(viewed.Type).toBe(String);
+      expect(viewed.Type).toBe(types.String);
     });
 
     it('prunes the focused value', () => {
@@ -282,7 +283,7 @@ describe('Microstate', () => {
       });
 
       it('returns same type', () => {
-        expect(reveal(next).Type).toBe(Number);
+        expect(reveal(next).Type).toBe(types.Number);
       });
 
       it('incremented the value', () => {
@@ -505,7 +506,7 @@ describe('Microstate', () => {
 
         it('captured before and after state', () => {
           expect(beforeTransition.mock.calls[0][0].state).toMatchObject({
-            name: 'undefined'
+            name: ''
           });
           expect(afterTransition.mock.calls[0][0].state).toMatchObject({
             name: 'Bart',

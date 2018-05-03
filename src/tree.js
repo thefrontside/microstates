@@ -114,8 +114,8 @@ Functor.instance(Microstate, {
 
 export default class Tree {
   // value can be either a function or a value.
-  constructor({ Type = types.Any, value, path = [], root, middleware = defaultMiddleware, constructorFactory = defaultConstructorFactory}) {
-    this.Type = Type;
+  constructor({ Type: InitialType = types.Any, value, path = [], root, middleware = defaultMiddleware, constructorFactory = defaultConstructorFactory}) {
+    this.Type = toType(desugar(InitialType));
     this.path = path;
     this.root = root || this;
     // stable object has all of the data that will be
@@ -123,7 +123,8 @@ export default class Tree {
     this.stable = {
       value: new Value(value),
       state: new State(this),
-      Constructor: constructorFactory(Type),
+      Constructor: constructorFactory(this.Type),
+      InitialType,
       middleware
     }
   }
