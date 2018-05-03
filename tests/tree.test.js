@@ -552,59 +552,114 @@ describe('Microstate', () => {
   });
 
   describe('initialization', () => {
-    class Session {
-      initialize(data) {
-        if (data) {
-          return Microstate.create(Authenticated, data);
+    describe('at root', () => {
+      class Session {
+        initialize(data) {
+          if (data) {
+            return Microstate.create(Authenticated, data);
+          }
+          return Microstate.create(Anonymous);
         }
-        return Microstate.create(Anonymous);
       }
-    }
-    class Authenticated extends Session {
-      logout() {}
-    }
-    class Anonymous extends Session {
-      signin() {}
-    }
-
-    describe('initialize without data', () => {
-      let initialized;
-      beforeEach(() => {
-        initialized = Microstate.create(Session);
-      });
-
-      it('initilizes into another type', () => {
-        expect(initialized.state).toBeInstanceOf(Anonymous);
-      });
-
-      it('has signin transition', () => {
-        expect(initialized.signin).toBeInstanceOf(Function);
-      });
-
-      describe('calling initialize on initialized microstate', () => {
-        let reinitialized;
+      class Authenticated extends Session {
+        logout() {}
+      }
+      class Anonymous extends Session {
+        signin() {}
+      }
+  
+      describe('initialize without data', () => {
+        let initialized;
         beforeEach(() => {
-          reinitialized = initialized.initialize('foo');
+          initialized = Microstate.create(Session);
         });
-
+  
+        it('initilizes into another type', () => {
+          expect(initialized.state).toBeInstanceOf(Anonymous);
+        });
+  
+        it('has signin transition', () => {
+          expect(initialized.signin).toBeInstanceOf(Function);
+        });
+  
+        describe('calling initialize on initialized microstate', () => {
+          let reinitialized;
+          beforeEach(() => {
+            reinitialized = initialized.initialize('foo');
+          });
+  
+          it('initilizes into Authenticated', () => {
+            expect(reinitialized.state).toBeInstanceOf(Authenticated);
+          });
+        });
+      });
+  
+      describe('initialize with data', () => {
+        let initialized;
+        beforeEach(() => {
+          initialized = Microstate.create(Session, 'SECRET');
+        });
+  
         it('initilizes into Authenticated', () => {
-          expect(reinitialized.state).toBeInstanceOf(Authenticated);
+          expect(initialized.state).toBeInstanceOf(Authenticated);
+        });
+  
+        it('has signin transition', () => {
+          expect(initialized.logout).toBeInstanceOf(Function);
         });
       });
     });
 
-    describe('initialize with data', () => {
-      let initialized;
-      beforeEach(() => {
-        initialized = Microstate.create(Session, 'SECRET');
-      });
+    describe("deeply nested", () => {
+      class Root {
+        first = class First {
+          second = class Second {
+            name = String;
+            initialize(props) {
+              if (!props) {
+                return Microstate.create(Second, { name: "default" });
+              }
+              return this;
+            }
+          };
+        };
+      }
+    
+      describe('initialization', () => {
+        let root;
+        
+        beforeEach(() => {
+          root = Microstate.create(Root);
+        });
 
-      it('initilizes into Authenticated', () => {
-        expect(initialized.state).toBeInstanceOf(Authenticated);
-      });
+        it("has result of create of second node", () => {
+          expect(root.state).toMatchObject({
+            first: {
+              second: {
+                name: "default",
+              },
+            },
+          });
+        });
 
-      it('has signin transition', () => {
-        expect(initialized.logout).toBeInstanceOf(Function);
+        describe('transition', () => {
+
+          let changed;
+          beforeEach(() => {
+            changed = root.first.second.name.concat("!!!");
+          });
+        
+          it("has result after transition valueOf", () => {
+            expect(changed.valueOf()).toEqual({
+              first: {
+                second: {
+                  name: "default!!!",
+                },
+              },
+            });
+          });
+  
+        });  
       });
     });
   });

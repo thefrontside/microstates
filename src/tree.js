@@ -445,23 +445,15 @@ Monad.instance(Tree, {
   flatMap(fn, tree) {
 
     function reflatmap(fn, tree, root) {
-      let mapped = thunk(() => fn(tree));
+      let localized = tree => fn(tree.prune()).graft(tree.path, root)
+      let mapped = thunk(() => localized(tree));
 
       let next = Object.create(Tree.prototype, {
         Type: {
           enumerable: true,
-          value: mapped().Type
-        },
-        value: {
-          enumerable: true,
-          configurable: true,
-          get: stabilizeOn('value', function stableValue() {
-            if (mapped() === tree) {
-              return tree.value;
-            } else {
-              return Object.keys(this.children).reduce((value, key) => append(value, { [key]: this.children[key].value }), mapped().value);
-            }
-          })
+          get() {
+            return mapped().Type;
+          }
         },
         root: {
           enumerable: true,
@@ -473,16 +465,29 @@ Monad.instance(Tree, {
         },
         stable: {
           enumerable: true,
-          get() {
-            let { stable } = mapped();
-            return stable ? stable : tree.stable;
-          }
+          configurable: true,
+          get: stabilizeOn('stable', function stableStable() {
+            let stable = mapped().stable ? mapped().stable : tree.stable;
+
+            return assign({}, stable, {
+              value: new Value(() => {
+                let { value } = mapped();
+                if (this.hasChildren && value !== undefined) {
+                  return Object.keys(this.children).reduce((value, key) => {
+                    return lset(lensPath([key]), this.children[key].value, value);
+                  }, value);
+                }
+                return tree.value;
+              }),
+              state: new State(this)
+            });
+          })
         },
         children: {
           enumerable: false,
           configurable: true,
           get: stabilizeOn('children', function stableChildren() {
-            return map(child => reflatmap(fn, child, root), mapped().children);
+            return map(child => reflatmap(localized, child, root), mapped().children);
           })
         }
       })
