@@ -250,32 +250,6 @@ describe('Tree', () => {
     });
 
   });
-
-  describe('isPrimitive', () => {
-    it('is true for Boolean', () => {
-      expect(new Tree({ Type: Boolean })).toHaveProperty('isPrimitive', true);
-      expect(new Tree({ Type: Boolean, value: true })).toHaveProperty('isPrimitive', true);
-    });
-    it('is true for String', () => {
-      expect(new Tree({ Type: String })).toHaveProperty('isPrimitive', true);
-      expect(new Tree({ Type: String, value: 'foo' })).toHaveProperty('isPrimitive', true);
-    });
-    it('is true for Number', () => {
-      expect(new Tree({ Type: Number })).toHaveProperty('isPrimitive', true);
-      expect(new Tree({ Type: Number, value: 10 })).toHaveProperty('isPrimitive', true);
-    });
-    it('is false for Object', () => {
-      expect(new Tree({ Type: Object })).toHaveProperty('isPrimitive', false);
-      expect(new Tree({ Type: Object, value: {} })).toHaveProperty('isPrimitive', false);
-      expect(new Tree({ Type: Object, value: { foo: 'bar' } })).toHaveProperty('isPrimitive', false);
-    });
-    it('is false for Array', () => {
-      expect(new Tree({ Type: Array })).toHaveProperty('isPrimitive', false);
-      expect(new Tree({ Type: Array, value: [] })).toHaveProperty('isPrimitive', false);
-      expect(new Tree({ Type: Array, value: [123] })).toHaveProperty('isPrimitive', false);
-    });
-  });
-
 });
 
 describe('Microstate', () => {

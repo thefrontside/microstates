@@ -12,6 +12,7 @@ import desugar from './desugar';
 import { reveal, keep } from './utils/secret';
 export { reveal } from './utils/secret';
 import SymbolObservable from "symbol-observable";
+import isSimple from './is-simple';
 
 const { assign, keys, defineProperty, defineProperties } = Object;
 
@@ -129,8 +130,8 @@ export default class Tree {
     }
   }
 
-  get isPrimitive() {
-    return [types.String, types.Boolean, types.Number].indexOf(this.Type) !== -1;
+  get isSimple() {
+    return isSimple(this.Type);
   }
 
   use(fn) {
@@ -302,7 +303,7 @@ class State {
   get value() {
     let { tree, tree: { Type, value } } = this;
 
-    if (tree.isPrimitive || value === undefined) {
+    if (tree.isSimple || value === undefined) {
       return value;
     } else {
       return append(new Type(value), map(child => child.state, tree.children));
