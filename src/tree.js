@@ -362,6 +362,7 @@ Semigroup.instance(Tree, {
   append(tree, values = {}) {
 
     let thunks = map(valueOrFn => typeof valueOrFn === 'function' ? thunk(valueOrFn) : () => valueOrFn, values);
+
     let getscriptor = key => ({
       enumerable: true,
       configurable: true,
@@ -459,55 +460,31 @@ Monad.instance(Tree, {
    */
   flatMap(fn, tree) {
 
-    function reflatmap(fn, tree, root) {
-      let localized = tree => fn(tree.prune()).graft(tree.path, root)
-      let mapped = thunk(() => localized(tree));
-      let fromMappedOrTree = key => mapped()[key] ? mapped()[key] : tree[key];
+    let mapped = thunk(() => fn(tree));
+    
+    return append(tree, {
+      Type: () => mapped().Type ? mapped().Type : tree.Type,
+      stable: instance => {
+        let stable = mapped().stable ? mapped().stable : tree.stable;
 
-      return Object.create(Tree.prototype, {
-        Type: {
-          enumerable: true,
-          get() {
-            return fromMappedOrTree('Type');
-          }
-        },
-        root: {
-          enumerable: true,
-          get() { return root || this; }
-        },
-        path: {
-          enumerable: true,
-          value: tree.path
-        },
-        stable: {
-          enumerable: true,
-          configurable: true,
-          get: stabilizeOn('stable', function stableStable() {
-            let stable = fromMappedOrTree('stable');
-
-            return assign({}, stable, {
-              value: new Value(() => {
-                let { value } = mapped();
-                if (this.hasChildren && value !== undefined) {
-                  return Object.keys(this.children).reduce((value, key) => {
-                    return lset(lensPath([key]), this.children[key].value, value);
-                  }, value);
-                }
-                return value;
-              }),
-              state: new State(this)
-            });
-          })
-        },
-        children: {
-          enumerable: false,
-          configurable: true,
-          get: stabilizeOn('children', function stableChildren() {
-            return map(child => reflatmap(localized, child, this.root), mapped().children);
-          })
-        }
-      });
-    }
-    return reflatmap(fn, tree);
+        return assign({}, stable, {
+          value: new Value(() => {
+            let { value } = mapped();
+            if (instance.hasChildren && value !== undefined) {
+              return Object.keys(instance.children).reduce((value, key) => {
+                return lset(lensPath([key]), instance.children[key].value, value);
+              }, value);
+            }
+            return value;
+          }),
+          state: new State(instance)
+        });
+      },
+      children: root => map(child => {
+        return flatMap(tree => {
+          return fn(tree.prune()).graft(tree.path, root);
+        }, child);
+      }, mapped().children)
+    }); 
   }
 })

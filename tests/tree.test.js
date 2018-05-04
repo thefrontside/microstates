@@ -131,6 +131,25 @@ describe('Tree', () => {
         expect(changedA.stable.middleware).toBe(a.stable.middleware);        
       });
     });
+
+    describe('calling append on nested tree', () => {
+      let appended;
+      beforeEach(() => {
+        appended = append(moreThings, {});
+      });
+      it('result is a new object', () => {
+        expect(appended).not.toBe(moreThings);
+      });
+      it('updates root on all children', () => {
+        expect(appended.root).toBe(appended);
+        expect(appended.children.a.root).toBe(appended);
+        expect(appended.children.a.children.more.root).toBe(appended);
+      });
+      it('did not change stable', () => {
+        expect(appended.stable).toBe(moreThings.stable);
+        expect(appended.children.a.stable).toBe(moreThings.children.a.stable)
+      });
+    });
   });
 
   describe('Functor', () => {
