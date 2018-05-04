@@ -395,7 +395,7 @@ Functor.instance(Tree, {
     function remap(fn, tree, root) {
       let mapped = thunk(() => fn(tree));
 
-      let next = Object.create(Tree.prototype, {
+      return Object.create(Tree.prototype, {
         Type: {
           enumerable: true,
           value: tree.Type
@@ -409,7 +409,7 @@ Functor.instance(Tree, {
         },
         root: {
           enumerable: true,
-          get() { return root; }
+          get() { return root || this; }
         },
         stable: {
           enumerable: true,
@@ -422,12 +422,10 @@ Functor.instance(Tree, {
           enumerable: false,
           configurable: true,
           get: stabilizeOn('children', function stableChildren() {
-            return map(child => remap(fn, child, root), tree.children);
+            return map(child => remap(fn, child, this.root), tree.children);
           })
         }
       });
-      root = root || next;
-      return next;
     }
     return remap(fn, tree);
   }
@@ -470,17 +468,18 @@ Monad.instance(Tree, {
     function reflatmap(fn, tree, root) {
       let localized = tree => fn(tree.prune()).graft(tree.path, root)
       let mapped = thunk(() => localized(tree));
+      let fromMappedOrTree = key => mapped()[key] ? mapped()[key] : tree[key];
 
-      let next = Object.create(Tree.prototype, {
+      return Object.create(Tree.prototype, {
         Type: {
           enumerable: true,
           get() {
-            return mapped().Type;
+            return fromMappedOrTree('Type');
           }
         },
         root: {
           enumerable: true,
-          get() { return root; }
+          get() { return root || this; }
         },
         path: {
           enumerable: true,
@@ -490,7 +489,7 @@ Monad.instance(Tree, {
           enumerable: true,
           configurable: true,
           get: stabilizeOn('stable', function stableStable() {
-            let stable = mapped().stable ? mapped().stable : tree.stable;
+            let stable = fromMappedOrTree('stable');
 
             return assign({}, stable, {
               value: new Value(() => {
@@ -510,13 +509,10 @@ Monad.instance(Tree, {
           enumerable: false,
           configurable: true,
           get: stabilizeOn('children', function stableChildren() {
-            return map(child => reflatmap(localized, child, root), mapped().children);
+            return map(child => reflatmap(localized, child, this.root), mapped().children);
           })
         }
-      })
-
-      root = root || next;
-      return next;
+      });
     }
     return reflatmap(fn, tree);
   }
