@@ -262,45 +262,6 @@ export default class Tree {
   }
 }
 
-/**
- * Tree Semigroup allows to add data to stable object on the root
- * of the tree.
- */
-Semigroup.instance(Tree, {
-  append(tree, values = {}) {
-
-    let thunks = map(valueOrFn => typeof valueOrFn === 'function' ? thunk(valueOrFn) : () => valueOrFn, values);
-    let descriptor = key => ({
-      enumerable: true,
-      configurable: true,
-      get() {
-        return thunks.hasOwnProperty(key) ? thunks[key](this) : tree[key];
-      }
-    });
-
-    return Object.create(Tree.prototype, {
-      Type: descriptor('Type'),
-      path: descriptor('path'),
-      root: {
-        enumerable: true,
-        configurable: true,
-        get: stabilizeOn('root', function appendStableRoot() {
-          return thunks.hasOwnProperty('root') ? thunks.root(this) : this;
-        })
-      },
-      stable: descriptor('stable'),
-      children: {
-        enumerable: true,
-        configurable: true,
-        get: stabilizeOn('children', function appendStableChildren() {
-          let children = thunks.hasOwnProperty('children') ? thunks.children(this) : tree.children;
-          return map(child => append(child, { root: this.root }), children);
-        })
-      }
-    });
-  }
-})
-
 class Value {
   constructor(valueOrFn) {
     this.valueOrFn = valueOrFn;
@@ -394,6 +355,45 @@ function stabilizeOn(key, fn) {
 }
 
 /**
+ * Tree Semigroup allows to add data to stable object on the root
+ * of the tree.
+ */
+Semigroup.instance(Tree, {
+  append(tree, values = {}) {
+
+    let thunks = map(valueOrFn => typeof valueOrFn === 'function' ? thunk(valueOrFn) : () => valueOrFn, values);
+    let getscriptor = key => ({
+      enumerable: true,
+      configurable: true,
+      get() {
+        return thunks.hasOwnProperty(key) ? thunks[key](this) : tree[key];
+      }
+    });
+
+    return Object.create(Tree.prototype, {
+      Type: getscriptor('Type'),
+      path: getscriptor('path'),
+      root: {
+        enumerable: true,
+        configurable: true,
+        get: stabilizeOn('root', function appendStableRoot() {
+          return thunks.hasOwnProperty('root') ? thunks.root(this) : this;
+        })
+      },
+      stable: getscriptor('stable'),
+      children: {
+        enumerable: true,
+        configurable: true,
+        get: stabilizeOn('children', function appendStableChildren() {
+          let children = thunks.hasOwnProperty('children') ? thunks.children(this) : tree.children;
+          return map(child => append(child, { root: this.root }), children);
+        })
+      }
+    });
+  }
+});
+
+/**
  * Tree Functor allows a developer to map a tree without changing
  * the tree's structure. The functor instance will enforce maintaing
  * the structure by copying over Type and overriding returned chidren.
@@ -415,42 +415,13 @@ function stabilizeOn(key, fn) {
 Functor.instance(Tree, {
   map(fn, tree) {
 
-    function remap(fn, tree, root) {
-      let mapped = thunk(() => fn(tree));
+    let mapped = thunk(() => fn(tree));
 
-      return Object.create(Tree.prototype, {
-        Type: {
-          enumerable: true,
-          value: tree.Type
-        },
-        path: {
-          enumerable: true,
-          get() {
-            let { path } = mapped();
-            return path ? path : tree.path;
-          }
-        },
-        root: {
-          enumerable: true,
-          get() { return root || this; }
-        },
-        stable: {
-          enumerable: true,
-          get() {
-            let { stable } = mapped();
-            return stable ? stable : tree.stable;
-          }
-        },
-        children: {
-          enumerable: false,
-          configurable: true,
-          get: stabilizeOn('children', function stableChildren() {
-            return map(child => remap(fn, child, this.root), tree.children);
-          })
-        }
-      });
-    }
-    return remap(fn, tree);
+    return append(tree, {
+      stable: () => mapped().stable ? mapped().stable : tree.stable,
+      path: () => mapped().path ? mapped().path : tree.path,
+      children: root => map(child => append(map(fn, child), { root }), tree.children)
+    })
   }
 });
 

@@ -2,10 +2,12 @@ import 'jest';
 
 import types from '../src/types';
 import Tree, { Microstate, reveal } from '../src/tree';
-import { flatMap, map } from 'funcadelic';
+import { flatMap, map, append } from 'funcadelic';
 import view from 'ramda/src/view';
 import set from 'ramda/src/set';
 import over from 'ramda/src/over';
+
+const { assign } = Object;
 
 describe("A Boolean Tree with a value provided", () => {
   let tree;
@@ -77,9 +79,10 @@ describe("A Composed Tree with value provided", () => {
 
 describe('Tree', () => {
 
-  let a, things;
+  let a, things, moreThings;
   class Thing {
     name = String;
+    more = Things;
   }
 
   class Things {
@@ -90,6 +93,44 @@ describe('Tree', () => {
   beforeEach(() => {
     a = new Tree({ Type: String });
     things = new Tree({ Type: Things, value: { a: { name: 'A' }, b: { name: 'B' }} });
+    moreThings = new Tree({ Type: Things, value: { a: { name: 'A', more: { a: { name: 'AA' } } }, b: { name: 'B' } } })
+  });
+
+  describe('Semigroup', () => {
+    describe('changing property with value', () => {      
+      let changedA;
+      beforeEach(() => {
+        changedA = append(a, { path: ['b'] });
+      });
+      it('returns a new Tree', () => {
+        expect(changedA).toBeInstanceOf(Tree);
+      });
+      it('keeps Type', () => {
+        expect(changedA.Type).toBe(a.Type);
+      });
+      it('returned object has given path', () => {
+        expect(changedA.path).toEqual(['b']);
+      });
+      it('did not modify the original objects path', () => {
+        expect(a.path).toEqual([]);
+      });
+      it('returned object has itself as root', () => {
+        expect(changedA.root).toBe(changedA);
+      });
+    });
+
+    describe('changing property with thunk', () => {
+      let changedA;
+      beforeEach(() => {
+        changedA = append(a, { stable: () => assign({}, a.stable, { foo: 'bar' })})
+      });
+      it('uses value from a thunk', () => {
+        expect(changedA.stable.foo).toBe('bar');
+        expect(changedA.stable.value).toBe(a.stable.value);
+        expect(changedA.stable.state).toBe(a.stable.state);
+        expect(changedA.stable.middleware).toBe(a.stable.middleware);        
+      });
+    });
   });
 
   describe('Functor', () => {
@@ -125,6 +166,24 @@ describe('Tree', () => {
 
       expect(mapped.children).toBe(mapped.children);
       expect(mapped.children.a).toBe(mapped.children.a);
+    });
+
+    describe('mapping children', () => {
+      let mapped;
+      beforeEach(() => {
+        mapped = map(tree => append(tree, { stable: assign({}, tree.stable, { foo: 'bar' })}), moreThings);
+      });
+      it('applies callback to every node', () => {
+        expect(mapped.stable.foo).toBe('bar');
+        expect(mapped.children.a.stable.foo).toBe('bar');
+        expect(mapped.children.a.children.more.stable.foo).toBe('bar');
+        expect(mapped.children.a.children.more.children.a.stable.foo).toBe('bar');
+      });
+      it('changes root for each', () => {
+        expect(mapped.root).toBe(mapped);
+        expect(mapped.children.a.root).toBe(mapped);
+        expect(mapped.children.a.children.more.root).toBe(mapped);
+      });
     });
   });
 
@@ -162,6 +221,22 @@ describe('Tree', () => {
     it('preserves the path', function() {
       expect(flatMapped.children.a.path).toEqual(['a']);
     });
+
+    // describe('changing children', () => {
+    //   let tree, flatMapped;
+    //   beforeEach(() => {
+    //     tree = new Tree({ Type: Array, value: ['a', 'b', 'c'] });
+    //     flatMapped = flatMap(tree => {
+    //       return {
+    //         children: [...tree.children, new Tree({ value: 'd' })]
+    //       }
+    //     }, tree);
+    //   });
+
+    //   it('has four children', () => {
+    //     expect(flatMapped.children).toHaveLength(4);
+    //   });
+    // });
   })
 
   describe('prune', () => {
