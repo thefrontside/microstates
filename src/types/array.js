@@ -11,13 +11,15 @@ class ArrayType {
   }
 
   push(item) {
-    return map(tree => flatMap(tree => {
-      if (tree.isRoot) {
-        return append(tree, { children: append(tree.children, new Tree({ value: item }))})
-      } else {
-        return tree;
+    return map(tree => flatMap(current => {
+      if (tree.stable === current.stable) {
+        let { T } = params(current.Type);
+        return append(current, { 
+          children: () => append(current.children, new Tree({ Type: T, value: item }))
+        });
       }
-    }, tree) , this);
+      return current;
+    }, tree), this);
   }
 
   pop() {
@@ -31,23 +33,32 @@ class ArrayType {
   }
 
   filter(fn) {
-
-    let result = foldl(({array, removed}, state, i) => {
-      if (fn(state)) {
-        return { array, removed };
-      } else {
-        return {
-          array: array.splice(i - removed, 1, []),
-          removed: removed + 1
-        };
+    return map(tree => flatMap(current => {
+      if (tree.stable === current.stable) {
+        return append(current, { 
+          children: () => current.children.filter(tree => fn(tree.state))
+        });
       }
-    }, {array: this, removed: 0}, this.state).array;
-
-    return this.set(result);
+      return current;
+    }, tree), this);
   }
 
-  map(callback) {
-    return this.set(Array.prototype.map.call(this.state, callback));
+  map(fn) {
+    return map(tree => flatMap(current => {
+      if (tree.stable === current.stable) {
+        return append(current, { 
+          children: () => current.children.map(tree => {
+            let result = fn(tree.state);
+            if (result === tree.state) {
+              return tree;
+            } else {
+              return new Tree({ Type: tree.Type, value: result });
+            }
+          })
+        });
+      }
+      return current;
+    }, tree), this);
   }
 
   splice(startIndex, length, values) {

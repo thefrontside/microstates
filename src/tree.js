@@ -471,9 +471,11 @@ Monad.instance(Tree, {
           value: new Value(() => {
             let { value } = mapped();
             if (instance.hasChildren && value !== undefined) {
-              return Object.keys(instance.children).reduce((value, key) => {
-                return lset(lensPath([key]), instance.children[key].value, value);
-              }, value);
+              if (Array.isArray(instance.children)) {
+                return map(child => child.value, instance.children);
+              } else {
+                return append(value, map(child => child.value, instance.children))
+              }
             }
             return value;
           }),
