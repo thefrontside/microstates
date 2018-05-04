@@ -135,7 +135,9 @@ export default class Tree {
   }
 
   use(fn) {
-    return append(this, { middleware: fn(this.stable.middleware) });
+    return append(this, {
+      stable: assign({}, this.stable, { middleware: fn(this.stable.middleware) })
+    });
   }
 
   /**
@@ -146,12 +148,12 @@ export default class Tree {
   apply(fn) {
     let { middleware } = this.root.stable;
     // overload custom middleware to allow context free transitions
-    let root = append(this.root, { middleware: defaultMiddleware });
+    let root = append(this.root, { stable: assign({}, this.root.stable, { middleware: defaultMiddleware } ) });
     // focus on current tree and apply the function to it
     let nextRoot = over(this.lens, fn, root);
     // put the original middleware into the next root tree so the middleware will
     // carry into the next microstate
-    return append(nextRoot, { middleware });
+    return append(nextRoot, { stable: assign({}, nextRoot.stable, { middleware } )});
   }
 
   /**
@@ -265,16 +267,37 @@ export default class Tree {
  * of the tree.
  */
 Semigroup.instance(Tree, {
-  append(tree, stable = {}) {
-    return map(current => {
-      if (current.stable === tree.stable) {
-        return  {
-          stable: assign({}, tree.stable, stable)
-        };
-      } else {
-        return current;
+  append(tree, values = {}) {
+
+    let thunks = map(valueOrFn => typeof valueOrFn === 'function' ? thunk(valueOrFn) : () => valueOrFn, values);
+    let descriptor = key => ({
+      enumerable: true,
+      configurable: true,
+      get() {
+        return thunks.hasOwnProperty(key) ? thunks[key](this) : tree[key];
       }
-    }, tree);
+    });
+
+    return Object.create(Tree.prototype, {
+      Type: descriptor('Type'),
+      path: descriptor('path'),
+      root: {
+        enumerable: true,
+        configurable: true,
+        get: stabilizeOn('root', function appendStableRoot() {
+          return thunks.hasOwnProperty('root') ? thunks.root(this) : this;
+        })
+      },
+      stable: descriptor('stable'),
+      children: {
+        enumerable: true,
+        configurable: true,
+        get: stabilizeOn('children', function appendStableChildren() {
+          let children = thunks.hasOwnProperty('children') ? thunks.children(this) : tree.children;
+          return map(child => append(child, { root: this.root }), children);
+        })
+      }
+    });
   }
 })
 
