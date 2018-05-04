@@ -1,4 +1,4 @@
-import { append, foldl, map } from 'funcadelic';
+import { append, foldl, map, flatMap } from 'funcadelic';
 import $ from '../utils/chain';
 import { reveal } from '../utils/secret';
 import Tree from '../tree';
@@ -9,9 +9,17 @@ class ArrayType {
   constructor(value = []) {
     return value instanceof Array ? value : [value];
   }
+
   push(item) {
-    return this.splice(this.state.length, 0, [item]);
+    return map(tree => flatMap(tree => {
+      if (tree.isRoot) {
+        return append(tree, { children: append(tree.children, new Tree({ value: item }))})
+      } else {
+        return tree;
+      }
+    }, tree) , this);
   }
+
   pop() {
     return this.splice(this.state.length - 1, 1, []);
   }
@@ -21,6 +29,7 @@ class ArrayType {
   unshift(item) {
     return this.splice(0, 0, [item]);
   }
+
   filter(fn) {
 
     let result = foldl(({array, removed}, state, i) => {
@@ -45,12 +54,14 @@ class ArrayType {
     let Microstate = this.constructor;
     let { create } = Microstate;
     let tree = reveal(this);
+
     let value = (this.valueOf() || []).slice();
+
     value.splice(startIndex, length, ...values);
 
     let { T } = params(tree.data.Type);
     if (T === Any) {
-      return this.set(value);
+      return value;
     }
 
     let unchanged = tree.children.slice(0, startIndex);

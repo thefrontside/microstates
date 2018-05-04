@@ -45,7 +45,7 @@ describe("type-shifting", () => {
 
   describe("create", function() {
     it("can initialize to itself", () => {
-      let shape = create(Shape);
+      let shape = create(Shape, {});
       expect(shape.state).toBeInstanceOf(Shape);
     });
 
