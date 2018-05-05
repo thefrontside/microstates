@@ -130,6 +130,10 @@ export default class Tree {
     }
   }
 
+  is(tree) {
+    return this.stable === tree.stable;
+  }
+
   get isSimple() {
     return isSimple(this.Type);
   }
@@ -291,7 +295,7 @@ class State {
       return value;
     } else {
       if (Array.isArray(tree.children)) {
-        return map(child => child.state, tree.children)
+        return map(child => child.state, tree.children);
       } else {
         return append(new Type(value), map(child => child.state, tree.children));
       }

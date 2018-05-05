@@ -99,18 +99,21 @@ describe('ArrayType', function() {
       expect(pushed.state.length).toEqual(4);
       expect(pushed.state[3]).toBeInstanceOf(Thing);
     });
+
     it('can pop values', function() {
       let popped = ms.pop();
       expect(popped.valueOf()).toEqual(['a', 'b']);
       expect(popped.state.length).toEqual(2);
       expect(popped.state[1]).toBeInstanceOf(Thing);
     });
+
     it('can unshift values', function () {
       let unshifted = ms.unshift('d');
       expect(unshifted.valueOf()).toEqual(['d', 'a', 'b', 'c']);
       expect(unshifted.state.length).toEqual(4);
       expect(unshifted.state[0]).toBeInstanceOf(Thing);
     });
+    
     it('can shift values', function () {
       let shifted = ms.shift();
       expect(shifted.valueOf()).toEqual(['b', 'c']);

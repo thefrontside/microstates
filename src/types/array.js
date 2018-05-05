@@ -5,21 +5,22 @@ import Tree from '../tree';
 import { parameterized, params } from './parameters0';
 import Any from './any';
 
+function flatMapTree(fn, tree) {
+  return map(tree => flatMap(current => current.is(tree) ? fn(current) : current, tree), tree);
+}
+
 class ArrayType {
   constructor(value = []) {
     return value instanceof Array ? value : [value];
   }
-
+  
   push(item) {
-    return map(tree => flatMap(current => {
-      if (tree.stable === current.stable) {
-        let { T } = params(current.Type);
-        return append(current, { 
-          children: () => append(current.children, new Tree({ Type: T, value: item }))
-        });
-      }
-      return current;
-    }, tree), this);
+    return flatMapTree(current => {
+      let { T } = params(current.Type);
+      return append(current, { 
+        children: () => append(current.children, new Tree({ Type: T, value: item }))
+      });
+    }, this);
   }
 
   pop() {
@@ -33,32 +34,26 @@ class ArrayType {
   }
 
   filter(fn) {
-    return map(tree => flatMap(current => {
-      if (tree.stable === current.stable) {
-        return append(current, { 
-          children: () => current.children.filter(tree => fn(tree.state))
-        });
-      }
-      return current;
-    }, tree), this);
+    return flatMapTree(current => {
+      return append(current, { 
+        children: () => current.children.filter(tree => fn(tree.state))
+      });
+    }, this);
   }
 
   map(fn) {
-    return map(tree => flatMap(current => {
-      if (tree.stable === current.stable) {
-        return append(current, { 
-          children: () => current.children.map(tree => {
-            let result = fn(tree.state);
-            if (result === tree.state) {
-              return tree;
-            } else {
-              return new Tree({ Type: tree.Type, value: result });
-            }
-          })
-        });
-      }
-      return current;
-    }, tree), this);
+    return flatMapTree(current => {
+      return append(current, { 
+        children: () => current.children.map(tree => {
+          let result = fn(tree.state);
+          if (result === tree.state) {
+            return tree;
+          } else {
+            return new Tree({ Type: tree.Type, value: result });
+          }
+        })
+      })
+    }, this);
   }
 
   splice(startIndex, length, values) {
