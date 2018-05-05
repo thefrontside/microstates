@@ -87,7 +87,7 @@ describe('ArrayType', function() {
     let ms = create([Thing], array);
 
     it('has instances of the state for each value in the array', function() {
-      // expect(ms.state.length).toBe(3);
+      expect(ms.state.length).toBe(3);
       expect(ms.state[0]).toBeInstanceOf(Thing);
       expect(ms.state[1]).toBeInstanceOf(Thing);
       expect(ms.state[2]).toBeInstanceOf(Thing);

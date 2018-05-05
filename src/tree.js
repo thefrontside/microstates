@@ -290,7 +290,11 @@ class State {
     if (tree.isSimple || value === undefined) {
       return value;
     } else {
-      return append(new Type(value), map(child => child.state, tree.children));
+      if (Array.isArray(tree.children)) {
+        return map(child => child.state, tree.children)
+      } else {
+        return append(new Type(value), map(child => child.state, tree.children));
+      }
     }
   }
 }
