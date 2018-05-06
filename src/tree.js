@@ -484,7 +484,11 @@ Monad.instance(Tree, {
               if (Array.isArray(instance.children)) {
                 return map(child => child.value, instance.children);
               } else {
-                return append(value, map(child => child.value, instance.children))
+                let childrenValue = Object.keys(instance.children).reduce((value, key) => {
+                  value[key] = instance.children[key].value;
+                  return value;
+                }, {});
+                return assign({}, value, childrenValue);
               }
             }
             return value;

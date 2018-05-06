@@ -311,38 +311,13 @@ describe("type-shifting in a getter", () => {
 
   let root;
   beforeEach(() => {
-    root = create(Node);
+    root = create(Node, {});
   });
 
   it("allows to create nodes", () => {
     expect(root.state.depth).toBe(0);
     expect(root.state.next.depth).toBe(1);
     expect(root.state.next.next.depth).toBe(2);
-  });
-});
-
-describe.skip("type-shifting recursively with create", () => {
-  // this fails with: RangeError: Maximum call stack size exceeded
-  // I suspect this is because `create` is eager, it would be cool if
-  // we could make this lazy and thereby allow tree to be pulled on demand
-
-  class Node {
-    depth = Number;
-    node = Node;
-
-    initialize({ depth = 0 } = {}) {
-      return create(Node, { depth, node: { depth: depth + 1 } });
-    }
-  }
-
-  let root;
-  beforeEach(() => {
-    root = create(Node);
-  });
-
-  it("allows to create nodes", () => {
-    expect(root.state.depth).toBe(0);
-    expect(root.state.node.depth).toBe(1);
   });
 });
 
@@ -356,9 +331,7 @@ describe("type-shifting from create to parameterized array", () => {
 
     initialize({ members } = {}) {
       if (!members) {
-        return create(Group, {
-          members: [{ name: "Taras" }, { name: "Charles" }, { name: "Siva" }],
-        });
+        return this.members.set([{ name: "Taras" }, { name: "Charles" }, { name: "Siva" }]);
       }
       return this;
     }
@@ -368,7 +341,7 @@ describe("type-shifting from create to parameterized array", () => {
   let value;
 
   beforeEach(() => {
-    group = create(Group);
+    group = create(Group, {});
     value = group.valueOf();
   });
 
@@ -473,122 +446,6 @@ describe("type-shifting from create to parameterized object", () => {
         },
         mother: {
           name: "Jane Doe",
-        },
-      },
-    });
-  });
-});
-
-describe("type-shifting from create nodes in single operation", () => {
-  class Root {
-    initialize(params) {
-      if (!params) {
-        return create(Root, { name: "Default for Root", first: { second: { name: "Provided name for Second" } } });
-      }
-      return this;
-    }
-    name = String;
-    first = class First {
-      name = String;
-      second = class Second {
-        name = String;
-        third = class Third {
-          name = String;
-          initialize(params) {
-            if (!params) {
-              return create(Third, { name: "Default for Third" });
-            }
-            return this;
-          }
-        };
-      };
-    };
-  }
-
-  let root;
-  let transitioned;
-  beforeEach(() => {
-    root = create(Root);
-    transitioned = root.first.second.third.name.concat("!!!");
-  });
-
-  it("has state for root", () => {
-    expect(root.state).toMatchObject({
-      name: "Default for Root",
-      first: {
-        name: "",
-        second: {
-          name: "Provided name for Second",
-          third: {
-            name: "Default for Third",
-          },
-        },
-      },
-    });
-  });
-
-  it("has valueOf", () => {
-    expect(root.valueOf()).toMatchObject({
-      name: "Default for Root",
-      first: {
-        second: {
-          name: "Provided name for Second",
-        },
-      },
-    });
-  });
-
-  it("has value from third initialized value", () => {
-    expect(transitioned.valueOf()).toEqual({
-      name: "Default for Root",
-      first: {
-        second: {
-          name: "Provided name for Second",
-          third: {
-            name: "Default for Third!!!",
-          },
-        },
-      },
-    });
-  });
-});
-
-describe("type-shifting with create in from none root node", () => {
-  class Root {
-    first = class First {
-      second = class Second {
-        name = String;
-        initialize(props) {
-          if (!props) {
-            return create(Second, { name: "default" });
-          }
-          return this;
-        }
-      };
-    };
-  }
-
-  let root, changed;
-  beforeEach(() => {
-    root = create(Root);
-    changed = root.first.second.name.concat("!!!");
-  });
-
-  it("has result of create of second node", () => {
-    expect(root.state).toMatchObject({
-      first: {
-        second: {
-          name: "default",
-        },
-      },
-    });
-  });
-
-  it("has result after transition valueOf", () => {
-    expect(changed.valueOf()).toEqual({
-      first: {
-        second: {
-          name: "default!!!",
         },
       },
     });
