@@ -13,6 +13,7 @@ import { reveal, keep } from './utils/secret';
 export { reveal } from './utils/secret';
 import SymbolObservable from "symbol-observable";
 import isSimple from './is-simple';
+import stabilizeClass from 'memoize-getters';
 
 const { assign, keys, defineProperty, defineProperties } = Object;
 
@@ -124,6 +125,7 @@ export default class Tree {
     this.stable = {
       value: new Value(value),
       state: new State(this),
+      StabilizedClass: stabilizeClass(class extends this.Type {}),
       Constructor: constructorFactory(this.Type),
       InitialType,
       middleware
@@ -289,7 +291,7 @@ class State {
 
   @stable
   get value() {
-    let { tree, tree: { Type, value } } = this;
+    let { tree, tree: { value, stable: { StabilizedClass } } } = this;
 
     if (tree.isSimple || value === undefined) {
       return value;
@@ -297,7 +299,7 @@ class State {
       if (Array.isArray(tree.children)) {
         return map(child => child.state, tree.children);
       } else {
-        return append(new Type(value), map(child => child.state, tree.children));
+        return append(new StabilizedClass(value), map(child => child.state, tree.children));
       }
     }
   }
