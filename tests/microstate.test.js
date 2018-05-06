@@ -12,7 +12,7 @@ describe('create', () => {
     }
     let value = { name: "Taras" };
     let m1 = create(Person, value);
-    expect(m1.valueOf()).toBe(value);
+    expect(m1.valueOf()).toEqual(value);
   });
 });
 
