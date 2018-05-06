@@ -107,13 +107,21 @@ describe('ArrayType', function() {
       expect(popped.state[1]).toBeInstanceOf(Thing);
     });
 
-    it('can unshift values', function () {
+    it('can unshift value', function () {
       let unshifted = ms.unshift('d');
       expect(unshifted.valueOf()).toEqual(['d', 'a', 'b', 'c']);
       expect(unshifted.state.length).toEqual(4);
       expect(unshifted.state[0]).toBeInstanceOf(Thing);
     });
-    
+
+    it('can unshift values', function () {
+      let unshifted = ms.unshift(['d', 'e']);
+      expect(unshifted.valueOf()).toEqual(['d', 'e', 'a', 'b', 'c']);
+      expect(unshifted.state.length).toEqual(5);
+      expect(unshifted.state[0]).toBeInstanceOf(Thing);
+      expect(unshifted.state[1]).toBeInstanceOf(Thing);
+    });
+
     it('can shift values', function () {
       let shifted = ms.shift();
       expect(shifted.valueOf()).toEqual(['b', 'c']);

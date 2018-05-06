@@ -1,6 +1,4 @@
-import { append, foldl, map, flatMap } from 'funcadelic';
-import $ from '../utils/chain';
-import { reveal } from '../utils/secret';
+import { append, map, flatMap } from 'funcadelic';
 import Tree from '../tree';
 import { parameterized, params } from './parameters0';
 import Any from './any';
@@ -13,7 +11,7 @@ class ArrayType {
   constructor(value = []) {
     return value instanceof Array ? value : [value];
   }
-  
+
   push(item) {
     return flatMapTree(current => {
       let { T } = params(current.Type);
@@ -24,13 +22,42 @@ class ArrayType {
   }
 
   pop() {
-    return this.splice(this.state.length - 1, 1, []);
+    return flatMapTree(current => {
+      return append(current, {
+        children: () => {
+          let children = current.children.slice();
+          children.pop();
+          return children;
+        }
+      })
+    }, this)
   }
+
   shift() {
-    return this.splice(0, 1, []);
+    return flatMapTree(current => {
+      return append(current, {
+        children: () => {
+          let children = current.children.slice();
+          children.shift();
+          return children;
+        }
+      })
+    }, this);
   }
-  unshift(item) {
-    return this.splice(0, 0, [item]);
+
+  unshift(value) {
+    let values = Array.isArray(value) ? value : [value];
+
+    return flatMapTree(current => {
+      return append(current, {
+        children: () => {
+          let children = current.children.slice();
+          let { T } = params(current.Type);
+          let trees = map(value => new Tree({ Type: T, value }), values);
+          return trees.concat(children);
+        }
+      })
+    }, this);
   }
 
   filter(fn) {
@@ -45,55 +72,28 @@ class ArrayType {
     return flatMapTree(current => {
       return append(current, { 
         children: () => current.children.map(tree => {
-          let result = fn(tree.state);
-          if (result === tree.state) {
+          let value = fn(tree.state);
+          if (value === tree.state) {
             return tree;
           } else {
-            return new Tree({ Type: tree.Type, value: result });
+            return new Tree({ Type: tree.Type, value });
           }
         })
       })
     }, this);
   }
 
-  splice(startIndex, length, values) {
-    let Microstate = this.constructor;
-    let { create } = Microstate;
-    let tree = reveal(this);
-
-    let value = (this.valueOf() || []).slice();
-
-    value.splice(startIndex, length, ...values);
-
-    let { T } = params(tree.data.Type);
-    if (T === Any) {
-      return value;
-    }
-
-    let unchanged = tree.children.slice(0, startIndex);
-
-    let added = $(values)
-        .map(value => create(T, value))
-        .map(reveal)
-        .valueOf();
-
-    let moved = map(prune, tree.children.slice(startIndex + length));
-
-    function attach(index, tree) {
-      return graft(append(tree.data.path, index), tree);
-    }
-
-    let children = $(unchanged)
-        .append(map((child, i) => attach(i + unchanged.length, child), added))
-        .append(map((child, i) => attach(i + unchanged.length + added.length, child), moved))
-        .valueOf();
-
-    let structure = new Tree({
-      data: () => new tree.data.constructor({path: [], root: map(tree => tree.data.value, children), Type: tree.data.Type }),
-      children: () => children
-    });
-
-    return new Microstate(structure);
+  splice(startIndex, length, value) {
+    return flatMapTree(current => {
+      return append(current, { 
+        children: () => {
+          let children = current.children.slice();
+          let { T } = params(current.Type);
+          children.splice(startIndex, length, new Tree({ Type: T, value }));
+          return children;
+        }
+      })
+    }, this);
   }
 }
 
