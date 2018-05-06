@@ -170,7 +170,7 @@ describe("type-shifting with constant values", () => {
     isError = false;
 
     loading() {
-      return create(AsyncLoading);
+      return create(AsyncLoading, {});
     }
   }
 
@@ -187,7 +187,7 @@ describe("type-shifting with constant values", () => {
       return create(
         class extends AsyncLoaded {
           content = content;
-        }
+        }, {}
       );
     }
 
@@ -195,7 +195,7 @@ describe("type-shifting with constant values", () => {
       return create(
         class extends AsyncError {
           error = msg;
-        }
+        }, {}
       );
     }
   }
@@ -206,7 +206,7 @@ describe("type-shifting with constant values", () => {
     isError = false;
   }
   describe("successful loading siquence", () => {
-    let async = create(Async);
+    let async = create(Async, {});
     it("can transition to loading", () => {
       expect(async.loading().state).toMatchObject({
         content: null,

@@ -14,7 +14,7 @@ class Type {
 describe('constants support', () => {
   let ms, next;
   beforeEach(() => {
-    ms = create(Type);
+    ms = create(Type, {});
     next = ms.greeting.set('HI');
   });
   it('includes constants in state tree', () => {
@@ -29,7 +29,7 @@ describe('constants support', () => {
     });
   });
   it('constants are not included in valueOf', () => {
-    expect(ms.valueOf()).toBeUndefined();
+    expect(ms.valueOf()).toEqual({ greeting: '' });
   });
   it('next state has constants', () => {
     expect(next.state).toEqual({
