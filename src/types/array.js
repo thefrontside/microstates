@@ -3,98 +3,63 @@ import Tree from '../tree';
 import { parameterized, params } from './parameters0';
 import Any from './any';
 
-function flatMapTree(fn, tree) {
-  return map(tree => flatMap(current => current.is(tree) ? fn(current) : current, tree), tree);
-}
-
 class ArrayType {
   constructor(value = []) {
     return value instanceof Array ? value : [value];
   }
 
-  push(item) {
-    return flatMapTree(current => {
-      let { T } = params(current.Type);
-      return append(current, { 
-        children: () => append(current.children, new Tree({ Type: T, value: item }))
-      });
-    }, this);
+  push(value) {
+    return transform((children, T) => append(children, new Tree({ Type: T, value })), this);
   }
 
   pop() {
-    return flatMapTree(current => {
-      return append(current, {
-        children: () => {
-          let children = current.children.slice();
-          children.pop();
-          return children;
-        }
-      })
-    }, this)
+    return transform(children => children.slice(0, -1), this);
   }
 
   shift() {
-    return flatMapTree(current => {
-      return append(current, {
-        children: () => {
-          let children = current.children.slice();
-          children.shift();
-          return children;
-        }
-      })
-    }, this);
+    return transform(children => children.slice(1), this);
   }
 
   unshift(value) {
-    let values = Array.isArray(value) ? value : [value];
-
-    return flatMapTree(current => {
-      return append(current, {
-        children: () => {
-          let children = current.children.slice();
-          let { T } = params(current.Type);
-          let trees = map(value => new Tree({ Type: T, value }), values);
-          return trees.concat(children);
-        }
-      })
-    }, this);
+    return transform((children, T) => append([new Tree({ Type: T, value })], children), this);
   }
 
   filter(fn) {
-    return flatMapTree(current => {
-      return append(current, { 
-        children: () => current.children.filter(tree => fn(tree.state))
-      });
-    }, this);
+    return transform(children => children.filter(tree => fn(tree.state)), this);
   }
 
   map(fn) {
-    return flatMapTree(current => {
-      return append(current, { 
-        children: () => current.children.map(tree => {
-          let value = fn(tree.state);
-          if (value === tree.state) {
-            return tree;
-          } else {
-            return new Tree({ Type: tree.Type, value });
-          }
-        })
+    return transform(children => {
+      return children.map(tree => {
+        let value = fn(tree.state);
+        if (value === tree.state) {
+          return tree;
+        } else {
+          return new Tree({ Type: tree.Type, value });
+        }
       })
     }, this);
   }
 
   splice(startIndex, length, value) {
-    return flatMapTree(current => {
-      return append(current, { 
-        children: () => {
-          let children = current.children.slice();
-          let { T } = params(current.Type);
-          children.splice(startIndex, length, new Tree({ Type: T, value }));
-          return children;
-        }
-      })
-    }, this);
+    return transform((children, T) => {
+      return children.splice(startIndex, length, new Tree({ Type: T, value}));
+    });
   }
+}
+
+function transform(fn, microstate) {
+  return map(tree => flatMap(current => {
+    if (current.is(tree)) {
+      return append(current, {
+        get children() {
+          let { T } = params(current.Type);
+          return fn(current.children.slice(), T);
+        }})
+    } else {
+      return current;
+    }
+  }, tree), microstate);
 }
 
 export default parameterized(ArrayType, {T: Any});

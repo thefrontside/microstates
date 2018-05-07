@@ -38,13 +38,13 @@ describe('ArrayType', function() {
         it('has value', () => {
           expect(again.valueOf()).toEqual(['a', 'b', 'c', 'd', 'e']);
         });
-  
+
         it('has state', () => {
           expect(again.state).toEqual(['a', 'b', 'c', 'd', 'e']);
         });
-        
+
       });
-  
+
     });
 
     describe('filter', () => {
@@ -112,14 +112,6 @@ describe('ArrayType', function() {
       expect(unshifted.valueOf()).toEqual(['d', 'a', 'b', 'c']);
       expect(unshifted.state.length).toEqual(4);
       expect(unshifted.state[0]).toBeInstanceOf(Thing);
-    });
-
-    it('can unshift values', function () {
-      let unshifted = ms.unshift(['d', 'e']);
-      expect(unshifted.valueOf()).toEqual(['d', 'e', 'a', 'b', 'c']);
-      expect(unshifted.state.length).toEqual(5);
-      expect(unshifted.state[0]).toBeInstanceOf(Thing);
-      expect(unshifted.state[1]).toBeInstanceOf(Thing);
     });
 
     it('can shift values', function () {
