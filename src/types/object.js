@@ -44,10 +44,11 @@ function transform(fn, microstate) {
   return map(tree => flatMap(current => {
     if (current.is(tree)) {
       return append(current, {
-        get children() {
+        children: () => {
           let { T } = params(current.Type);
           return fn(current.children, T);
-        }})
+        }
+      })
     } else {
       return current;
     }
