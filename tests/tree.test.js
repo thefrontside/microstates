@@ -122,13 +122,13 @@ describe('Tree', () => {
     describe('changing property with thunk', () => {
       let changedA;
       beforeEach(() => {
-        changedA = append(a, { stable: () => assign({}, a.stable, { foo: 'bar' })})
+        changedA = append(a, { data: () => assign({}, a.data, { foo: 'bar' })})
       });
       it('uses value from a thunk', () => {
-        expect(changedA.stable.foo).toBe('bar');
-        expect(changedA.stable.value).toBe(a.stable.value);
-        expect(changedA.stable.state).toBe(a.stable.state);
-        expect(changedA.stable.middleware).toBe(a.stable.middleware);        
+        expect(changedA.data.foo).toBe('bar');
+        expect(changedA.data.value).toBe(a.data.value);
+        expect(changedA.data.state).toBe(a.data.state);
+        expect(changedA.data.middleware).toBe(a.data.middleware);        
       });
     });
 
@@ -146,8 +146,8 @@ describe('Tree', () => {
         expect(appended.children.a.children.more.root).toBe(appended);
       });
       it('did not change stable', () => {
-        expect(appended.stable).toBe(moreThings.stable);
-        expect(appended.children.a.stable).toBe(moreThings.children.a.stable)
+        expect(appended.data).toBe(moreThings.data);
+        expect(appended.children.a.data).toBe(moreThings.children.a.data)
       });
     });
   });
@@ -158,7 +158,7 @@ describe('Tree', () => {
       let mapped = map(() => ({}), a);
       expect(mapped).toBeInstanceOf(Tree);
       expect(mapped.Type).toBe(a.Type);
-      expect(mapped.stable).toBe(a.stable);
+      expect(mapped.data).toBe(a.data);
       expect(mapped.path).toBe(a.path);
     });
 
@@ -190,13 +190,13 @@ describe('Tree', () => {
     describe('mapping children', () => {
       let mapped;
       beforeEach(() => {
-        mapped = map(tree => append(tree, { stable: assign({}, tree.stable, { foo: 'bar' })}), moreThings);
+        mapped = map(tree => append(tree, { data: assign({}, tree.data, { foo: 'bar' })}), moreThings);
       });
       it('applies callback to every node', () => {
-        expect(mapped.stable.foo).toBe('bar');
-        expect(mapped.children.a.stable.foo).toBe('bar');
-        expect(mapped.children.a.children.more.stable.foo).toBe('bar');
-        expect(mapped.children.a.children.more.children.a.stable.foo).toBe('bar');
+        expect(mapped.data.foo).toBe('bar');
+        expect(mapped.children.a.data.foo).toBe('bar');
+        expect(mapped.children.a.children.more.data.foo).toBe('bar');
+        expect(mapped.children.a.children.more.children.a.data.foo).toBe('bar');
       });
       it('changes root for each', () => {
         expect(mapped.root).toBe(mapped);

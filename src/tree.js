@@ -47,7 +47,7 @@ const defaultConstructorFactory = Type => {
       configurable: true,
       value(...args) {
         // transition that the user is invoking
-        return reveal(this).root.stable.middleware(this, descriptor.value, args);
+        return reveal(this).root.data.middleware(this, descriptor.value, args);
       }
     }))
     .valueOf();
@@ -122,7 +122,7 @@ export default class Tree {
     this.root = root || this;
     // stable object has all of the data that will be
     // copied to a new tree when mapping trees.
-    this.stable = {
+    this.data = {
       value: new Value(value),
       state: new State(this),
       StabilizedClass: stabilizeClass(class extends this.Type {}),
@@ -133,7 +133,7 @@ export default class Tree {
   }
 
   is(tree) {
-    return this.stable === tree.stable;
+    return this.data === tree.data;
   }
 
   get isSimple() {
@@ -142,7 +142,7 @@ export default class Tree {
 
   use(fn) {
     return append(this, {
-      stable: assign({}, this.stable, { middleware: fn(this.stable.middleware) })
+      data: assign({}, this.data, { middleware: fn(this.data.middleware) })
     });
   }
 
@@ -152,14 +152,14 @@ export default class Tree {
    * is not applied when the tree is pruned.
    */
   apply(fn) {
-    let { middleware } = this.root.stable;
+    let { middleware } = this.root.data;
     // overload custom middleware to allow context free transitions
-    let root = append(this.root, { stable: assign({}, this.root.stable, { middleware: defaultMiddleware } ) });
+    let root = append(this.root, { data: assign({}, this.root.data, { middleware: defaultMiddleware } ) });
     // focus on current tree and apply the function to it
     let nextRoot = over(this.lens, fn, root);
     // put the original middleware into the next root tree so the middleware will
     // carry into the next microstate
-    return append(nextRoot, { stable: assign({}, nextRoot.stable, { middleware } )});
+    return append(nextRoot, { data: assign({}, nextRoot.data, { middleware } )});
   }
 
   /**
@@ -239,18 +239,18 @@ export default class Tree {
   }
 
   get microstate() {
-    let { stable: { Constructor } } = this;
+    let { data: { Constructor } } = this;
     return new Constructor(this);
   }
 
   // state is stable across mapped trees
   get state() {
-    return this.stable.state.value;
+    return this.data.state.value;
   }
 
   // value is stable across mapped trees
   get value() {
-    return this.stable.value.value;
+    return this.data.value.value;
   }
 
   @stable
@@ -291,7 +291,7 @@ class State {
 
   @stable
   get value() {
-    let { tree, tree: { value, stable: { StabilizedClass } } } = this;
+    let { tree, tree: { value, data: { StabilizedClass } } } = this;
 
     if (tree.isSimple || value === undefined) {
       return value;
@@ -391,7 +391,7 @@ Semigroup.instance(Tree, {
           return thunks.hasOwnProperty('root') ? thunks.root(this) : this;
         })
       },
-      stable: getscriptor('stable'),
+      data: getscriptor('data'),
       children: {
         enumerable: true,
         configurable: true,
@@ -429,7 +429,7 @@ Functor.instance(Tree, {
     let mapped = thunk(() => fn(tree));
 
     return append(tree, {
-      stable: () => mapped().stable ? mapped().stable : tree.stable,
+      data: () => mapped().data ? mapped().data : tree.data,
       path: () => mapped().path ? mapped().path : tree.path,
       children: root => map(child => append(map(fn, child), { root }), tree.children)
     })
@@ -474,10 +474,10 @@ Monad.instance(Tree, {
     
     return append(tree, {
       Type: () => mapped().Type ? mapped().Type : tree.Type,
-      stable: instance => {
-        let stable = mapped().stable ? mapped().stable : tree.stable;
+      data: instance => {
+        let data = mapped().data ? mapped().data : tree.data;
 
-        return assign({}, stable, {
+        return assign({}, data, {
           value: new Value(() => {
             let { value } = mapped();
             if (instance.hasChildren && value !== undefined) {
