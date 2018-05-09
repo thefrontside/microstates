@@ -125,6 +125,7 @@ export default class Tree {
     this.data = {
       value: new Value(value),
       state: new State(this),
+      children: new Children(this),
       StabilizedClass: stabilizeClass(class extends this.Type {}),
       Constructor: constructorFactory(this.Type),
       InitialType,
@@ -256,15 +257,7 @@ export default class Tree {
   @stable
   // children are stable for a tree instance
   get children() {
-    let { Type, value, path, root } = this;
-    let childTypes = childTypesAt(Type, value);
-
-    return map((ChildType, childPath) => new Tree({
-      Type: ChildType,
-      value: () => value && value[childPath] ? value[childPath] : undefined,
-      path: append(path, childPath),
-      root
-    }), childTypes);
+    return this.data.children.value;
   }
 }
 
@@ -303,6 +296,25 @@ class State {
       }
     }
   }
+}
+
+class Children {
+  constructor(tree) {
+    this.tree = tree;
+  }
+  
+  @stable
+  get value() {
+    let { Type, value, path, root } = this.tree;
+    let childTypes = childTypesAt(Type, value);
+
+    return map((ChildType, childPath) => new Tree({
+      Type: ChildType,
+      value: () => value && value[childPath] ? value[childPath] : undefined,
+      path: append(path, childPath),
+      root
+    }), childTypes);
+  } 
 }
 
 /**
