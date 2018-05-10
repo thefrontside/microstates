@@ -96,62 +96,6 @@ describe('Tree', () => {
     moreThings = new Tree({ Type: Things, value: { a: { name: 'A', more: { a: { name: 'AA' } } }, b: { name: 'B' } } })
   });
 
-  describe('Semigroup', () => {
-    describe('changing property with value', () => {      
-      let changedA;
-      beforeEach(() => {
-        changedA = append(a, { path: ['b'] });
-      });
-      it('returns a new Tree', () => {
-        expect(changedA).toBeInstanceOf(Tree);
-      });
-      it('keeps Type', () => {
-        expect(changedA.Type).toBe(a.Type);
-      });
-      it('returned object has given path', () => {
-        expect(changedA.path).toEqual(['b']);
-      });
-      it('did not modify the original objects path', () => {
-        expect(a.path).toEqual([]);
-      });
-      it('returned object has itself as root', () => {
-        expect(changedA.root).toBe(changedA);
-      });
-    });
-
-    describe('changing property with thunk', () => {
-      let changedA;
-      beforeEach(() => {
-        changedA = append(a, { data: () => assign({}, a.data, { foo: 'bar' })})
-      });
-      it('uses value from a thunk', () => {
-        expect(changedA.data.foo).toBe('bar');
-        expect(changedA.data.value).toBe(a.data.value);
-        expect(changedA.data.state).toBe(a.data.state);
-        expect(changedA.data.middleware).toBe(a.data.middleware);        
-      });
-    });
-
-    describe('calling append on nested tree', () => {
-      let appended;
-      beforeEach(() => {
-        appended = append(moreThings, {});
-      });
-      it('result is a new object', () => {
-        expect(appended).not.toBe(moreThings);
-      });
-      it('updates root on all children', () => {
-        expect(appended.root).toBe(appended);
-        expect(appended.children.a.root).toBe(appended);
-        expect(appended.children.a.children.more.root).toBe(appended);
-      });
-      it('did not change stable', () => {
-        expect(appended.data).toBe(moreThings.data);
-        expect(appended.children.a.data).toBe(moreThings.children.a.data)
-      });
-    });
-  });
-
   describe('Functor', () => {
     describe('no-op', () => {
       let mapped;
@@ -276,9 +220,24 @@ describe('Tree', () => {
     beforeEach(() => {
       flatMapped = flatMap((tree) => {
         if (tree.Type === Things) {
-          return new Tree({ Type: Thangs, value: () => tree.value});
+          return tree.assign({
+            meta: {
+              Type: Thangs
+            },
+            data: {
+              value: () => tree.value
+            }
+          });
         } else if (tree.Type === Thang) {
-          return new Tree({ Type: Thang, value: { name: `Hallo ${tree.children.name.value}!` }, path: ['wut', 'heck', 'no'] });
+          return tree.assign({
+            meta: {
+              Type: Thang,
+              path: ['wut', 'heck', 'no']              
+            }, 
+            data: {
+              value: { name: `Hallo ${tree.children.name.value}!` }
+            }
+          });
         } else {
           return tree;
         }
@@ -288,6 +247,12 @@ describe('Tree', () => {
     it('allows you to change the type of a tree', function() {
       expect(flatMapped.Type).toBe(Thangs);
     });
+
+    it('has stable children', () => {
+      expect(flatMapped.children).toBe(flatMapped.children);
+      expect(flatMapped.children.a.children).toBe(flatMapped.children.a.children);
+    });
+    
     it('makes sure all of the values have referential integrety', function() {
       expect(flatMapped.value.a).toBe(flatMapped.children.a.value);
     });

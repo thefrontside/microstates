@@ -202,8 +202,9 @@ export default class Tree {
       // do not read properties off this instance
 
       if (data && data.hasOwnProperty('value')) {
+        let { value } = data;
         data = assign({}, data, {
-          value: new Value(data.value),
+          value: new Value(typeof value === 'function' ? () => value(instance) : value),
           state: new State(instance)          
         })
       }
@@ -313,7 +314,11 @@ export default class Tree {
    * values are carried over to the new tree.
    */
   prune() {
-    return map(tree => ({ path: tree.path.slice(this.path.length) }), this);
+    return map(tree => tree.assign({
+      meta: {
+        path: tree.path.slice(this.path.length)
+      }
+    }), this);
   }
 
   /**
@@ -326,7 +331,12 @@ export default class Tree {
     if (path.length === 0) {
       return this;
     } else {
-      return map(tree => ({ path: [...path, ...tree.path], root }), this);
+      return map(tree => tree.assign({
+        meta: { 
+          path: [...path, ...tree.path], 
+          root 
+        }
+      }), this);
     }
   }
 }
@@ -451,46 +461,6 @@ function stabilizeOn(key, fn) {
 }
 
 /**
- * Tree Semigroup allows to add data to stable object on the root
- * of the tree.
- */
-Semigroup.instance(Tree, {
-  append(tree, values = {}) {
-
-    let thunks = map(valueOrFn => typeof valueOrFn === 'function' ? thunk(valueOrFn) : () => valueOrFn, values);
-
-    let getscriptor = key => ({
-      enumerable: true,
-      configurable: true,
-      get() {
-        return thunks.hasOwnProperty(key) ? thunks[key](this) : tree[key];
-      }
-    });
-
-    return Object.create(Tree.prototype, {
-      Type: getscriptor('Type'),
-      path: getscriptor('path'),
-      root: {
-        enumerable: true,
-        configurable: true,
-        get: stabilizeOn('root', function appendStableRoot() {
-          return thunks.hasOwnProperty('root') ? thunks.root(this) : this;
-        })
-      },
-      data: getscriptor('data'),
-      children: {
-        enumerable: true,
-        configurable: true,
-        get: stabilizeOn('children', function appendStableChildren() {
-          let children = thunks.hasOwnProperty('children') ? thunks.children(this) : tree.children;
-          return map(child => append(child, { root: this.root }), children);
-        })
-      }
-    });
-  }
-});
-
-/**
  * Tree Functor allows a developer to map a tree without changing
  * the tree's structure. The functor instance will enforce maintaing
  * the structure by copying over Type and overriding returned chidren.
@@ -513,11 +483,14 @@ Functor.instance(Tree, {
   map(fn, tree) {
 
     function remap(fn, tree, root) {
+      // TODO: make this a thunk
       return fn(tree).assign({
         meta: {
           Type: tree.Type,
-          root: instance => root || instance,
-          children: instance => {
+          root(instance) { 
+            return root || instance 
+          },
+          children(instance) {
             return map(child => remap(fn, child, root || instance), tree.children);
           }
         }
@@ -537,7 +510,7 @@ Monad.instance(Tree, {
    * whose  type is `Any` (which is basically an id type).
    */
   pure(value) {
-    return new Tree({ value, Type: types.Any});
+    return new Tree({ value, Type: types.Any });
   },
 
   /**
@@ -561,17 +534,24 @@ Monad.instance(Tree, {
    * ultimately returned tree?
    */
   flatMap(fn, tree) {
-
-    let mapped = thunk(() => fn(tree));
-    
-    return append(tree, {
-      Type: () => mapped().Type ? mapped().Type : tree.Type,
-      data: instance => {
-        let data = mapped().data ? mapped().data : tree.data;
-
-        return assign({}, data, {
-          value: new Value(() => {
-            let { value } = mapped();
+    function reflatmap(fn, tree, root) {
+      // TODO: make this a thunk
+      let mapped = fn(tree);
+      let children = mapped.children || tree.children;
+      return mapped.assign({
+        meta: {
+          root(instance) {
+            return root || instance;
+          },
+          children(instance) {
+            return map(child => reflatmap(tree => {
+              return fn(tree.prune()).graft(tree.path, root || instance);
+            }, child, root || instance), children);
+          }
+        },
+        data: {
+          value: (instance) => {
+            let { value } = mapped;
             if (instance.hasChildren && value !== undefined) {
               if (Array.isArray(instance.children)) {
                 return map(child => child.value, instance.children);
@@ -584,15 +564,52 @@ Monad.instance(Tree, {
               }
             }
             return value;
-          }),
-          state: new State(instance)
-        });
-      },
-      children: root => map(child => {
-        return flatMap(tree => {
-          return fn(tree.prune()).graft(tree.path, root);
-        }, child);
-      }, mapped().children)
-    }); 
+          }
+        }
+      });
+    }
+
+    return reflatmap(fn, tree);
+
+    //   children: root => map(child => {
+    //     return flatMap(tree => {
+    //       return fn(tree.prune()).graft(tree.path, root);
+    //     }, child);
+    //   }, mapped().children)
+
+
+
+    // let mapped = thunk(() => fn(tree));
+    
+    // return append(tree, {
+    //   Type: () => mapped().Type ? mapped().Type : tree.Type,
+    //   data: instance => {
+    //     let data = mapped().data ? mapped().data : tree.data;
+
+    //     return assign({}, data, {
+    //       value: new Value(() => {
+    //         let { value } = mapped();
+    //         if (instance.hasChildren && value !== undefined) {
+    //           if (Array.isArray(instance.children)) {
+    //             return map(child => child.value, instance.children);
+    //           } else {
+    //             let childrenValue = Object.keys(instance.children).reduce((value, key) => {
+    //               value[key] = instance.children[key].value;
+    //               return value;
+    //             }, {});
+    //             return assign({}, value, childrenValue);
+    //           }
+    //         }
+    //         return value;
+    //       }),
+    //       state: new State(instance)
+    //     });
+    //   },
+    //   children: root => map(child => {
+    //     return flatMap(tree => {
+    //       return fn(tree.prune()).graft(tree.path, root);
+    //     }, child);
+    //   }, mapped().children)
+    // }); 
   }
 })
