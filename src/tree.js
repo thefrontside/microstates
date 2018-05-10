@@ -132,7 +132,7 @@ export default class Tree {
 
     this.data = {
       value: new Value(value),
-      state: new State(this),
+      state: new State(this, stateFromTree),
       middleware
     }
   }
@@ -205,7 +205,7 @@ export default class Tree {
         let { value } = data;
         data = assign({}, data, {
           value: new Value(typeof value === 'function' ? () => value(instance) : value),
-          state: new State(instance)          
+          state: new State(instance, stateFromTree)          
         })
       }
 
@@ -358,23 +358,14 @@ class Value {
 }
 
 class State {
-  constructor(tree) {
+  constructor(tree, resolveState) {
     this.tree = tree;
+    this.resolveState = resolveState;
   }
 
   @stable
   get value() {
-    let { tree, tree: { meta: { StabilizedClass } } } = this;
-
-    if (tree.isSimple || tree.value === undefined) {
-      return tree.value;
-    } else {
-      if (Array.isArray(tree.children)) {
-        return map(child => child.state, tree.children);
-      } else {
-        return append(new StabilizedClass(tree.value), map(child => child.state, tree.children));
-      }
-    }
+    return this.resolveState(this.tree);
   }
 }
 
@@ -388,6 +379,20 @@ class Children {
   get value() {
     return this.resolveChildren(this.tree);
   } 
+}
+
+function stateFromTree(tree) {
+  let { meta: { StabilizedClass } } = tree;
+
+    if (tree.isSimple || tree.value === undefined) {
+      return tree.value;
+    } else {
+      if (Array.isArray(tree.children)) {
+        return map(child => child.state, tree.children);
+      } else {
+        return append(new StabilizedClass(tree.value), map(child => child.state, tree.children));
+      }
+    }
 }
 
 /**
@@ -535,41 +540,86 @@ Monad.instance(Tree, {
    */
   flatMap(fn, tree) {
     function reflatmap(fn, tree, root) {
-      // TODO: make this a thunk
-      let mapped = fn(tree);
-      let children = mapped.children || tree.children;
-      return mapped.assign({
-        meta: {
-          root(instance) {
-            return root || instance;
+      return tree.derive(function deriveInMonad(instance) {
+        let mapped = fn(tree);
+
+        // (╯°□°）╯︵ ┻━┻) case,
+        // Type changed - return everything.
+        // if (mapped.Type !== tree.Type) {
+        //   return mapped.assign({
+        //     meta: { 
+        //       root: root || instance
+        //     }
+        //   });
+        // }
+
+        return mapped.assign({
+          meta: { 
+            root: root || instance,
+            children() {
+              return map(child => reflatmap(tree => {
+                return fn(tree.prune()).graft(tree.path, root || instance);
+              }, child, root || instance), mapped.children);
+            }
           },
-          children(instance) {
-            return map(child => reflatmap(tree => {
-              return fn(tree.prune()).graft(tree.path, root || instance);
-            }, child, root || instance), children);
-          }
-        },
-        data: {
-          value: (instance) => {
-            let { value } = mapped;
-            if (instance.hasChildren && value !== undefined) {
-              if (Array.isArray(instance.children)) {
-                return map(child => child.value, instance.children);
-              } else {
-                let childrenValue = Object.keys(instance.children).reduce((value, key) => {
-                  value[key] = instance.children[key].value;
-                  return value;
-                }, {});
-                return assign({}, value, childrenValue);
+          data: {
+              value() {
+                let { value } = mapped;
+                if (instance.hasChildren && value !== undefined) {
+                  if (Array.isArray(instance.children)) {
+                    return map(child => child.value, instance.children);
+                  } else {
+                    return Object.keys(instance.children).reduce((value, key) => {
+                      let oldValue = tree.children[key] && tree.children[key].value;
+                      let newValue = instance.children[key].value;
+                      if (oldValue === newValue) {
+                        return value;
+                      } else {
+                        return lset(lensPath([key]), newValue, value);
+                      }
+                    }, value);
+                  }
+                }
+                return value;
               }
             }
-            return value;
-          }
-        }
+        });
       });
     }
 
     return reflatmap(fn, tree);
+
+    // return mapped.assign({
+    //   meta: {
+    //     root(instance) {
+    //       return root || instance;
+    //     },
+    //     children(instance) {
+    //       return map(child => reflatmap(tree => {
+    //         return fn(tree.prune()).graft(tree.path, root || instance);
+    //       }, child, root || instance), mapped.children || tree.children);
+    //     }
+    //   },
+    //   data: {
+    //     value: (instance) => {
+    //       let { value } = mapped;
+    //       if (instance.hasChildren && value !== undefined) {
+    //         if (Array.isArray(instance.children)) {
+    //           return map(child => child.value, instance.children);
+    //         } else {
+    //           let childrenValue = Object.keys(instance.children).reduce((value, key) => {
+    //             value[key] = instance.children[key].value;
+    //             return value;
+    //           }, {});
+    //           return assign({}, value, childrenValue);
+    //         }
+    //       }
+    //       return value;
+    //     }
+    //   }
+    // });
+
+
 
     //   children: root => map(child => {
     //     return flatMap(tree => {

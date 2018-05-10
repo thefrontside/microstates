@@ -216,52 +216,166 @@ describe('Tree', () => {
       b = Thang;
     }
 
-    let flatMapped;
-    beforeEach(() => {
-      flatMapped = flatMap((tree) => {
-        if (tree.Type === Things) {
-          return tree.assign({
-            meta: {
-              Type: Thangs
-            },
-            data: {
-              value: () => tree.value
+    describe('changing type', () => {
+      describe('on root', () => {
+        let flatMapped;
+        let value = { a: { name: 'AHHHH' }, b: { name: "BUAAHHH" } };
+        beforeEach(() => {
+          flatMapped = flatMap(tree => {
+            if (tree.Type === Things) {
+              return new Tree({ Type: Thangs, value });
             }
-          });
-        } else if (tree.Type === Thang) {
-          return tree.assign({
-            meta: {
-              Type: Thang,
-              path: ['wut', 'heck', 'no']              
-            }, 
-            data: {
-              value: { name: `Hallo ${tree.children.name.value}!` }
+            return tree;
+          }, things);
+        });
+        it('replaces everything', () => {
+          expect(flatMapped.Type).toBe(Thangs);
+        });
+        it('uses new value', () => {
+          expect(flatMapped.value).toEqual(value);
+        });
+        it('does not assume stability', () => {
+          expect(flatMapped.data).not.toBe(things.data);
+        });
+        it('has root as self', () => {
+          expect(flatMapped.root).toBe(flatMapped);
+        });
+        it('has stable children', () => {
+          expect(flatMapped.children).toBe(flatMapped.children);
+          expect(flatMapped.children.a.children).toBe(flatMapped.children.a.children);
+          expect(flatMapped.children.a.children.name).toBe(flatMapped.children.a.children.name);
+        });
+      });
+
+      describe('on composed tree without changing value', () => {
+        let flatMapped;
+        beforeEach(() => {
+          flatMapped = flatMap(tree => {
+            if (tree.Type === Thing) {
+              return new Tree({ Type: Thang, value: () => tree.value })
             }
-          });
-        } else {
+            return tree;
+          }, things);
+        });
+        it('changed type on the composed tree', () => {
+          expect(flatMapped.children.a.Type).toBe(Thang);
+          expect(flatMapped.children.b.Type).toBe(Thang);
+        });
+        it('has thangs in state', () => {
+          expect(flatMapped.state.a).toBeInstanceOf(Thang);
+          expect(flatMapped.state.b).toBeInstanceOf(Thang);
+        });
+      });
+
+      describe('on composed tree with new value for all children', () => {
+        let flatMapped;
+        beforeEach(() => {
+          flatMapped = flatMap(tree => {
+            if (tree.meta.InitialType === String) {
+              return tree.assign({
+                data: {
+                  value() {
+                    return `${tree.value} !!!`;
+                  }
+                }
+              });
+            }
+            return tree;
+          }, things);
+        });
+        it('has new value', () => {
+          expect(flatMapped.children.a.children.name.value).toBe('A !!!');
+          expect(flatMapped.children.b.children.name.value).toBe('B !!!');
+        });
+        it('accumulates value in parent nodes', () => {
+          expect(flatMapped.children.a.value).toEqual({ name: 'A !!!'});
+          expect(flatMapped.children.b.value).toEqual({ name: 'B !!!'});
+          expect(flatMapped.value).toEqual({ a: { name: 'A !!!' }, b: { name: 'B !!!' }});
+        });
+      });
+    });
+
+    describe('on composed tree with new value for some children', () => {
+      let flatMapped;
+      beforeEach(() => {
+        flatMapped = flatMap(tree => {
+          if (tree.value === 'A') {
+            return tree.assign({
+              data: {
+                value() {
+                  return `A !!!`;
+                }
+              }
+            });
+          }
           return tree;
-        }
-      }, things);
+        }, things);
+      });
+      it('has new value on changed node', () => {
+        expect(flatMapped.children.a.children.name.value).toBe('A !!!');
+      })
+      it('updated parents of changed node', () => {
+        expect(flatMapped.children.a.value).toEqual({ name: 'A !!!'});
+        expect(flatMapped.value).toEqual({ a: { name: 'A !!!' }, b: { name: 'B' }});
+      });
+      it('trees in uneffected branches did not change their value', () => {
+        expect(flatMapped.children.b.children.name.value).toBe(things.children.b.children.name.value);
+        expect(flatMapped.children.b.value).toBe(things.children.b.value);
+      });
+      it('reused state from uneffected children', () => {
+        expect(flatMapped.state.b).toBe(things.state.b);
+      });
     });
 
-    it('allows you to change the type of a tree', function() {
-      expect(flatMapped.Type).toBe(Thangs);
+    describe('changing children', () => {
+      it('recomputes the value on the parent')
     });
 
-    it('has stable children', () => {
-      expect(flatMapped.children).toBe(flatMapped.children);
-      expect(flatMapped.children.a.children).toBe(flatMapped.children.a.children);
+    describe('changing value', () => {
+      it('applies new value to children');
     });
-    
-    it('makes sure all of the values have referential integrety', function() {
-      expect(flatMapped.value.a).toBe(flatMapped.children.a.value);
-    });
-    it('recursively flatMaps the children', function() {
-      expect(flatMapped.children.a.children.name.value).toBe('Hallo A!');
-    });
-    it('preserves the path', function() {
-      expect(flatMapped.children.a.path).toEqual(['a']);
-    });
+
+    // let flatMapped;
+    // beforeEach(() => {
+    //   flatMapped = flatMap((tree) => {
+    //     if (tree.Type === Things) {
+    //       return tree.assign({
+    //         meta: {
+    //           Type: Thangs
+    //         }
+    //       });
+    //     } else if (tree.Type === Thang) {
+    //       return tree.assign({
+    //         meta: {
+    //           Type: Thang,
+    //           path: ['wut', 'heck', 'no']              
+    //         }, 
+    //         data: {
+    //           value: { name: `Hallo ${tree.children.name.value}!` }
+    //         }
+    //       });
+    //     } else {
+    //       return tree;
+    //     }
+    //   }, things);
+    // });
+
+    // it('allows you to change the type of a tree', function() {
+    //   expect(flatMapped.Type).toBe(Thangs);
+    // });
+    // it('has stable children', () => {
+    //   expect(flatMapped.children).toBe(flatMapped.children);
+    //   expect(flatMapped.children.a.children).toBe(flatMapped.children.a.children);
+    // });
+    // it('makes sure all of the values have referential integrety', function() {
+    //   expect(flatMapped.value.a).toBe(flatMapped.children.a.value);
+    // });
+    // it('recursively flatMaps the children', function() {
+    //   expect(flatMapped.children.a.children.name.value).toBe('Hallo A!');
+    // });
+    // it('preserves the path', function() {
+    //   expect(flatMapped.children.a.path).toEqual(['a']);
+    // });
 
     // describe('changing children', () => {
     //   let tree, flatMapped;
