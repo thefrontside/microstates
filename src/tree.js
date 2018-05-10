@@ -1,19 +1,21 @@
-import { append, map, flatMap, foldl, foldr, Functor, Monad, Semigroup } from 'funcadelic';
-import types, { toType, params } from './types';
-import thunk from './thunk';
-import $ from './utils/chain';
+import { append, map, flatMap, foldl, foldr, Functor, Monad } from 'funcadelic';
 import getPrototypeDescriptors from 'get-prototype-descriptors';
+import SymbolObservable from "symbol-observable";
+import stabilizeClass from 'memoize-getters';
 import lens from 'ramda/src/lens';
 import lensPath from 'ramda/src/lensPath';
 import lset from 'ramda/src/set';
 import view from 'ramda/src/view';
 import over from 'ramda/src/over';
+
+import types, { toType, params } from './types';
+import thunk from './thunk';
+import $ from './utils/chain';
 import desugar from './desugar';
 import { reveal, keep } from './utils/secret';
 export { reveal } from './utils/secret';
-import SymbolObservable from "symbol-observable";
 import isSimple from './is-simple';
-import stabilizeClass from 'memoize-getters';
+import values from './values';
 
 const { assign, keys, defineProperty, defineProperties } = Object;
 
@@ -182,6 +184,8 @@ export default class Tree {
     return this.data === tree.data;
   }
 
+
+
   /**
    * Wrap middleware over this tree's middlware and return a new tree.
    * @param {*} fn 
@@ -202,10 +206,10 @@ export default class Tree {
       // do not read properties off this instance
 
       if (data && data.hasOwnProperty('value')) {
-        let { value } = data;
+        let { value, state = stateFromTree } = data;
         data = assign({}, data, {
           value: new Value(typeof value === 'function' ? () => value(instance) : value),
-          state: new State(instance, stateFromTree)          
+          state: new State(instance, state)
         })
       }
 
@@ -543,16 +547,6 @@ Monad.instance(Tree, {
       return tree.derive(function deriveInMonad(instance) {
         let mapped = fn(tree);
 
-        // (╯°□°）╯︵ ┻━┻) case,
-        // Type changed - return everything.
-        // if (mapped.Type !== tree.Type) {
-        //   return mapped.assign({
-        //     meta: { 
-        //       root: root || instance
-        //     }
-        //   });
-        // }
-
         return mapped.assign({
           meta: { 
             root: root || instance,
@@ -581,6 +575,13 @@ Monad.instance(Tree, {
                   }
                 }
                 return value;
+              },
+              state(instance) {
+                if (tree.value === instance.value && tree.Type === instance.Type) {
+                  return tree.state;
+                } else {
+                  return stateFromTree(instance);
+                }
               }
             }
         });
@@ -588,78 +589,5 @@ Monad.instance(Tree, {
     }
 
     return reflatmap(fn, tree);
-
-    // return mapped.assign({
-    //   meta: {
-    //     root(instance) {
-    //       return root || instance;
-    //     },
-    //     children(instance) {
-    //       return map(child => reflatmap(tree => {
-    //         return fn(tree.prune()).graft(tree.path, root || instance);
-    //       }, child, root || instance), mapped.children || tree.children);
-    //     }
-    //   },
-    //   data: {
-    //     value: (instance) => {
-    //       let { value } = mapped;
-    //       if (instance.hasChildren && value !== undefined) {
-    //         if (Array.isArray(instance.children)) {
-    //           return map(child => child.value, instance.children);
-    //         } else {
-    //           let childrenValue = Object.keys(instance.children).reduce((value, key) => {
-    //             value[key] = instance.children[key].value;
-    //             return value;
-    //           }, {});
-    //           return assign({}, value, childrenValue);
-    //         }
-    //       }
-    //       return value;
-    //     }
-    //   }
-    // });
-
-
-
-    //   children: root => map(child => {
-    //     return flatMap(tree => {
-    //       return fn(tree.prune()).graft(tree.path, root);
-    //     }, child);
-    //   }, mapped().children)
-
-
-
-    // let mapped = thunk(() => fn(tree));
-    
-    // return append(tree, {
-    //   Type: () => mapped().Type ? mapped().Type : tree.Type,
-    //   data: instance => {
-    //     let data = mapped().data ? mapped().data : tree.data;
-
-    //     return assign({}, data, {
-    //       value: new Value(() => {
-    //         let { value } = mapped();
-    //         if (instance.hasChildren && value !== undefined) {
-    //           if (Array.isArray(instance.children)) {
-    //             return map(child => child.value, instance.children);
-    //           } else {
-    //             let childrenValue = Object.keys(instance.children).reduce((value, key) => {
-    //               value[key] = instance.children[key].value;
-    //               return value;
-    //             }, {});
-    //             return assign({}, value, childrenValue);
-    //           }
-    //         }
-    //         return value;
-    //       }),
-    //       state: new State(instance)
-    //     });
-    //   },
-    //   children: root => map(child => {
-    //     return flatMap(tree => {
-    //       return fn(tree.prune()).graft(tree.path, root);
-    //     }, child);
-    //   }, mapped().children)
-    // }); 
   }
 })

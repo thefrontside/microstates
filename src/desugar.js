@@ -1,23 +1,7 @@
-import { Monoid } from 'funcadelic';
-import { parameterized } from '../src/types';
-import { type, map } from 'funcadelic';
+import { Monoid, map } from 'funcadelic';
+import { parameterized } from './types';
+import values from './values';
 
-const { keys } = Object;
-const Values = type(class Values {
-  values(holder) {
-    return this(holder).values(holder);
-  }
-})
-
-Values.instance(Array, {
-  values(array) { return array; }
-});
-
-Values.instance(Object, {
-  values(object) { return map(key => object[key], keys(object)); }
-});
-
-const { values } = Values.prototype;
 let ContainsTypes = Monoid.create(class ContainsTypes {
   empty() { return true; }
   append(a, b) {

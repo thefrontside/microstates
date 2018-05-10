@@ -203,7 +203,6 @@ describe('Tree', () => {
           expect(mapped.children.a.children.more.root).toBe(mapped);
         });
       });
-
     });
   });
 
@@ -261,7 +260,11 @@ describe('Tree', () => {
           expect(flatMapped.children.a.Type).toBe(Thang);
           expect(flatMapped.children.b.Type).toBe(Thang);
         });
-        it('has thangs in state', () => {
+        it('has thangs in state on children', () => {
+          expect(flatMapped.children.a.state).toBeInstanceOf(Thang);
+          expect(flatMapped.children.b.state).toBeInstanceOf(Thang);
+        });
+        it('has thangs in state on root', () => {
           expect(flatMapped.state.a).toBeInstanceOf(Thang);
           expect(flatMapped.state.b).toBeInstanceOf(Thang);
         });
@@ -303,7 +306,7 @@ describe('Tree', () => {
             return tree.assign({
               data: {
                 value() {
-                  return `A !!!`;
+                  return 'A !!!';
                 }
               }
             });
@@ -322,13 +325,65 @@ describe('Tree', () => {
         expect(flatMapped.children.b.children.name.value).toBe(things.children.b.children.name.value);
         expect(flatMapped.children.b.value).toBe(things.children.b.value);
       });
+      it('computed new state', () => {
+        expect(flatMapped.state.a.name).toEqual('A !!!');
+        expect(flatMapped.state.a).toEqual({ name: 'A !!!' });
+      });
+      it('changed state for effected children', () => {
+        expect(flatMapped.state.a).not.toBe(things.state.a);
+      });
       it('reused state from uneffected children', () => {
+        expect(flatMapped.children.b.state).toBe(things.children.b.state);
         expect(flatMapped.state.b).toBe(things.state.b);
       });
     });
 
     describe('changing children', () => {
-      it('recomputes the value on the parent')
+      class Thing {
+        name = String;
+      }
+      class Normalized {
+        things = { Thing }
+      }
+
+      describe('adding children', () => {
+        let normalized;
+        let flatMapped;
+        beforeEach(() => {
+          normalized = new Tree({ Type: Normalized, value: { things: { phone: { name: 'iPhone' }} }});
+          flatMapped = flatMap(tree => {
+            if (tree.is(normalized.children.things)) {
+              return tree.assign({
+                meta: {
+                  children: () => assign({}, tree.children, {
+                    car: new Tree({ Type: Thing, value: { name: 'Subaru' }, path: ['car'] })
+                  })
+                }
+              });
+            }
+            return tree;
+          }, normalized);
+        });
+        it('has one item', () => {
+          expect(normalized.children.things.children.phone.value).toEqual({ name: 'iPhone' });
+        });
+        it('has the new item', () => {
+          expect(flatMapped.children.things.children.car.value).toEqual({ name: 'Subaru' });
+        });
+        it('has root on new item', () => {
+          expect(flatMapped.children.things.children.car.root).toBe(flatMapped);
+        });
+        it('has path on the new item', () => {
+          expect(flatMapped.children.things.children.car.path).toEqual(['things', 'car']);
+        });
+        it('adds value to the root', () => {
+          expect(flatMapped.value).toEqual({ things: { phone: { name: 'iPhone' }, car: { name: 'Subaru' }}});
+        });
+        it('previous item state is stable', () => {
+          expect(flatMapped.children.things.children.phone.state).toBe(normalized.children.things.children.phone.state);
+        });
+      })
+      // it('recomputes the value on the parent')
     });
 
     describe('changing value', () => {
