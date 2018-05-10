@@ -153,56 +153,113 @@ describe('Tree', () => {
   });
 
   describe('Functor', () => {
+    describe('no-op', () => {
+      let mapped;
+      beforeEach(() => {
+        mapped = map(tree => tree, a);
+      });
+  
+      it('returns an instance of Tree', () => {
+        expect(mapped).toBeInstanceOf(Tree);
+      });
+  
+      it('has same type as original', () => {
+        expect(mapped.Type).toBe(a.Type);
+      });
+  
+      it('has new meta object', () => {
+        expect(mapped.meta).not.toBe(a.meta);
+      });
+  
+      it('has same data because no-op operation', () => {
+        expect(mapped.data).toBe(a.data);
+      });
+  
+      it('it has same path', () => {
+        expect(mapped.path).toBe(a.path);
+      });  
+    })
 
-    it('returns the mapped tree', () => {
-      let mapped = map(() => ({}), a);
-      expect(mapped).toBeInstanceOf(Tree);
-      expect(mapped.Type).toBe(a.Type);
-      expect(mapped.data).toBe(a.data);
-      expect(mapped.path).toBe(a.path);
+    describe('chanding path', () => {
+      let mapped;
+
+      beforeEach(() => {
+        mapped = map(tree => tree.assign({ meta: { path: ['name' ] } }), a);
+      });
+
+      it('allows to map tree and change path', () => {
+        expect(mapped.meta.path).toEqual(['name']);
+      });
+
+      it('does not change the data', () => {
+        expect(mapped.data).toBe(a.data);
+      });
     });
 
-    it('allows to map tree and change path', () => {
-      let mapped = map(() => ({ path: ['name'] }), a);
-      expect(mapped.path).toEqual(['name']);
-    });
+    describe('changing value', () => {
+      describe('with a static value', () => {
+        let mapped;
+        beforeEach(() => {
+          mapped = map(tree => tree.assign({
+            data: {
+              value: 'hello world'
+            }
+          }), a);
+        });
+  
+        it('updates value', () => {
+          expect(mapped.value).toBe('hello world');
+        });
 
-    it('allows to change value by returning a new tree', () => {
-      let mapped = map(() => new Tree({ Type: String, value: 'hello world' }), a);
-      expect(mapped.state).toBe('hello world');
-    });
+        it('updates state', () => {
+          expect(mapped.state).toBe('hello world');
+        });
+      });
 
-    it('preserves stablility when mapping nested trees', () => {
-      let mapped = map(() => ({}), things);
+      describe('with function', () => {
+        let mapped;
+        beforeEach(() => {
+          mapped = map(tree => tree.assign({
+            data: {
+              value: () => 'hello world'
+            }
+          }), a);
+        });
+  
+        it('updates value', () => {
+          expect(mapped.value).toBe('hello world');
+        });
 
-      expect(mapped.value).toBe(things.value);
-      expect(mapped.state).toBe(things.state);
-      expect(mapped.children.a.state).toBe(things.children.a.state);
-    });
-
-    it('has stable children on mapped trees', () => {
-      let mapped = map(() => ({}), things);
-
-      expect(mapped.children).toBe(mapped.children);
-      expect(mapped.children.a).toBe(mapped.children.a);
+        it('updates state', () => {
+          expect(mapped.state).toBe('hello world');
+        });
+      });
     });
 
     describe('mapping children', () => {
-      let mapped;
-      beforeEach(() => {
-        mapped = map(tree => append(tree, { data: assign({}, tree.data, { foo: 'bar' })}), moreThings);
+      describe('merging arbitrary data', () => {
+        let mapped;
+        beforeEach(() => {
+          mapped = map(tree => tree.assign({ data: { stringPath: tree.meta.path.join() } }), moreThings);
+        });
+        it('applies callback to every node', () => {
+          expect(mapped.data.stringPath).toBe('');
+          expect(mapped.children.a.data.stringPath).toBe('a');
+          expect(mapped.children.a.children.more.data.stringPath).toBe('a,more');
+          expect(mapped.children.a.children.more.children.a.data.stringPath).toBe('a,more,a');
+        });
+        it('has stable children', () => {
+          expect(mapped.children).toBe(mapped.children);
+          expect(mapped.children.a.children).toBe(mapped.children.a.children);
+          expect(mapped.children.a.children.more.children).toBe(mapped.children.a.children.more.children);
+        });
+        it('changes root for each', () => {
+          expect(mapped.root).toBe(mapped);
+          expect(mapped.children.a.root).toBe(mapped);
+          expect(mapped.children.a.children.more.root).toBe(mapped);
+        });
       });
-      it('applies callback to every node', () => {
-        expect(mapped.data.foo).toBe('bar');
-        expect(mapped.children.a.data.foo).toBe('bar');
-        expect(mapped.children.a.children.more.data.foo).toBe('bar');
-        expect(mapped.children.a.children.more.children.a.data.foo).toBe('bar');
-      });
-      it('changes root for each', () => {
-        expect(mapped.root).toBe(mapped);
-        expect(mapped.children.a.root).toBe(mapped);
-        expect(mapped.children.a.children.more.root).toBe(mapped);
-      });
+
     });
   });
 

@@ -117,33 +117,134 @@ Functor.instance(Microstate, {
 export default class Tree {
   // value can be either a function or a value.
   constructor({ Type: InitialType = types.Any, value, path = [], root, middleware = defaultMiddleware, constructorFactory = defaultConstructorFactory}) {
-    this.Type = toType(desugar(InitialType));
-    this.path = path;
-    this.root = root || this;
-    // stable object has all of the data that will be
-    // copied to a new tree when mapping trees.
+
+    let Type = toType(desugar(InitialType));
+
+    this.meta = {
+      InitialType,
+      Type,
+      path,
+      root: root || this,
+      StabilizedClass: stabilizeClass(class extends Type {}),
+      Constructor: constructorFactory(Type),
+      children: new Children(this, childrenFromTree),
+    }
+
     this.data = {
       value: new Value(value),
       state: new State(this),
-      children: new Children(this),
-      StabilizedClass: stabilizeClass(class extends this.Type {}),
-      Constructor: constructorFactory(this.Type),
-      InitialType,
       middleware
     }
   }
 
-  is(tree) {
-    return this.data === tree.data;
+  get Type() {
+    return this.meta.Type;
+  }
+
+  get path() {
+    return this.meta.path;
+  }
+
+  get root() {
+    return this.meta.root;
   }
 
   get isSimple() {
     return isSimple(this.Type);
   }
 
+  get isRoot() {
+    return this.root === this;
+  }
+
+  get hasChildren() {
+    return keys(this.children).length > 0
+  }
+
+  get microstate() {
+    let { meta: { Constructor } } = this;
+    return new Constructor(this);
+  }
+
+  get state() {
+    return this.data.state.value;
+  }
+
+  get value() {
+    return this.data.value.value;
+  }
+
+  get children() {
+    return this.meta.children.value;
+  }
+
+  is(tree) {
+    return this.data === tree.data;
+  }
+
+  /**
+   * Wrap middleware over this tree's middlware and return a new tree.
+   * @param {*} fn 
+   */
   use(fn) {
-    return append(this, {
-      data: assign({}, this.data, { middleware: fn(this.data.middleware) })
+    return this.assign({
+      data: { middleware: fn(this.data.middleware) }
+    });
+  }
+
+  assign(attrs) {
+    let tree = this;
+
+    let { data, meta } = attrs;
+
+    return this.derive(function deriveCallbackInAssign(instance) {
+      // instance here is only to be used as a reference
+      // do not read properties off this instance
+
+      if (data && data.hasOwnProperty('value')) {
+        data = assign({}, data, {
+          value: new Value(data.value),
+          state: new State(instance)          
+        })
+      }
+
+      if (meta && meta.hasOwnProperty('children')) {
+        meta = assign({}, meta, {
+          children: new Children(instance, meta.children)
+        });
+      }
+
+      if (meta && meta.hasOwnProperty('root') && typeof meta.root === 'function') {
+        meta = assign({}, meta, {
+          root: meta.root(instance)
+        });
+      }
+
+      return {
+        meta: meta ? assign({}, tree.meta, meta) : tree.meta,
+        data: data && data !== tree.data ? assign({}, tree.data, data) : tree.data
+      }
+    });
+  }
+
+  derive(fn) {
+    let thunked = thunk(instance => fn(instance));
+
+    return Object.create(Tree.prototype, {
+      meta: {
+        enumerable: true,
+        configurable: true,
+        get() {
+          return thunked(this).meta;
+        }
+      },
+      data: {
+        enumerable: true,
+        configurable: true,
+        get() {
+          return thunked(this).data;
+        }
+      }
     });
   }
 
@@ -153,14 +254,12 @@ export default class Tree {
    * is not applied when the tree is pruned.
    */
   apply(fn) {
-    let { middleware } = this.root.data;
     // overload custom middleware to allow context free transitions
-    let root = append(this.root, { data: assign({}, this.root.data, { middleware: defaultMiddleware } ) });
+    let root = this.root.assign({ data: { middleware: defaultMiddleware } });
     // focus on current tree and apply the function to it
     let nextRoot = over(this.lens, fn, root);
     // put the original middleware into the next root tree so the middleware will
-    // carry into the next microstate
-    return append(nextRoot, { data: assign({}, nextRoot.data, { middleware } )});
+    return nextRoot.assign({ data: { middleware: this.root.data.middleware }});
   }
 
   /**
@@ -230,35 +329,6 @@ export default class Tree {
       return map(tree => ({ path: [...path, ...tree.path], root }), this);
     }
   }
-
-  get isRoot() {
-    return this.root === this;
-  }
-
-  get hasChildren() {
-    return keys(this.children).length > 0
-  }
-
-  get microstate() {
-    let { data: { Constructor } } = this;
-    return new Constructor(this);
-  }
-
-  // state is stable across mapped trees
-  get state() {
-    return this.data.state.value;
-  }
-
-  // value is stable across mapped trees
-  get value() {
-    return this.data.value.value;
-  }
-
-  @stable
-  // children are stable for a tree instance
-  get children() {
-    return this.data.children.value;
-  }
 }
 
 class Value {
@@ -284,36 +354,29 @@ class State {
 
   @stable
   get value() {
-    let { tree, tree: { value, data: { StabilizedClass } } } = this;
+    let { tree, tree: { meta: { StabilizedClass } } } = this;
 
-    if (tree.isSimple || value === undefined) {
-      return value;
+    if (tree.isSimple || tree.value === undefined) {
+      return tree.value;
     } else {
       if (Array.isArray(tree.children)) {
         return map(child => child.state, tree.children);
       } else {
-        return append(new StabilizedClass(value), map(child => child.state, tree.children));
+        return append(new StabilizedClass(tree.value), map(child => child.state, tree.children));
       }
     }
   }
 }
 
 class Children {
-  constructor(tree) {
+  constructor(tree, resolveChildren) {
     this.tree = tree;
+    this.resolveChildren = resolveChildren;
   }
   
   @stable
   get value() {
-    let { Type, value, path, root } = this.tree;
-    let childTypes = childTypesAt(Type, value);
-
-    return map((ChildType, childPath) => new Tree({
-      Type: ChildType,
-      value: () => value && value[childPath] ? value[childPath] : undefined,
-      path: append(path, childPath),
-      root
-    }), childTypes);
+    return this.resolveChildren(this.tree);
   } 
 }
 
@@ -333,6 +396,17 @@ function ensureDefault(Type, value) {
     }
   }
   return value;
+}
+
+function childrenFromTree({ Type, value, path, root }) {
+  let childTypes = childTypesAt(Type, value);
+
+  return map((ChildType, childPath) => new Tree({
+    Type: ChildType,
+    value: () => value && value[childPath] ? value[childPath] : undefined,
+    path: append(path, childPath),
+    root
+  }), childTypes);
 }
 
 function childTypesAt(Type, value) {
@@ -438,13 +512,19 @@ Semigroup.instance(Tree, {
 Functor.instance(Tree, {
   map(fn, tree) {
 
-    let mapped = thunk(() => fn(tree));
+    function remap(fn, tree, root) {
+      return fn(tree).assign({
+        meta: {
+          Type: tree.Type,
+          root: instance => root || instance,
+          children: instance => {
+            return map(child => remap(fn, child, root || instance), tree.children);
+          }
+        }
+      });
+    }
 
-    return append(tree, {
-      data: () => mapped().data ? mapped().data : tree.data,
-      path: () => mapped().path ? mapped().path : tree.path,
-      children: root => map(child => append(map(fn, child), { root }), tree.children)
-    })
+    return remap(fn, tree);
   }
 });
 
