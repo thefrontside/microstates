@@ -40,7 +40,7 @@ describe('created without value', () => {
       it('received the assigned value', () => {
         expect(assignedAgain.valueOf()).toEqual({ foo: 'bar', bar: 'baz' });
       });
-      it.skip('maintains stability of the state', function() {
+      it('maintains stability of the state', function() {
         expect(assignedAgain.state.foo).toBe(assigned.state.foo)
       });
     });
