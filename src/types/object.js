@@ -1,4 +1,4 @@
-import { append, map, filter, flatMap, foldl } from 'funcadelic';
+import { map, filter, flatMap, foldl } from 'funcadelic';
 import { parameterized, params } from './parameters0';
 import Any from './any';
 import Tree from '../tree';

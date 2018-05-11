@@ -51,11 +51,14 @@ class ArrayType {
 function transform(fn, microstate) {
   return map(tree => flatMap(current => {
     if (current.is(tree)) {
-      return append(current, {
-        children: () => {
-          let { T } = params(current.Type);
-          return fn(current.children.slice(), T);
-        }})
+      return current.assign({
+        meta: {
+          children() {
+            let { T } = params(current.Type);
+            return fn(current.children.slice(), T);
+          }
+        }
+      })
     } else {
       return current;
     }
