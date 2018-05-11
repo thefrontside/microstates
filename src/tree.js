@@ -628,8 +628,3 @@ Monad.instance(Tree, {
     return reflatmap(fn, tree);
   }
 });
-
-function isEqualAt(a, b, path = []) {
-  let lens = lensPath(Array.isArray(path) ? path : [path]);
-  return view(lens, a) === view(lens, b);
-}
