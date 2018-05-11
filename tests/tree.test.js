@@ -401,71 +401,80 @@ describe('Tree', () => {
         it('previous item state is stable', () => {
           expect(flatMapped.children.things.children.phone.state).toBe(normalized.children.things.children.phone.state);
         });
+        it('updates state on root', () => {
+          expect(flatMapped.state.things.car).toBeInstanceOf(Thing);
+        });
+        it('state on root is stable', () => {
+          expect(flatMapped.state.things.phone).toBe(normalized.state.things.phone);
+        });
       })
-      // it('recomputes the value on the parent')
     });
 
     describe('changing value', () => {
-      it('applies new value to children');
+      class Thing {
+        name = String;
+      }
+      class Box {
+        things = [Thing]
+      }
+
+      let box;
+      let flatMapped;
+      describe('on root element', () => {
+        beforeEach(() => {
+          let value = { things: [ { name: 'iPhone' }, { name: 'Subaru' } ] };
+          box = new Tree({ Type: Box, value });
+          flatMapped = flatMap(tree => {
+            if (tree.is(box)) {
+              return tree.assign({
+                data: {
+                  value() {
+                    return { 
+                      things: [
+                        value.things[0],
+                        { name: 'Subabaruru' },
+                        { name: 'Bicycle' }
+                      ]
+                    }
+                  }
+                }
+              });
+            }
+            return tree;
+          }, box);
+        });
+
+        it('updated the value on child trees', () => {
+          expect(flatMapped.children.things.value).toEqual([
+            { name: 'iPhone' },
+            { name: 'Subabaruru' },
+            { name: 'Bicycle' }
+          ]);
+        });
+
+        it('updated the value on the root', () => {
+          expect(flatMapped.value).toEqual({ 
+            things: [
+              { name: 'iPhone' }, { name: 'Subabaruru' }, { name: 'Bicycle' }
+            ]
+          });
+        });
+
+        it('keeps state of unchanged item stable', () => {
+          expect(flatMapped.state.things[0]).toBe(box.state.things[0]);
+        });
+
+        it('changed the state of the updated item', () => {
+          expect(flatMapped.children.things.children[1].state).toEqual({ name: 'Subabaruru' });
+          expect(flatMapped.state.things[1]).toEqual({ name: 'Subabaruru' });
+        });
+
+        it('added new item to the state', () => {
+          expect(flatMapped.state.things[2]).toEqual({ name: 'Bicycle' });
+        });
+
+      });
     });
-
-    // let flatMapped;
-    // beforeEach(() => {
-    //   flatMapped = flatMap((tree) => {
-    //     if (tree.Type === Things) {
-    //       return tree.assign({
-    //         meta: {
-    //           Type: Thangs
-    //         }
-    //       });
-    //     } else if (tree.Type === Thang) {
-    //       return tree.assign({
-    //         meta: {
-    //           Type: Thang,
-    //           path: ['wut', 'heck', 'no']              
-    //         }, 
-    //         data: {
-    //           value: { name: `Hallo ${tree.children.name.value}!` }
-    //         }
-    //       });
-    //     } else {
-    //       return tree;
-    //     }
-    //   }, things);
-    // });
-
-    // it('allows you to change the type of a tree', function() {
-    //   expect(flatMapped.Type).toBe(Thangs);
-    // });
-    // it('has stable children', () => {
-    //   expect(flatMapped.children).toBe(flatMapped.children);
-    //   expect(flatMapped.children.a.children).toBe(flatMapped.children.a.children);
-    // });
-    // it('makes sure all of the values have referential integrety', function() {
-    //   expect(flatMapped.value.a).toBe(flatMapped.children.a.value);
-    // });
-    // it('recursively flatMaps the children', function() {
-    //   expect(flatMapped.children.a.children.name.value).toBe('Hallo A!');
-    // });
-    // it('preserves the path', function() {
-    //   expect(flatMapped.children.a.path).toEqual(['a']);
-    // });
-
-    // describe('changing children', () => {
-    //   let tree, flatMapped;
-    //   beforeEach(() => {
-    //     tree = new Tree({ Type: Array, value: ['a', 'b', 'c'] });
-    //     flatMapped = flatMap(tree => {
-    //       return {
-    //         children: [...tree.children, new Tree({ value: 'd' })]
-    //       }
-    //     }, tree);
-    //   });
-
-    //   it('has four children', () => {
-    //     expect(flatMapped.children).toHaveLength(4);
-    //   });
-    // });
   })
 
   describe('isEqual', () => {

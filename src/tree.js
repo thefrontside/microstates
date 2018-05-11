@@ -223,10 +223,29 @@ export default class Tree {
 
       if (data && data.hasOwnProperty('value')) {
         let { value, state = stateFromTree } = data;
+        let valueFn = typeof value === 'function' ? () => value(instance) : value;
         data = assign({}, data, {
-          value: new Value(typeof value === 'function' ? () => value(instance) : value),
+          value: new Value(valueFn),
           state: new State(instance, state)
-        })
+        });
+
+        if (!meta || meta && !meta.hasOwnProperty('children')) {
+          meta = assign({}, meta, {
+            children() {
+              let newValueTree = new Tree({ Type: tree.Type, value: valueFn });
+              return map((childTree) => {
+                return map(child => {
+                  let existing = tree.treeAt(child.path);
+                  if (existing && existing.isEqual(child)) {
+                    return existing;
+                  } else {
+                    return child;
+                  }
+                }, childTree);
+              }, newValueTree.children);
+            }
+          });
+        }
       }
 
       if (meta && meta.hasOwnProperty('children')) {
@@ -567,9 +586,11 @@ Monad.instance(Tree, {
           meta: { 
             root: root || instance,
             children() {
-              return map(child => reflatmap(tree => {
-                return fn(tree.prune()).graft(tree.path, root || instance);
-              }, child, root || instance), mapped.children);
+              return map(child => {
+                return reflatmap(tree => {
+                  return fn(tree.prune()).graft(tree.path, root || instance);
+                }, child, root || instance);
+              }, mapped.children);
             }
           },
           data: {
@@ -579,7 +600,7 @@ Monad.instance(Tree, {
                   if (Array.isArray(instance.children)) {
                     return map(child => child.value, instance.children);
                   } else {
-                    return Object.keys(instance.children).reduce((value, key) => {
+                    return keys(instance.children).reduce((value, key) => {
                       let oldValue = tree.children[key] && tree.children[key].value;
                       let newValue = instance.children[key].value;
                       if (oldValue === newValue) {
@@ -606,4 +627,9 @@ Monad.instance(Tree, {
 
     return reflatmap(fn, tree);
   }
-})
+});
+
+function isEqualAt(a, b, path = []) {
+  let lens = lensPath(Array.isArray(path) ? path : [path]);
+  return view(lens, a) === view(lens, b);
+}
