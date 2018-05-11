@@ -420,7 +420,7 @@ describe('Tree', () => {
 
       let box;
       let flatMapped;
-      describe('on root element', () => {
+      describe('adding and updating on root element', () => {
         beforeEach(() => {
           let value = { things: [ { name: 'iPhone' }, { name: 'Subaru' } ] };
           box = new Tree({ Type: Box, value });
@@ -473,6 +473,59 @@ describe('Tree', () => {
           expect(flatMapped.state.things[2]).toEqual({ name: 'Bicycle' });
         });
 
+        it('has root on each node', () => {
+          expect(flatMapped.children.things.children[2].root).toBe(flatMapped);
+          expect(flatMapped.children.things.children[1].root).toBe(flatMapped);
+          expect(flatMapped.children.things.children[0].root).toBe(flatMapped);          
+          expect(flatMapped.children.things.root).toBe(flatMapped);                    
+          expect(flatMapped.root).toBe(flatMapped);                    
+        });
+
+      });
+
+      describe('removing from root element', () => {
+        beforeEach(() => {
+          let value = { things: [ { name: 'iPhone' }, { name: 'Subaru' } ] };
+          box = new Tree({ Type: Box, value });
+          flatMapped = flatMap(tree => {
+            if (tree.is(box)) {
+              return tree.assign({
+                data: {
+                  value() {
+                    return { 
+                      things: [
+                        value.things[0]
+                      ]
+                    }
+                  }
+                }
+              });
+            }
+            return tree;
+          }, box);
+        });
+
+        it('has new value on root', () => {
+          expect(flatMapped.value).toEqual({ 
+            things: [
+              { name: 'iPhone' }
+            ]
+          });
+        });
+
+        it('has stable state on unchanged node', () => {
+          expect(flatMapped.state.things[0]).toBe(box.state.things[0]);
+        });
+
+        it('has only one element', () => {
+          expect(flatMapped.state.things).toHaveLength(1);
+        });
+
+        it('references root node', () => {
+          expect(flatMapped.children.things.children[0].root).toBe(flatMapped);
+          expect(flatMapped.children.things.root).toBe(flatMapped);
+          expect(flatMapped.root).toBe(flatMapped);
+        });
       });
     });
   })
