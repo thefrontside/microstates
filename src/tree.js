@@ -313,24 +313,22 @@ export default class Tree {
     let set = (tree, root) => {
       let nextValue = lset(lensPath(this.path), tree.value, root.value);
       let bottom = { tree: tree.graft(this.path, root), parentPath: this.path.slice(0, -1) };
+
       /**
        * Navigate the tree from bottom to the top and update
        * value of each tree in the path. Does not
        * change the children that are uneffected by this change.
        */
-      let top = foldr(({ tree, parentPath }, name) => {
-        let parent = root.treeAt(parentPath);
-        let replacement = new Tree({
-          Type: parent.Type,
-          path: parentPath,
-          value: () => view(lensPath(parentPath), nextValue)
-        });
-        defineStable(replacement, 'children', function stableChildren() {
-          return map((child, key) => key === name ? tree : child, parent.children);
-        }, false);
+      let top = foldr(({ parentPath }) => {
         return {
           parentPath: parentPath.slice(0, -1),
-          tree: replacement
+          tree: root.treeAt(parentPath).assign({
+            data: {
+              value() {
+                return view(lensPath(parentPath), nextValue);
+              }
+            }
+          })
         }
       }, bottom, this.path);
 
