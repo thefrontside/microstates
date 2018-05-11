@@ -207,9 +207,10 @@ export default class Tree {
    * @param {*} fn 
    */
   use(fn) {
-    return this.assign({
+    let assigned = this.assign({
       data: { middleware: fn(this.data.middleware) }
     });
+    return map(tree => tree, assigned);
   }
 
   assign(attrs) {
