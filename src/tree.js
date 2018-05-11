@@ -32,7 +32,7 @@ const defaultMiddleware = (localMicrostate, transition, args) => {
 
   let { microstate } = tree.apply(focus => {
     let next = transition.apply(focus.microstate, args);
-    return next instanceof Microstate ? reveal(next) : new Tree({ Type: focus.Type, value: next })
+    return next instanceof Microstate ? reveal(next) : focus.assign({ data: { value: next }});
   });
 
   return microstate;
@@ -297,9 +297,9 @@ export default class Tree {
     // overload custom middleware to allow context free transitions
     let root = this.root.assign({ data: { middleware: defaultMiddleware } });
     // focus on current tree and apply the function to it
-    let nextRoot = over(this.lens, fn, root);
+    let nextRoot = over(this.lens, fn, root).assign({ data: { middleware: this.root.data.middleware } });
     // put the original middleware into the next root tree so the middleware will
-    return nextRoot.assign({ data: { middleware: this.root.data.middleware }});
+    return map(tree => tree, nextRoot);
   }
 
   /**
@@ -319,7 +319,7 @@ export default class Tree {
        * value of each tree in the path. Does not
        * change the children that are uneffected by this change.
        */
-      let top = foldr(({ parentPath }) => {
+      return foldr(({ parentPath }) => {
         return {
           parentPath: parentPath.slice(0, -1),
           tree: root.treeAt(parentPath).assign({
@@ -330,10 +330,7 @@ export default class Tree {
             }
           })
         }
-      }, bottom, this.path);
-
-      // this ensures that every node receives the root
-      return map(tree => tree, top.tree);
+      }, bottom, this.path).tree;
     }
 
     return lens(get, set);
@@ -481,17 +478,6 @@ function stable(target, key, descriptor) {
   let { get } = descriptor;
   descriptor.get = stabilizeOn(key, get);
   return descriptor;
-}
-
-/**
- * Define a stable getter on target object at specified key.
- */
-function defineStable(target, key, fn, enumerable = true, configurable = true) {
-  return defineProperty(target, key, {
-    configurable,
-    enumerable,
-    get: stabilizeOn(key, fn)
-  })
 }
 
 function stabilizeOn(key, fn) {

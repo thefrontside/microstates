@@ -704,6 +704,21 @@ describe('Microstate', () => {
       person = Microstate.create(Person, { name: 'Bart', mother: { name: 'Marge' } });
     });
 
+    describe('tree', () => {
+      let tree;
+      beforeEach(() => {
+        tree = reveal(person);
+      });
+
+      it('has tree that references itself', () => {
+        expect(tree.root).toBe(tree);
+      });
+
+      it('has composed tree that references root', () => {
+        expect(reveal(person.name).root).toBe(tree);
+      });
+    });
+
     it('has stable state', () => {
       expect(person.state).toBe(person.state);
     });
@@ -720,12 +735,9 @@ describe('Microstate', () => {
     });
 
     describe('second transition', () => {
-      let withFather, root, motherTree, fatherNameTree;
+      let withFather;
       beforeEach(() => {
         withFather = person.father.set({ name: 'Homer' });
-        root = reveal(withFather);
-        motherTree = reveal(withFather.mother);
-        fatherNameTree = reveal(withFather.father.name);
       });
 
       it('maintained state after transition', () => {
@@ -744,10 +756,27 @@ describe('Microstate', () => {
         expect(withFather.valueOf()).toEqual({ name: 'Bart', mother: { name: 'Marge' }, father: { name: 'Homer' } })
       });
 
-      it('root on updated branch is same as unchanged branch', () => {
-        expect(motherTree.root).toBe(root);
-        expect(fatherNameTree.root).toBe(root);
-      });
+      describe('tree', () => {
+        let tree, motherTree, fatherNameTree;
+
+        beforeEach(() => {
+          tree = reveal(withFather);
+          motherTree = reveal(withFather.mother);
+          fatherNameTree = reveal(withFather.father.name);
+        });
+
+        it('has correct root on revealed tree', () => {
+          expect(tree.root).toBe(tree);
+        });
+  
+        it('has correct root on tree in unchanged branch', () => {
+          expect(motherTree.root).toBe(tree);
+        });
+  
+        it('has correct root on tree in modified branch', () => {
+          expect(fatherNameTree.root).toBe(tree);
+        });
+      })
 
       describe('third transition', () => {
         let seniorHomer;
