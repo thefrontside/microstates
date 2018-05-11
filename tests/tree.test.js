@@ -215,6 +215,25 @@ describe('Tree', () => {
       b = Thang;
     }
 
+    describe('no-op', () => {
+      let flatMapped;
+      beforeEach(() => {
+        flatMapped = flatMap(tree => tree, a);
+      });
+      it('kept the type', () => {
+        expect(flatMapped.Type).toBe(a.Type);
+      });
+      it('kept the value', () => {
+        expect(flatMapped.value).toBe(a.value);
+      });
+      it('kept state stable', () => {
+        expect(flatMapped.state).toBe(a.state);
+      });
+      it('is not same', () => {
+        expect(flatMapped.is(a)).toBe(false);
+      });
+    });
+
     describe('changing type', () => {
       describe('on root', () => {
         let flatMapped;
@@ -448,6 +467,26 @@ describe('Tree', () => {
     //   });
     // });
   })
+
+  describe('isEqual', () => {
+    describe('shallow', () => {
+      it('instance is equal to itself', () => {
+        expect(a.isEqual(a)).toBe(true);
+      });
+  
+      it('no-op map is equal to itself', () => {
+        let mapped = map(tree => tree, a);
+        expect(a.isEqual(mapped)).toBe(true);
+        expect(mapped.isEqual(a)).toBe(true);
+      });
+  
+      it('no-op flatMap is equal to itself', () => {
+        let flatMapped = flatMap(tree => tree, a);
+        expect(a.isEqual(flatMapped)).toBe(true);
+        expect(flatMapped.isEqual(a)).toBe(true);
+      });
+    });
+  });
 
   describe('prune', () => {
     let pruned;

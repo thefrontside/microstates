@@ -15,9 +15,10 @@ import desugar from './desugar';
 import { reveal, keep } from './utils/secret';
 export { reveal } from './utils/secret';
 import isSimple from './is-simple';
-import values from './values';
+import keys from './keys';
+import shallowDiffers from './shallow-differs';
 
-const { assign, keys, defineProperty, defineProperties } = Object;
+const { assign, defineProperty, defineProperties } = Object;
 
 /**
  * Apply a transition to a microstate and return the next
@@ -184,7 +185,26 @@ export default class Tree {
     return this.data === tree.data;
   }
 
+  isEqual(tree) {
 
+    if (this.is(tree)) {
+      return true;
+    }
+
+    if (this.Type !== tree.Type || this.value !== tree.value) {
+      return false;
+    }
+    
+    if (shallowDiffers(map(c => c.value, this.children), map(c => c.value, tree.children))) {
+      return false;
+    }
+
+    if (shallowDiffers(map(c => c.Type, this.children), map(c => c.Type, tree.children))) {
+      return false;
+    }
+
+    return true;
+  }
 
   /**
    * Wrap middleware over this tree's middlware and return a new tree.
@@ -577,7 +597,7 @@ Monad.instance(Tree, {
                 return value;
               },
               state(instance) {
-                if (tree.value === instance.value && tree.Type === instance.Type) {
+                if (instance.isEqual(tree)) {
                   return tree.state;
                 } else {
                   return stateFromTree(instance);
