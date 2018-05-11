@@ -297,9 +297,11 @@ export default class Tree {
     // overload custom middleware to allow context free transitions
     let root = this.root.assign({ data: { middleware: defaultMiddleware } });
     // focus on current tree and apply the function to it
-    let nextRoot = over(this.lens, fn, root).assign({ data: { middleware: this.root.data.middleware } });
-    // put the original middleware into the next root tree so the middleware will
-    return map(tree => tree, nextRoot);
+    let nextRoot = over(this.lens, fn, root);
+    // put the original middleware into the next root tree so the middleware will    
+    let withMiddlware = nextRoot.assign({ data: { middleware: this.root.data.middleware } });
+    // ensure that the tree has correct root
+    return map(tree => tree, withMiddlware);
   }
 
   /**
