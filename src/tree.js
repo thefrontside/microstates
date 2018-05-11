@@ -194,10 +194,6 @@ export default class Tree {
     if (this.Type !== tree.Type || this.value !== tree.value) {
       return false;
     }
-    
-    if (shallowDiffers(map(c => c.value, this.children), map(c => c.value, tree.children))) {
-      return false;
-    }
 
     if (shallowDiffers(map(c => c.Type, this.children), map(c => c.Type, tree.children))) {
       return false;
