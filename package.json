@@ -26,7 +26,7 @@
     "lint": "eslint src"
   },
   "dependencies": {
-    "funcadelic": "0.4.0",
+    "funcadelic": "0.4.1",
     "object.getownpropertydescriptors": "2.0.3",
     "ramda": "^0.25.0",
     "symbol-observable": "1.2.0"
