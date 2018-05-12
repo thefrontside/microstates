@@ -1,15 +1,23 @@
 {
   "name": "microstates",
-  "version": "0.6.2",
+  "version": "0.6.3",
   "description": "Graceful state transitions for data of any shape.",
-  "keywords": ["blood", "immutable", "microstates"],
+  "keywords": [
+    "blood",
+    "immutable",
+    "microstates"
+  ],
   "homepage": "https://github.com/microstates/microstates.js#readme",
   "bugs": {
     "url": "https://github.com/microstates/microstates.js/issues"
   },
   "license": "MIT",
   "author": "Charles Lowell <charles@frontside.io>, Taras Mankovski <taras@thisdot.co>",
-  "files": ["src", "dist", "README.md"],
+  "files": [
+    "src",
+    "dist",
+    "README.md"
+  ],
   "main": "dist/microstates.umd.js",
   "module": "dist/microstates.js",
   "browser": "dist/microstates.umd.js",
@@ -56,19 +64,30 @@
   },
   "jest": {
     "globalSetup": "./build.js",
-    "collectCoverageFrom": ["dist/microstates.umd.js"],    
+    "collectCoverageFrom": [
+      "dist/microstates.umd.js"
+    ],
     "projects": [
       {
         "displayName": "test",
         "testRegex": "(/tests/.*|\\.(test|spec))\\.(js)$",
-        "moduleFileExtensions": ["js", "json"],
-        "watchPathIgnorePatterns": ["<rootDir>/dist/"]
+        "moduleFileExtensions": [
+          "js",
+          "json"
+        ],
+        "watchPathIgnorePatterns": [
+          "<rootDir>/dist/"
+        ]
       },
       {
         "runner": "jest-runner-eslint",
         "displayName": "lint",
-        "testMatch": ["<rootDir>/src/**/*.js"],
-        "watchPathIgnorePatterns": ["<rootDir>/dist/"]
+        "testMatch": [
+          "<rootDir>/src/**/*.js"
+        ],
+        "watchPathIgnorePatterns": [
+          "<rootDir>/dist/"
+        ]
       }
     ]
   }
