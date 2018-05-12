@@ -322,10 +322,16 @@ export default class Tree {
        * value of each tree in the path. Does not
        * change the children that are uneffected by this change.
        */
-      return foldr(({ parentPath }) => {
+      return foldr(({ tree, parentPath }, name) => {
+        let parent = root.treeAt(parentPath);
         return {
           parentPath: parentPath.slice(0, -1),
-          tree: root.treeAt(parentPath).assign({
+          tree: parent.assign({
+            meta: {
+              children() {
+                return map((child, key) => key === name ? tree : child, parent.children);
+              }
+            },
             data: {
               value() {
                 return view(lensPath(parentPath), nextValue);
