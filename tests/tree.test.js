@@ -97,6 +97,11 @@ describe('Tree', () => {
   });
 
   describe('Functor', () => {
+    it('is lazy', () => {
+      let fn = jest.fn(tree => tree);
+      let mapped = map(fn, a);
+      expect(fn).not.toHaveBeenCalled();
+    });
     describe('no-op', () => {
       let mapped;
       beforeEach(() => {

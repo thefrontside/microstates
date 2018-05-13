@@ -495,17 +495,18 @@ Functor.instance(Tree, {
   map(fn, tree) {
 
     function remap(fn, tree, root) {
-      // TODO: make this a thunk
-      return fn(tree).assign({
-        meta: {
-          Type: tree.Type,
-          root(instance) { 
-            return root || instance 
-          },
-          children(instance) {
-            return map(child => remap(fn, child, root || instance), tree.children);
+      return tree.derive(function deriveInFunctor(instance) {
+        return fn(tree).assign({
+          meta: {
+            Type: tree.Type,
+            root() { 
+              return root || instance 
+            },
+            children() {
+              return map(child => remap(fn, child, root || instance), tree.children);
+            }
           }
-        }
+        })
       });
     }
 
