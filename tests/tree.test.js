@@ -1,7 +1,6 @@
 import 'jest';
 
-import types from '../src/types';
-import Tree, { Microstate, reveal } from '../src/tree';
+import Microstate, { Tree, reveal, types } from 'microstates';
 import { flatMap, map, append } from 'funcadelic';
 import view from 'ramda/src/view';
 import set from 'ramda/src/set';

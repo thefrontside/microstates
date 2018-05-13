@@ -11,9 +11,6 @@ const globals = {
   "ramda/src/view": "R.view",
   "ramda/src/set": "R.set",
   "ramda/src/lensPath": "R.lensPath",
-  "ramda/src/indexOf": "R.indexOf",
-  "ramda/src/compose": "R.compose",
-  "object.getownpropertydescriptors": "Object.getownpropertydescriptors",
   "symbol-observable": "SymbolObservable",
   "get-prototype-descriptors": "getPrototypeDescriptors",
   "memoize-getters": "memoizeGetters"

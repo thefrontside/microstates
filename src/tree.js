@@ -13,7 +13,6 @@ import thunk from './thunk';
 import $ from './utils/chain';
 import desugar from './desugar';
 import { reveal, keep } from './utils/secret';
-export { reveal } from './utils/secret';
 import isSimple from './is-simple';
 import keys from './keys';
 import shallowDiffers from './shallow-differs';
@@ -207,10 +206,15 @@ export default class Tree {
    * @param {*} fn 
    */
   use(fn) {
-    let assigned = this.assign({
-      data: { middleware: fn(this.data.middleware) }
-    });
-    return map(tree => tree, assigned);
+    return map(tree => {
+      if (tree.is(this)) {
+        return tree.assign({
+          data: { middleware: fn(this.data.middleware) },
+        });
+      } else {
+        return tree;
+      }
+    }, this);
   }
 
   assign(attrs) {
@@ -299,10 +303,14 @@ export default class Tree {
     let root = this.root.assign({ data: { middleware: defaultMiddleware } });
     // focus on current tree and apply the function to it
     let nextRoot = over(this.lens, fn, root);
-    // put the original middleware into the next root tree so the middleware will    
-    let withMiddlware = nextRoot.assign({ data: { middleware: this.root.data.middleware } });
-    // ensure that the tree has correct root
-    return map(tree => tree, withMiddlware);
+    // put the original middleware into the next root tree so the middleware will
+    return map(tree => {
+      if (tree.is(nextRoot)) {
+        return nextRoot.assign({ data: { middleware: this.root.data.middleware } });
+      } else {
+        return tree;
+      }
+    }, nextRoot);
   }
 
   /**
