@@ -5,6 +5,7 @@ import { flatMap, map, append } from 'funcadelic';
 import view from 'ramda/src/view';
 import set from 'ramda/src/set';
 import over from 'ramda/src/over';
+import { resolveType, stabilizeClass, transitionsClass } from '../src/tree';
 
 const { assign } = Object;
 
@@ -1135,7 +1136,26 @@ describe('Microstate', () => {
         });
       });
     });
-
   });
+});
 
+describe('resolveType', () => {
+  it('is stable for sugar type', () => {
+    let Type = [String];
+    expect(resolveType(Type)).toBe(resolveType(Type));
+  })
+});
+
+describe('stabilizeClass', () => {
+  it('is stable for sugar type', () => {
+    let Type = [String];
+    expect(stabilizeClass(Type)).toBe(stabilizeClass(Type));
+  });
+});
+
+describe('transitionsClass', () => {
+  it('is stable for sugar type', () => {
+    let Type = [String];
+    expect(transitionsClass(Type)).toBe(transitionsClass(Type));
+  });
 });

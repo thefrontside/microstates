@@ -1,7 +1,7 @@
-import { append, map, flatMap, foldl, foldr, Functor, Monad } from 'funcadelic';
+import { append, map, flatMap, foldl, foldr, Functor, Monad, stable } from 'funcadelic';
 import getPrototypeDescriptors from 'get-prototype-descriptors';
 import SymbolObservable from "symbol-observable";
-import stabilizeClass from 'memoize-getters';
+import memoizeGetters from 'memoize-getters';
 import lens from 'ramda/src/lens';
 import lensPath from 'ramda/src/lensPath';
 import lset from 'ramda/src/set';
@@ -37,10 +37,10 @@ const defaultMiddleware = (localMicrostate, transition, args) => {
   return microstate;
 };
 
-const defaultConstructorFactory = Type => {
-  class MicrostateWithTransitions extends Microstate {}
+export const transitionsClass = stable(function transitionsClass(Type) {
+  class Transitions extends Microstate {}
 
-  let descriptors = Type === types.Any ? getPrototypeDescriptors(types.Any) : assign(getPrototypeDescriptors(toType(Type)), getPrototypeDescriptors(types.Any))
+  let descriptors = Type === types.Any ? getPrototypeDescriptors(types.Any) : assign(getPrototypeDescriptors(resolveType(Type)), getPrototypeDescriptors(types.Any))
 
   let transitions = $(descriptors)
     .filter(({ key, value }) => typeof value.value === 'function' && key !== 'constructor')
@@ -54,10 +54,18 @@ const defaultConstructorFactory = Type => {
     }))
     .valueOf();
 
-  defineProperties(MicrostateWithTransitions.prototype, transitions);
+  defineProperties(Transitions.prototype, transitions);
 
-  return MicrostateWithTransitions;
-}
+  return Transitions;
+});
+
+export const resolveType = stable(function resolveType(Type) {
+  return toType(desugar(Type));
+});
+
+export const stabilizeClass = stable(function stabilizeClass(Type) {
+  return memoizeGetters(class extends resolveType(Type) {});
+});
 
 export class Microstate {
 
@@ -118,17 +126,15 @@ Functor.instance(Microstate, {
 
 export default class Tree {
   // value can be either a function or a value.
-  constructor({ Type: InitialType = types.Any, value, path = [], root, middleware = defaultMiddleware, constructorFactory = defaultConstructorFactory}) {
-
-    let Type = toType(desugar(InitialType));
+  constructor({ Type = types.Any, value, path = [], root = this, middleware = defaultMiddleware}) {
 
     this.meta = {
-      InitialType,
-      Type,
+      InitialType: Type,
+      Type: resolveType(Type),
       path,
-      root: root || this,
-      StabilizedClass: stabilizeClass(class extends Type {}),
-      Constructor: constructorFactory(Type),
+      root,
+      StabilizedClass: stabilizeClass(Type),
+      TransitionsClass: transitionsClass(Type),
       children: new Children(this, childrenFromTree),
     }
 
@@ -164,8 +170,8 @@ export default class Tree {
   }
 
   get microstate() {
-    let { meta: { Constructor } } = this;
-    return new Constructor(this);
+    let { meta: { TransitionsClass } } = this;
+    return new TransitionsClass(this);
   }
 
   get state() {
