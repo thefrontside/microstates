@@ -18,7 +18,7 @@ import isSimple from './is-simple';
 import keys from './keys';
 import shallowDiffers from './shallow-differs';
 
-const { assign, defineProperty, defineProperties } = Object;
+const { assign, defineProperties } = Object;
 
 /**
  * Apply a transition to a microstate and return the next
@@ -384,45 +384,25 @@ export default class Tree {
   }
 }
 
-class Value {
+class CachedValue {
+  constructor(tree, resolve) {
+    this.cached = thunk(() => resolve(tree));
+  }
+
+  get value() {
+    return this.cached();
+  }
+}
+
+class Value extends CachedValue {
   constructor(valueOrFn) {
-    this.valueOrFn = valueOrFn;
-  }
-
-  @stable
-  get value() {
-    let { valueOrFn } = this;
-    if (typeof valueOrFn === 'function') {
-      return valueOrFn();
-    } else {
-      return valueOrFn;
-    }
+    let resolve = typeof valueOrFn === 'function' ? valueOrFn : () => valueOrFn;
+    super(null, resolve);
   }
 }
 
-class State {
-  constructor(tree, resolveState) {
-    this.tree = tree;
-    this.resolveState = resolveState;
-  }
-
-  @stable
-  get value() {
-    return this.resolveState(this.tree);
-  }
-}
-
-class Children {
-  constructor(tree, resolveChildren) {
-    this.tree = tree;
-    this.resolveChildren = resolveChildren;
-  }
-  
-  @stable
-  get value() {
-    return this.resolveChildren(this.tree);
-  } 
-}
+class State extends CachedValue {}
+class Children extends CachedValue {}
 
 function stateFromTree(tree) {
   let { meta: { StabilizedClass } } = tree;
@@ -476,25 +456,6 @@ function childTypesAt(Type, value) {
     .map(desugar)
     .filter(({ value }) => !!value && value.call)
     .valueOf();
-}
-
-/**
- * This descriptor can be applied to a getter. When applied to a getter,
- * the result of the getter's computation will be cached on first read
- * and reused on consequent reads.
- */
-function stable(target, key, descriptor) {
-  let { get } = descriptor;
-  descriptor.get = stabilizeOn(key, get);
-  return descriptor;
-}
-
-function stabilizeOn(key, fn) {
-  return function stabilized() {
-    let value = fn.call(this);
-    defineProperty(this, key, { value });
-    return value;
-  }
 }
 
 /**

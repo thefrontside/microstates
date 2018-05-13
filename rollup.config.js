@@ -38,7 +38,6 @@ module.exports = {
       babelrc: false,
       comments: false,
       plugins: [
-        "transform-decorators-legacy",
         "@babel/plugin-proposal-class-properties"
       ],
       presets: [
