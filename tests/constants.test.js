@@ -1,11 +1,12 @@
 import 'jest';
 import { create } from 'microstates';
 
+let o = { hello: 'world' };
 class Type {
   n = 10;
   b = true;
   s = 'hello';
-  o = { hello: 'world' };
+  o = o;
   a = ['a', 'b', 'c'];
   null = null;
   greeting = String;
@@ -45,7 +46,7 @@ describe('constants support', () => {
   it('next valueOf excludes constants', () => {
     expect(next.valueOf()).toEqual({ greeting: 'HI' });
   });
-  it.skip('shares complex objects between multiple instances of microstate', () => {
-    expect(ms.state.o).toBe(create(Type).state.o);
+  it('shares complex objects between multiple instances of microstate', () => {
+    expect(ms.state.o).toBe(create(Type, {}).state.o);
   });
 });
