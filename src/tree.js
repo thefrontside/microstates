@@ -75,6 +75,10 @@ export class Microstate {
     return append(this, map(child => child.microstate, tree.children));
   }
 
+  static from(value) {
+    return Tree.from(value).microstate;
+  }
+
   static create(Type, value) {
     return flatMap(tree => {
       if (tree.Type.prototype.hasOwnProperty("initialize")) {
@@ -125,9 +129,19 @@ Functor.instance(Microstate, {
 })
 
 export default class Tree {
+
+  static from(value) {
+    if (value && value instanceof Microstate) {
+      return reveal(value);
+    } else if (value) {
+      return new Tree({ value, Type: value.constructor });
+    } else {
+      return new Tree({ value });
+    }
+  }
+
   // value can be either a function or a value.
   constructor({ Type = types.Any, value, path = [], root = this, middleware = defaultMiddleware}) {
-
     this.meta = {
       InitialType: Type,
       Type: resolveType(Type),
@@ -464,7 +478,7 @@ function childrenFromTree({ Type, value, path, root }) {
 function childTypesAt(Type, value) {
   if (Type === types.Object || Type.prototype instanceof types.Object || Type === types.Array || Type.prototype instanceof types.Array) {
     let { T } = params(Type);
-    return map(() => T, ensureDefault(Type, value));
+    return map(({ constructor } = { constructor: types.Any }) => T === types.Any ? constructor : T, ensureDefault(Type, value));
   }
   return $(new Type())
     .map(desugar)
@@ -523,7 +537,7 @@ Monad.instance(Tree, {
    * whose  type is `Any` (which is basically an id type).
    */
   pure(value) {
-    return new Tree({ value, Type: types.Any });
+    return new Tree({ value });
   },
 
   /**

@@ -9,6 +9,70 @@ import { resolveType, stabilizeClass, transitionsClass } from '../src/tree';
 
 const { assign } = Object;
 
+describe('from', () => {
+  it('converts undefined to any', () => {
+    let tree = Tree.from();
+    let microstate = tree.microstate;
+    let set = microstate.set('hello world');
+    expect(tree).toHaveProperty('Type', types.Any);
+    expect(microstate).toHaveProperty('set');
+    expect(microstate.valueOf()).toBeUndefined();
+    expect(set.valueOf()).toBe('hello world');
+  });
+
+  it('converts string to String', () => {
+    let tree = Tree.from('hello world');
+    let microstate = tree.microstate;
+    expect(tree).toHaveProperty('Type', types.String);
+    expect(microstate.concat).toBeDefined();
+  });
+
+  it('converts [1, 2, 3] to Array<Number>', () => {
+    let tree = Tree.from([1, 2, 3]);
+    let microstate = tree.microstate;
+    expect(tree).toHaveProperty('Type', types.Array);
+    expect(microstate[0]).toHaveProperty('increment');
+    expect(microstate[1]).toHaveProperty('increment'); 
+    expect(microstate[2]).toHaveProperty('increment');       
+  });
+
+  it('parameterized value can be undefined', () => {
+    let tree = Tree.from([1, undefined, 3]);
+    let microstate = tree.microstate;
+    expect(tree).toHaveProperty('Type', types.Array);
+    expect(microstate[0]).toHaveProperty('increment');
+    expect(tree.children[1]).toHaveProperty('Type', types.Any); 
+    expect(microstate[1]).toHaveProperty('set'); 
+    expect(microstate[2]).toHaveProperty('increment');  
+  });
+
+  it('converts { hello: world } to { String }', () => {
+    let tree = Tree.from({ hello: 'world' });
+    let microstate = tree.microstate;
+    expect(tree).toHaveProperty('Type', types.Object);
+    expect(microstate.hello).toHaveProperty('concat');
+    expect(microstate).toHaveProperty('assign');
+  });
+
+  it('converts deeply nested object to microstate', () => {
+    let { microstate } = Tree.from({ a: { b: { c: { counter: 42 } } } });
+    expect(microstate.a.b.c.counter).toHaveProperty('increment');
+    expect(microstate.a.b.c.counter.increment().valueOf()).toEqual({ a: { b: { c: { counter: 43 }}}})
+  });
+
+  it('accepts a microstate instance', () => {
+    let tree = Tree.from(Microstate.create(Number, 42));
+    expect(tree).toHaveProperty('Type', types.Number);
+    expect(tree).toHaveProperty('value', 42);
+  });
+
+  it('allows to create a microstate via Microstate.from', () => {
+    let microstate = Microstate.from(42);
+    expect(microstate).toHaveProperty('increment');
+    expect(microstate.valueOf()).toBe(42);
+  });
+});
+
 describe("A Boolean Tree with a value provided", () => {
   let tree;
   beforeEach(function() {

@@ -4,8 +4,8 @@ import { parameterized, params } from './parameters0';
 import Any from './any';
 
 class ArrayType {
-  constructor(value = []) {
-    return value instanceof Array ? value : [value];
+  initialize(value = []) {
+    return value;
   }
 
   push(value) {
@@ -35,7 +35,11 @@ class ArrayType {
         if (value === tree.state) {
           return tree;
         } else {
-          return new Tree({ Type: tree.Type, value });
+          return tree.assign({
+            data: {
+              value
+            }
+          });
         }
       })
     }, this);

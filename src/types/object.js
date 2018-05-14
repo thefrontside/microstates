@@ -30,7 +30,7 @@ class ObjectType {
   }
 
   delete(propertyName) {
-    return transform((children, T) => {
+    return transform((children) => {
       if (propertyName in children) {
         return filter(({ key }) => key !== propertyName, children);
       } else {
