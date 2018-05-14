@@ -64,7 +64,10 @@ export const resolveType = stable(function resolveType(Type) {
 });
 
 export const stabilizeClass = stable(function stabilizeClass(Type) {
-  return memoizeGetters(class extends resolveType(Type) {});
+  class ImmutableState extends resolveType(Type) {
+    get state() { return this }
+  }
+  return memoizeGetters(ImmutableState);
 });
 
 export class Microstate {

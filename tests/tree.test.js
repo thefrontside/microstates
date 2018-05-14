@@ -1147,6 +1147,19 @@ describe('Microstate', () => {
   });
 
   describe("State", () => {
+    it('has state alias', () => {
+      class Person {
+        firstName = String;
+        lastName = String;
+        get fullName() {
+          return `${this.state.firstName} ${this.state.lastName}`;
+        }
+      }
+
+      let person = Microstate.create(Person, { firstName: 'Taras', lastName: 'Mankovski' });
+
+      expect(person.state.fullName).toBe('Taras Mankovski');
+    });
     describe("recursive type", () => {
       class Person {
         father = Person;
