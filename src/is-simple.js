@@ -3,9 +3,10 @@ import BooleanType from './types/boolean';
 import NumberType from './types/number';
 import ObjectType from './types/object';
 import ArrayType from './types/array';
+import Any from './types/any';
 
 import { toType } from './types';
-import { params, any } from './types/parameters';
+import { params } from './types/parameters';
 
 export default function isSimple(Constructor) {
   let Type = toType(Constructor);
@@ -24,13 +25,13 @@ export default function isSimple(Constructor) {
   }
   if (Type === ObjectType || Type.prototype instanceof ObjectType) {
     let { T } = params(Type);
-    if (T === any) {
+    if (T === Any) {
       return true;
     } else {
       return isSimple(T);
     }
   }
-  if (Type === any) {
+  if (Type === Any) {
     return true;
   }
   return false;

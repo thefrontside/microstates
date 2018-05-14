@@ -1,11 +1,11 @@
 export default class NumberType {
-  constructor(value = 0) {
-    return new Number(value);
+  initialize(value = 0) {
+    return new Number(value).valueOf();
   }
   increment(step = 1) {
-    return this.set(this.state + step);
+    return this.state + step;
   }
   decrement(step = 1) {
-    return this.set(this.state - step);
+    return this.state - step;
   }
 }

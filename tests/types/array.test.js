@@ -7,31 +7,78 @@ describe('ArrayType', function() {
   let array = ['a', 'b', 'c'];
 
   describe('when unparameterized', function() {
-    let ms = create(Array, array);
+    let ms;
 
-    it('constructor returns an array when receives another value', () => {
-      expect(new ArrayType()).toEqual([]);
-      expect(new ArrayType('foo')).toEqual(['foo']);
-      expect(new ArrayType(false)).toEqual([false]);
+    beforeEach(() => {
+      ms = create(Array, array)
     });
 
-    it('constructor returns the array when one is passed', () => {
-      expect(new ArrayType(array)).toBe(array);
+    describe('push', () => {
+
+      let pushed;
+      beforeEach(() => {
+        pushed = ms.push('d');
+      });
+
+      it('has value', () => {
+        expect(pushed.valueOf()).toEqual(['a', 'b', 'c', 'd']);
+      });
+
+      it('has state', () => {
+        expect(pushed.state).toEqual(['a', 'b', 'c', 'd']);
+      });
+
+      describe('again', () => {
+        let again;
+
+        beforeEach(() => {
+          again = pushed.push('e');
+        });
+
+        it('has value', () => {
+          expect(again.valueOf()).toEqual(['a', 'b', 'c', 'd', 'e']);
+        });
+
+        it('has state', () => {
+          expect(again.state).toEqual(['a', 'b', 'c', 'd', 'e']);
+        });
+
+      });
+
     });
 
-    it('pushes items', function() {
-      let next = ms.push('d').push('e');
-      expect(next.valueOf()).toEqual(['a', 'b', 'c', 'd', 'e']);
-      expect(next.state).toEqual(['a', 'b', 'c', 'd', 'e']);
+    describe('filter', () => {
+      let filtered;
+
+      beforeEach(() => {
+        filtered = ms.filter(v => v !== 'a');
+      });
+
+      it('value', () => {
+        expect(filtered.valueOf()).toEqual(['b', 'c']);
+      });
+
+      it('state', () => {
+        expect(filtered.state).toEqual(['b', 'c']);
+      });
     });
 
-    it('filter removes items', () => {
-      expect(ms.filter(v => v !== 'a').valueOf()).toEqual(['b', 'c']);
-    });
+    describe('map', () => {
+      let mapped;
 
-    it('map applies to every item', () => {
-      expect(ms.map(v => v.toUpperCase()).valueOf()).toEqual(['A', 'B', 'C']);
-    });
+      beforeEach(() => {
+        mapped = ms.map(v => v.toUpperCase());
+      });
+
+      it('value', () => {
+        expect(mapped.valueOf()).toEqual(['A', 'B', 'C']);
+      });
+
+      it('state', () => {
+        expect(mapped.valueOf()).toEqual(['A', 'B', 'C']);
+      });
+    })
+
   });
 
 
@@ -52,18 +99,21 @@ describe('ArrayType', function() {
       expect(pushed.state.length).toEqual(4);
       expect(pushed.state[3]).toBeInstanceOf(Thing);
     });
+
     it('can pop values', function() {
       let popped = ms.pop();
       expect(popped.valueOf()).toEqual(['a', 'b']);
       expect(popped.state.length).toEqual(2);
       expect(popped.state[1]).toBeInstanceOf(Thing);
     });
-    it('can unshift values', function () {
+
+    it('can unshift value', function () {
       let unshifted = ms.unshift('d');
       expect(unshifted.valueOf()).toEqual(['d', 'a', 'b', 'c']);
       expect(unshifted.state.length).toEqual(4);
       expect(unshifted.state[0]).toBeInstanceOf(Thing);
     });
+
     it('can shift values', function () {
       let shifted = ms.shift();
       expect(shifted.valueOf()).toEqual(['b', 'c']);

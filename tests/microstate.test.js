@@ -1,6 +1,5 @@
 import 'jest';
 import { create } from 'microstates';
-import { reveal } from '../src/utils/secret';
 
 it('exports create', function() {
   expect(create).toBeInstanceOf(Function);
@@ -13,7 +12,7 @@ describe('create', () => {
     }
     let value = { name: "Taras" };
     let m1 = create(Person, value);
-    expect(create(Person, m1).valueOf()).toBe(value);
+    expect(m1.valueOf()).toEqual(value);
   });
 });
 

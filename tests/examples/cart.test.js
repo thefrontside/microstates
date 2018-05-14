@@ -14,7 +14,7 @@ describe('cart example', () => {
   describe('adding products without initial value', () => {
     let ms;
     beforeEach(() => {
-      ms = create(Cart)
+      ms = create(Cart, { products: [] })
         .products.push({ quantity: 1, price: 10 })
         .products.push({ quantity: 2, price: 20 });
     });

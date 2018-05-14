@@ -13,7 +13,7 @@ describe('type parameters', () => {
     let ParameterizedArray = parameterized(Array, Base);
 
     it('has the `T` parameter set to `any` by default', function() {
-      expect(params(Array).T).toBe(any);
+      expect(params(Array).T).toBe(types.Any);
     });
 
     it('transparently converts it to ArrayType', function() {
@@ -30,7 +30,7 @@ describe('type parameters', () => {
 
     it('has the `T` parameter set to `any` by default', function() {
       let { T } = params(Object);
-      expect(T).toBe(any);
+      expect(T).toBe(types.Any);
     });
 
     it('transparently converts it to ObjectType', function() {

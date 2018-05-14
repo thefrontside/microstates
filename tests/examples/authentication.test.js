@@ -8,7 +8,7 @@ class Session {
     if (session) {
       return create(AuthenticatedSession, session);
     }
-    return create(AnonymousSession);
+    return create(AnonymousSession, {});
   }
 }
 
@@ -17,7 +17,7 @@ class AuthenticatedSession extends Session {
   content = Object;
 
   logout() {
-    return create(AnonymousSession);
+    return create(AnonymousSession, {});
   }
 }
 
@@ -37,7 +37,7 @@ class MyApp {
 describe('AnonymousSession', () => {
   let ms;
   beforeEach(() => {
-    ms = create(MyApp);
+    ms = create(MyApp, {});
   })
   it('initializes into AnonymousSession without initial state', () => {
     expect(ms.state.session).toBeInstanceOf(AnonymousSession);

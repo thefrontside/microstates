@@ -10,5 +10,3 @@ export function parameterized(Constructor, ...rest) {
 export function params(Constructor) {
   return params0(toType(Constructor));
 }
-
-export { any } from './parameters0';

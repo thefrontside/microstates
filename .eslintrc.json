@@ -6,10 +6,9 @@
     "es6": true,
     "node": true
   },
+  "parser": "babel-eslint",
   "parserOptions": {
-    "ecmaFeatures": {
-      "jsx": false
-    },
+    "experimentalDecorators": true,
     "sourceType": "module"
   },
   "rules": {

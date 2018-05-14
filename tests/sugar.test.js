@@ -2,7 +2,6 @@ import 'jest';
 
 import desugar, { isSugar } from '../src/desugar';
 import types, { params } from '../src/types';
-import { any } from '../src/types/parameters';
 
 it('detects [] as sugar', () => {
   expect(isSugar([])).toBe(true);
@@ -33,7 +32,7 @@ it('detects [[Number]] as sugar', function() {
 it('converts [] into parameterized(Array)', () => {
   let Parameterized = desugar([]);
   expect(Parameterized.prototype).toBeInstanceOf(types.Array);
-  expect(params(Parameterized).T).toBe(any);
+  expect(params(Parameterized).T).toBe(types.Any);
 });
 
 it('converts [Type] into parameterized(Array, Type)', () => {
@@ -45,7 +44,7 @@ it('converts [Type] into parameterized(Array, Type)', () => {
 it('converts {} into parameterized(Object)', () => {
   let Parameterized = desugar({});
   expect(Parameterized.prototype).toBeInstanceOf(types.Object);
-  expect(params(Parameterized).T).toBe(any);
+  expect(params(Parameterized).T).toBe(types.Any);
 });
 
 it('converts {Type} into parameterized(Object, Type)', () => {

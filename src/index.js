@@ -1,11 +1,9 @@
-import './typeclasses';
-import Microstate from './microstate';
+import { Microstate } from './tree';
 
 export default Microstate;
 export const { create } = Microstate;
 export { reveal } from './utils/secret';
+export { default as types } from './types';
 
-export { default as Microstate } from './microstate';
-export { default as Tree } from './utils/tree';
-export { default as analyze } from './structure';
+export { default as Tree } from './tree';
 export { parameterized } from './types/parameters.js';
