@@ -104,7 +104,8 @@ export class Microstate {
     return reveal(this).state;
   }
 
-  [SymbolObservable]() {
+  [SymbolObservable]() { return this['@@observable'](); }
+  ['@@observable']() {
     let microstate = this;
     return {
       subscribe(observer) {
