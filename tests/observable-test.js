@@ -1,7 +1,7 @@
 import "jest";
 import { create } from "microstates";
 import SymbolObservable from 'symbol-observable';
-import { Observable, from } from 'rxjs';
+import { from } from 'rxjs';
 
 describe('rxjs interop', function() {
   let ms, observable, observer, last;
