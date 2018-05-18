@@ -1,6 +1,6 @@
 {
   "name": "microstates",
-  "version": "0.6.2",
+  "version": "0.7.0",
   "description": "Graceful state transitions for data of any shape.",
   "keywords": [
     "blood",
@@ -65,7 +65,9 @@
     "standard-version": "^4.2.0"
   },
   "jest": {
-    "setupFiles": ["./scripts/shims.js"],
+    "setupFiles": [
+      "./scripts/shims.js"
+    ],
     "globalSetup": "./scripts/build.js",
     "collectCoverageFrom": [
       "dist/microstates.umd.js"
