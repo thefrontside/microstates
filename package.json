@@ -34,7 +34,7 @@
     "lint": "eslint src"
   },
   "dependencies": {
-    "funcadelic": "0.4.1",
+    "funcadelic": "0.4.2",
     "get-prototype-descriptors": "0.6.0",
     "memoize-getters": "1.1.0",
     "ramda": "^0.25.0",
