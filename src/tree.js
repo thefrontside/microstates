@@ -127,11 +127,11 @@ export class Microstate {
 
 export default class Tree {
 
-  static from(value) {
+  static from(value, T = types.Any) {
     if (value && value instanceof Microstate) {
       return reveal(value);
     } else if (value) {
-      return new Tree({ value, Type: value.constructor });
+      return new Tree({ value, Type: T === types.Any ? value.constructor : T});
     } else {
       return new Tree({ value });
     }

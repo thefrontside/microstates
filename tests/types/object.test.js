@@ -1,6 +1,6 @@
 import 'jest';
 
-import { create } from 'microstates';
+import { create, from } from 'microstates';
 
 describe('created without value', () => {
   class Thing {
@@ -78,15 +78,32 @@ describe('created with value', () => {
       });
     });
   });
+
+  describe('assign microstate', () => {
+    let assigned;
+    beforeEach(() => {
+      assigned = object.assign({
+        name: from('Taras')
+      });
+    });
+
+    it('assigned is not a microstate', () => {
+      expect(assigned.name.state).toBe('Taras');
+    });
+
+    it('microstate value to be part of valueOf', () => {
+      expect(assigned.valueOf()).toEqual({ foo: 'bar', name: 'Taras' });
+    });
+  });
 });
 
 describe('put and delete', () => {
-  let object, put, deleted
+  let object;
   beforeEach(() => {
     object = create(Object, {a: 'b'});
   })
 
-  describe('puting a value or two', function() {
+  describe('putting a value or two', function() {
     beforeEach(function() {
       object = object.put('w', 'x').put('y', 'z');
     });
@@ -101,7 +118,20 @@ describe('put and delete', () => {
         expect(object.valueOf()).toMatchObject({a: 'b', y: 'z'})
       });
     });
+  });
 
+  describe('putting microstate', () => {
+    beforeEach(() => {
+      object = object.put('name', from('Taras'));
+    });
+
+    it('has name string', () => {
+      expect(object.name.state).toBe('Taras');
+    });
+
+    it('has valueOf', () => {
+      expect(object.valueOf()).toEqual({ a: 'b', name: 'Taras' });
+    });
   });
 
 })
