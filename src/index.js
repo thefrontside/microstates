@@ -1,3 +1,5 @@
+import './typeclasses';
+
 import { Microstate } from './tree';
 
 export default Microstate;
