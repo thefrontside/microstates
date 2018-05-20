@@ -1,6 +1,6 @@
 import 'jest';
 
-import { create, from } from 'microstates';
+import { create, from, reveal } from 'microstates';
 
 describe('created without value', () => {
   class Thing {
@@ -118,6 +118,10 @@ describe('created with value', () => {
       it('is stable', () => {
         expect(assigned.state.taras).toBe(value.state);
       });
+
+      it('was grafted into place', () => {
+        expect(reveal(assigned.taras.name).path).toEqual(['taras', 'name']);
+      })
     });
   });
 });

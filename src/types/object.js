@@ -13,7 +13,7 @@ class ObjectType {
   assign(props = {}) {
     return transform((children, T) => {
       return foldl((children, key) => {
-        children[key] = Tree.from(props[key], T);
+        children[key] = Tree.from(props[key], T).graft([key]);
         return children;
       }, assign({}, children), keys(props));
     }, this);
@@ -25,7 +25,7 @@ class ObjectType {
         return children
       } else  {
         return assign({}, children, {
-          [key]: Tree.from(value, T)
+          [key]: Tree.from(value, T).graft([key])
         })
       }
     }, this);
