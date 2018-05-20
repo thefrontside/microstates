@@ -146,16 +146,39 @@ describe('put and delete', () => {
   });
 
   describe('putting microstate', () => {
-    beforeEach(() => {
-      object = object.put('name', from('Taras'));
-    });
+    describe('primitive value', () => {
+      beforeEach(() => {
+        object = object.put('name', from('Taras'));
+      });
+  
+      it('has name string', () => {
+        expect(object.name.state).toBe('Taras');
+      });
+  
+      it('has valueOf', () => {
+        expect(object.valueOf()).toEqual({ a: 'b', name: 'Taras' });
+      });
+    })
 
-    it('has name string', () => {
-      expect(object.name.state).toBe('Taras');
-    });
+    describe('composed type', () => {
+      class Person {
+        name = String;
+      }
 
-    it('has valueOf', () => {
-      expect(object.valueOf()).toEqual({ a: 'b', name: 'Taras' });
+      let value;
+      beforeEach(() => {
+        value = create(Person, { name: 'Taras' });
+        object = object.put('taras', value);
+      });
+
+      it('has new type in the state', () => {
+        expect(object.taras.state).toBeInstanceOf(Person);
+        expect(object.state.taras).toBeInstanceOf(Person);
+      });
+
+      it('is stable', () => {
+        expect(object.state.taras).toBe(value.state);
+      });
     });
   });
 
