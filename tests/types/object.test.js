@@ -80,19 +80,44 @@ describe('created with value', () => {
   });
 
   describe('assign microstate', () => {
-    let assigned;
-    beforeEach(() => {
-      assigned = object.assign({
-        name: from('Taras')
+    describe('primitive type', () => {
+      let assigned;
+      beforeEach(() => {
+        assigned = object.assign({
+          name: from('Taras')
+        });
+      });
+  
+      it('assigned is not a microstate', () => {
+        expect(assigned.name.state).toBe('Taras');
+      });
+  
+      it('microstate value to be part of valueOf', () => {
+        expect(assigned.valueOf()).toEqual({ foo: 'bar', name: 'Taras' });
       });
     });
 
-    it('assigned is not a microstate', () => {
-      expect(assigned.name.state).toBe('Taras');
-    });
+    describe('composed type', () => {
+      class Person {
+        name = String;
+      }
 
-    it('microstate value to be part of valueOf', () => {
-      expect(assigned.valueOf()).toEqual({ foo: 'bar', name: 'Taras' });
+      let assigned, value;
+      beforeEach(() => {
+        value = create(Person, { name: 'Taras' });
+        assigned = object.assign({
+          taras: value 
+        })
+      });
+
+      it('has new type in the state', () => {
+        expect(assigned.taras.state).toBeInstanceOf(Person);
+        expect(assigned.state.taras).toBeInstanceOf(Person);
+      });
+
+      it('is stable', () => {
+        expect(assigned.state.taras).toBe(value.state);
+      });
     });
   });
 });

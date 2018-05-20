@@ -15,6 +15,7 @@ import thunk from './thunk';
 import types, { params, toType } from './types';
 import $ from './utils/chain';
 import { keep, reveal } from './utils/secret';
+import values from './values';
 
 const { assign, defineProperties } = Object;
 
@@ -169,7 +170,7 @@ export default class Tree {
   }
 
   get isSimple() {
-    return isSimple(this.Type);
+    return isSimple(this.Type) && !values(this.children).some(tree => tree.isSimple);
   }
 
   get isRoot() {

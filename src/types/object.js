@@ -3,6 +3,8 @@ import { parameterized, params } from './parameters0';
 import Any from './any';
 import Tree from '../tree';
 
+const { assign, keys } = Object;
+
 class ObjectType {
   initialize(value = {}) {
     return value;
@@ -13,7 +15,7 @@ class ObjectType {
       return foldl((children, key) => {
         children[key] = Tree.from(props[key], T);
         return children;
-      }, Object.assign({}, children), Object.keys(props));
+      }, assign({}, children), keys(props));
     }, this);
   }
 
@@ -22,7 +24,7 @@ class ObjectType {
       if (children[key] && children[key].value === value) {
         return children
       } else  {
-        return Object.assign({}, children, {
+        return assign({}, children, {
           [key]: Tree.from(value, T)
         })
       }
