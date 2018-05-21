@@ -77,6 +77,10 @@ export class Microstate {
     return append(this, map(child => child.microstate, tree.children));
   }
 
+  static map(fn, microstate) {
+    return fn(reveal(microstate)).microstate
+  }
+
   static from(value) {
     return Tree.from(value).microstate;
   }
