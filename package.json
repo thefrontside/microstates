@@ -1,6 +1,6 @@
 {
   "name": "microstates",
-  "version": "0.7.2",
+  "version": "0.7.3",
   "description": "Graceful state transitions for data of any shape.",
   "keywords": [
     "blood",
