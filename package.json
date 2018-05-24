@@ -1,6 +1,6 @@
 {
   "name": "microstates",
-  "version": "0.7.1",
+  "version": "0.7.3",
   "description": "Graceful state transitions for data of any shape.",
   "keywords": [
     "blood",
@@ -34,7 +34,7 @@
     "lint": "eslint src"
   },
   "dependencies": {
-    "funcadelic": "0.4.2",
+    "funcadelic": "0.4.3",
     "get-prototype-descriptors": "0.6.0",
     "memoize-getters": "1.1.0",
     "ramda": "^0.25.0",
