@@ -18,9 +18,8 @@
     "dist",
     "README.md"
   ],
-  "main": "dist/microstates.umd.js",
-  "module": "dist/microstates.js",
-  "browser": "dist/microstates.umd.js",
+  "main": "dist/microstates.cjs.js",
+  "module": "dist/microstates.es.js",
   "repository": "git+ssh://git@github.com/microstates/microstates.js.git",
   "scripts": {
     "prepare": "npm run build",
@@ -70,7 +69,7 @@
     ],
     "globalSetup": "./scripts/build.js",
     "collectCoverageFrom": [
-      "dist/microstates.umd.js"
+      "dist/microstates.cjs.js"
     ],
     "testRegex": "(/tests/.*|\\.(test|spec))\\.(js)$",
     "moduleFileExtensions": [
@@ -79,6 +78,9 @@
     ],
     "watchPathIgnorePatterns": [
       "<rootDir>/dist/"
-    ]
+    ],
+    "moduleNameMapper": {
+      "microstates": "<rootDir>/dist/microstates.es.js"
+    }
   }
 }
