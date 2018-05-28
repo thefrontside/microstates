@@ -69,7 +69,7 @@
     ],
     "globalSetup": "./scripts/build.js",
     "collectCoverageFrom": [
-      "dist/microstates.cjs.js"
+      "dist/microstates.es.js"
     ],
     "testRegex": "(/tests/.*|\\.(test|spec))\\.(js)$",
     "moduleFileExtensions": [
