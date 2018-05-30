@@ -1,8 +1,7 @@
 import "jest";
 
 import ArrayType from "../../src/types/array";
-import { create, reveal } from "microstates";
-import { Z_SYNC_FLUSH } from "zlib";
+import { create } from "microstates";
 
 describe("ArrayType", function() {
   describe("when unparameterized", function() {
@@ -236,25 +235,50 @@ describe("ArrayType", function() {
       });
 
       describe('map', () => {
-        let mapped;
-        beforeEach(() => {
-          mapped = dataset.records.map(record => record.content.concat('!!!'))
-        });
-
-        it('applied change to every element', () => {
-          expect(mapped.records[0].content.state).toBe('Herro!!!');
-          expect(mapped.records[1].content.state).toBe('Sweet!!!');
-          expect(mapped.records[2].content.state).toBe('Woooo!!!');
-        });
-
-        describe('changing record', () => {
-          let changed;
+        describe('with microstate operations', () => {
+          let mapped;
           beforeEach(() => {
-            changed = mapped.records[1].content.set('SWEET!!!');
+            mapped = dataset.records.map(record => record.content.concat('!!!'))
+          });
+  
+          it('applied change to every element', () => {
+            expect(mapped.records[0].content.state).toBe('Herro!!!');
+            expect(mapped.records[1].content.state).toBe('Sweet!!!');
+            expect(mapped.records[2].content.state).toBe('Woooo!!!');
+          });
+  
+          describe('changing record', () => {
+            let changed;
+            beforeEach(() => {
+              changed = mapped.records[1].content.set('SWEET!!!');
+            });
+  
+            it('changed the record content', () => {
+              expect(changed.records[1].content.state).toBe('SWEET!!!');
+            });
+          });
+        });
+
+        describe('with new microstates', () => {
+          let mapped;
+          class SweetSweetRecord extends Record {}
+          beforeEach(() => {
+            mapped = dataset.records.map(record => {
+              if (record.content.state === 'Sweet') {
+                return create(SweetSweetRecord, record);
+              } else {
+                return record;
+              }
+            });
           });
 
-          it('changed the record content', () => {
-            expect(changed.records[1].content.state).toBe('SWEET!!!');
+          it('changed type of the record', () => {
+            expect(mapped.records[1].state).toBeInstanceOf(SweetSweetRecord);
+          });
+
+          it('did not change the uneffected item', () => {
+            expect(dataset.records[0].state).toBe(mapped.records[0].state);
+            expect(dataset.records[2].state).toBe(mapped.records[2].state);
           });
         });
       });
