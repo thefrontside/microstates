@@ -90,8 +90,8 @@ describe("ArrayType", function() {
         dataset = create(Dataset, { records: [] });
       });
   
-      let pushed;
       describe("pushing a record", () => {
+        let pushed;
         beforeEach(() => {
           pushed = dataset.records.push({ content: "Hi!" });
         });
@@ -112,6 +112,41 @@ describe("ArrayType", function() {
   
           it("has changed value", () => {
             expect(changed.state.records[0].content).toBe("Hello!");
+          });
+        });
+      });
+    });
+
+    describe('preloaded data set', () => {
+      let dataset;
+      beforeEach(() => {
+        dataset = create(Dataset, { records: [
+          {content: 'Herro'}
+        ]});
+      });
+  
+      describe("pushing a record", () => {
+        let pushed;
+        beforeEach(() => {
+          pushed = dataset.records.push({ content: "Hi!" });
+        });
+  
+        it("has the new record", () => {
+          expect(pushed.state.records[1]).toBeInstanceOf(Record);
+        });
+  
+        it("has given value", () => {
+          expect(pushed.state.records[1].content).toEqual("Hi!");
+        });
+  
+        describe("changing record", () => {
+          let changed;
+          beforeEach(() => {
+            changed = pushed.records[1].content.set("Hello!");
+          });
+  
+          it("has changed value", () => {
+            expect(changed.state.records[1].content).toBe("Hello!");
           });
         });
       });

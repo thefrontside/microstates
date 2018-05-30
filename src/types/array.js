@@ -8,8 +8,16 @@ class ArrayType {
     return value;
   }
 
+  /**
+   * push() transition adds one element to the end of the array and
+   * returns the next microstate.
+   * @param {*} value 
+   * @returns {Microstate}
+   */
   push(value) {
-    return transform((children, T) => append(children, Tree.from(value, T)), this);
+    return transform((children, T) => {
+      return append(children, Tree.from(value, T).graft([children.length]));
+    }, this);
   }
 
   pop() {
