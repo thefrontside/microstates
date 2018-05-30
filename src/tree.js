@@ -15,6 +15,7 @@ import thunk from './thunk';
 import types, { params, toType } from './types';
 import $ from './utils/chain';
 import { keep, reveal } from './utils/secret';
+import values from './values';
 
 const { assign, defineProperties } = Object;
 
@@ -131,11 +132,11 @@ export class Microstate {
 
 export default class Tree {
 
-  static from(value) {
+  static from(value, T = types.Any) {
     if (value && value instanceof Microstate) {
       return reveal(value);
     } else if (value) {
-      return new Tree({ value, Type: value.constructor });
+      return new Tree({ value, Type: T === types.Any ? value.constructor : T});
     } else {
       return new Tree({ value });
     }
@@ -173,7 +174,7 @@ export default class Tree {
   }
 
   get isSimple() {
-    return isSimple(this.Type);
+    return isSimple(this.Type) && !values(this.children).some(tree => tree.isSimple);
   }
 
   get isRoot() {

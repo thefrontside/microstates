@@ -3,7 +3,7 @@ import './typeclasses';
 import { Microstate } from './tree';
 
 export default Microstate;
-export const { create, map } = Microstate;
+export const { create, from, map } = Microstate;
 export { reveal } from './utils/secret';
 export { default as types } from './types';
 
