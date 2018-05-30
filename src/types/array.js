@@ -9,7 +9,7 @@ class ArrayType {
   }
 
   push(value) {
-    return transform((children, T) => append(children, new Tree({ Type: T, value })), this);
+    return transform((children, T) => append(children, Tree.from(value, T)), this);
   }
 
   pop() {
