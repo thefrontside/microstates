@@ -1,16 +1,16 @@
-import { append, map, flatMap } from 'funcadelic';
+import { append, map } from 'funcadelic';
+import transform from '../transform';
 import Tree from '../tree';
-import { parameterized, params } from './parameters0';
 import Any from './any';
-
+import { parameterized } from './parameters0';
 class ArrayType {
   initialize(value = []) {
     return value;
   }
 
   /**
-   * push() transition adds one element to the end of the array and
-   * returns the next microstate.
+   * The push() transition adds one element to the end of the array.
+   * Returns the next microstate.
    * @param {*} value 
    * @returns {Microstate}
    */
@@ -20,61 +20,106 @@ class ArrayType {
     }, this);
   }
 
+  /**
+   * The pop() transition removes the last element from an array. 
+   * Returns the next microstate.
+   * @returns {Microstate}
+   */
   pop() {
     return transform(children => children.slice(0, -1), this);
   }
 
+  /**
+   * The shift() transition removes the first element from an array.
+   * Returns the next microstate.
+   * @returns {Microstate}
+   */
   shift() {
-    return transform(children => children.slice(1), this);
-  }
-
-  unshift(value) {
-    return transform((children, T) => append([new Tree({ Type: T, value })], children), this);
-  }
-
-  filter(fn) {
-    return transform(children => children.filter(tree => fn(tree.state)), this);
-  }
-
-  map(fn) {
     return transform(children => {
-      return children.map(tree => {
-        let value = fn(tree.state);
-        if (value === tree.state) {
-          return tree;
-        } else {
+      return map((shifted, index) => {
+        return map(tree => {
+          let [, ...rest] = tree.path;
           return tree.assign({
-            data: {
-              value
+            meta: {
+              path: [index, ...rest]
             }
-          });
-        }
-      })
+          })
+        }, shifted);
+      }, children.slice(1));
     }, this);
   }
 
-  splice(startIndex, length, value) {
+  /**
+   * The unshift() transition adds one element to the beginning of an array.
+   * Returns the next microstate.
+   * @returns {Microstate}
+   */
+  unshift(value) {
     return transform((children, T) => {
-      return children.splice(startIndex, length, new Tree({ Type: T, value}));
-    });
+      return append([Tree.from(value, T).graft([0])], map((child, index) => {
+        return map(tree => {
+          let [, ...rest] = tree.path;
+          return tree.assign({
+            meta: {
+              path: [index + 1, ...rest]
+            }
+          });
+        }, child);
+      }, children))
+    }, this);
   }
-}
 
-function transform(fn, microstate) {
-  return map(tree => flatMap(current => {
-    if (current.is(tree)) {
-      return current.assign({
-        meta: {
-          children() {
-            let { T } = params(current.Type);
-            return fn(current.children.slice(), T);
-          }
+  /**
+   * The filter() transition creates a new array with all elements 
+   * that pass the test implemented by the provided function.
+   * Returns the next microstate.
+   * @param {*} fn 
+   * @returns {Microstate}
+   */
+  filter(fn) {
+    return transform(children => {
+      return map((child, index) => {
+        return map(tree => {
+          let [, ...rest] = tree.path;
+          return tree.assign({
+            meta: {
+              path: [index, ...rest]
+            }
+          })
+        }, child);
+      }, children.filter(tree => fn(tree.state)));
+    }, this);
+  }
+
+  /**
+   * The map() transition creates a new array with the results of calling 
+   * a provided function on every element in the calling array.
+   * Returns the next microstate.
+   * @param {*} fn 
+   * @returns {Microstate}
+   */
+  map(fn) {
+    return transform((children, T) => {
+      return map((tree, index) => {
+        let { microstate } = tree.prune();
+        let mapped = Tree.from(fn(microstate, index), T);
+        if (tree.isEqual(mapped)) {
+          return tree;
+        } else {
+          return mapped.graft([index]);
         }
-      })
-    } else {
-      return current;
-    }
-  }, tree), microstate);
+      }, children);
+    }, this);
+  }
+
+  /**
+   * This clear() transition replaces the array with an empty array.
+   * Returns the next microstate.
+   * @returns {Microstate}
+   */
+  clear() {
+    return this.set([]);
+  }
 }
 
 export default parameterized(ArrayType, {T: Any});

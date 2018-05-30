@@ -343,9 +343,9 @@ export default class Tree {
    */
   get lens() {
     let get = tree => {
-      let got = tree.treeAt(this.path);
-      invariant(got instanceof Tree, `Expect to find a tree at [${this.path.join(', ')}]`);
-      return got.prune();
+      let found = tree.treeAt(this.path);
+      invariant(found instanceof Tree, `Tree at path [${this.path.join(', ')}] does not exist. Is path wrong?`);
+      return found.prune();
     }
 
     let set = (tree, root) => {
