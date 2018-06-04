@@ -887,20 +887,21 @@ describe('Microstate', () => {
     });
   });
 
-  describe('middleware', () => {
+  describe.only('middleware', () => {
 
     describe('shallow', () => {
-      let boolean, mapped, beforeTransition, afterTransition;
+      let boolean, mapped, beforeTransition, afterTransition, middleware;
       beforeEach(() => {
         boolean = Microstate.create(Boolean, true);
         beforeTransition = jest.fn();
         afterTransition = jest.fn();
-        mapped = map(tree => tree.use(next => (microstate, transition, args) => {
+        middleware = next => (microstate, transition, args) => {
           beforeTransition(microstate, transition, args);
           let result = next(microstate, transition, args);
           afterTransition(result);
           return result;
-        }), boolean);
+        };
+        mapped = Microstate.map(tree => tree.use(middleware), boolean);
       });
 
       it('returns a microstate', () => {

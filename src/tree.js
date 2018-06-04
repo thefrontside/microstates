@@ -52,7 +52,21 @@ export const transitionsClass = stable(function transitionsClass(Type) {
       enumerable: false,
       configurable: true,
       get() {
-        let bound = (...args) => reveal(this).root.data.middleware(this, descriptor.value, args);
+        let { root, path } = reveal(this);
+
+        // transition that the user is invoking
+        let { middlewares } = foldl((acc, childName) => {
+          let tree = acc.tree.children[childName];
+          return {
+            middlewares: [...acc.middlewares, ...tree.data.middleware],
+            tree
+          }
+        }, { tree: root, middlewares: [ ...root.data.middleware ] }, path);
+
+        let middleware = middlewares
+          .reduce((fn, middleware) => middleware(fn), defaultMiddleware);
+        
+        let bound = (...args) => middleware(this, descriptor.value, args);
         Object.defineProperty(bound, 'name', {
           value: key,
           configurable: true,
@@ -162,7 +176,7 @@ export default class Tree {
   }
 
   // value can be either a function or a value.
-  constructor({ Type = types.Any, value, path = [], root = this, middleware = defaultMiddleware}) {
+  constructor({ Type = types.Any, value, path = [], root = this }) {
     this.meta = {
       InitialType: Type,
       Type: resolveType(Type),
@@ -175,7 +189,7 @@ export default class Tree {
     this.data = {
       value: new Value(value),
       state: new State(this, stateFromTree),
-      middleware
+      middleware: []
     }
   }
 
@@ -245,11 +259,11 @@ export default class Tree {
    * Wrap middleware over this tree's middlware and return a new tree.
    * @param {*} fn
    */
-  use(fn) {
+  use(middleware) {
     return map(tree => {
       if (tree.is(this)) {
         return tree.assign({
-          data: { middleware: fn(this.data.middleware) },
+          data: { middleware: [...tree.data.middleware, middleware] },
         });
       } else {
         return tree;
