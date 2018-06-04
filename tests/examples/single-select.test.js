@@ -1,58 +1,59 @@
 import "jest";
-import { create, types, parameterized, reveal } from "microstates";
-import { map } from "funcadelic";
-
+import { create, types, parameterized, Tree } from "microstates";
+import { map, foldl } from "funcadelic";
+import over from 'ramda/src/over';
+import values from '../../src/values';
 class Color {}
 
-function selectMiddleware(next) {
+function selectMiddleware(next, tree) {
   return (microstate, transition, args) => {
-    console.log(reveal(microstate).root.value, transition.name);
-    return next(microstate, transition, args);
+    let focus = Tree.from(microstate);
+
+    let isChildFocused = foldl((isChild, child) => {
+      return isChild ? true : focus.is(child);
+    }, false, values(tree.children));
+
+    if (transition.name === 'choose' && isChildFocused) {
+      return tree.microstate.map(selectable => {
+        let current = Tree.from(selectable);
+        if (current.is(focus)) {
+          return current.microstate.isSelected.set(true);
+        } else if (current.microstate.isSelected.state) {
+          return current.microstate.isSelected.set(false);
+        } else {
+          return current.microstate;
+        }
+      });
+    } else {
+      return next(microstate, transition, args);
+    }
   };
 }
 
 class SingleSelect {
   static of(Type) {
-    class ChoosableType extends Type {
+    class Selectable {
       isSelected = Boolean;
-      value = types.Any;
+      item = Type;
 
       choose() {
         return this.isSelected.toggle();
       }
+
+      static get toString() {
+        return `Selectable<${Type.name}>`;
+      }
     }
 
-    class SingleSelectList extends parameterized(Array, ChoosableType) {
+    class SingleSelectList extends parameterized(Array, Selectable) {
       initialize() {
-        return map(root => {
-          return map(child => {
-            return map(tree => {
-              if (tree.meta.InitialType === ChoosableType) {
-                return tree.use(selectMiddleware);
-              } else {
-                return tree;
-              }
-            }, child);
-          }, root);
-        }, this);
+        return map(root => root.use(selectMiddleware), this);
       }
     }
 
     return SingleSelectList;
   }
 }
-
-// return map(root => {
-//   return map(child => {
-//     return map(tree => {
-//       if (tree.meta.InitialType === ChoosableType) {
-//         return tree.use(selectMiddleware);
-//       } else {
-//         return tree;
-//       }
-//     }, child);
-//   }, root);
-// }, this);
 
 class Form {
   colors = SingleSelect.of(Color);
@@ -62,7 +63,17 @@ describe("single select", () => {
   let form;
   beforeEach(() => {
     form = create(Form, {
-      colors: [{ value: "red" }, { value: "green" }, { value: "blue" }]
+      colors: [
+        {
+          item: { value: "red" }
+        },
+        {
+          item: { value: "green" }
+        },
+        {
+          item: { value: "blue" }
+        }
+      ]
     });
   });
 
@@ -71,7 +82,7 @@ describe("single select", () => {
   });
 
   it("has colors", () => {
-    expect(form.colors[0].state).toBeInstanceOf(Color);
+    expect(form.colors[0].item.state).toBeInstanceOf(Color);
   });
 
   it("none are selected", () => {
@@ -90,6 +101,28 @@ describe("single select", () => {
       expect(chosen.colors[0].isSelected.state).toBe(false);
       expect(chosen.colors[1].isSelected.state).toBe(true);
       expect(chosen.colors[2].isSelected.state).toBe(false);
+    });
+
+    describe('call choose on 2nd item', () => {
+      let chosen2;
+      beforeEach(() => {
+        chosen2 = chosen.colors[2].choose();
+      });
+
+      it("3nd item is chosen, 2nd is not chosen", () => {
+        expect(chosen2.colors[0].isSelected.state).toBe(false);
+        expect(chosen2.colors[1].isSelected.state).toBe(false);
+        expect(chosen2.colors[2].isSelected.state).toBe(true);
+      });
+
+      it('has stable state on unmodifed item', () => {
+        expect(chosen.colors[0].state).toBe(chosen2.colors[0].state);
+      });
+
+      it('has stable state on modifed item', () => {
+        expect(chosen.colors[1].item.state).toBe(chosen2.colors[1].item.state);
+        expect(chosen.colors[2].item.state).toBe(chosen2.colors[2].item.state);
+      });
     });
   });
 });

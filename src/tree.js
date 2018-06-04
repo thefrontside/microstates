@@ -57,8 +57,9 @@ export const transitionsClass = stable(function transitionsClass(Type) {
         // transition that the user is invoking
         let { middlewares } = foldl((acc, childName) => {
           let tree = acc.tree.children[childName];
+          let middleware = tree.data.middleware.map(fn => next => fn(next, tree));
           return {
-            middlewares: [...acc.middlewares, ...tree.data.middleware],
+            middlewares: [...acc.middlewares, ...middleware],
             tree
           }
         }, { tree: root, middlewares: [ ...root.data.middleware ] }, path);

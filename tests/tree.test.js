@@ -887,7 +887,7 @@ describe('Microstate', () => {
     });
   });
 
-  describe.only('middleware', () => {
+  describe('middleware', () => {
 
     describe('shallow', () => {
       let boolean, mapped, beforeTransition, afterTransition, middleware;
