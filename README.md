@@ -316,15 +316,15 @@ We don't know if any of these APIs would stand the test of time, but we'd love t
 
 ### Framework Agnostic Solutions
 
-Competition is move our industry forward but concensus builds ecosystems. 
+Competition moves our industry forward but concensus builds ecosystems. 
 
-Unfortunately, when it comes to the M(odel) of the MVC pattern, we are seing neither compentition nor concesus. Every framework has it's own model layer that is not compatible with another. This makes it difficult to create trully portable solutions that can be used on all frameworks. 
+Unfortunately, when it comes to the M(odel) of the MVC pattern, we are seeing neither compentition nor concesus. Every framework has it's own model layer that is not compatible with another. This makes it difficult to create trully portable solutions that can be used on all frameworks. 
 
 It creates lockin that is detremental to businesses that use these frameworks and developers who are forced to make career altering decisions before they fully understand their choices. 
 
-We don't expect everyone to agree that Microstates is the right solution as React's architecture proven to be. We would like to start the conversation about what a shared primitive for state management in JavaScript might look like and showcase our proposed solution.
+We don't expect everyone to agree that Microstates is the right solution, but we would like to start the conversation about what a shared primitive for state management in JavaScript might look like. Microstates is our proposed solution.
 
-In many ways, Microstates is the biginning. We hope you'll join us for the ride and help us create a future where building stateful applications in JavaScript is much easier than it is today.
+In many ways, Microstates is a beginning. We hope you'll join us for the ride and help us create a future where building stateful applications in JavaScript is much easier than it is today.
 
 
 
