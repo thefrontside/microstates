@@ -140,7 +140,8 @@ immutable. There is no need for property tracking, since properties can not chan
 Here is how this example would look in Microstates,
 
 ```js
-// Microstate type (this annotations are for reads, they don't do anything special)
+// Microstate type 
+// (these annotations are for the readers, they don't do anything special)
 class Shop {
   products = [Product]
   filter = String
@@ -225,21 +226,17 @@ We need an easier way to serialize and deserialize complex data structures. Micr
 
 ```js
 class Shop {
-    constructor() {
-        this.products = [Product]
-        this.filter = String
-    }
+  products = [Product]
+  filter = String
 
-    get filtered() {
-        return this.products.filter(product => product.category === this.filter);
-    }
+  get filtered() {
+      return this.products.filter(product => product.category === this.filter);
+  }
 }
 
 class Product {
-    constructor() {
-        this.name = String;
-        this.category = String;
-    }
+  name = String;
+  category = String;
 }
 
 let filter = 'clothing';
@@ -259,11 +256,13 @@ shop.valueOf();
 
 Microstates actually does deserialization by default. When you create a Microstate object, you provide the `create` function with the type and a POJO that represents the value. Microstates internally will create all of the instances using the type as a blueprint for the final state. 
 
-As discussed earlier, Microstates methods returns copies that are derived from original microstate. These copies will have a new value. This allows to serialize/deserialize a type to any state. 
+As discussed earlier, Microstates methods return copies that are derived from original microstate. These copies will have a new value. This allows to serialize/deserialize a type to any derived state. 
 
 For those familiar with tools like ReactDevTools and time travel debugging, Microstates makes it possible to use these kinds of tools on individual Microstate level. Microstates can work like tiny Redux stores where you don't have to write reducers while still get the benefits of time travel debugging.
 
 In summary, Microstates are immutable JavaScript objects that are serializable, allow you to cache getters and provide a mechanism to declaratively derive next state using class like instance methods. They look like regular JavaScript classes but they hold conventions and performance improvements for state composed of many smaller states.
+
+
 
 <!-- ## API
 
