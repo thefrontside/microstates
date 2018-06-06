@@ -135,7 +135,7 @@ shop.filtered === shop.filtered
 If you passed `shop.filtered` to a React component, this React component would re-render every time that the parent component's render function is called even though neither `products` nor `filter` is changed.
 
 This is a very different story in Microstates because Microstate instances are 
-immutable. There is no need for property tracking, because properties can not change. In Microstates, it's safe to automatically cache getters because for any state they can only ever have one result. 
+immutable. There is no need for property tracking, since properties can not change. It's safe to automatically cache getters because for any state they can only ever have one result. 
 
 Here is how this example would look in Microstates,
 
@@ -170,9 +170,100 @@ shop.state.filtered === shop.state.filtered
 //> true
 ```
 
-Cached getters in Microstates make computed properties available in all frameworks, not just Vue and Ember. For those familiar with Reselect, cachged getters can replace Reselect for most applications.
+Cached getters in Microstates make cached computed properties available in all frameworks, not just Vue and Ember. For those familiar with Reselect, cached getters can replace Reselect for most applications.
 
+### Serialization & Deserialization
 
+Serialization is the process of converting class instances into plain JavaScript objects (aka POJOs) that can be saved as JSON. Deserialization is the opposite process of converting the JSON to JavaScript class instances. 
+
+**How can you serialize a JavaScript class instances?**
+
+In JavaScript, all objects have a `valueOf` method. [According to MDN](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object/valueOf), *the valueOf() method returns the primitive value of the specified object*. In theory, we should be able to take the primitive value of a class, serialize it to JSON, then restore with `JSON.parse`. 
+
+We can't expect to get same objects, but we should at least get instances of classes so we use methods and getters on these objects.
+
+Let's see what that actually does. You can play with this example in [▶ RunKit](https://runkit.com/taras/valueof-javascript-class).
+
+```js
+// regular JavaScript class
+class Shop {
+  constructor({ products, filter }) {
+    this.products = products.map(product => new Product(product));
+    this.filter = filter;
+  }
+
+  get filtered() {
+    return this.products.filter(product => product.category === this.filter);
+  }
+}
+
+class Product {
+    constructor({ name, category }) {
+        this.name = name;
+        this.category = category;
+    }
+}
+
+let filter = 'clothing';
+let products = [ 
+  { name: 'Pants', category: 'clothing' },
+  { name: 'Shirt', category: 'clothing' },
+  { name: 'Watch', category: 'accessory' }
+]
+
+let shop = new Shop({ products, filter });
+
+let restored = JSON.parse(JSON.stringify(shop.valueOf()));
+
+restored instanceof Shop
+//> false
+```
+
+`shop.valueOf()` doesn't give you a primitive value, because `valueOf` class instance returns the shop object. It doesn't return a primivite value of the object, it returns the same object. `JSON.parse/JSON.stringify` are not enough because these functions don't know how to convert your POJOs into instances. If you look closely, you'll see that actually deserialization is done manually in the constructor. This gets very complicated with complex data structures and inpractical when you have complex relationships between data.
+
+We need an easier way to serialize and deserialize complex data structures. Microstates can do this for you because Microstates are designed to be serializable. Let's see what that would look like. You can run this example in [▶ RunKit](https://runkit.com/taras/serializing-deserializing-a-microstate)
+
+```js
+class Shop {
+    constructor() {
+        this.products = [Product]
+        this.filter = String
+    }
+
+    get filtered() {
+        return this.products.filter(product => product.category === this.filter);
+    }
+}
+
+class Product {
+    constructor() {
+        this.name = String;
+        this.category = String;
+    }
+}
+
+let filter = 'clothing';
+let products = [ 
+  { name: 'Pants', category: 'clothing' },
+  { name: 'Shirt', category: 'clothing' },
+  { name: 'Watch', category: 'accessory' }
+]
+
+import { create } from 'microstates';
+
+let shop = create(Shop, { products, filter });
+
+shop.valueOf();
+// give you the value that can be used to restore the state
+```
+
+Microstates actually does deserialization by default. When you create a Microstate object, you provide the `create` function with the type and a POJO that represents the value. Microstates internally will create all of the instances using the type as a blueprint for the final state. 
+
+As discussed earlier, Microstates methods returns copies that are derived from original microstate. These copies will have a new value. This allows to serialize/deserialize a type to any state. 
+
+For those familiar with tools like ReactDevTools and time travel debugging, Microstates makes it possible to use these kinds of tools on individual Microstate level. Microstates can work like tiny Redux stores where you don't have to write reducers while still get the benefits of time travel debugging.
+
+In summary, Microstates are immutable JavaScript objects that are serializable, allow you to cache getters and provide a mechanism to declaratively derive next state using class like instance methods. They look like regular JavaScript classes but they hold conventions and performance improvements for state composed of many smaller states.
 
 <!-- ## API
 
@@ -196,8 +287,7 @@ By itself, this type is not very useful. It's only a way to describe the structu
 
 ### What if I can't use class syntax?
 
-Classes are functions in JavaScript, so you should be able to use a function to do most of the same
-things as you would with classes.
+Classes are functions in JavaScript, so you should be able to use a function to do most of the same things as you would with classes.
 
 ```js
 class Person {
