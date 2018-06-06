@@ -13,7 +13,7 @@ By combining lazy execution, algebraic data types and structural sharing, we cre
 a tool that provides a tiny API to describe complex data structures and provide a
 mechanism to change the value in immutable way.
 
-## Why Microstates?
+## Features
 
 With microstates added to your project, you get: 
 
@@ -261,6 +261,70 @@ As discussed earlier, Microstates methods return copies that are derived from or
 For those familiar with tools like ReactDevTools and time travel debugging, Microstates makes it possible to use these kinds of tools on individual Microstate level. Microstates can work like tiny Redux stores where you don't have to write reducers while still get the benefits of time travel debugging.
 
 In summary, Microstates are immutable JavaScript objects that are serializable, allow you to cache getters and provide a mechanism to declaratively derive next state using class like instance methods. They look like regular JavaScript classes but they hold conventions and performance improvements for state composed of many smaller states.
+
+## Why Microstates?
+
+Out tools effect how we solve problems and collaborate. Two tools can serve the same purpose but foster a completely different kind of ecosystem. Take jQuery plugins and React components as an example. Both of these tools provided a way to add custom behaviour to a DOM element but they fostered very different communities. 
+
+In React world today, we see many special purpose components that are easy to combine to create sophisticated user experiences. These components tends to have few options but provide just the right API for you to build what you need. 
+
+jQuery plugins on the other hand offer endsless list of options that are difficult get just right. In jQuery ecosystem, libraries tended to be monolithic because plugins from different libraries often did not work well together. 
+
+As a result, in React ecosystem we see components like [react-virtualized](https://github.com/bvaughn/react-virtualized) and [react-dnd](https://github.com/react-dnd/react-dnd) that are made by experienced React developers. These components save companies and developers millions of dollars in wasted development by eliminating the need for everyone to re-invent these components to build their user experiences.  
+
+The ability to leverage the experience of other developers that they made available as packages elevates our entire ecosystem. We call this *standing on the shoulders of others*. Our goal is to bring this level of collaboration to state management. 
+
+### What would an ecosystem of shared state primitives give us?
+
+### Shared Solutions
+
+Imagine never having to write another normalized data store again because someone made a normalized data store Microstate that you can compose into your app's Microstate. 
+
+It might look something like this,
+
+```js
+import Normalized from 'future-normalized-microstate';
+
+class MyApp {
+  store = Normalized.of(Product, User, Category)
+}
+```
+
+The knowledge about building normalized data stores is available in libraries like [Ember Data](https://github.com/emberjs/data), [Orbit.js](https://github.com/orbitjs/orbit), [Apollo](https://www.apollographql.com) and [urql](https://github.com/FormidableLabs/urql), yet many companies end up rolling their own because these tools are coupled to other stacks.
+
+### Added Flexibility
+
+Imagine if your favourite Calendar component came with a Microstate that allowed you to customized the logic of the calendar without touching the rendered output. It might looks something like this,
+
+```js
+import Calendar from 'awesome-calendar';
+
+class MyCalendar extends Calendar.Model {
+  // make days as events
+  days = Day.of([Event])
+
+  // component renders days from this property
+  get visibleDays() {
+    return this.days.filter(day => day.status !== 'finished');
+  }
+}
+
+<Calendar.Component model={MyCalendar}/>
+```
+
+We don't know if any of these APIs would stand the test of time, but we'd love to get the conversation started and find out. 
+
+### Framework Agnostic Solutions
+
+Competition is move our industry forward but concensus builds ecosystems. 
+
+Unfortunately, when it comes to the M(odel) of the MVC pattern, we are seing neither compentition nor concesus. Every framework has it's own model layer that is not compatible with another. This makes it difficult to create trully portable solutions that can be used on all frameworks. 
+
+It creates lockin that is detremental to businesses that use these frameworks and developers who are forced to make career altering decisions before they fully understand their choices. 
+
+We don't expect everyone to agree that Microstates is the right solution as React's architecture proven to be. We would like to start the conversation about what a shared primitive for state management in JavaScript might look like and showcase our proposed solution.
+
+In many ways, Microstates is the biginning. We hope you'll join us for the ride and help us create a future where building stateful applications in JavaScript is much easier than it is today.
 
 
 
