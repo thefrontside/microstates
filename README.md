@@ -272,7 +272,7 @@ jQuery plugins on the other hand offer endsless list of options that are difficu
 
 As a result, in React ecosystem we see components like [react-virtualized](https://github.com/bvaughn/react-virtualized) and [react-dnd](https://github.com/react-dnd/react-dnd) that are made by experienced React developers. These components save companies and developers millions of dollars in wasted development by eliminating the need for everyone to re-invent these components to build their user experiences.  
 
-The ability to leverage the experience of other developers that they made available as packages elevates our entire ecosystem. We call this *standing on the shoulders of others*. Our goal is to bring this level of collaboration to state management. 
+The ability to leverage the experience of other developers that they made available as packages elevates our entire ecosystem. We call this *standing on the shoulders of giants*. Our goal is to bring this level of collaboration to state management. 
 
 ### What would an ecosystem of shared state primitives give us?
 
