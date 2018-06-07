@@ -1233,11 +1233,21 @@ describe('stabilizeClass', () => {
     let Type = [String];
     expect(stabilizeClass(Type)).toBe(stabilizeClass(Type));
   });
+
+  it('has Immutable<Type> name', () => {
+    class Foo {}
+    expect(stabilizeClass(Foo).name).toBe('Immutable<Foo>');
+  });
 });
 
 describe('transitionsClass', () => {
   it('is stable for sugar type', () => {
     let Type = [String];
     expect(transitionsClass(Type)).toBe(transitionsClass(Type));
+  });
+
+  it('has Microstate<Type> name', () => {
+    class Foo {}
+    expect(transitionsClass(Foo).name).toBe('Microstate<Foo>');
   });
 });

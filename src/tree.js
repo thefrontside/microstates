@@ -38,7 +38,11 @@ const defaultMiddleware = (localMicrostate, transition, args) => {
 };
 
 export const transitionsClass = stable(function transitionsClass(Type) {
-  class Transitions extends Microstate {}
+  class Transitions extends Microstate {
+    static get name() {
+      return `Microstate<${Type.name}>`;
+    }
+  }
 
   let descriptors = Type === types.Any ? getPrototypeDescriptors(types.Any) : assign(getPrototypeDescriptors(resolveType(Type)), getPrototypeDescriptors(types.Any))
 
@@ -66,6 +70,10 @@ export const resolveType = stable(function resolveType(Type) {
 export const stabilizeClass = stable(function stabilizeClass(Type) {
   class ImmutableState extends resolveType(Type) {
     get state() { return this }
+
+    static get name() {
+      return `Immutable<${Type.name}>`;
+    }
   }
   return memoizeGetters(ImmutableState);
 });
