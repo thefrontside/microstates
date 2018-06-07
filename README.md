@@ -326,7 +326,15 @@ We don't expect everyone to agree that Microstates is the right solution, but we
 
 In many ways, Microstates is a beginning. We hope you'll join us for the ride and help us create a future where building stateful applications in JavaScript is much easier than it is today.
 
+## How Microstates works
 
+How you understand Microstates will be a little different depending on your background. A good place to start is to think about a microstate as being one state of a state machine which is a pure function of Type and value. 
+
+
+
+Ideally, we would express this as `let state = Type(value)`, but this is not possible in JavaScript, so we end up with `let state = create(Type, value)`. The created object has on it functions for all operations that can be performed on this microstate. 
+
+Let's look at simplest type in Microstates, a `Boolean`. It has only two possible transitions: `toggle` and `set`. To create a `Boolean` microstate we can call `let bool = create(Boolean)`. Which gives us `bool.toggle()`  
 
 <!-- ## API
 
