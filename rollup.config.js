@@ -1,5 +1,7 @@
 const babel = require("rollup-plugin-babel");
 const filesize = require("rollup-plugin-filesize");
+const resolve = require("rollup-plugin-node-resolve");
+const commonjs = require("rollup-plugin-commonjs");
 const pkg = require("./package.json");
 
 const external = [
@@ -14,7 +16,40 @@ const external = [
   "ramda/src/view"
 ];
 
+const babelPlugin = babel({
+  babelrc: false,
+  comments: false,
+  plugins: ["@babel/plugin-proposal-class-properties"],
+  presets: [
+    [
+      "@babel/preset-env",
+      {
+        modules: false
+      }
+    ]
+  ]
+});
+
 module.exports = [
+  {
+		input: 'src/nodules.js',
+		output: {
+			name: 'microstates',
+			file: pkg.browser,
+      format: 'umd',
+      sourcemap: true
+		},
+		plugins: [
+      babelPlugin,
+      resolve(),
+      commonjs(), 
+      filesize({
+        render(opt, size, gzip, bundle) {
+          return `Built: ${bundle.file} ( size: ${size}, gzip: ${gzip})`;
+        }
+      })
+		]
+	},
   {
     input: "src/nodules.js",
     external,
@@ -52,19 +87,7 @@ module.exports = [
     external,
     output: { file: pkg.module, format: "es", sourcemap: true },
     plugins: [
-      babel({
-        babelrc: false,
-        comments: false,
-        plugins: ["@babel/plugin-proposal-class-properties"],
-        presets: [
-          [
-            "@babel/preset-env",
-            {
-              modules: false
-            }
-          ]
-        ]
-      }),
+      babelPlugin,
       filesize({
         render(opt, size, gzip, bundle) {
           return `Built: ${bundle.file} ( size: ${size}, gzip: ${gzip})`;
