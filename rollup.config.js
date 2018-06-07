@@ -9,12 +9,7 @@ const external = [
   "funcadelic",
   "symbol-observable",
   "get-prototype-descriptors",
-  "memoize-getters",
-  "ramda/es/lensPath",
-  "ramda/es/set",
-  "ramda/es/lens",
-  "ramda/es/over",
-  "ramda/es/view"
+  "memoize-getters"
 ];
 
 const babelPlugin = babel({
@@ -63,6 +58,7 @@ module.exports = [
       sourcemap: true
     },
     plugins: [
+      resolve(),
       babel({
         babelrc: false,
         comments: false,
@@ -91,6 +87,7 @@ module.exports = [
     external,
     output: { file: pkg.module, format: "es", sourcemap: true },
     plugins: [
+      resolve(),
       babelPlugin,
       filesize({
         render(opt, size, gzip, bundle) {

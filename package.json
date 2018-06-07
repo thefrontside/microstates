@@ -37,7 +37,6 @@
     "funcadelic": "0.5.0",
     "get-prototype-descriptors": "0.6.0",
     "memoize-getters": "1.1.0",
-    "ramda": "^0.25.0",
     "symbol-observable": "1.2.0"
   },
   "devDependencies": {
@@ -65,7 +64,8 @@
     "rollup-plugin-node-resolve": "3.3.0",
     "rollup-plugin-replace": "2.0.0",
     "rxjs": "6.1.0",
-    "standard-version": "^4.2.0"
+    "standard-version": "^4.2.0",
+    "ramda": "^0.25.0"
   },
   "jest": {
     "setupFiles": [
@@ -85,6 +85,9 @@
     ],
     "moduleNameMapper": {
       "microstates": "<rootDir>/dist/microstates.es.js"
-    }
+    },
+    "transformIgnorePatterns": [
+      "node_modules/(?!(ramda)/)"
+    ]
   }
 }
