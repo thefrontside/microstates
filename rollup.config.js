@@ -2,6 +2,7 @@ const babel = require("rollup-plugin-babel");
 const filesize = require("rollup-plugin-filesize");
 const resolve = require("rollup-plugin-node-resolve");
 const commonjs = require("rollup-plugin-commonjs");
+const replace = require("rollup-plugin-replace");
 const pkg = require("./package.json");
 
 const external = [
@@ -32,24 +33,27 @@ const babelPlugin = babel({
 
 module.exports = [
   {
-		input: 'src/nodules.js',
-		output: {
-			name: 'microstates',
-			file: pkg.browser,
-      format: 'umd',
+    input: "src/nodules.js",
+    output: {
+      name: "microstates",
+      file: pkg.browser,
+      format: "umd",
       sourcemap: true
-		},
-		plugins: [
+    },
+    plugins: [
       babelPlugin,
       resolve(),
-      commonjs(), 
+      commonjs(),
+      replace({
+        'process.env.NODE_ENV': JSON.stringify('production')
+      }),
       filesize({
         render(opt, size, gzip, bundle) {
           return `Built: ${bundle.file} ( size: ${size}, gzip: ${gzip})`;
         }
       })
-		]
-	},
+    ]
+  },
   {
     input: "src/nodules.js",
     external,
