@@ -1236,7 +1236,7 @@ describe('stabilizeClass', () => {
 
   it('has Immutable<Type> name', () => {
     class Foo {}
-    expect(stabilizeClass(Foo).name).toBe('Immutable<Foo>');
+    expect(stabilizeClass(Foo).name).toBe('State<Foo>');
   });
 });
 
@@ -1248,6 +1248,6 @@ describe('transitionsClass', () => {
 
   it('has Microstate<Type> name', () => {
     class Foo {}
-    expect(transitionsClass(Foo).name).toBe('Microstate<Foo>');
+    expect(transitionsClass(Foo).name).toBe('Transitions<Foo>');
   });
 });

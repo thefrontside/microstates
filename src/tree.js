@@ -40,7 +40,7 @@ const defaultMiddleware = (localMicrostate, transition, args) => {
 export const transitionsClass = stable(function transitionsClass(Type) {
   class Transitions extends Microstate {
     static get name() {
-      return `Microstate<${Type.name}>`;
+      return `Transitions<${Type.name}>`;
     }
   }
 
@@ -72,7 +72,7 @@ export const stabilizeClass = stable(function stabilizeClass(Type) {
     get state() { return this }
 
     static get name() {
-      return `Immutable<${Type.name}>`;
+      return `State<${Type.name}>`;
     }
   }
   return memoizeGetters(ImmutableState);
