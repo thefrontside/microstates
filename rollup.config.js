@@ -10,11 +10,11 @@ const external = [
   "symbol-observable",
   "get-prototype-descriptors",
   "memoize-getters",
-  "ramda/src/lensPath",
-  "ramda/src/set",
-  "ramda/src/lens",
-  "ramda/src/over",
-  "ramda/src/view"
+  "ramda/es/lensPath",
+  "ramda/es/set",
+  "ramda/es/lens",
+  "ramda/es/over",
+  "ramda/es/view"
 ];
 
 const babelPlugin = babel({
