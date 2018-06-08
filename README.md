@@ -328,13 +328,25 @@ In many ways, Microstates is a beginning. We hope you'll join us for the ride an
 
 ## How Microstates works
 
-How you understand Microstates will be a little different depending on your background. A good place to start is to think about a microstate as being one state of a state machine which is a pure function of Type and value. 
+If you're a web developer and using a framework, you might be wondering how Microstates will work within your framework. For now, I will say that we'll have an integration for each framework, but it's important that we're on the same page about the role of Microstates within your application.
+Once we have that, you'll see more ways to use Microstates than I can cover in this README.
+
+Regardless of the kind of application you're building, your application is made of code that roughly represents data, converts user input into data and presents data to the user. This traditionally has been described as MVC pattern where M, model, is data that is persisted or accumulated through user actions or input. V, view, is how that data is presented to the user, often we describe with components and C, controller, which represents the constraints that exist on the user's actions.
+
+Talking about MVC is a little passe in some communities and understandbly so because traditional MVC did not bring a lot of comfort to early adopters in web frameworks. Of the early adopters, only a few MVCish frameworks are left, but regardless of the popularity of the term, the architectural pattern is still a big part of our applications.
+
+What we're seeing now is the discovery of what MVC looks like in modern web applications. One thing that most of us can agree on is that the view is now called a component. Over the last 5 years, we saw a lot of competition in the view layer to make the most performant and ergonomic view building developer experience. 
+
+The view boom was in big part ignited by the introduction of the React. With React, came the introduction and mass adoption of functional programming ideas in the JavaScript ecosystem. Functional programming brought a lot of simplicity to the view layer. It is conceptually simple - a component is a function that takes props and returns DOM. This simplicity helped developers learn React and has been adopted to a varied degree by most frameworks. The API that each frameworks exposes to their view is somewhat different but the general idea is the same.
+
+Microstates brings the same kind of simplicity to the model layer. A Microstate is a functional model in a way that a component is a functional view. Component takes params and returns DOM, a Microstate takes value and returns state. DOM is a tree of element instances, state is a tree of model instances. A component is an abstraction that we use to manipulate the DOM tree. A microstate is an abstraction that we use to manipulate the state tree. 
+
+When you want to change what the user sees, you could imperatively manipulate the DOM elements with jQuery, but React taught us to change DOM declaratively by changing the data that the DOM reflects. In the same way, when you want to change the model state, you must change the value and allow the state to be reflected.
 
 
 
-Ideally, we would express this as `let state = Type(value)`, but this is not possible in JavaScript, so we end up with `let state = create(Type, value)`. The created object has on it functions for all operations that can be performed on this microstate. 
 
-Let's look at simplest type in Microstates, a `Boolean`. It has only two possible transitions: `toggle` and `set`. To create a `Boolean` microstate we can call `let bool = create(Boolean)`. Which gives us `bool.toggle()`  
+
 
 <!-- ## API
 
