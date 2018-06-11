@@ -36,6 +36,7 @@
   "dependencies": {
     "funcadelic": "0.5.0",
     "get-prototype-descriptors": "0.6.0",
+    "invariant": "2.2.4",
     "memoize-getters": "1.1.0",
     "symbol-observable": "1.2.0",
     "ramda": "^0.25.0"

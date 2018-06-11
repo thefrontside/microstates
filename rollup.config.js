@@ -16,7 +16,8 @@ const external = [
   "funcadelic",
   "symbol-observable",
   "get-prototype-descriptors",
-  "memoize-getters"
+  "memoize-getters",
+  "invariant"
 ];
 
 const babelPlugin = babel({
