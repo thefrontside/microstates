@@ -16,7 +16,6 @@ import thunk from './thunk';
 import types, { params, toType } from './types';
 import $ from './utils/chain';
 import { keep, reveal } from './utils/secret';
-import values from './values';
 import invariant from 'invariant';
 
 const { assign, defineProperties } = Object;
