@@ -10,6 +10,13 @@ import { resolveType, stabilizeClass, transitionsClass } from '../src/tree';
 const { assign } = Object;
 
 describe('from', () => {
+
+  it('detects falsy primitive values as their type', () => {
+    expect(Tree.from('')).toHaveProperty('Type', types.String);
+    expect(Tree.from(0)).toHaveProperty('Type', types.Number);    
+    expect(Tree.from(false)).toHaveProperty('Type', types.Boolean);
+  });
+
   it('converts undefined to any', () => {
     let tree = Tree.from();
     let microstate = tree.microstate;
@@ -70,6 +77,27 @@ describe('from', () => {
     let microstate = Microstate.from(42);
     expect(microstate).toHaveProperty('increment');
     expect(microstate.valueOf()).toBe(42);
+  });
+
+  it('allows composed value to be a microstate', () => {
+    let microstate = Microstate.from({
+      fortyTwo: Microstate.from(42),
+      name: Microstate.from('Charles')
+    });
+    expect(microstate.fortyTwo).toHaveProperty('increment');
+    expect(microstate.name).toHaveProperty('concat');
+    expect(microstate.valueOf()).toEqual({ name: 'Charles', fortyTwo: 42 });
+
+    expect(microstate.fortyTwo.increment().valueOf()).toEqual({ fortyTwo: 43, name: 'Charles' })
+  });
+
+  it('allows deeply composed value to be a microstate', () => {
+    let microstate = Microstate.from([
+      [Microstate.from(42)]
+    ]);
+    expect(microstate[0][0]).toHaveProperty('increment');
+    expect(microstate.valueOf()).toEqual([[42]]);
+    expect(microstate[0][0].increment().valueOf()).toEqual([[43]]);
   });
 });
 
