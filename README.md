@@ -326,27 +326,189 @@ We don't expect everyone to agree that Microstates is the right solution, but we
 
 In many ways, Microstates is a beginning. We hope you'll join us for the ride and help us create a future where building stateful applications in JavaScript is much easier than it is today.
 
-## How Microstates works
+## M in MVC
 
-If you're a web developer and using a framework, you might be wondering how Microstates will work within your framework. For now, I will say that we'll have an integration for each framework, but it's important that we're on the same page about the role of Microstates within your application.
-Once we have that, you'll see more ways to use Microstates than I can cover in this README.
+If you're a web developer and using a framework, you might be wondering how Microstates will work within your framework. For now, I will say that we'll have an integration for each framework, but it's important that we're on the same page about the role of Microstates within your application. Once we have that, you'll see more ways to use Microstates than I can cover in this README.
 
 Regardless of the kind of application you're building, your application is made of code that roughly represents data, converts user input into data and presents data to the user. This traditionally has been described as MVC pattern where M, model, is data that is persisted or accumulated through user actions or input. V, view, is how that data is presented to the user, often we describe with components and C, controller, which represents the constraints that exist on the user's actions.
 
 Talking about MVC is a little passe in some communities and understandbly so because traditional MVC did not bring a lot of comfort to early adopters in web frameworks. Of the early adopters, only a few MVCish frameworks are left, but regardless of the popularity of the term, the architectural pattern is still a big part of our applications.
 
-What we're seeing now is the discovery of what MVC looks like in modern web applications. One thing that most of us can agree on is that the view is now called a component. Over the last 5 years, we saw a lot of competition in the view layer to make the most performant and ergonomic view building developer experience. 
+What we're seeing now is the discovery of what MVC looks like in modern web applications. One thing that most of us can agree on is that our views are now called components. Over the last 5 years, we saw a lot of competition in the view layer to make the most performant and ergonomic view building developer experience. 
 
-The view boom was in big part ignited by the introduction of the React. With React, came the introduction and mass adoption of functional programming ideas in the JavaScript ecosystem. Functional programming brought a lot of simplicity to the view layer. It is conceptually simple - a component is a function that takes props and returns DOM. This simplicity helped developers learn React and has been adopted to a varied degree by most frameworks. The API that each frameworks exposes to their view is somewhat different but the general idea is the same.
+## Functional Models
+
+The view boom was in big part ignited by the introduction of React. With React, came the introduction and mass adoption of functional programming ideas in the JavaScript ecosystem. Functional programming brought a lot of simplicity to the view layer. It is conceptually simple - a component is a function that takes props and returns DOM. This simplicity helped developers learn React and has been adopted to a varied degree by most frameworks. The API that each frameworks exposes to their view is somewhat different but the general idea is the same.
 
 Microstates brings the same kind of simplicity to the model layer. A Microstate is a functional model in a way that a component is a functional view. Component takes params and returns DOM, a Microstate takes value and returns state. DOM is a tree of element instances, state is a tree of model instances. A component is an abstraction that we use to manipulate the DOM tree. A microstate is an abstraction that we use to manipulate the state tree. 
 
-When you want to change what the user sees, you could imperatively manipulate the DOM elements with jQuery, but React taught us to change DOM declaratively by changing the data that the DOM reflects. In the same way, when you want to change the model state, you must change the value and allow the state to be reflected.
+When you want to change what the user sees, you could imperatively manipulate the DOM elements with jQuery, but React taught us to change DOM declaratively by changing the data that the DOM reflects. In the same way, when you want to change the state, you must change the value and allow the state to be reflected. 
 
+A DOM tree is created by passing data to a root component. A state tree is created from a root type and value. By default, Microstates expects structure of the data to match the structure of the value. 
 
+For example,
 
+```js
+class Person {
+  firstName = String;
+  lastName = String;
+}
+```
 
+Matches `{ firstName: 'Homer', lastName: 'Simpson' }` and Microstates will take properties from the value to populate a state tree that it creates for the type.
 
+```js
+import { create } from 'microstates';
+
+let person = create(Person, { firstName: 'Homer', lastName: 'Simpson' });
+
+person.state.firstName
+//> Homer
+
+person.state.lastName
+// => Simpson
+```
+
+If your value does not match the structure or you need to process the value, then you can specify an `initialize` transition that will return a different state tree from the value. For example, if your data passes lower case properties, you could do something like this,
+
+```js
+import { create } from 'microsates'
+
+class Person {
+  initialize(props = {}) {
+    let values = {}
+    if (props.firstname) {
+      values.firstName = props.firstname;
+    }
+    if (props.lastname) {
+      value.lastName = props.lastname;
+    }
+    return create(Person, values);
+  }
+}
+```
+
+The return value from the `initialize` transition, as with all transitions, is a Microstate. Those familiar with functional programming might recorganize this as a flatMap operation. It is not required for you to understand Monads to use Microstates transitions, but if you're interested in learning about the primitives of functional programming, you may checkout [funcadelic.js](https://github.com/cowboyd/funcadelic.js) which Microstates uses under the hood. 
+
+Conceptually, a Microstate is similar to a single DOM element, except DOM elements are mutable and microstates are immutable. If you wanted to create a DIV element and set it's content, you can set `textContent` property on the DOM node. Like this
+
+![Creating a DOM element](README/create-dom-element-fast.gif)
+
+Similar pattern will not work with a Microstate because it's immutable. You must call a method that will return another Microstate. This new Microstate will have a new value and a new state tree that's derived from the Microstate's type and the new value. 
+
+The ability to express a state as type and value allows us to give each state an identity. In other words, by having a type and value represent a single state, we are able to distinguish one state from another.
+
+## Reactivity with Microstates
+
+The ability to give state identity, predictably store and restore the state from identity and quickly compare the identity of the state to another state is the fundamental building build block of reactive programming with Microstates. 
+
+A Microstate represents a single state, to make a react programming engine you need a way to store an identity and change the identity over time. The simpliest way to do this is to store a reference to the microstate. 
+
+For example,
+
+```js
+import { create } = 'microstates';
+
+class Person {
+  firstName = String;
+  lastName = String;
+
+  get fullName() {
+    return `${this.firstName} ${this.lastName}`;
+  }
+}
+
+class Car {
+  licensePlate = String;
+  color = String;
+  make = String;
+  year = Number;
+  owner = Person;
+  status = String;
+
+  get info() {
+    let info `${this.status} ${this.color}  ${this.year} ${this.make}`;
+    if (this.owner) {
+      return `${info} owned by ${this.owner.fullName}`; 
+    }
+    return this.owner;
+  }
+
+  sell({ licensePlate, owner }) {
+    return this
+      .status.set('sold')
+      .licensePlate.set(licensePlate)
+      .owner.set(owner);
+  }
+}
+
+let car = create(Car, { make: 'Honda', color: 'red', year: 2018 });
+```
+
+The *car* variable references the microstate object which contains `Car` type with value `{ make: 'Honda', color: 'red', year: 2018 }`. The type also describes the operations that can be performed on this type. 
+
+To create a tiny reactive engine, we need to 
+1. render the state that's referenced by the car variable, 
+2. create an action which is a function that will perform the transition, 
+3. bind the action to some event emitter,
+4. replace the car variable with a reference to the new microstate,
+5. re-render to display the latest state
+
+```js
+let car = create(Car, { make: 'Honda', color: 'red', year: 2018 });
+
+const render = () => console.log(car.state.info)
+
+// 1. render state referenced by car variable 
+render();
+
+// 2. create a function that will perform the transition, 
+const sellCarTo = ({ firstName, lastName, licensePlate }) => {
+  // 4. replace the car variable with a reference to the new microstate,
+  car = car.sell({ firstName, lastName, licensePlate });
+  // 5. re-render to display the latest state
+  render();
+}
+
+// 3. bind the action to some event emitter,
+setInterval(() => {
+  sellCarTo({ firstName: 'Homer', lastName: 'Simpson', licensePlate: 'DONUTS' });
+}, 1000);
+```
+
+A variation of this pattern is the foundation of every reactive engine, including React, Vue, Ember & Angular.This pattern is so significant that we added a special way to integrate this pattern into Microstates via middleware.
+
+## Middleware
+
+Middleware makes it possible to modify what is called before a transition is performed and what is returned by a transition. You can use it to change the outcome of a transition or emit a side effect. 
+
+Installation of a middleware is done in an immutable fashion as with all other operations in Microstates. To install a middleware, you must map a microstate to create a new microstate that uses the given middleware. 
+
+Let's create logging middleware that will log every transition.
+
+```js
+import { create, map } from 'microstates';
+
+class Person {
+  firstName = String;
+  lastName = String;
+}
+
+let homer = create(Person, { firstName: 'Homer', lastName: 'Simpson' });
+
+function logginMiddleware(next) {
+  return (microstate, transition, args) => {
+    console.log(`before ${transition.name} value is`, microstate.valueOf());
+    let result = next(microstate, transition, args);
+    console.log(`after ${transition.name} value is`, result.valueOf());
+    return result;
+  }
+}
+
+let homerWithMiddleware = map(tree => tree.use(logginMiddleware), homer);
+```
+
+The middleware will be invoked on any transition that you call on this Microstate. The middleware will be carried over on every consequent transition as it is now part of the Microstate.
 
 <!-- ## API
 
