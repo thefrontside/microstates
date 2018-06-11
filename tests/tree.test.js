@@ -188,6 +188,21 @@ describe('Tree', () => {
     moreThings = new Tree({ Type: Things, value: { a: { name: 'A', more: { a: { name: 'AA' } } }, b: { name: 'B' } } })
   });
 
+  describe('types', () => {
+    it('accumulates type information for shallow trees', () => {
+      expect(a.types).toMatchObject({
+        String
+      });
+    });
+    it('accumulates types information for deeply nested trees', () => {
+      expect(moreThings.types).toMatchObject({
+        Thing,
+        String,
+        Things
+      })
+    });
+  });
+
   describe('Functor', () => {
     it('is lazy', () => {
       let fn = jest.fn(tree => tree);
