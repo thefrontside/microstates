@@ -133,7 +133,7 @@ describe('initialized microstate', () => {
   });
 });
 
-describe.only('array as root', () => {
+describe('array as root', () => {
   let list;
   beforeEach(() => {
     list = Microstate.from([{ hello: 'world' }]);
