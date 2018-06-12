@@ -1,5 +1,5 @@
 import "jest";
-import { create } from "microstates";
+import Microstate, { create } from "microstates";
 import SymbolObservable from 'symbol-observable';
 import { from } from 'rxjs';
 
@@ -131,4 +131,37 @@ describe('initialized microstate', () => {
       isOpen: true
     });
   });
+});
+
+describe('array as root', () => {
+  let list;
+  beforeEach(() => {
+    list = Microstate.from([{ hello: 'world' }]);
+  });
+
+  it('has array with one element', () => {
+    expect(list.length).toBe(1);
+    expect(list[0].hello).toBeDefined();
+  });
+
+  describe('created observable', () => {
+    let observable, last, isCalledCallback;
+    beforeEach(() => {
+      observable = from(list);
+      observable.subscribe(next => {
+        isCalledCallback = true;
+        last = next;
+      });
+    });
+
+    it('called callback', () => {
+      expect(isCalledCallback).toBe(true);
+    });
+
+    it('has array with one element', () => {
+      expect(last.length).toBe(1);
+      expect(last[0].hello).toBeDefined();
+    });
+  });
+
 });
