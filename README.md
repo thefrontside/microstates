@@ -498,7 +498,7 @@ class Person {
 
 let homer = create(Person, { firstName: 'Homer', lastName: 'Simpson' });
 
-function logginMiddleware(next) {
+function loggingMiddleware(next) {
   return (microstate, transition, args) => {
     console.log(`before ${transition.name} value is`, microstate.valueOf());
     let result = next(microstate, transition, args);
@@ -507,12 +507,12 @@ function logginMiddleware(next) {
   }
 }
 
-let homerWithMiddleware = map(tree => tree.use(logginMiddleware), homer);
+let homerWithMiddleware = map(tree => tree.use(loggingMiddleware), homer);
 ```
 
 The middleware will be invoked on any transition that you call on this Microstate. The middleware will be carried over on every consequent transition as it is now part of the Microstate. We use this mechanism to create Observable Microstates.
 
-## Observables Microstates
+## Observable Microstates
 
 Microstates provides an easy way to convert a microstate which represents a single value into a Observable stream of values. This is done by passing a microstate to `Observable.from` function. This function will return a Observable object with a subscribe method. You can subscribe to the stream by passing an observer to the subscribe function. Once you subscribe, 
 you will syncronously receive a microstate with middleware installed that will cause the result of transitions to be pushed through the stream.
@@ -541,15 +541,21 @@ last.valueOf();
 
 This mechanism provides is the starting point for integration between Observables ecosystem and Microstates. 
 
-## API
+## `microstates` package
 
-Microstates provides 3 different APIs. Two for in-application use which I will outline in this README and another for middleware and reusable primitive creators which I will outline in a seperate document. The two APIs that Microstates provides for in-application use allow to create and transition microstates. The API for creating microstates is provided by the [microstates](https://www.npmjs.com/package/microstates) npm module.
+The `microstates` package provides the `Microstate` class and functions that operate on microstate objects.
 
-## `microstates` module API
+You can import microstates library using,
 
-The `microstates` module exports `create`, `from`, `map` and `Microstate` class. 
+```bash
+npm install microstates
 
-You can import them in the following way,
+or 
+
+yarn add microstates
+```
+
+Then import the libraries using,
 
 ```js
 import Microstate, { create, from, map } from 'microstates';
@@ -558,6 +564,83 @@ import Microstate, { create, from, map } from 'microstates';
 ### create(Type, value): Microstate
 
 `create` function is conceptually similar to `Object.create`. It creates a microstate object from type class and a value. This function is lazy, so it should be safe in most high performant operations even with complex and deeply nested data structures.
+
+```js
+import { create } from 'microstates';
+
+create(Number, 42);
+//> Microstate
+```
+
+### from(any): Microstate
+
+`from` allows to convert any POJO(plain JavaScript object) into a Microstate. Once you created a microstate, you can perform operations on all properties of the value.
+
+```js
+import { from } from 'microstates';
+
+from('hello world')
+//Microstate<String> 
+
+from(42).increment()
+//> Microstate<Number>
+
+from(true).toggle()
+//> Microstate<Boolean>
+
+from([1, 2, 3])
+//> Microstate<Array<Number>>
+
+from({ hello: 'world' })
+//> Microstate<Object>
+
+```
+
+`from` is lazy, so you can put in any deeply nested pojo and microstates will allow you to transition it. The cost of building the objects inside of microstates is paid whenever you reach for a microstate inside. For example, `let o = from({ a: { b: c: 42 }})` doesn't do anything until you start to read the properties with dot notiation like `o.a.b.c`.
+
+```js
+from({ a: { b: c: 42 }}).a.b.c.increment().valueOf();
+// { a: { b: { c: 43 }}}
+
+from({ hello: [ 'world' ]}).hello[0].concat('!!!').valueOf();
+// { hello: [ 'world!!!' ]}
+```
+
+### map(fn: tree => tree, microstate: Microstate): Microstate
+
+`map` function is used to perform operations on the that is used to build the microstate. It expects a function and a microstate and returns a microstate. This function accepts a mapping function which will receive the microstate's tree. The mapping function is expected to return a tree. The tree that is returned from the mapping will be used to generate the microstate that's returned by the map operation.
+
+This is most frequently used go derive a microstate with middleware installed. 
+
+```js
+import { map, from } from 'microstates';
+
+let number = from(42);
+
+function loggingMiddleware(next) {
+  return (microstate, transition, args) => {
+    console.log(`before ${transition.name} value is`, microstate.valueOf());
+    let result = next(microstate, transition, args);
+    console.log(`after ${transition.name} value is`, result.valueOf());
+    return result;
+  }
+}
+
+let loggedNumber = map(tree => tree.use(loggingMiddleware), number);
+
+loggedNumber.increment();
+// before increment value is 42
+// after increment value is 43
+```
+
+### Microstates class
+
+Microstates class is only really useful for checking if something is an instance of a Microstate. You should not use `new Microstate()`. It's used internally to create new microstates but for most cases `create` function should be used.
+
+## Type Composition DSL
+
+Type Composition DSL (domain specific langulage) is used to describe the shape of data and operations that you can perform on that data. Microstates uses pure JavaScript for its DSL with the exception of [Class Properties (aka Class Fields) which are Stage 3 proposal](https://github.com/tc39/proposal-class-fields). `create-react-app` includes class properties transpiler. You can use [@babel/plugin-proposal-class-properties](https://github.com/babel/babel/tree/master/packages/babel-plugin-proposal-class-properties) or checkout `what if I can't use class syntax?` section of the FAQ.
+
 
 
 
