@@ -280,7 +280,7 @@ The ability to leverage the experience of other developers that they made availa
 
 Imagine never having to write another normalized data store again because someone made a normalized data store Microstate that you can compose into your app's Microstate. 
 
-It might look something like this,
+In the future(not currently implemented), you will be able to write a normalized data store like this,
 
 ```js
 import Normalized from 'future-normalized-microstate';
@@ -291,6 +291,8 @@ class MyApp {
 ```
 
 The knowledge about building normalized data stores is available in libraries like [Ember Data](https://github.com/emberjs/data), [Orbit.js](https://github.com/orbitjs/orbit), [Apollo](https://www.apollographql.com) and [urql](https://github.com/FormidableLabs/urql), yet many companies end up rolling their own because these tools are coupled to other stacks.
+
+As time and resource permit, we hope to create a solution that will be flexible enough for use in most applications. If you're interested in helping us with this, please reach out. 
 
 ### Added Flexibility
 
@@ -312,7 +314,7 @@ class MyCalendar extends Calendar.Model {
 <Calendar.Component model={MyCalendar}/>
 ```
 
-We don't know if any of these APIs would stand the test of time, but we'd love to get the conversation started and find out. 
+At these point, these are psycode, but Microstates was architectured to allow these kinds of solutions to be created.  
 
 ### Framework Agnostic Solutions
 
@@ -476,7 +478,7 @@ setInterval(() => {
 }, 1000);
 ```
 
-A variation of this pattern is the foundation of every reactive engine, including React, Vue, Ember & Angular.This pattern is so significant that we added a special way to integrate this pattern into Microstates via middleware.
+A variation of this pattern is the foundation of every reactive engine, including React, Vue, Ember & Angular. This pattern is so significant that we added a special way to integrate this pattern into Microstates via middleware.
 
 ## Middleware
 
@@ -508,7 +510,39 @@ function logginMiddleware(next) {
 let homerWithMiddleware = map(tree => tree.use(logginMiddleware), homer);
 ```
 
-The middleware will be invoked on any transition that you call on this Microstate. The middleware will be carried over on every consequent transition as it is now part of the Microstate.
+The middleware will be invoked on any transition that you call on this Microstate. The middleware will be carried over on every consequent transition as it is now part of the Microstate. We use this mechanism to create Observable Microstates.
+
+## Observables Microstates
+
+Microstates provides an easy way to convert a microstate which represents a single value into a Observable stream of values. This is done by passing a microstate to `Observable.from` function. This function will return a Observable object with a subscribe method. You can subscribe to the stream by passing an observer to the subscribe function. Once you subscribe, 
+you will syncronously receive a microstate with middleware installed that will cause the result of transitions to be pushed through the stream.
+
+You should be able to use to any implementation of Observables that supports `Observer.from` using [symbol-observable](https://github.com/benlesh/symbol-observable). We'll use `RxJS` for our example.
+
+```js
+import { from } from 'rxjs';
+import { create } from 'microstates';
+
+let homer = create(Person, { firstName: 'Homer', lastName: 'Simpson' });
+
+let observable = from(homer);
+
+let last;
+let subscription = observable.subscribe(next => {
+  // capture the next microstate coming through the stream
+  last = next;
+})
+
+last.firstName.set('Homer J');
+
+last.valueOf();
+//> { firstName: 'Homer J', lastName: 'Simpson' }
+```
+
+This mechanism provides is the starting point for integration between Observables ecosystem and Microstates. 
+
+
+
 
 <!-- ## API
 
