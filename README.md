@@ -541,25 +541,24 @@ last.valueOf();
 
 This mechanism provides is the starting point for integration between Observables ecosystem and Microstates. 
 
+## API
 
+Microstates provides 3 different APIs. Two for in-application use which I will outline in this README and another for middleware and reusable primitive creators which I will outline in a seperate document. The two APIs that Microstates provides for in-application use allow to create and transition microstates. The API for creating microstates is provided by the [microstates](https://www.npmjs.com/package/microstates) npm module.
 
+## `microstates` module API
 
-<!-- ## API
+The `microstates` module exports `create`, `from`, `map` and `Microstate` class. 
 
-Microstates API gives developers a way to declaratively express the relationship between different fragments of state and how that state can change. To say it another way, Microstates gives a way to compose state and describe operations that you can perform on that state. This combination of composed state and operations are referred to as *type*. 
-
-Types can be composed from types that are built into JavaScript and custom types that you write yourself. Currently, Microstate supports `Boolean`, `Number`, `String`, `Object` and `Array` types which come from JavaScript. These are what we call *primitive* types, meaning that they do not contain other types. 
-
-These primitive types can be combined into more complex types. For example, we can describe a `Person` by their `name` which is a `String` and their `age` which is just a `Number`. You can express `Person` type you define a JavaScript class.
+You can import them in the following way,
 
 ```js
-class Person {
-  name = String;
-  age = Number;
-}
+import Microstate, { create, from, map } from 'microstates';
 ```
 
-By itself, this type is not very useful. It's only a way to describe the structure of the data. To make this  -->
+### create(Type, value): Microstate
+
+`create` function is conceptually similar to `Object.create`. It creates a microstate object from type class and a value. This function is lazy, so it should be safe in most high performant operations even with complex and deeply nested data structures.
+
 
 
 ## FAQ
