@@ -7,7 +7,7 @@
 
 Composable State Primitives with GraphQL inspired API     
 
-Microstates is a pure JavaScript model authoring system designed to ease state management in component based applications.
+Microstates is a functional runtime type system for declaratively describing immutable state transitions of deeply nested state objects designed to ease state management in component based applications.
 
 By combining lazy execution, algebraic data types and structural sharing, we created
 a tool that provides a tiny API to describe complex data structures and provide a
@@ -17,13 +17,14 @@ mechanism to change the value in immutable way.
 
 With microstates added to your project, you get: 
 
-- 🍣 Atomic composable type system
-- 🍱 Effortless composition of types
+- 🍣 Composable hierarhical type system
+- 🍱 Extremely reusable state atoms 
 - 💎 Pure immutable state transitions without reducers
+- ⚡️ Lazy and syncronous by default
 - 🔭 Optional integration with Observables
+- 🦋 Easiest way to express state machines
 - 🎯 Transpilation free type system
 - ⚛ Use in Node.js and web applications
-- 🦋 Easiest way to express state machines
 
 But, most imporantly, Microstates makes working with **state fun**. 
 
@@ -31,7 +32,7 @@ But, most imporantly, Microstates makes working with **state fun**.
 
 When was the last time you had fun working with state in JavaScript applications? For many, the answer is probably never because state management in JavaScript is an endless game of choosing from compromises. You can choose to go fully immutable and end up writing endless reducers. You can go mutable and everything magically becomes an observable. Or you can `setState` and loose the benefit of serialization and time travel debugging. 
 
-Unlike the view layer, where most frameworks agree on some variation of React components, state management is alloot less certain. It's less certain because none of the available tools strike the balance that React components introduced to the view layer. 
+Unlike the view layer, where most frameworks agree on some variation of React components, state management is a lot less certain. It's less certain because none of the available tools strike the balance that React components introduced to the view layer. 
 
 React components have a tiny API, they are functional, simple and extremely reusable. The tiny API gives you high productivity for little necessary knowledge. Functional components are predictable and easy to reason about. They are conceptually simple, but simplicity hides architecture that makes them performant. Their simplicity, predictability and isolation makes them composable and reusable.
 
@@ -45,7 +46,7 @@ A Microstate is an JavaScript object that is created from a Microstate type. Mic
 
 Let's consider the implication of this for a minute. JavaScript objects are mutable. If you create an instance of a JavaScript class, the created objects are mutable. 
 
-**🤔 How does an immutable class instances work?**
+**🤔 How does an immutable class instance work?**
 
 This is the not the question that we set out to answer when we started working on Microstates in 2016, but it's one of the question that we believe Microstates is answering.
 
@@ -56,7 +57,7 @@ The challenge with answering this question is that it uproots a lot of what we k
 Instance methods are functions that can modify properties of the object. For example, `setFirstName` might modify the `firstName` on an instance of `Person`.
 
 ```js
-// typical JavaScript class (not Microstate)
+/* regular class */
 class Person {
   constructor({ firstName, lastName }) {
     this.firstName = firstName;
@@ -78,7 +79,7 @@ But what if the instance is immutable, `setFirstName` must return a new instance
 Let's see what this would look like with a Microstate.
 
 ```js
-// this is a Microstate type
+/* microstate class type */ // these comments are FYI, they have no code purpose
 class Person {
   firstName = String;
   lastName = String;
@@ -107,7 +108,7 @@ Tracking property changes is not possible in pure JavaScript, as a result there 
 Consider the following example,
 
 ```js
-// regular JavaScript class
+/* regular class */
 class Shop {
   constructor({ products, filter }) {
     this.products = products;
@@ -140,8 +141,7 @@ immutable. There is no need for property tracking, since properties can not chan
 Here is how this example would look in Microstates,
 
 ```js
-// Microstate type 
-// (these annotations are for the readers, they don't do anything special)
+/* microstate class type */
 class Shop {
   products = [Product]
   filter = String
@@ -186,7 +186,7 @@ We can't expect to get same objects, but we should at least get instances of cla
 Let's see what that actually does. You can play with this example in [▶ RunKit](https://runkit.com/taras/valueof-javascript-class).
 
 ```js
-// regular JavaScript class
+/* regular class */
 class Shop {
   constructor({ products, filter }) {
     this.products = products.map(product => new Product(product));
@@ -225,12 +225,13 @@ restored instanceof Shop
 We need an easier way to serialize and deserialize complex data structures. Microstates can do this for you because Microstates are designed to be serializable. Let's see what that would look like. You can run this example in [▶ RunKit](https://runkit.com/taras/serializing-deserializing-a-microstate)
 
 ```js
+/* microstate class type */
 class Shop {
   products = [Product]
   filter = String
 
   get filtered() {
-      return this.products.filter(product => product.category === this.filter);
+    return this.products.filter(product => product.category === this.filter);
   }
 }
 
@@ -833,7 +834,7 @@ class Color {
 }
 
 class RedLight {
-  
+
   walk() {
     throw new Error(`Are you crazy?`);
   }
