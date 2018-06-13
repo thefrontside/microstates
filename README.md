@@ -541,7 +541,7 @@ last.valueOf();
 
 This mechanism provides is the starting point for integration between Observables ecosystem and Microstates. 
 
-## `microstates` package
+## `microstates` npm package
 
 The `microstates` package provides the `Microstate` class and functions that operate on microstate objects.
 
@@ -550,7 +550,7 @@ You can import microstates library using,
 ```bash
 npm install microstates
 
-or 
+# or 
 
 yarn add microstates
 ```
@@ -766,6 +766,94 @@ The value of the new object will be changed.
     { name: 'Bart', age: 10 } ] 
   ]
 }
+```
+
+### Transitions
+
+`set` transition is available on all types. All other transitions are type specific. Microstates determines what transitions can be performed on each type based on transitions that each type defines. 
+
+Primitive types have the following transitions,
+- `Boolean` 
+  - `toggle(): microstate` - return a microstate with opposite boolean value
+- `String`
+  - `concat(str: String): microstate` - return a microstate with `str` added to the end of the current value
+- `Number`
+  - `increment(step = 1: Number): microstate` - return a microstate with number decreased by `step`, default is 1.
+  - `decrement(step = 1: Number): microstate` - return a microstate with number decreased by `step`, default is 1.
+- `Object`
+  - `assign(object): microstate` - return a microstate after merging object into current object.
+  - `put(key: String, value: Any): microstate` - return a microstate after adding value at given key.
+  - `delete(key: String): microstate` - return a microstate after removing property at given key.
+- `Array`
+  - `map(fn: (microstate) => microstate): microstate` - return a microstate after applying the mapping function to each element in the array. For each element, the mapping function will receive the microstate for that element. Any transitions performed in the mapping function will be included in the final result.
+  - `push(value: any): microstate` - return a microstate after adding value to the end of the array. 
+  - `pop(): microstate` - return a microstate after removing last element from array.
+  - `shift(): microstate` - return a microstate after removing first element from array.
+  - `unshift(): microstate` - return a microstate after adding an element to the beginning of the array.
+  - `filter(fn: state => boolean): microstate` - return a microstate after invoking a predicate each element of the array. The predicate function will receive state of each element in the array. If you return a falsy value from the predicate, the item will be removed from the returned microstate.
+  - `clear(): microstate` - return a microstate after removing everything from the array.
+
+`class` type transitions are defined by the developer. These transitions are domain specific and highly specialized depending on the needs of the data. Transitions are expected to be pure functions which means that they do not have side effects. 
+
+All transitions are atomic, meaning that they are only able to reference transition on current microstate and composed microstates. This makes it possible for a Type to be composed in other types without worrying about changing any of the type's transitions. 
+
+Here is what you need to know `class` type transtions.
+
+```js
+class Person {
+  name = String;
+  age = String;
+  
+  changeIdentity({ name, age }) {
+    // `this` here is the microstate
+    // here you have access to all composed types and state property
+    if (this.age.state > 18) {
+      return this
+        .name.set(name)
+        .age.set(age); // you can perform multiple operations in sequence
+    }
+    return this;
+  }
+}
+```
+
+Your transitions must return a microstate, but they don't have to return a microstate of the same type. When your transition returns a microstate of a different type, the new type will replace the previous type in the new microstate. This mechanism can be used to build state machines that have different transitions depending on type.
+
+```js
+import { create } from 'microstates';
+
+class Color {
+  initialize(color) {
+    switch(color) {
+      case 'red': return create(RedLight, {});
+      case 'green': return create(GreenLight, {});
+      case 'yellow': return create(YellowLight, {});
+    }
+  }
+}
+
+class RedLight {
+  
+  walk() {
+    throw new Error(`Are you crazy?`);
+  }
+}
+
+class GreenLight {
+  walk() {
+    return this;
+  }
+}
+
+class Trafficlight {
+  color = Color;
+
+  changeColor() {
+
+  }
+
+}
+
 ```
 
 
