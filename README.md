@@ -5,26 +5,25 @@
 
 # Microstates
 
-Composable State Primitives with GraphQL inspired API     
+Composable State Primitives with a GraphQL inspired API.
 
-Microstates is a functional runtime type system for declaratively describing immutable state transitions of deeply nested state objects designed to ease state management in component based applications.
+Microstates is a functional runtime type system designed to ease state management in component based applications. It allows to declaratively compose application state tree from atomic finite . 
 
 By combining lazy execution, algebraic data types and structural sharing, we created
-a tool that provides a tiny API to describe complex data structures and provide a
-mechanism to change the value in immutable way.
+a tool that provides a tiny API to describe complex data structures and provide a mechanism to change the value in immutable way.
 
 ## Features
 
 With microstates added to your project, you get: 
 
-- 🍣 Composable hierarhical type system
-- 🍱 Extremely reusable state atoms 
+- 🍇 Composable hierarhical type system
+- 🍱 Reusable state atoms 
 - 💎 Pure immutable state transitions without reducers
-- ⚡️ Lazy and syncronous by default
-- 🔭 Optional integration with Observables
+- ⚡️ Lazy and synchronous by default
 - 🦋 Easiest way to express state machines
 - 🎯 Transpilation free type system
 - ⚛ Use in Node.js and web applications
+- 🔭 Optional integration with Observables
 
 But, most imporantly, Microstates makes working with **state fun**. 
 
@@ -42,226 +41,218 @@ It's not easy to find the right balance between simplicity and power, but consid
 
 ## What is a Microstate?
 
-A Microstate is an JavaScript object that is created from a Microstate type. Microstate types are similar to JavaScript classes except instances created from Microstate types are immutable, which means that they can not be modified after they were created. To modify an immutable object, you must create a copy of the original object with the change that you wish to make.
+A microstate is a JavaScript object that is created from a Microstate type and value, where type is a JavaScript constructor and value is any POJO(plain old JavaScript object). The shape and methods of the microstate are determined by the type and value that it contains. A microstate represents a single state that is constructored from type and value. All methods on the microstate object will return another microstate that is a result of an immutable transition that is derived from the original microstate.
 
-Let's consider the implication of this for a minute. JavaScript objects are mutable. If you create an instance of a JavaScript class, the created objects are mutable. 
+### Types
 
-**🤔 How does an immutable class instance work?**
+The type describes the structure of the microstate and all of the transitions that can be performed on microstates of this type. Microstates comes with 5 primitive types: `Boolean`, `Number`, `String`, `Object` and `Array`, two parameterized types `[Type]` and `{Type}` and `class` types. 
 
-This is the not the question that we set out to answer when we started working on Microstates in 2016, but it's one of the question that we believe Microstates is answering.
+The primitive types have predefined transitions,
 
-The challenge with answering this question is that it uproots a lot of what we know about working with JavaScript classes. Let's consider some of these and see where it takes us.
+- `Boolean` 
+  - `toggle(): microstate` - return a microstate with opposite boolean value
+- `String`
+  - `concat(str: String): microstate` - return a microstate with `str` added to the end of the current value
+- `Number`
+  - `increment(step = 1: Number): microstate` - return a microstate with number decreased by `step`, default is 1.
+  - `decrement(step = 1: Number): microstate` - return a microstate with number decreased by `step`, default is 1.
+- `Object`
+  - `assign(object): microstate` - return a microstate after merging object into current object.
+  - `put(key: String, value: Any): microstate` - return a microstate after adding value at given key.
+  - `delete(key: String): microstate` - return a microstate after removing property at given key.
+- `Array`
+  - `map(fn: (microstate) => microstate): microstate` - return a microstate with mapping function applied to each element in the array. For each element, the mapping function will receive the microstate for that element. Any transitions performed in the mapping function will be included in the final result.
+  - `push(value: any): microstate` - return a microstate with value added to the end of the array. 
+  - `pop(): microstate` - return a microstate with last element removed from the array.
+  - `shift(): microstate` - return a microstate with element removed from the array.
+  - `unshift(value: any): microstate` - return a microstate with value added to the beginning of the array.
+  - `filter(fn: state => boolean): microstate` - return a microstate with filtered array. The predicate function will receive state of each element in the array. If you return a falsy value from the predicate, the item will be excluded from the returned microstate.
+  - `clear(): microstate` - return a microstate with an empty array.
 
-### Instance Methods
+Many transitions on primitive type are similar to methods on original classes. The biggest difference is that all microstate transitions return derived microstate. This quality of transitions is imporant because it enables types to be composed.
 
-Instance methods are functions that can modify properties of the object. For example, `setFirstName` might modify the `firstName` on an instance of `Person`.
+### Type Composition
+
+Composition is the process of creating bigger things from smaller reusable things. Microstates allows custom types to be created by composing primitive types and other custom types. Custom types are called `class` types. They look similar to regular JavaScript classes but they must confirm to certain conventions that allow them to be composable.
+
+#### Defining class types
+
+To define a class type with Microstates, you define a regular JavaScript class and use class properties(aka class fields) to describe where nested microstates will be create when a microstate is created from this type. 
+
+Let say we wanted to create a microstate representing a person. 
+
+We might do something like this,
 
 ```js
-/* regular class */
-class Person {
-  constructor({ firstName, lastName }) {
-    this.firstName = firstName;
-    this.lastName = lastName;
-  }
+import { create } from 'microstates'
 
-  setFirstName(firstName) {
-    this.firstName = firstName;
-  }
+class Person {        
+  name = String
+  age = Number       
 }
 
-let homer = new Person({ firstName: 'Homer', lastName: 'Simpson' });
-
-homer.setFirstName('Homer J');
+let person = create(Person, { name: 'Homer', age: 39 });
 ```
 
-But what if the instance is immutable, `setFirstName` must return a new instance of `Person` class without modifying the original object. This raises another question, how do you create a copy of an instance of a class? I won't answer this question here, but I'll just say that Microstates does it.
+The created microstate object look like this,
 
-Let's see what this would look like with a Microstate.
-
-```js
-/* microstate class type */ // these comments are FYI, they have no code purpose
-class Person {
-  firstName = String;
-  lastName = String;
-
-  setFirstName(firstName) {
-    return this.firstName.set(firstName);
-  }
-}
-
-import { create } from 'microstates';
-
-let homer = create(Person, { firstName: 'Homer', lastName: 'Simpson' });
-
-// original homer is unmodified
-let homerJ = homer.setFirstName('Homer J');
+```txt
++----------------------+                    
+|                      |       +--------------------+ 
+|  Microstate<Person>  +-name--+                    +-concat()->
+|                      |       | Microstate<String> +-set()->
+|                      |       |                    +-state: 'Homer'
+|                      |       +--------------------+
+|                      |
+|                      |       +--------------------+ 
+|                      +-age---+                    +-increment()->
+|                      |       | Microstate<Number> +-decrement()->
+|                      |       |                    +-set()->
+|                      |       |                    +-state: 39
+|                      |       +--------------------+
+|                      |
+|                      +-set()->
+|                      +-state: Person { name: 'Homer', age: 39 }
++----------------------+
 ```
 
-Unlike a regular JavaScript class methods which imperatively mutate objects they have access to, Microstates types declaratively describe what should be different in the copy that's returned from the method.
+The `person` microstate has name & age properties. Each property is a complete microstate but for it's type and for it's part of the value. Each microstate has a state property. State is immutable instance of the class. 
 
-### Getters
+### Composing class types from other class types
 
-Getters on JavaScript objects are evaluated everytime that a getter is read. This can very wasteful when properties of an object haven't changed. Frameworks like Ember and Vue have *computed properties* which memoize computations and automatically recompute when a property changes. 
+`class` types can compose other `class` types. This makes it possible to build complex data structures that accurately describe your domain. Since Microstates are atomic and all transitions return microstates, Microstates can automatically handle transitions regardless of how your `class` types are composed. 
 
-Tracking property changes is not possible in pure JavaScript, as a result there is no safe way to cache getters on JavaScript objects. This limitation of getters can lead to very suble performance problems when used in frameworks like React that use shallow equality to determine if components need to rerender.
-
-Consider the following example,
+Let's define another type that composes the person type.
 
 ```js
-/* regular class */
-class Shop {
-  constructor({ products, filter }) {
-    this.products = products;
-    this.filter = filter;
-  }
-
-  get filtered() {
-    return this.products.filter(product => product.category === this.filter);
-  }
-}
-
-let filter = 'clothing';
-let products = [ 
-  { name: 'Pants', category: 'clothing' },
-  { name: 'Shirt', category: 'clothing' },
-  { name: 'Watch', category: 'accessory' }
-]
-
-let shop = new Shop({ products, filter });
-
-shop.filtered === shop.filtered
-//> false
-```
-
-If you passed `shop.filtered` to a React component, this React component would re-render every time that the parent component's render function is called even though neither `products` nor `filter` is changed.
-
-This is a very different story in Microstates because Microstate instances are 
-immutable. There is no need for property tracking, since properties can not change. It's safe to automatically cache getters because for any state they can only ever have one result. 
-
-Here is how this example would look in Microstates,
-
-```js
-/* microstate class type */
-class Shop {
-  products = [Product]
-  filter = String
-
-  get filtered() {
-    return this.products.filter(product => product.category === this.filter);
-  }
-}
-
-class Product {
+class Car {
+  designer = Person;
   name = String;
-  category = String;
 }
 
-let filter = 'clothing';
-let products = [ 
-  { name: 'Pants', category: 'clothing' },
-  { name: 'Shirt', category: 'clothing' },
-  { name: 'Watch', category: 'accessory' }
-]
-
-import { create } from 'microstates';
-
-let shop = create(Shop, { products, filter });
-
-shop.state.filtered === shop.state.filtered
-//> true
+let theHomerCar = create(Car, {
+  designer: { name: 'Homer', age: 39 },
+  name: 'The Homer'
+});
 ```
 
-Cached getters in Microstates make cached computed properties available in all frameworks, not just Vue and Ember. For those familiar with Reselect, cached getters can replace Reselect for most applications.
+`theHomerCar` object will have the following shape,
 
-### Serialization & Deserialization
+```txt
++-------------------+           +----------------------+                    
+|                   |           |                      |       +--------------------+ 
+|  Microstate<Car>  |           |  Microstate<Person>  +-name--+                    +-concat()->
+|                   |           |                      |       | Microstate<String> +-set()->
+|                   +-designer--+                      |       |                    +-state: 'Homer'
+|                   |           |                      |       +--------------------+
+|                   |           |                      |
+|                   |           |                      |       +--------------------+ 
+|                   |           |                      +-age---+                    +-increment()->
+|                   |           |                      |       | Microstate<Number> +-decrement()->
+|                   |           |                      |       |                    +-set()->
+|                   |           |                      |       |                    +-state: 39
+|                   |           |                      |       +--------------------+
+|                   |           |                      |
+|                   |           |                      +-set()->
+|                   |           |                      +-state: Person<{ name: 'Homer', age: 39 }>
+|                   |           +----------------------+
+|                   |
+|                   |           +--------------------+ 
+|                   +-name------+                    +-concat()->
+|                   |           | Microstate<String> +-set()->
+|                   |           |                    +-state: 'The Homer'
+|                   |           +--------------------+
+|                   |
+|                   +-set()->
+|                   +-state: Car<{ designer: Person<{ name: 'Homer', age: 39 }> }, name: 'The Homer' }>
++-------------------+
+```
 
-Serialization is the process of converting class instances into plain JavaScript objects (aka POJOs) that can be saved as JSON. Deserialization is the opposite process of converting the JSON to JavaScript class instances. 
-
-**How can you serialize a JavaScript class instances?**
-
-In JavaScript, all objects have a `valueOf` method. [According to MDN](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object/valueOf), *the valueOf() method returns the primitive value of the specified object*. In theory, we should be able to take the primitive value of a class, serialize it to JSON, then restore with `JSON.parse`. 
-
-We can't expect to get same objects, but we should at least get instances of classes so we use methods and getters on these objects.
-
-Let's see what that actually does. You can play with this example in [▶ RunKit](https://runkit.com/taras/valueof-javascript-class).
+The property names are important when defining `class` types because they are used to reference composed microstates. You can use the object dot notation to access a composed microstate. Using the same example from 
 
 ```js
-/* regular class */
-class Shop {
-  constructor({ products, filter }) {
-    this.products = products.map(product => new Product(product));
-    this.filter = filter;
-  }
+theHomerCar.designer.state
+//> Person<{ name: 'Homer', age: 39 }>
 
-  get filtered() {
-    return this.products.filter(product => product.category === this.filter);
-  }
-}
+theHomerCar.designer.age.state
+//> 39
 
-class Product {
-    constructor({ name, category }) {
-        this.name = name;
-        this.category = category;
-    }
-}
-
-let filter = 'clothing';
-let products = [ 
-  { name: 'Pants', category: 'clothing' },
-  { name: 'Shirt', category: 'clothing' },
-  { name: 'Watch', category: 'accessory' }
-]
-
-let shop = new Shop({ products, filter });
-
-let restored = JSON.parse(JSON.stringify(shop.valueOf()));
-
-restored instanceof Shop
-//> false
+theHomerCar.name.state
+//> The Homer
 ```
 
-`shop.valueOf()` doesn't give you a primitive value, because `valueOf` class instance returns the shop object. It doesn't return a primivite value of the object, it returns the same object. `JSON.parse/JSON.stringify` are not enough because these functions don't know how to convert your POJOs into instances. If you look closely, you'll see that actually deserialization is done manually in the constructor. This gets very complicated with complex data structures and inpractical when you have complex relationships between data.
+### Parameterized Types
 
-We need an easier way to serialize and deserialize complex data structures. Microstates can do this for you because Microstates are designed to be serializable. Let's see what that would look like. You can run this example in [▶ RunKit](https://runkit.com/taras/serializing-deserializing-a-microstate)
+Quiet often it is helpful to describe your data as a collection of types. A blog might have an array of posts. To do this, you can use the parameterized array notation, `[Post]`. This signals to microstates that the microstate represents the state of an array collection of `Post` type. 
 
 ```js
-/* microstate class type */
-class Shop {
-  products = [Product]
-  filter = String
-
-  get filtered() {
-    return this.products.filter(product => product.category === this.filter);
-  }
+class Blog {
+  posts = [Post]
 }
 
-class Product {
-  name = String;
-  category = String;
+class Post {
+  id = Number;
+  title = String;
 }
 
-let filter = 'clothing';
-let products = [ 
-  { name: 'Pants', category: 'clothing' },
-  { name: 'Shirt', category: 'clothing' },
-  { name: 'Watch', category: 'accessory' }
-]
+let blog = create(Blog, { 
+  posts: [
+    { id: 1, title: 'Hello World' }, 
+    { id: 2, title: 'Most fascinating blog in the world' }
+  ] 
+});
 
-import { create } from 'microstates';
+blog.posts[0].state
+//> Post<{ id: 1, title: 'Hello World' }>
 
-let shop = create(Shop, { products, filter });
-
-shop.valueOf();
-// give you the value that can be used to restore the state
+blog.posts[1].state
+//> Post<{ id: 2, title: 'Most fascinating blog in the world' }>
 ```
 
-Microstates actually does deserialization by default. When you create a Microstate object, you provide the `create` function with the type and a POJO that represents the value. Microstates internally will create all of the instances using the type as a blueprint for the final state. 
+When you're working with parameterized types, the shape of the microstate is determined by the value. In this case, `posts` is created with two items which will create a microstate with two items. Each item will be a microstate of type `Post`. If you push another item the `posts` microstate, it'll be treated as a `Post`.
 
-As discussed earlier, Microstates methods return copies that are derived from original microstate. These copies will have a new value. This allows to serialize/deserialize a type to any derived state. 
+```js
+let blog2 = blog.posts.push({ id: 3, title: 'It is only getter better' });
 
-For those familiar with tools like ReactDevTools and time travel debugging, Microstates makes it possible to use these kinds of tools on individual Microstate level. Microstates can work like tiny Redux stores where you don't have to write reducers while still get the benefits of time travel debugging.
+blog2.posts[2].state
+//> Post<{ id: 3, title: 'It is only getter better' }>
+```
 
-In summary, Microstates are immutable JavaScript objects that are serializable, allow you to cache getters and provide a mechanism to declaratively derive next state using class like instance methods. They look like regular JavaScript classes but they hold conventions and performance improvements for state composed of many smaller states.
+You can also create a parameterized object with `{Post}`. The difference is that the collection is treated as an object. This can be helpful when create normalized data stores.
+
+```js
+class Blog {
+  posts = {Post}
+}
+
+class Post {
+  id = Number;
+  title = String;
+}
+
+let blog = create(Blog, { 
+  posts: {
+    "1": { id: "1", title: 'Hello World' }, 
+    "2": { id: 2, title: 'Most fascinating blog in the world' }
+  }
+});
+
+blog.posts['0'].state
+//> Post<{ id: 1, title: 'Hello World' }>
+
+blog.posts['1'].state
+//> Post<{ id: 2, title: 'Most fascinating blog in the world' }>
+```
+
+Parameterized objects have `Object` type transitions which allow you to use `assign` and `put`.
+
+```js
+let blog2 = blog.posts.put('3', { id: 3, title: 'It is only getter better' });
+
+blog2.posts['3'].state
+//> Post<{ id: 3, title: 'It is only getter better' }>
+```
+
 
 ## Why Microstates?
 
@@ -634,7 +625,7 @@ loggedNumber.increment();
 // after increment value is 43
 ```
 
-### Microstates class
+### Microstate class
 
 Microstates class is only really useful for checking if something is an instance of a Microstate. You should not use `new Microstate()`. It's used internally to create new microstates but for most cases `create` function should be used.
 
@@ -733,7 +724,7 @@ Microstate<Group>--+
                                                + Microstate<Number>
 ```
 
-`[Person]` means that `members` property is an array of `People` instances. These kinds of types are called parameterized arrays. The number of items in that array depends on it's value. Any object in that array will be created as a `Person`. 
+ `members = [Person]` tells Microstates that `members` property is an array of `People` types. These kinds of types are called parameterized arrays. The number of items in that array depends on it's value. Any object in that array will be created as a `Person`. 
 
 To access objects in parameterized arrays, you can use the array notation.
 
