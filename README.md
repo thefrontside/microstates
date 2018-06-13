@@ -639,9 +639,134 @@ Microstates class is only really useful for checking if something is an instance
 
 ## Type Composition DSL
 
-Type Composition DSL (domain specific langulage) is used to describe the shape of data and operations that you can perform on that data. Microstates uses pure JavaScript for its DSL with the exception of [Class Properties (aka Class Fields) which are Stage 3 proposal](https://github.com/tc39/proposal-class-fields). `create-react-app` includes class properties transpiler. You can use [@babel/plugin-proposal-class-properties](https://github.com/babel/babel/tree/master/packages/babel-plugin-proposal-class-properties) or checkout `what if I can't use class syntax?` section of the FAQ.
+Type Composition DSL (domain specific langulage) is used to describe the shape of data and operations that you can perform on that data. 
 
+Microstates uses pure JavaScript for its DSL with the exception of [Class Properties (aka Class Fields)](https://github.com/tc39/proposal-class-fields) which are a Stage 3 proposal. `create-react-app` includes class properties transpiler. You can use [@babel/plugin-proposal-class-properties](https://github.com/babel/babel/tree/master/packages/babel-plugin-proposal-class-properties) or checkout *what if I can't use class syntax?* section of the FAQ.
 
+The primary purpose of the DSL is to give developers a way to declaratively describe their data and how that data can change. Microstates uses a run time type system to understand your data. It has 6 built in types: `Boolean`, `Number`, `String`, `Object` and `Array`, two parameterized types `[Type]` and `{Type}` and `class` types. You already saw some of these types in action earlier in the README.
+
+Microstates uses this type information to extract 3 pieces of information from your types.
+
+1. Type Hiearchy
+2. Transitions
+3. State
+
+### Type Hierarchy
+
+When you define a `class` type, you're telling Microstates what the hiearchy should be. The hierarchy is used to provide access to compose microstates via dot notation. 
+
+For example from this type,
+
+```js
+class Person {        
+  name = String;      
+  age = Number;       
+}
+```
+
+We get the following microstate,
+
+```txt
+                     + Microstate<String>
+                    /
+                   /name
+                  /
+Microstate<Person>
+                  \
+                   \age
+                    \
+                     + Microstate<Number>
+```
+
+Each microstate has on it transitions for that type and in that particular location in the microstate. You can use object notation to access composed microstate. 
+
+```js
+let person = create(Person, { name: 'Homer', age: 39 });
+
+person.name
+//> Microstate<String>
+
+person.age
+//> Microstate<Number>
+```
+
+The same hiearchy is used when reading values.
+
+```js
+let person = create(Person, { name: 'Homer', age: 39 });
+    // |                        ^              ^
+    // name------value----------+              |
+    // age-------value-------------------------+
+```
+
+This is the foundation of composition of Microstates. This pattern allows you to compose these types as necesarry to accurately reflect your data. 
+
+For example, we can create a group of people,
+
+```js
+class Group {
+  members = [Person]
+}
+```
+
+```txt
+Microstate<Group>--+
+                   |                           + Microstate<String>
+                   |                          /
+                   |                         /name
+                   |                        /
+                   +- 0 - Microstate<Person>
+                   |                        \
+                   |                         \age
+                   |                          \
+                   |                           + Microstate<Number>
+                   |
+                   |                           + Microstate<String>
+                   |                          /
+                   |                         /name
+                   |                        /
+                   +- 1 - Microstate<Person>
+                                            \
+                                             \age
+                                              \
+                                               + Microstate<Number>
+```
+
+`[Person]` means that `members` property is an array of `People` instances. These kinds of types are called parameterized arrays. The number of items in that array depends on it's value. Any object in that array will be created as a `Person`. 
+
+To access objects in parameterized arrays, you can use the array notation.
+
+```js
+let group = create(Group, { members: [ { name: 'Homer', age: 39 }, { name: 'Bart', age: 10 } ] });
+
+group.members[0].state                 
+                //> Person                  |              |          |              |
+                // name------value----------+              |          |              |
+                // age-------value-------------------------+          |              |
+                                                          //          |              |
+group.members[1].state                                    //          |              |
+                //> Person                                            |              |
+                // name------value------------------------------------+              |
+                // age-------value---------------------------------------------------+
+```
+
+This hierarchy is used to determine how the value should be changed. When you call a transition on one of the composed types, the value is modified in the same place.
+
+```js
+let group2 = group.members[0].age.increment();
+```
+
+The value of the new object will be changed.
+
+```diff
+{ 
+  members: [ 
+-   { name: 'Homer', age: 39 }, 
++   { name: 'Homer', age: 40 }, 
+    { name: 'Bart', age: 10 } ] 
+  ]
+}
+```
 
 
 ## FAQ
