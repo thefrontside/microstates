@@ -7,31 +7,29 @@
 
 Composable State Primitives with a GraphQL inspired API.
 
-Microstates is a functional runtime type system designed to ease state management in component based applications. It allows to declaratively compose application state tree from atomic finite state machines.
+Microstates is a functional runtime type system designed to ease state management in component based applications. It allows to declaratively compose application state from atomic state machines.
 
 By combining lazy execution, algebraic data types and structural sharing, we created
-a tool that provides a tiny API to describe complex data structures and provide a mechanism to change the value in immutable way.
+a tool that provides a tiny API to describe complex data structures and provide a mechanism to change the value in an immutable way.
 
 ## Features
 
 With microstates added to your project, you get:
 
-* 🍇 Composable hierarhical type system
+* 🍇 Composable type system
 * 🍱 Reusable state atoms
-* 💎 Pure immutable state transitions without reducers
-* ⚡️ Lazy and synchronous by default
+* 💎 Pure immutable state transitions without writing reducers
+* ⚡️ Lazy and synchronous out of the box
 * 🦋 Easiest way to express state machines
 * 🎯 Transpilation free type system
-* ⚛ Use in Node.js and web applications
 * 🔭 Optional integration with Observables
+* ⚛ Use in Node.js and browser
 
-But, most imporantly, Microstates makes working with **state fun**.
+But, most imporantly, Microstates makes working with state fun.
 
-## 🤗 Having fun with state
+**When was the last time you had fun working with state?**
 
-When was the last time you had fun working with state in JavaScript applications? 
-
-For many, the answer is probably never because state management in JavaScript is an endless game of choosing from compromises. You can choose to go fully immutable and end up writing endless reducers. You can go mutable and everything magically becomes an observable. Or you can `setState` and loose the benefit of serialization and time travel debugging.
+For many, the answer is probably never, because state management in JavaScript is an endless game compromises. You can choose to go fully immutable and write endless reducers. You can go mutable and everything becomes an observable. Or you can `setState` and loose the benefit of serialization and time travel debugging.
 
 Unlike the view layer, where most frameworks agree on some variation of React components, state management is a lot less certain. It's less certain because none of the available tools strike the balance that React components introduced to the view layer.
 
@@ -409,8 +407,7 @@ authenticated.valueOf();
 
 ### initialize transition
 
-Initialize transition converts value into a microstate when a microstate is being created with the `create` function. The initialize transition is invoked for every microstate that declares one.
-They are called from top to bottom, meaning that a parent microstate is initalized before the children. This is imporant because the parent microstate can change which children are initialized.
+Initialize transition converts value into a microstate when a microstate is being created with the `create` function. The initialize transition is invoked for every microstate that declares one. They are called from top to bottom, meaning that a parent microstate is initalized before the children. This is imporant because the parent microstate can change which children are created.
 
 You can use this mechanism to change the value that is used to initialize children microstates.
 
@@ -671,11 +668,11 @@ last.valueOf();
 This mechanism provides is the starting point for integration between Observables ecosystem and Microstates.
 
 
-## Microstates Vision
+# Th Vision of Microstates
 
 What would an ecosystem of shared state primitives give us?
 
-### Shared Solutions
+## Shared Solutions
 
 Imagine never having to write another normalized data store again because someone made a normalized data store Microstate that you can compose into your app's Microstate.
 
@@ -693,7 +690,7 @@ The knowledge about building normalized data stores is available in libraries li
 
 As time and resource permit, we hope to create a solution that will be flexible enough for use in most applications. If you're interested in helping us with this, please reach out.
 
-### Added Flexibility
+## Added Flexibility
 
 Imagine if your favourite Calendar component came with a Microstate that allowed you to customized the logic of the calendar without touching the rendered output. It might looks something like this,
 
@@ -713,9 +710,9 @@ class MyCalendar extends Calendar.Model {
 <Calendar.Component model={MyCalendar} />;
 ```
 
-At these point, these are psycode, but Microstates was architectured to allow these kinds of solutions to be created.
+At these point, these are pseudo, but Microstates was architectured to allow these kinds of solutions to be created.
 
-### Framework Agnostic Solutions
+## Framework Agnostic Solutions
 
 Competition moves our industry forward but concensus builds ecosystems.
 
