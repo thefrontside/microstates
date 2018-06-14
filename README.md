@@ -7,7 +7,7 @@
 
 Composable State Primitives with a GraphQL inspired API.
 
-Microstates is a functional runtime type system designed to ease state management in component based applications. It allows to declaratively compose application state tree from atomic finite . 
+Microstates is a functional runtime type system designed to ease state management in component based applications. It allows to declaratively compose application state tree from atomic finite state machines. 
 
 By combining lazy execution, algebraic data types and structural sharing, we created
 a tool that provides a tiny API to describe complex data structures and provide a mechanism to change the value in immutable way.
@@ -46,30 +46,6 @@ A microstate is a JavaScript object that is created from a Microstate type and v
 ### Types
 
 The type describes the structure of the microstate and all of the transitions that can be performed on microstates of this type. Microstates comes with 5 primitive types: `Boolean`, `Number`, `String`, `Object` and `Array`, two parameterized types `[Type]` and `{Type}` and `class` types. 
-
-The primitive types have predefined transitions,
-
-- `Boolean` 
-  - `toggle(): microstate` - return a microstate with opposite boolean value
-- `String`
-  - `concat(str: String): microstate` - return a microstate with `str` added to the end of the current value
-- `Number`
-  - `increment(step = 1: Number): microstate` - return a microstate with number decreased by `step`, default is 1.
-  - `decrement(step = 1: Number): microstate` - return a microstate with number decreased by `step`, default is 1.
-- `Object`
-  - `assign(object): microstate` - return a microstate after merging object into current object.
-  - `put(key: String, value: Any): microstate` - return a microstate after adding value at given key.
-  - `delete(key: String): microstate` - return a microstate after removing property at given key.
-- `Array`
-  - `map(fn: (microstate) => microstate): microstate` - return a microstate with mapping function applied to each element in the array. For each element, the mapping function will receive the microstate for that element. Any transitions performed in the mapping function will be included in the final result.
-  - `push(value: any): microstate` - return a microstate with value added to the end of the array. 
-  - `pop(): microstate` - return a microstate with last element removed from the array.
-  - `shift(): microstate` - return a microstate with element removed from the array.
-  - `unshift(value: any): microstate` - return a microstate with value added to the beginning of the array.
-  - `filter(fn: state => boolean): microstate` - return a microstate with filtered array. The predicate function will receive state of each element in the array. If you return a falsy value from the predicate, the item will be excluded from the returned microstate.
-  - `clear(): microstate` - return a microstate with an empty array.
-
-Many transitions on primitive type are similar to methods on original classes. The biggest difference is that all microstate transitions return derived microstate. This quality of transitions is imporant because it enables types to be composed.
 
 ### Type Composition
 
@@ -252,6 +228,43 @@ let blog2 = blog.posts.put('3', { id: 3, title: 'It is only getter better' });
 blog2.posts['3'].state
 //> Post<{ id: 3, title: 'It is only getter better' }>
 ```
+
+## Transitions
+
+Transitions are defined on 
+
+### Primitive type transitions
+
+The primitive types have predefined transitions,
+
+- `Boolean` 
+  - `toggle(): microstate` - return a microstate with opposite boolean value
+- `String`
+  - `concat(str: String): microstate` - return a microstate with `str` added to the end of the current value
+- `Number`
+  - `increment(step = 1: Number): microstate` - return a microstate with number decreased by `step`, default is 1.
+  - `decrement(step = 1: Number): microstate` - return a microstate with number decreased by `step`, default is 1.
+- `Object`
+  - `assign(object): microstate` - return a microstate after merging object into current object.
+  - `put(key: String, value: Any): microstate` - return a microstate after adding value at given key.
+  - `delete(key: String): microstate` - return a microstate after removing property at given key.
+- `Array`
+  - `map(fn: (microstate) => microstate): microstate` - return a microstate with mapping function applied to each element in the array. For each element, the mapping function will receive the microstate for that element. Any transitions performed in the mapping function will be included in the final result.
+  - `push(value: any): microstate` - return a microstate with value added to the end of the array. 
+  - `pop(): microstate` - return a microstate with last element removed from the array.
+  - `shift(): microstate` - return a microstate with element removed from the array.
+  - `unshift(value: any): microstate` - return a microstate with value added to the beginning of the array.
+  - `filter(fn: state => boolean): microstate` - return a microstate with filtered array. The predicate function will receive state of each element in the array. If you return a falsy value from the predicate, the item will be excluded from the returned microstate.
+  - `clear(): microstate` - return a microstate with an empty array.
+
+Many transitions on primitive type are similar to methods on original classes. The biggest difference is that all microstate transitions return derived microstate. This quality of transitions is imporant because it enables types to be composed.
+
+### Scope rules
+
+Microstates are designed to be composable. For types to be composable, they must be fully functional when they are composed into any type. For this reason, types do not know about their context. Types only have access to types that are composed into them. 
+
+This is similar to how components work. The parent component can render a child components and pass data to them. The child components does not have a way to reference the parent component. 
+
 
 
 ## Why Microstates?
