@@ -312,7 +312,7 @@ What I tried to show here is that the object that's created from state property 
 
 ### All getters are cached
 
-A microstate is a pure function of type and value, which means that for any type and value you can only ever have one state. We can rely on this to cache all of the computations that are derived this state. 
+A microstate is a pure function of type and value, which means that for any type and value you can only ever have one state. We can rely on this to cache all of the computations that are derived off this state. 
 
 Let's say you have some state were you need to perform a heavy computation,
 
@@ -342,11 +342,11 @@ table.state.sortedRows === table.state.sortedRows
 
 When you read this getter, it'll be evaluated and result will be cached. All future reads will return the same value. 
 
-*Note*: It's ok if you've never done this before with regular JavaScript classes. JavaScript classes that were not instantiated with Microstates are mutable and do not cache their getters. A similar example without Microstates would cause the sort function to invoked on each read. 
+*Note*: It's ok if you've never done this before with regular JavaScript classes. JavaScript classes that were not instantiated with Microstates are mutable and do not cache their getters. A similar example without Microstates would cause the sort function to be invoked on each read. 
 
 ### Reuse of immutable state instances
 
-When you create a deeply composed microstate, your state has the shape of a nesting doll. Each higher level contains all of it's children states. In this scenario, it's critical the parents reference the same state objects as the children. 
+When you create a deeply composed microstate, your state has the shape of a nesting doll. Each higher level contains all of it's children states. In this scenario, it's critical that the parents reference the same state objects as the children. 
 
 In our shop example, the state generated on app object should be the same state that's generated on product object. Let's look at the example again,
 
@@ -377,8 +377,11 @@ app.state.shop.products[0] === app.shop.products[0].state
 //    ^    state object on app, should be same as    ^ 
 ```
 
-The state is generated from another microstate, but it's the same state as on the children. This ensures we maintain `===` (exact equality) down the state tree. 
+The state is generated from another microstate, but it's the same state as on the children. This ensures we maintain `===` (exact equality) down the state tree. This is very important in most frameworks today because they have built in optimizations that rely on exact equality. 
 
+### Reuse of state instances across transitions
+
+Microstates are designed to allow construction of complex state trees. When a state tree is deeply nested, a branch of the state tree can get transitioned without effecting other branches. Branches that are uneffected by a transition should reuse their state instances. This eliminates unneccessary re-renders in frameworks that use exact equality to optimize perfomance. 
 
 ## Transitions
 
@@ -718,7 +721,7 @@ loggedNumber.increment();
 
 ## Middleware
 
-Middleware makes it possible to modify what is called before a transition is performed and what is returned by a transition. You can use it to change the outcome of a transition or emit a side effect.
+Middleware makes it possible to modify what is called before a transition is performed and what is returned by a transition. You can use it to change the outcome of a transition or emit side effects.
 
 Installation of a middleware is done in an immutable fashion as with all other operations in Microstates. To install a middleware, you must map a microstate to create a new microstate that uses the given middleware.
 
@@ -777,7 +780,7 @@ last.valueOf();
 
 This mechanism provides is the starting point for integration between Observables ecosystem and Microstates.
 
-# Th Vision of Microstates
+# The Vision of Microstates
 
 What would an ecosystem of shared state primitives give us?
 
