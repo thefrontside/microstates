@@ -379,7 +379,7 @@ app.state.shop.products[0] === app.shop.products[0].state
 
 The state is generated from another microstate, but it's the same state as on the children. This ensures we maintain `===` (exact equality) down the state tree. This is very important in most frameworks today because they have built in optimizations that rely on exact equality. 
 
-### Reuse of state instances across transitions
+### Reuse of state between transitions
 
 Microstates are designed to allow construction of complex state trees. When a state tree is deeply nested, a branch of the state tree can get transitioned without effecting other branches. Branches that are uneffected by a transition should reuse their state instances. This eliminates unneccessary re-renders in frameworks that use exact equality to optimize perfomance. 
 
