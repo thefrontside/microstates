@@ -59,19 +59,17 @@ If you're a web developer and using a framework, you might be wondering how Micr
 
 Regardless of the kind of application you're building, your application is made of code that roughly represents data, converts user input into data and presents data to the user. This traditionally has been described as MVC pattern where M, model, is data that is persisted or accumulated through user actions or input. V, view, is how that data is presented to the user, often we describe with components and C, controller, which represents the constraints that exist on the user's actions.
 
-Talking about MVC is a little passe in some communities and understandbly so because traditional MVC did not bring a lot of comfort to early adopters in web frameworks. Of the early adopters, only a few MVCish frameworks are left, but regardless of the popularity of the term, the architectural pattern is still a big part of our applications.
+Talking about MVC is a little passe in some communities and understandbly so because traditional MVC did not bring a lot of comfort to early adopters of web frameworks. Of the early adopters, only a few MVCish frameworks are left, but regardless of the popularity of the term, the architectural pattern is still a big part of our applications.
 
 What we're seeing now is the discovery of what MVC looks like in modern web applications. One thing that most of us can agree on is that our views are now called components. Over the last 5 years, we saw a lot of competition in the view layer to make the most performant and ergonomic view building developer experience.
 
 ### Functional Models
 
-The view boom was in big part ignited by the introduction of React. With React, came the introduction and mass adoption of functional programming ideas in the JavaScript ecosystem. Functional programming brought a lot of simplicity to the view layer. It is conceptually simple - a component is a function that takes props and returns DOM. This simplicity helped developers learn React and has been adopted to a varied degree by most frameworks. The API that each frameworks exposes to their view is somewhat different but the general idea is the same.
+The view boom was in big part ignited by the introduction of React. With React, came the introduction and mass adoption of functional programming ideas in the JavaScript ecosystem. Functional thinking brought a lot of simplicity to the view layer. It is conceptually simple - a component is a function that takes props and returns DOM. This simplicity helped developers learn React and has been adopted to a varied degree by most frameworks. The API that each frameworks exposes to their view is somewhat different but the general idea is the same.
 
-Microstates brings the same kind of simplicity to the model layer. A Microstate is a functional model in a way that a component is a functional view. Component takes params and returns DOM, a Microstate takes value and returns state. DOM is a tree of element instances, state is a tree of model instances. A component is an abstraction that we use to manipulate the DOM tree. A microstate is an abstraction that we use to manipulate the state tree.
+Microstates brings the same kind of simplicity to the model layer. A Microstate is a functional model in a way that a component is a functional view. Component takes props and returns DOM, a Microstate takes value and returns state. DOM is a tree of element instances, state is a tree of model instances. A DOM tree is created by passing data to a root component. A state tree is created from a root type and value. A component is an abstraction that we use to manipulate the DOM tree. A microstate is an abstraction that we use to manipulate the state tree.
 
 When you want to change what the user sees, you could imperatively manipulate the DOM elements with jQuery, but React taught us to change DOM declaratively by changing the data that the DOM reflects. In the same way, when you want to change the state, you must change the value and allow the state to be reflected.
-
-A DOM tree is created by passing data to a root component. A state tree is created from a root type and value. 
 
 ## What is a Microstate?
 
@@ -83,7 +81,7 @@ Microstates comes with 5 primitive types: `Boolean`, `Number`, `String`, `Object
 
 ### Type Composition
 
-Microstates types are composable, which mean that you can combine types to create other types. Types that compose other types are called `class` types. They look similar to regular JavaScript classes but they must confirm to certain conventions that allow them to be composable.
+Microstates types are composable, which mean that you can combine types to create other types. Types that compose other types are called `class` types. They look similar to regular JavaScript classes but they must conform to certain conventions that allow them to be composable.
 
 ### Defining class types
 
@@ -108,7 +106,7 @@ import { create } from "microstates";
 let person = create(Person, { name: "Homer", age: 39 });
 ```
 
-Every microstate created with `Person` type will have the following shape,
+Every microstate created with `Person` type will be an object that looks like this,
 
 ```txt
 +----------------------+
@@ -273,7 +271,7 @@ State is an object graph that is lazily constructred from Microstate's type and 
 
 State is built from the root of the microstate down one child at a time as your application reaches for that state. The constuction of the state is done lazily which allows recursive data structures. `class` types are instantiated from their JavaScript classes.
 
-Let's consider a faily deep data structure,
+Let's consider a fairly deep data structure,
 
 ```js
 class App {
@@ -625,7 +623,7 @@ Those familiar with functional programming might recognize this as a flatMap ope
 
 ### Scope rules
 
-For Microstates to be composable, they must work the same as a root microstate or composed into another microstate. For this reason, microstate transitions only have access to their own transitions and the transitions of the microstate that are composed into them. They do not have access to their context. This is similar to how components work. The parent component can render a child component and pass data to them. The child components does not have direct access to the parent component.
+For Microstates to be composable, they must work the same as a root microstate or composed into another microstate. For this reason, microstate transitions only have access to their own transitions and the transitions of the microstates that are composed into them. They do not have access to their context. This is similar to how components work. The parent component can render a child component and pass data to them. The childer components do not have direct access to the parent component. Same in Microstates.
 
 ## `microstates` npm package
 
@@ -778,7 +776,6 @@ last.valueOf();
 ```
 
 This mechanism provides is the starting point for integration between Observables ecosystem and Microstates.
-
 
 # Th Vision of Microstates
 
