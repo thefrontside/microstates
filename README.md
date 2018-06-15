@@ -77,7 +77,7 @@ A microstate is a JavaScript object that is created from a Microstate type and p
 
 ## Types
 
-Microstates comes with 5 primitive types: `Boolean`, `Number`, `String`, `Object` and `Array`. In addition to primivite types, Microstates allows you to declare two parameterized types `[Type]`, `{Type}` and `class` types
+Microstates comes with 5 primitive types: `Boolean`, `Number`, `String`, `Object` and `Array`. In addition to primivite types, Microstates allows you to declare `class` types and two kinds of parameterized types: `[Type]` and `{Type}`.
 
 ### Type Composition
 
@@ -782,7 +782,7 @@ This mechanism provides is the starting point for integration between Observable
 
 # The Vision of Microstates
 
-What would an ecosystem of shared state primitives give us?
+What if switching framework was easy? What if a company could build domain specific code that worked across frameworks? Imagine what it would be like if you tools stayed with you as you progressed in your career as an engineer. This is the world what we hope to create with Microstates. 
 
 ## Shared Solutions
 
@@ -822,7 +822,7 @@ class MyCalendar extends Calendar.Model {
 <Calendar.Component model={MyCalendar} />;
 ```
 
-At these point, these are pseudo, but Microstates was architectured to allow these kinds of solutions to be created.
+Currently, these are pseudo code, but Microstates was architectured to allow these kinds of solutions to be created.
 
 ## Framework Agnostic Solutions
 
@@ -832,7 +832,7 @@ Unfortunately, when it comes to the M(odel) of the MVC pattern, we are seeing ne
 
 It creates lockin that is detremental to businesses that use these frameworks and developers who are forced to make career altering decisions before they fully understand their choices.
 
-We don't expect everyone to agree that Microstates is the right solution, but we would like to start the conversation about what a shared primitive for state management in JavaScript might look like. Microstates is our proposed solution.
+We don't expect everyone to agree that Microstates is the right solution, but we would like to start the conversation about what a shared primitive for state management in JavaScript might look like. Microstates is our proposal.
 
 In many ways, Microstates is a beginning. We hope you'll join us for the ride and help us create a future where building stateful applications in JavaScript is much easier than it is today.
 
