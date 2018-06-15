@@ -20,7 +20,7 @@ With microstates added to your project, you get:
 * 🍱 Reusable state atoms
 * 💎 Pure immutable state transitions without writing reducers
 * ⚡️ Lazy and synchronous out of the box
-* 🦋 Easiest way to express state machines
+* 🦋 Mosy elegant way to express state machines
 * 🎯 Transpilation free type system
 * 🔭 Optional integration with Observables
 * ⚛ Use in Node.js and browser
@@ -29,7 +29,7 @@ But, most imporantly, Microstates makes working with state fun.
 
 **When was the last time you had fun working with state?**
 
-For many, the answer is probably never, because state management in JavaScript is an endless game compromises. You can choose to go fully immutable and write endless reducers. You can go mutable and everything becomes an observable. Or you can `setState` and loose the benefit of serialization and time travel debugging.
+For many, the answer is probably never, because state management in JavaScript is an endless game of compromises. You can choose to go fully immutable and write endless reducers. You can go mutable and everything becomes an observable. Or you can `setState` and loose the benefit of serialization and time travel debugging.
 
 Unlike the view layer, where most frameworks agree on some variation of React components, state management is a lot less certain. It's less certain because none of the available tools strike the balance that React components introduced to the view layer.
 
@@ -53,7 +53,7 @@ As a result, in React ecosystem we see components like [react-virtualized](https
 
 The ability to leverage the experience of other developers that they made available as packages elevates our entire ecosystem. We call this _standing on the shoulders of giants_. Our goal is to bring this level of collaboration to state management.
 
-## M in MVC
+### M in MVC
 
 If you're a web developer and using a framework, you might be wondering how Microstates will work within your framework. For now, I will say that we'll have an integration for each framework, but it's important that we're on the same page about the role of Microstates within your application. Once we have that, you'll see more ways to use Microstates than I can cover in this README.
 
@@ -63,7 +63,7 @@ Talking about MVC is a little passe in some communities and understandbly so bec
 
 What we're seeing now is the discovery of what MVC looks like in modern web applications. One thing that most of us can agree on is that our views are now called components. Over the last 5 years, we saw a lot of competition in the view layer to make the most performant and ergonomic view building developer experience.
 
-## Functional Models
+### Functional Models
 
 The view boom was in big part ignited by the introduction of React. With React, came the introduction and mass adoption of functional programming ideas in the JavaScript ecosystem. Functional programming brought a lot of simplicity to the view layer. It is conceptually simple - a component is a function that takes props and returns DOM. This simplicity helped developers learn React and has been adopted to a varied degree by most frameworks. The API that each frameworks exposes to their view is somewhat different but the general idea is the same.
 
@@ -75,36 +75,40 @@ A DOM tree is created by passing data to a root component. A state tree is creat
 
 ## What is a Microstate?
 
-A microstate is a JavaScript object that is created from a Microstate type and value, where type is a JavaScript constructor and value is any POJO(plain old JavaScript object). The shape and methods of the microstate are determined by the type and value that it contains. A microstate represents a single state that is constructored from type and value. All methods on the microstate object will return another microstate that is a result of an immutable transition that is derived from the original microstate.
+A microstate is a JavaScript object that is created from a Microstate type and pojo value. The shape and methods of the microstate are determined by the type and value it contains. A type describes the structure and transitions that can be performed on the microstate. Using type and value, Microstates derives a single immutable state tree.
 
-### Types
+## Types
 
-The type describes the structure of the microstate and all of the transitions that can be performed on microstates of this type. Microstates comes with 5 primitive types: `Boolean`, `Number`, `String`, `Object` and `Array`, two parameterized types `[Type]` and `{Type}` and `class` types.
+Microstates comes with 5 primitive types: `Boolean`, `Number`, `String`, `Object` and `Array`. In addition to primivite types, Microstates allows you to declare two parameterized types `[Type]`, `{Type}` and `class` types
 
 ### Type Composition
 
-Composition is the process of creating bigger things from smaller reusable things. Microstates allows custom types to be created by composing primitive types and other custom types. Custom types are called `class` types. They look similar to regular JavaScript classes but they must confirm to certain conventions that allow them to be composable.
+Microstates types are composable, which mean that you can combine types to create other types. Types that compose other types are called `class` types. They look similar to regular JavaScript classes but they must confirm to certain conventions that allow them to be composable.
 
-#### Defining class types
+### Defining class types
 
-To define a class type with Microstates, you define a regular JavaScript class and use class properties(aka class fields) to describe where nested microstates will be create when a microstate is created from this type.
+To define a class type with Microstates, you define a regular JavaScript class and use class properties(aka class fields) to describe where composed microstates will be. 
 
-Let say we wanted to create a microstate representing a person.
+Let say we wanted to create a microstate type that represents a person. The person type will have a name that is a string and age that is just a number. 
 
-We might do something like this,
+You would declare a Microstate type in the following way,
 
 ```js
-import { create } from "microstates";
-
 class Person {
   name = String;
   age = Number;
 }
+```
+
+Once you have a type, you can use that type to create as many people as your application requires,
+
+```js
+import { create } from "microstates";
 
 let person = create(Person, { name: "Homer", age: 39 });
 ```
 
-The created microstate object look like this,
+Every microstate created with `Person` type will have the following shape,
 
 ```txt
 +----------------------+
@@ -126,9 +130,7 @@ The created microstate object look like this,
 +----------------------+
 ```
 
-The `person` microstate has name & age properties. Each property is a complete microstate but for it's type and for it's part of the value. Each microstate has a state property where you can find the state of the current microstate.
-
-### Composing class types from other class types
+### Composing class types
 
 `class` types can compose other `class` types. This makes it possible to build complex data structures that accurately describe your domain. Since Microstates are atomic and all transitions return microstates, Microstates can automatically handle transitions regardless of how your `class` types are composed.
 
@@ -263,11 +265,128 @@ blog2.posts["3"].state;
 //> Post<{ id: 3, title: 'It is only getter better' }>
 ```
 
+## State
+
+State is an object graph that is lazily constructred from Microstate's type and value. It mirrors the structure of the Microstate type that was used to create it.  
+
+### Building state
+
+State is built from the root of the microstate down one child at a time as your application reaches for that state. The constuction of the state is done lazily which allows recursive data structures. `class` types are instantiated from their JavaScript classes.
+
+Let's consider a faily deep data structure,
+
+```js
+class App {
+  shop = Shop
+}
+
+class Shop {
+  products = [Product]
+}
+
+class Product {
+  title = String;
+}
+```
+
+If we were to create this type, we'd get the following,
+
+```js
+import { create } from 'microstates';
+
+let app = create(App, { 
+  shop: { 
+    products: [
+      { id: 1, title: 'Sponge' }
+    ] 
+  } 
+});
+
+app.state instanceof App //> true
+app.state.shop instanceof Shop //> true
+app.state.shop.products instanceof Array //> true
+app.state.shop.products[0] instanceof Product //> true
+app.state.shop.products[0].title === 'Sponge' // true
+app.state.shop.products[0].id === 1 //> true
+```
+
+What I tried to show here is that the object that's created from state property is the same structure as the microstate itself. According to the structure, each instance is populated by it's corresponding value from the value object. 
+
+### All getters are cached
+
+A microstate is a pure function of type and value, which means that for any type and value you can only ever have one state. We can rely on this to cache all of the computations that are derived this state. 
+
+Let's say you have some state were you need to perform a heavy computation,
+
+```js
+class Table {
+  rows = [Row]
+
+  get sortedRows() {
+    return this.rows.sort((a, b) => b.order - a.order));
+  }
+}
+
+class Row {
+  order = Number;
+}
+
+import { create } from 'microstates';
+
+let table = create(Table, {
+  rows: [
+    { order: 10 }, { order: 4 }, { order: 2 }
+  ]
+});
+
+table.state.sortedRows === table.state.sortedRows
+```
+
+When you read this getter, it'll be evaluated and result will be cached. All future reads will return the same value. 
+
+*Note*: It's ok if you've never done this before with regular JavaScript classes. JavaScript classes that were not instantiated with Microstates are mutable and do not cache their getters. A similar example without Microstates would cause the sort function to invoked on each read. 
+
+### Reuse of immutable state instances
+
+When you create a deeply composed microstate, your state has the shape of a nesting doll. Each higher level contains all of it's children states. In this scenario, it's critical the parents reference the same state objects as the children. 
+
+In our shop example, the state generated on app object should be the same state that's generated on product object. Let's look at the example again,
+
+```js
+import { create } from 'microstates';
+
+class App {
+  shop = Shop
+}
+
+class Shop {
+  products = [Product]
+}
+
+class Product {
+  title = String;
+}
+
+let app = create(App, { 
+  shop: { 
+    products: [
+      { id: 1, title: 'Sponge' }
+    ] 
+  } 
+});
+
+app.state.shop.products[0] === app.shop.products[0].state
+//    ^    state object on app, should be same as    ^ 
+```
+
+The state is generated from another microstate, but it's the same state as on the children. This ensures we maintain `===` (exact equality) down the state tree. 
+
+
 ## Transitions
 
-Transitions are declarative operations that you can perform on the microstate of a type to derive another state.
+Transitions are declarative operations that you can perform on a microstate to derive another state. All transitions return another microstate.
 
-The simplest example of this is `toggle` transition on the `Boolean` type. The `toggle` transition takes no arguments and creates a new microstate where the value is opposite of the value in the original microstate. The `Boolean` type can be described with the following state chart.
+The simplest example of this is `toggle` transition on the `Boolean` type. The `toggle` transition takes no arguments and creates a new microstate with the state that is opposite of the current state. The `Boolean` type can be described with the following state chart.
 
 ![Boolean Statechart](README/boolean-statechart.png)
 
@@ -287,7 +406,7 @@ b2.state;
 //> true
 ```
 
-An important quality of the transitions in Microstates is that they always return a microstate. This is true inside of transition functions and outside where the transition is invoked. Microstates uses this convention to allow composition to crazy complexity.
+An important quality of the transitions in Microstates is that they always return a microstate. This is true inside of transition functions and outside where the transition is invoked. Microstates use this convention to allow composition to crazy complexity.
 
 Let's compose a Boolean into another class type and see what happens.
 
@@ -322,7 +441,7 @@ opened.valueOf();
 // }}
 ```
 
-In the above example, I invoked the boolean transition on `app.notification.isOpen` but we still got a new App microstate. The value was changed immutably without modifying the original object but the transition returned App microstate.
+In the above example, I invoked the boolean transition on `app.notification.isOpen` but we still got a new App microstate. The value was changed immutably without modifying the original object and the transition returned App microstate.
 
 ### Primitive type transitions
 
@@ -348,11 +467,11 @@ The primitive types have predefined transitions,
   * `filter(fn: state => boolean): microstate` - return a microstate with filtered array. The predicate function will receive state of each element in the array. If you return a falsy value from the predicate, the item will be excluded from the returned microstate.
   * `clear(): microstate` - return a microstate with an empty array.
 
-Many transitions on primitive type are similar to methods on original classes. The biggest difference is that all microstate transitions return derived microstate. This quality of transitions is imporant because it enables types to be composed.
+Many transitions on primitive type are similar to methods on original classes. The biggest difference is that transitions return microstates.
 
 ### class type transitions
 
-You can define transitions for class types. These transitions are pure functions that return a microstate.
+You can define transitions for class types. Inside of a transition, you can invoke transitions on other microstates that are composed onto this microstate. You can use the fact that composed microstates always return root microstates to chain transitions. 
 
 ```js
 import { create } from "microstates";
@@ -372,8 +491,6 @@ let lisa = homer.changeName('Lisa');
 ```
 
 ### chaining transitions
-
-Inside of a transition, you can invoke transitions on other microstates that are composed onto this microstate. You can use the fact that composed microstates always return root microstates to chain transitions. 
 
 The result of the last operation in the chain will be merged into the microstate. 
 
@@ -405,9 +522,9 @@ authenticated.valueOf();
 //> { authentication: { session: { token: 'SECRET' }, isAuthenticated: true } }
 ```
 
-### initialize transition
+### `initialize` transition
 
-Initialize transition converts value into a microstate when a microstate is being created with the `create` function. The initialize transition is invoked for every microstate that declares one. They are called from top to bottom, meaning that a parent microstate is initalized before the children. This is imporant because the parent microstate can change which children are created.
+Initialize transition converts value into a microstate when a microstate is being created with the `create` function. The initialize transition is invoked for every microstate that declares one. They are called from top to bottom, meaning that a parent microstate is initalized before the children. This is imporant because the parent microstate can change what children are created.
 
 You can use this mechanism to change the value that is used to initialize children microstates.
 
@@ -434,7 +551,7 @@ class Person {
 }
 ```
 
-### set transition
+### `set` transition
 
 `set` transition is the only transition that is available on all types. It can be used to replace the value of the current microstate with another value.
 
@@ -447,7 +564,7 @@ number.valueOf()
 //> 43
 ```
 
-You can also use `set` transition to replace the current microstate with another microstate. This is especially useful when building state machines because it allows you to change the type of the current microstate. By changing the type, you're also changing available transitions and how state is calculated. 
+You can also use `set` transition to replace the current microstate with another microstate. This is especially useful when building state machines because it allows you to change the type of the current microstate. By changing the type, you're also changing available transitions and how the state is calculated. 
 
 ```js
 import { types } from 'microstates';
@@ -504,16 +621,11 @@ result.vehicle.state.isTowing
 //> true
 ```
 
-Those familiar with functional programming might recognize this as a flatMap operation. It is not required for you to understand Monads to use Microstates transitions, but if you're interested in learning about the primitives of functional programming, you may checkout [funcadelic.js](https://github.com/cowboyd/funcadelic.js) which Microstates uses under the hood.
+Those familiar with functional programming might recognize this as a flatMap operation. It is not required for you to understand Monads to use Microstates transitions. If you're interested in learning about the primitives of functional programming, you may checkout [funcadelic.js](https://github.com/cowboyd/funcadelic.js). Microstates uses Funcadelic under the hood. 
 
 ### Scope rules
 
-For Microstates to be composable, they must work the same if they're a root microstate or composed into another microstate. For this reason, microstate transitions only have access to their own transitions and the transitions of the microstate that are composed into them. They do not have access to their context. This is similar to how components work. The parent component can render a child component and pass data to them. The child components does not have direct access to the parent component.
-
-## State
-
-State in microstates is a pure function of type and value. 
-
+For Microstates to be composable, they must work the same as a root microstate or composed into another microstate. For this reason, microstate transitions only have access to their own transitions and the transitions of the microstate that are composed into them. They do not have access to their context. This is similar to how components work. The parent component can render a child component and pass data to them. The child components does not have direct access to the parent component.
 
 ## `microstates` npm package
 
@@ -716,7 +828,7 @@ At these point, these are pseudo, but Microstates was architectured to allow the
 
 Competition moves our industry forward but concensus builds ecosystems.
 
-Unfortunately, when it comes to the M(odel) of the MVC pattern, we are seeing neither compentition nor concesus. Every framework has it's own model layer that is not compatible with another. This makes it difficult to create trully portable solutions that can be used on all frameworks.
+Unfortunately, when it comes to the M(odel) of the MVC pattern, we are seeing neither competition nor concesus. Every framework has it's own model layer that is not compatible with another. This makes it difficult to create trully portable solutions that can be used on all frameworks.
 
 It creates lockin that is detremental to businesses that use these frameworks and developers who are forced to make career altering decisions before they fully understand their choices.
 
