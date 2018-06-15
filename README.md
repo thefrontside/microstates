@@ -64,7 +64,7 @@ With microstates added to your project, you get:
 * 🍱 Reusable state atoms
 * 💎 Pure immutable state transitions without writing reducers
 * ⚡️ Lazy and synchronous out of the box
-* 🦋 Mosy elegant way to express state machines
+* 🦋 Most elegant way to express state machines
 * 🎯 Transpilation free type system
 * 🔭 Optional integration with Observables
 * ⚛ Use in Node.js and browser
