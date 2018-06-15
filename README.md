@@ -12,7 +12,51 @@ Microstates is a functional runtime type system designed to ease state managemen
 By combining lazy execution, algebraic data types and structural sharing, we created
 a tool that provides a tiny API to describe complex data structures and provide a mechanism to change the value in an immutable way.
 
-## Features
+<details>
+  <summary>Table of Contents</summary>
+<!-- toc -->
+
+* [Features](#features)
+* [Why Microstates?](#why-microstates)
+  * [M in MVC](#m-in-mvc)
+  * [Functional Models](#functional-models)
+* [What is a Microstate?](#what-is-a-microstate)
+* [Types](#types)
+  * [Type Composition](#type-composition)
+  * [Defining class types](#defining-class-types)
+  * [Composing class types](#composing-class-types)
+  * [Parameterized Types](#parameterized-types)
+* [State](#state)
+  * [Building state](#building-state)
+  * [All getters are cached](#all-getters-are-cached)
+  * [Reuse of immutable state instances](#reuse-of-immutable-state-instances)
+  * [Reuse of state between transitions](#reuse-of-state-between-transitions)
+* [Transitions](#transitions)
+  * [Primitive type transitions](#primitive-type-transitions)
+  * [class type transitions](#class-type-transitions)
+  * [chaining transitions](#chaining-transitions)
+  * [initialize transition](#initialize-transition)
+  * [set transition](#set-transition)
+  * [Scope rules](#scope-rules)
+* [microstates npm package](#microstates-npm-package)
+  * [create(Type, value): Microstate](#createtype-value-microstate)
+  * [from(any): Microstate](#fromany-microstate)
+  * [map(fn: tree =&gt; tree, microstate: Microstate): Microstate](#mapfn-tree--tree-microstate-microstate-microstate)
+* [Middleware](#middleware)
+* [Observable Microstates](#observable-microstates)
+* [The Vision of Microstates](#the-vision-of-microstates)
+  * [Shared Solutions](#shared-solutions)
+  * [Added Flexibility](#added-flexibility)
+  * [Framework Agnostic Solutions](#framework-agnostic-solutions)
+* [FAQ](#faq)
+  * [What if I can't use class syntax?](#what-if-i-cant-use-class-syntax)
+  * [What if I can't use Class Properties?](#what-if-i-cant-use-class-properties)
+* [Run Tests](#run-tests)
+
+<!-- tocstop -->
+</details>
+
+# Features
 
 With microstates added to your project, you get:
 
@@ -39,7 +83,7 @@ These factors combined is what makes React style components easy to work with an
 
 It's not easy to find the right balance between simplicity and power, but considering the importance of state management in web applications, we believe it's a worthy challenge.
 
-## Why Microstates?
+# Why Microstates?
 
 Out tools effect how we solve problems and collaborate. 
 
@@ -53,7 +97,7 @@ As a result, in React ecosystem we see components like [react-virtualized](https
 
 The ability to leverage the experience of other developers that they made available as packages elevates our entire ecosystem. We call this _standing on the shoulders of giants_. Our goal is to bring this level of collaboration to state management.
 
-### M in MVC
+## M in MVC
 
 If you're a web developer and using a framework, you might be wondering how Microstates will work within your framework. For now, I will say that we'll have an integration for each framework, but it's important that we're on the same page about the role of Microstates within your application. Once we have that, you'll see more ways to use Microstates than I can cover in this README.
 
@@ -63,7 +107,7 @@ Talking about MVC is a little passe in some communities and understandbly so bec
 
 What we're seeing now is the discovery of what MVC looks like in modern web applications. One thing that most of us can agree on is that our views are now called components. Over the last 5 years, we saw a lot of competition in the view layer to make the most performant and ergonomic view building developer experience.
 
-### Functional Models
+## Functional Models
 
 The view boom was in big part ignited by the introduction of React. With React, came the introduction and mass adoption of functional programming ideas in the JavaScript ecosystem. Functional thinking brought a lot of simplicity to the view layer. It is conceptually simple - a component is a function that takes props and returns DOM. This simplicity helped developers learn React and has been adopted to a varied degree by most frameworks. The API that each frameworks exposes to their view is somewhat different but the general idea is the same.
 
@@ -71,19 +115,19 @@ Microstates brings the same kind of simplicity to the model layer. A Microstate 
 
 When you want to change what the user sees, you could imperatively manipulate the DOM elements with jQuery, but React taught us to change DOM declaratively by changing the data that the DOM reflects. In the same way, when you want to change the state, you must change the value and allow the state to be reflected.
 
-## What is a Microstate?
+# What is a Microstate?
 
 A microstate is a JavaScript object that is created from a Microstate type and pojo value. The shape and methods of the microstate are determined by the type and value it contains. A type describes the structure and transitions that can be performed on the microstate. Using type and value, Microstates derives a single immutable state tree.
 
-## Types
+# Types
 
 Microstates comes with 5 primitive types: `Boolean`, `Number`, `String`, `Object` and `Array`. In addition to primivite types, Microstates allows you to declare `class` types and two kinds of parameterized types: `[Type]` and `{Type}`.
 
-### Type Composition
+## Type Composition
 
 Microstates types are composable, which mean that you can combine types to create other types. Types that compose other types are called `class` types. They look similar to regular JavaScript classes but they must conform to certain conventions that allow them to be composable.
 
-### Defining class types
+## Defining class types
 
 To define a class type with Microstates, you define a regular JavaScript class and use class properties(aka class fields) to describe where composed microstates will be. 
 
@@ -128,7 +172,7 @@ Every microstate created with `Person` type will be an object that looks like th
 +----------------------+
 ```
 
-### Composing class types
+## Composing class types
 
 `class` types can compose other `class` types. This makes it possible to build complex data structures that accurately describe your domain. Since Microstates are atomic and all transitions return microstates, Microstates can automatically handle transitions regardless of how your `class` types are composed.
 
@@ -191,7 +235,7 @@ theHomerCar.name.state;
 //> The Homer
 ```
 
-### Parameterized Types
+## Parameterized Types
 
 Quiet often it is helpful to describe your data as a collection of types. A blog might have an array of posts. To do this, you can use the parameterized array notation, `[Post]`. This signals to microstates that the microstate represents the state of an array collection of `Post` type.
 
@@ -263,11 +307,11 @@ blog2.posts["3"].state;
 //> Post<{ id: 3, title: 'It is only getter better' }>
 ```
 
-## State
+# State
 
 State is an object graph that is lazily constructred from Microstate's type and value. It mirrors the structure of the Microstate type that was used to create it.  
 
-### Building state
+## Building state
 
 State is built from the root of the microstate down one child at a time as your application reaches for that state. The constuction of the state is done lazily which allows recursive data structures. `class` types are instantiated from their JavaScript classes.
 
@@ -310,7 +354,7 @@ app.state.shop.products[0].id === 1 //> true
 
 What I tried to show here is that the object that's created from state property is the same structure as the microstate itself. According to the structure, each instance is populated by it's corresponding value from the value object. 
 
-### All getters are cached
+## All getters are cached
 
 A microstate is a pure function of type and value, which means that for any type and value you can only ever have one state. We can rely on this to cache all of the computations that are derived off this state. 
 
@@ -344,7 +388,7 @@ When you read this getter, it'll be evaluated and result will be cached. All fut
 
 *Note*: It's ok if you've never done this before with regular JavaScript classes. JavaScript classes that were not instantiated with Microstates are mutable and do not cache their getters. A similar example without Microstates would cause the sort function to be invoked on each read. 
 
-### Reuse of immutable state instances
+## Reuse of immutable state instances
 
 When you create a deeply composed microstate, your state has the shape of a nesting doll. Each higher level contains all of it's children states. In this scenario, it's critical that the parents reference the same state objects as the children. 
 
@@ -379,11 +423,11 @@ app.state.shop.products[0] === app.shop.products[0].state
 
 The state is generated from another microstate, but it's the same state as on the children. This ensures we maintain `===` (exact equality) down the state tree. This is very important in most frameworks today because they have built in optimizations that rely on exact equality. 
 
-### Reuse of state between transitions
+## Reuse of state between transitions
 
 Microstates are designed to allow construction of complex state trees. When a state tree is deeply nested, a branch of the state tree can get transitioned without effecting other branches. Branches that are uneffected by a transition should reuse their state instances. This eliminates unneccessary re-renders in frameworks that use exact equality to optimize perfomance. 
 
-## Transitions
+# Transitions
 
 Transitions are declarative operations that you can perform on a microstate to derive another state. All transitions return another microstate.
 
@@ -444,7 +488,7 @@ opened.valueOf();
 
 In the above example, I invoked the boolean transition on `app.notification.isOpen` but we still got a new App microstate. The value was changed immutably without modifying the original object and the transition returned App microstate.
 
-### Primitive type transitions
+## Primitive type transitions
 
 The primitive types have predefined transitions,
 
@@ -470,7 +514,7 @@ The primitive types have predefined transitions,
 
 Many transitions on primitive type are similar to methods on original classes. The biggest difference is that transitions return microstates.
 
-### class type transitions
+## class type transitions
 
 You can define transitions for class types. Inside of a transition, you can invoke transitions on other microstates that are composed onto this microstate. You can use the fact that composed microstates always return root microstates to chain transitions. 
 
@@ -491,7 +535,7 @@ let homer = create(Person, { name: 'Homer', age: 39 });
 let lisa = homer.changeName('Lisa');
 ```
 
-### chaining transitions
+## chaining transitions
 
 The result of the last operation in the chain will be merged into the microstate. 
 
@@ -523,7 +567,7 @@ authenticated.valueOf();
 //> { authentication: { session: { token: 'SECRET' }, isAuthenticated: true } }
 ```
 
-### `initialize` transition
+## `initialize` transition
 
 Initialize transition converts value into a microstate when a microstate is being created with the `create` function. The initialize transition is invoked for every microstate that declares one. They are called from top to bottom, meaning that a parent microstate is initalized before the children. This is imporant because the parent microstate can change what children are created.
 
@@ -552,7 +596,7 @@ class Person {
 }
 ```
 
-### `set` transition
+## `set` transition
 
 `set` transition is the only transition that is available on all types. It can be used to replace the value of the current microstate with another value.
 
@@ -624,11 +668,11 @@ result.vehicle.state.isTowing
 
 Those familiar with functional programming might recognize this as a flatMap operation. It is not required for you to understand Monads to use Microstates transitions. If you're interested in learning about the primitives of functional programming, you may checkout [funcadelic.js](https://github.com/cowboyd/funcadelic.js). Microstates uses Funcadelic under the hood. 
 
-### Scope rules
+## Scope rules
 
 For Microstates to be composable, they must work the same as a root microstate or composed into another microstate. For this reason, microstate transitions only have access to their own transitions and the transitions of the microstates that are composed into them. They do not have access to their context. This is similar to how components work. The parent component can render a child component and pass data to them. The childer components do not have direct access to the parent component. Same in Microstates.
 
-## `microstates` npm package
+# `microstates` npm package
 
 The `microstates` package provides the `Microstate` class and functions that operate on microstate objects.
 
@@ -648,7 +692,7 @@ Then import the libraries using,
 import Microstate, { create, from, map } from "microstates";
 ```
 
-### create(Type, value): Microstate
+## create(Type, value): Microstate
 
 `create` function is conceptually similar to `Object.create`. It creates a microstate object from type class and a value. This function is lazy, so it should be safe in most high performant operations even with complex and deeply nested data structures.
 
@@ -659,7 +703,7 @@ create(Number, 42);
 //> Microstate
 ```
 
-### from(any): Microstate
+## from(any): Microstate
 
 `from` allows to convert any POJO(plain JavaScript object) into a Microstate. Once you created a microstate, you can perform operations on all properties of the value.
 
@@ -692,7 +736,7 @@ from({ hello: [ 'world' ]}).hello[0].concat('!!!').valueOf();
 // { hello: [ 'world!!!' ]}
 ```
 
-### map(fn: tree => tree, microstate: Microstate): Microstate
+## map(fn: tree => tree, microstate: Microstate): Microstate
 
 `map` function is used to perform operations on the that is used to build the microstate. It expects a function and a microstate and returns a microstate. This function accepts a mapping function which will receive the microstate's tree. The mapping function is expected to return a tree. The tree that is returned from the mapping will be used to generate the microstate that's returned by the map operation.
 
@@ -719,7 +763,7 @@ loggedNumber.increment();
 // after increment value is 43
 ```
 
-## Middleware
+# Middleware
 
 Middleware makes it possible to modify what is called before a transition is performed and what is returned by a transition. You can use it to change the outcome of a transition or emit side effects.
 
@@ -751,7 +795,7 @@ let homerWithMiddleware = map(tree => tree.use(loggingMiddleware), homer);
 
 The middleware will be invoked on any transition that you call on this Microstate. The middleware will be carried over on every consequent transition as it is now part of the Microstate. We use this mechanism to create Observable Microstates.
 
-## Observable Microstates
+# Observable Microstates
 
 Microstates provides an easy way to convert a microstate which represents a single value into a Observable stream of values. This is done by passing a microstate to `Observable.from` function. This function will return a Observable object with a subscribe method. You can subscribe to the stream by passing an observer to the subscribe function. Once you subscribe,
 you will syncronously receive a microstate with middleware installed that will cause the result of transitions to be pushed through the stream.
@@ -836,9 +880,9 @@ We don't expect everyone to agree that Microstates is the right solution, but we
 
 In many ways, Microstates is a beginning. We hope you'll join us for the ride and help us create a future where building stateful applications in JavaScript is much easier than it is today.
 
-## FAQ
+# FAQ
 
-### What if I can't use class syntax?
+## What if I can't use class syntax?
 
 Classes are functions in JavaScript, so you should be able to use a function to do most of the same things as you would with classes.
 
@@ -858,7 +902,7 @@ function Person() {
 }
 ```
 
-### What if I can't use Class Properties?
+## What if I can't use Class Properties?
 
 Babel compiles Class Properties into class constructors. If you can't use Class Properties, then you
 can try the following.
@@ -879,7 +923,7 @@ class Employee extends Person {
 }
 ```
 
-## Run Tests
+# Run Tests
 
 ```shell
 $ npm install
