@@ -1,10 +1,10 @@
 import { append, flatMap, foldl, foldr, map, stable } from 'funcadelic';
 import getPrototypeDescriptors from 'get-prototype-descriptors';
-import lens from 'ramda/src/lens';
-import lensPath from 'ramda/src/lensPath';
-import over from 'ramda/src/over';
-import lset from 'ramda/src/set';
-import view from 'ramda/src/view';
+import lens from 'ramda/es/lens';
+import lensPath from 'ramda/es/lensPath';
+import over from 'ramda/es/over';
+import lset from 'ramda/es/set';
+import view from 'ramda/es/view';
 import SymbolObservable from "symbol-observable";
 import desugar from './desugar';
 import isSimple from './is-simple';
