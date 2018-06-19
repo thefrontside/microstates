@@ -1,6 +1,5 @@
 import { append, flatMap, foldl, foldr, map, stable } from 'funcadelic';
 import getPrototypeDescriptors from 'get-prototype-descriptors';
-import memoizeGetters from 'memoize-getters';
 import lens from 'ramda/src/lens';
 import lensPath from 'ramda/src/lensPath';
 import over from 'ramda/src/over';
@@ -61,13 +60,6 @@ export const transitionsClass = stable(function transitionsClass(Type) {
 
 export const resolveType = stable(function resolveType(Type) {
   return toType(desugar(Type));
-});
-
-export const stabilizeClass = stable(function stabilizeClass(Type) {
-  class ImmutableState extends resolveType(Type) {
-    get state() { return this }
-  }
-  return memoizeGetters(ImmutableState);
 });
 
 export class Microstate {
@@ -149,7 +141,6 @@ export default class Tree {
       Type: resolveType(Type),
       path,
       root,
-      StabilizedClass: stabilizeClass(Type),
       TransitionsClass: transitionsClass(Type),
       children: new Children(this, childrenFromTree),
     }
@@ -225,7 +216,7 @@ export default class Tree {
 
   /**
    * Wrap middleware over this tree's middlware and return a new tree.
-   * @param {*} fn 
+   * @param {*} fn
    */
   use(fn) {
     return map(tree => {
@@ -405,9 +396,9 @@ export default class Tree {
       return this;
     } else {
       return map(tree => tree.assign({
-        meta: { 
-          path: [...path, ...tree.path], 
-          root 
+        meta: {
+          path: [...path, ...tree.path],
+          root
         }
       }), this);
     }
@@ -435,7 +426,7 @@ class State extends CachedValue {}
 class Children extends CachedValue {}
 
 export function stateFromTree(tree) {
-  let { meta: { StabilizedClass } } = tree;
+  let { meta: { Type } } = tree;
 
     if (tree.isSimple || tree.value === undefined) {
       return tree.value;
@@ -443,13 +434,13 @@ export function stateFromTree(tree) {
       if (Array.isArray(tree.children)) {
         return map(child => child.state, tree.children);
       } else {
-        return append(new StabilizedClass(tree.value), map(child => child.state, tree.children));
+        return append(new Type(tree.value), map(child => child.state, tree.children));
       }
     }
 }
 
 /**
- * When a microstate is created with create(Object) or create(Array) value is undefined. 
+ * When a microstate is created with create(Object) or create(Array) value is undefined.
  * We need a default value so the map will know which functor to use. Ideally, we
  * would allow `initialize` to provide a default value but this is not possible currently
  * because children are used to create a microstate which is used to create initialize.
