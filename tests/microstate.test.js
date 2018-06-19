@@ -72,14 +72,17 @@ describe('map object', () => {
 });
 
 describe('transitions', () => {
-  let number;
+  let number, increment;
   beforeEach(() => {
     number = create(Number, 42);
+    increment = number.increment;
   });
   it('allows to use increment without original object', () => {
-    let { increment } = number;
     let result = increment();
     expect(result).toBeInstanceOf(Microstate);
     expect(result.valueOf()).toBe(43);
+  });
+  it('has name of the function', () => {
+    expect(increment.name).toBe('increment');
   });
 });
