@@ -1220,4 +1220,9 @@ describe('transitionsClass', () => {
     let Type = [String];
     expect(transitionsClass(Type)).toBe(transitionsClass(Type));
   });
+
+  it('has Microstate<Type> name', () => {
+    class Foo {}
+    expect(transitionsClass(Foo).name).toBe('Transitions<Foo>');
+  });
 });
