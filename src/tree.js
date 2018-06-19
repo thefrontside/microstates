@@ -15,6 +15,7 @@ import types, { params, toType } from './types';
 import $ from './utils/chain';
 import { keep, reveal } from './utils/secret';
 import values from './values';
+import invariant from 'invariant';
 
 const { assign, defineProperties } = Object;
 
@@ -340,7 +341,11 @@ export default class Tree {
    * the place where the branch ends is the focus point.
    */
   get lens() {
-    let get = tree => tree.treeAt(this.path).prune()
+    let get = tree => {
+      let found = tree.treeAt(this.path);
+      invariant(found instanceof Tree, `Tree at path [${this.path.join(', ')}] does not exist. Is path wrong?`);
+      return found.prune();
+    }
 
     let set = (tree, root) => {
       let nextValue = lset(lensPath(this.path), tree.value, root.value);

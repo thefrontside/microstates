@@ -1,7 +1,8 @@
-import { map, filter, flatMap, foldl } from 'funcadelic';
-import { parameterized, params } from './parameters0';
-import Any from './any';
+import { filter, foldl } from 'funcadelic';
+import transform from '../transform';
 import Tree from '../tree';
+import Any from './any';
+import { parameterized } from './parameters0';
 
 const { assign, keys } = Object;
 
@@ -40,23 +41,6 @@ class ObjectType {
       }
     }, this);
   }
-}
-
-function transform(fn, microstate) {
-  return map(tree => flatMap(current => {
-    if (current.is(tree)) {
-      return current.assign({
-        meta: {
-          children() {
-            let { T } = params(current.Type);
-            return fn(current.children, T);
-          }
-        }
-      });
-    } else {
-      return current;
-    }
-  }, tree), microstate);
 }
 
 export default parameterized(ObjectType, {T: Any});
