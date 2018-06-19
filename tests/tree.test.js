@@ -867,7 +867,7 @@ describe('Microstate', () => {
         boolean = Microstate.create(Boolean, true);
         beforeTransition = jest.fn();
         afterTransition = jest.fn();
-        mapped = Microstate.map(tree => tree.use(next => (microstate, transition, args) => {
+        mapped = map(tree => tree.use(next => (microstate, transition, args) => {
           beforeTransition(microstate, transition, args);
           let result = next(microstate, transition, args);
           afterTransition(result);

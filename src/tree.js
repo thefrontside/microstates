@@ -71,7 +71,11 @@ export class Microstate {
   }
 
   static map(fn, microstate) {
-    return fn(reveal(microstate)).microstate
+    return map(tree => fn(tree.microstate), reveal(microstate).children);
+  }
+
+  static use(middleware, microstate) {
+    return map(tree => tree.use(middleware), microstate);
   }
 
   static from(value) {
@@ -107,11 +111,11 @@ export class Microstate {
       subscribe(observer) {
         let next = observer.call ? observer : observer.next.bind(observer);
 
-        let mapped = map(tree => tree.use(middleware => (...args) => {
+        let mapped = Microstate.use(middleware => (...args) => {
           let microstate = middleware(...args);
           next(microstate);
           return microstate;
-        }), microstate);
+        }, microstate);
 
         next(mapped);
       },
