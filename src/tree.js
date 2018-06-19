@@ -10,6 +10,7 @@ import SymbolObservable from "symbol-observable";
 import desugar from './desugar';
 import isSimple from './is-simple';
 import keys from './keys';
+import values from './values';
 import shallowDiffers from './shallow-differs';
 import thunk from './thunk';
 import types, { params, toType } from './types';
@@ -70,6 +71,21 @@ export const stabilizeClass = stable(function stabilizeClass(Type) {
   return memoizeGetters(ImmutableState);
 });
 
+/**
+ * Get map of all Types in the tree. The Types will be included
+ * for trees that have a value.
+ * @param {Tree} tree 
+ * @returns {[Type.name]: Type}
+ */
+function getTypes(tree) {
+  let { InitialType: Type } = tree.meta;
+  let initial = { [Type.name]: Type };
+  let children = 
+    values(tree.children)
+    .filter(tree => tree.value !== undefined);
+
+  return foldl((acc, tree) => assign(acc, getTypes(tree)), initial, children)
+}
 export class Microstate {
 
   constructor(tree) {
@@ -200,6 +216,10 @@ export default class Tree {
 
   get children() {
     return this.meta.children.value;
+  }
+
+  get types() {
+    return getTypes(this);
   }
 
   is(tree) {
