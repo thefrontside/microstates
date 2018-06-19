@@ -13,7 +13,7 @@ By combining lazy execution, algebraic data types and structural sharing, we cre
 a tool that provides a tiny API to describe complex data structures and provide a mechanism to change the value in an immutable way.
 
 <details>
-  <summary>Table of Contents</summary>
+  <summary><strong>Table of Contents</strong></summary>
 <!-- toc -->
 
 * [Features](#features)
