@@ -70,3 +70,16 @@ describe('map object', () => {
     expect(mapped.three.state).toBe(3);
   });
 });
+
+describe('transitions', () => {
+  let number;
+  beforeEach(() => {
+    number = create(Number, 42);
+  });
+  it('allows to use increment without original object', () => {
+    let { increment } = number;
+    let result = increment();
+    expect(result).toBeInstanceOf(Microstate);
+    expect(result.valueOf()).toBe(43);
+  });
+});
