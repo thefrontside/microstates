@@ -13,7 +13,6 @@ const globals = {
   "ramda/src/lensPath": "R.lensPath",
   "symbol-observable": "SymbolObservable",
   "get-prototype-descriptors": "getPrototypeDescriptors",
-  "memoize-getters": "memoizeGetters",
   "invariant": "invariant"
 };
 

@@ -32,8 +32,3 @@ it('is computed', () => {
 it('should not have getters in valueOf after custom transition', () => {
   expect(ms.toUpperCase().valueOf()).not.toHaveProperty('fullName');
 });
-
-it('computed properties are stable', () => {
-  expect(ms.state.birthDate).toBeInstanceOf(Date);
-  expect(ms.state.birthDate).toBe(ms.state.birthDate);
-});
