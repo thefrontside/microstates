@@ -2,9 +2,9 @@ import 'jest';
 
 import Microstate, { Tree, reveal, types } from 'microstates';
 import { flatMap, map, append } from 'funcadelic';
-import view from 'ramda/src/view';
-import set from 'ramda/src/set';
-import over from 'ramda/src/over';
+import view from 'ramda/es/view';
+import set from 'ramda/es/set';
+import over from 'ramda/es/over';
 import { resolveType, stabilizeClass, transitionsClass } from '../src/tree';
 
 const { assign } = Object;
