@@ -84,7 +84,19 @@ export class Microstate {
   }
 
   static from(value) {
-    return Tree.from(value).microstate;
+    return flatMap(tree => tree.assign({
+      meta: {
+        children() {
+          return map((child, key) => {
+            if (child.value instanceof Microstate) {
+              return reveal(child.value).graft([key]);
+            } else {
+              return child;
+            }
+          }, tree.children);
+        }
+      }
+    }), Tree.from(value)).microstate
   }
 
   static create(Type, value) {
@@ -136,7 +148,7 @@ export default class Tree {
   static from(value, T = types.Any) {
     if (value && value instanceof Microstate) {
       return reveal(value);
-    } else if (value) {
+    } else if (value != null) {
       return new Tree({ value, Type: T === types.Any ? value.constructor : T});
     } else {
       return new Tree({ value });
