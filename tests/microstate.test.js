@@ -29,7 +29,7 @@ describe('valueOf', () => {
   });
 });
 
-describe('map', () => {
+describe('map array', () => {
   let items, mapped;
   beforeEach(() => {
     items = create([Number], [1, 2, 3]);
@@ -47,5 +47,26 @@ describe('map', () => {
     expect(mapped[0].state).toBe(1);
     expect(mapped[1].state).toBe(2);
     expect(mapped[2].state).toBe(3);        
+  });
+});
+
+describe('map object', () => {
+  let items, mapped;
+  beforeEach(() => {
+    items = create({Number}, { one: 1, two: 2, three: 3 });
+    mapped = map(microstate => microstate, items);
+  });
+  it('returns a regular object, not microstate', () => {
+    expect(mapped).not.toBeInstanceOf(Microstate);
+  });
+  it('has composed states', () => {
+    expect(mapped.one).toBeInstanceOf(Microstate);
+    expect(mapped.two).toBeInstanceOf(Microstate);
+    expect(mapped.three).toBeInstanceOf(Microstate);
+  });
+  it('has values', () => {
+    expect(mapped.one.state).toBe(1);
+    expect(mapped.two.state).toBe(2);
+    expect(mapped.three.state).toBe(3);
   });
 });
