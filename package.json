@@ -1,12 +1,13 @@
 {
   "name": "microstates",
-  "version": "0.7.3",
+  "version": "0.8.0",
   "description": "Composable State Primitives for JavaScript",
   "keywords": [
+    "lens",
+    "state-machine",
     "immutable",
     "composable",
     "models",
-    "classes",
     "state"
   ],
   "homepage": "https://github.com/microstates/microstates.js#readme",
