@@ -3,7 +3,8 @@
   "version": "0.8.0",
   "description": "Graceful state transitions for data of any shape.",
   "keywords": [
-    "statemachines",
+    "lens",
+    "state-machine",
     "immutable",
     "microstates"
   ],
