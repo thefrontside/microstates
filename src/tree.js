@@ -1,11 +1,10 @@
 import { append, flatMap, foldl, foldr, map, stable } from 'funcadelic';
 import getPrototypeDescriptors from 'get-prototype-descriptors';
-import memoizeGetters from 'memoize-getters';
-import lens from 'ramda/src/lens';
-import lensPath from 'ramda/src/lensPath';
-import over from 'ramda/src/over';
-import lset from 'ramda/src/set';
-import view from 'ramda/src/view';
+import lens from 'ramda/es/lens';
+import lensPath from 'ramda/es/lensPath';
+import over from 'ramda/es/over';
+import lset from 'ramda/es/set';
+import view from 'ramda/es/view';
 import SymbolObservable from "symbol-observable";
 import desugar from './desugar';
 import isSimple from './is-simple';
@@ -16,6 +15,7 @@ import types, { params, toType } from './types';
 import $ from './utils/chain';
 import { keep, reveal } from './utils/secret';
 import values from './values';
+import invariant from 'invariant';
 
 const { assign, defineProperties } = Object;
 
@@ -38,18 +38,27 @@ const defaultMiddleware = (localMicrostate, transition, args) => {
 };
 
 export const transitionsClass = stable(function transitionsClass(Type) {
-  class Transitions extends Microstate {}
+  class Transitions extends Microstate {
+    static get name() {
+      return `Transitions<${Type.name}>`;
+    }
+  }
 
   let descriptors = Type === types.Any ? getPrototypeDescriptors(types.Any) : assign(getPrototypeDescriptors(resolveType(Type)), getPrototypeDescriptors(types.Any))
 
   let transitions = $(descriptors)
     .filter(({ key, value }) => typeof value.value === 'function' && key !== 'constructor')
-    .map(descriptor => ({
-      enumerable: true,
+    .map((descriptor, key) => ({
+      enumerable: false,
       configurable: true,
-      value(...args) {
-        // transition that the user is invoking
-        return reveal(this).root.data.middleware(this, descriptor.value, args);
+      get() {
+        let bound = (...args) => reveal(this).root.data.middleware(this, descriptor.value, args);
+        Object.defineProperty(bound, 'name', {
+          value: key,
+          configurable: true,
+          enumerable: false
+        });
+        return bound;
       }
     }))
     .valueOf();
@@ -63,13 +72,6 @@ export const resolveType = stable(function resolveType(Type) {
   return toType(desugar(Type));
 });
 
-export const stabilizeClass = stable(function stabilizeClass(Type) {
-  class ImmutableState extends resolveType(Type) {
-    get state() { return this }
-  }
-  return memoizeGetters(ImmutableState);
-});
-
 export class Microstate {
 
   constructor(tree) {
@@ -79,11 +81,27 @@ export class Microstate {
   }
 
   static map(fn, microstate) {
-    return fn(reveal(microstate)).microstate
+    return map(tree => fn(tree.microstate), reveal(microstate).children);
+  }
+
+  static use(middleware, microstate) {
+    return map(tree => tree.use(middleware), microstate);
   }
 
   static from(value) {
-    return Tree.from(value).microstate;
+    return flatMap(tree => tree.assign({
+      meta: {
+        children() {
+          return map((child, key) => {
+            if (child.value instanceof Microstate) {
+              return reveal(child.value).graft([key]);
+            } else {
+              return child;
+            }
+          }, tree.children);
+        }
+      }
+    }), Tree.from(value)).microstate
   }
 
   static create(Type, value) {
@@ -115,11 +133,11 @@ export class Microstate {
       subscribe(observer) {
         let next = observer.call ? observer : observer.next.bind(observer);
 
-        let mapped = map(tree => tree.use(middleware => (...args) => {
+        let mapped = Microstate.use(middleware => (...args) => {
           let microstate = middleware(...args);
           next(microstate);
           return microstate;
-        }), microstate);
+        }, microstate);
 
         next(mapped);
       },
@@ -135,7 +153,7 @@ export default class Tree {
   static from(value, T = types.Any) {
     if (value && value instanceof Microstate) {
       return reveal(value);
-    } else if (value) {
+    } else if (value != null) {
       return new Tree({ value, Type: T === types.Any ? value.constructor : T});
     } else {
       return new Tree({ value });
@@ -149,7 +167,6 @@ export default class Tree {
       Type: resolveType(Type),
       path,
       root,
-      StabilizedClass: stabilizeClass(Type),
       TransitionsClass: transitionsClass(Type),
       children: new Children(this, childrenFromTree),
     }
@@ -225,7 +242,7 @@ export default class Tree {
 
   /**
    * Wrap middleware over this tree's middlware and return a new tree.
-   * @param {*} fn 
+   * @param {*} fn
    */
   use(fn) {
     return map(tree => {
@@ -341,7 +358,11 @@ export default class Tree {
    * the place where the branch ends is the focus point.
    */
   get lens() {
-    let get = tree => tree.treeAt(this.path).prune()
+    let get = tree => {
+      let found = tree.treeAt(this.path);
+      invariant(found instanceof Tree, `Tree at path [${this.path.join(', ')}] does not exist. Is path wrong?`);
+      return found.prune();
+    }
 
     let set = (tree, root) => {
       let nextValue = lset(lensPath(this.path), tree.value, root.value);
@@ -405,9 +426,9 @@ export default class Tree {
       return this;
     } else {
       return map(tree => tree.assign({
-        meta: { 
-          path: [...path, ...tree.path], 
-          root 
+        meta: {
+          path: [...path, ...tree.path],
+          root
         }
       }), this);
     }
@@ -435,7 +456,7 @@ class State extends CachedValue {}
 class Children extends CachedValue {}
 
 export function stateFromTree(tree) {
-  let { meta: { StabilizedClass } } = tree;
+  let { meta: { Type } } = tree;
 
     if (tree.isSimple || tree.value === undefined) {
       return tree.value;
@@ -443,13 +464,13 @@ export function stateFromTree(tree) {
       if (Array.isArray(tree.children)) {
         return map(child => child.state, tree.children);
       } else {
-        return append(new StabilizedClass(tree.value), map(child => child.state, tree.children));
+        return append(new Type(tree.value), map(child => child.state, tree.children));
       }
     }
 }
 
 /**
- * When a microstate is created with create(Object) or create(Array) value is undefined. 
+ * When a microstate is created with create(Object) or create(Array) value is undefined.
  * We need a default value so the map will know which functor to use. Ideally, we
  * would allow `initialize` to provide a default value but this is not possible currently
  * because children are used to create a microstate which is used to create initialize.

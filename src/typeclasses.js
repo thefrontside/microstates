@@ -1,10 +1,15 @@
 import { Functor, Monad, map } from 'funcadelic';
-import lensPath from 'ramda/src/lensPath';
-import lset from 'ramda/src/set';
+import lensPath from 'ramda/es/lensPath';
+import lset from 'ramda/es/set';
 import keys from './keys';
 import Tree, { Microstate, stateFromTree } from './tree';
+import { reveal } from './utils/secret';
 
-Functor.instance(Microstate, { map: Microstate.map });
+Functor.instance(Microstate, { 
+  map(fn, microstate) {
+    return fn(reveal(microstate)).microstate
+  } 
+});
 
 /**
  * Tree Functor allows a developer to map a tree without changing

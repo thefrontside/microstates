@@ -2,14 +2,21 @@ import 'jest';
 
 import Microstate, { Tree, reveal, types } from 'microstates';
 import { flatMap, map, append } from 'funcadelic';
-import view from 'ramda/src/view';
-import set from 'ramda/src/set';
-import over from 'ramda/src/over';
-import { resolveType, stabilizeClass, transitionsClass } from '../src/tree';
+import view from 'ramda/es/view';
+import set from 'ramda/es/set';
+import over from 'ramda/es/over';
+import { resolveType, transitionsClass } from '../src/tree';
 
 const { assign } = Object;
 
 describe('from', () => {
+
+  it('detects falsy primitive values as their type', () => {
+    expect(Tree.from('')).toHaveProperty('Type', types.String);
+    expect(Tree.from(0)).toHaveProperty('Type', types.Number);    
+    expect(Tree.from(false)).toHaveProperty('Type', types.Boolean);
+  });
+
   it('converts undefined to any', () => {
     let tree = Tree.from();
     let microstate = tree.microstate;
@@ -32,8 +39,8 @@ describe('from', () => {
     let microstate = tree.microstate;
     expect(tree).toHaveProperty('Type', types.Array);
     expect(microstate[0]).toHaveProperty('increment');
-    expect(microstate[1]).toHaveProperty('increment'); 
-    expect(microstate[2]).toHaveProperty('increment');       
+    expect(microstate[1]).toHaveProperty('increment');
+    expect(microstate[2]).toHaveProperty('increment');
   });
 
   it('parameterized value can be undefined', () => {
@@ -41,9 +48,9 @@ describe('from', () => {
     let microstate = tree.microstate;
     expect(tree).toHaveProperty('Type', types.Array);
     expect(microstate[0]).toHaveProperty('increment');
-    expect(tree.children[1]).toHaveProperty('Type', types.Any); 
-    expect(microstate[1]).toHaveProperty('set'); 
-    expect(microstate[2]).toHaveProperty('increment');  
+    expect(tree.children[1]).toHaveProperty('Type', types.Any);
+    expect(microstate[1]).toHaveProperty('set');
+    expect(microstate[2]).toHaveProperty('increment');
   });
 
   it('converts { hello: world } to { String }', () => {
@@ -70,6 +77,27 @@ describe('from', () => {
     let microstate = Microstate.from(42);
     expect(microstate).toHaveProperty('increment');
     expect(microstate.valueOf()).toBe(42);
+  });
+
+  it('allows composed value to be a microstate', () => {
+    let microstate = Microstate.from({
+      fortyTwo: Microstate.from(42),
+      name: Microstate.from('Charles')
+    });
+    expect(microstate.fortyTwo).toHaveProperty('increment');
+    expect(microstate.name).toHaveProperty('concat');
+    expect(microstate.valueOf()).toEqual({ name: 'Charles', fortyTwo: 42 });
+
+    expect(microstate.fortyTwo.increment().valueOf()).toEqual({ fortyTwo: 43, name: 'Charles' })
+  });
+
+  it('allows deeply composed value to be a microstate', () => {
+    let microstate = Microstate.from([
+      [Microstate.from(42)]
+    ]);
+    expect(microstate[0][0]).toHaveProperty('increment');
+    expect(microstate.valueOf()).toEqual([[42]]);
+    expect(microstate[0][0].increment().valueOf()).toEqual([[43]]);
   });
 });
 
@@ -171,26 +199,26 @@ describe('Tree', () => {
       beforeEach(() => {
         mapped = map(tree => tree, a);
       });
-  
+
       it('returns an instance of Tree', () => {
         expect(mapped).toBeInstanceOf(Tree);
       });
-  
+
       it('has same type as original', () => {
         expect(mapped.Type).toBe(a.Type);
       });
-  
+
       it('has new meta object', () => {
         expect(mapped.meta).not.toBe(a.meta);
       });
-  
+
       it('has same data because no-op operation', () => {
         expect(mapped.data).toBe(a.data);
       });
-  
+
       it('it has same path', () => {
         expect(mapped.path).toBe(a.path);
-      });  
+      });
     })
 
     describe('chanding path', () => {
@@ -219,7 +247,7 @@ describe('Tree', () => {
             }
           }), a);
         });
-  
+
         it('updates value', () => {
           expect(mapped.value).toBe('hello world');
         });
@@ -238,7 +266,7 @@ describe('Tree', () => {
             }
           }), a);
         });
-  
+
         it('updates value', () => {
           expect(mapped.value).toBe('hello world');
         });
@@ -498,7 +526,7 @@ describe('Tree', () => {
               return tree.assign({
                 data: {
                   value() {
-                    return { 
+                    return {
                       things: [
                         value.things[0],
                         { name: 'Subabaruru' },
@@ -522,7 +550,7 @@ describe('Tree', () => {
         });
 
         it('updated the value on the root', () => {
-          expect(flatMapped.value).toEqual({ 
+          expect(flatMapped.value).toEqual({
             things: [
               { name: 'iPhone' }, { name: 'Subabaruru' }, { name: 'Bicycle' }
             ]
@@ -545,9 +573,9 @@ describe('Tree', () => {
         it('has root on each node', () => {
           expect(flatMapped.children.things.children[2].root).toBe(flatMapped);
           expect(flatMapped.children.things.children[1].root).toBe(flatMapped);
-          expect(flatMapped.children.things.children[0].root).toBe(flatMapped);          
-          expect(flatMapped.children.things.root).toBe(flatMapped);                    
-          expect(flatMapped.root).toBe(flatMapped);                    
+          expect(flatMapped.children.things.children[0].root).toBe(flatMapped);
+          expect(flatMapped.children.things.root).toBe(flatMapped);
+          expect(flatMapped.root).toBe(flatMapped);
         });
 
       });
@@ -561,7 +589,7 @@ describe('Tree', () => {
               return tree.assign({
                 data: {
                   value() {
-                    return { 
+                    return {
                       things: [
                         value.things[0]
                       ]
@@ -575,7 +603,7 @@ describe('Tree', () => {
         });
 
         it('has new value on root', () => {
-          expect(flatMapped.value).toEqual({ 
+          expect(flatMapped.value).toEqual({
             things: [
               { name: 'iPhone' }
             ]
@@ -604,13 +632,13 @@ describe('Tree', () => {
       it('instance is equal to itself', () => {
         expect(a.isEqual(a)).toBe(true);
       });
-  
+
       it('no-op map is equal to itself', () => {
         let mapped = map(tree => tree, a);
         expect(a.isEqual(mapped)).toBe(true);
         expect(mapped.isEqual(a)).toBe(true);
       });
-  
+
       it('no-op flatMap is equal to itself', () => {
         let flatMapped = flatMap(tree => tree, a);
         expect(a.isEqual(flatMapped)).toBe(true);
@@ -837,11 +865,11 @@ describe('Microstate', () => {
         it('has correct root on revealed tree', () => {
           expect(tree.root).toBe(tree);
         });
-  
+
         it('has correct root on tree in unchanged branch', () => {
           expect(motherTree.root).toBe(tree);
         });
-  
+
         it('has correct root on tree in modified branch', () => {
           expect(fatherNameTree.root).toBe(tree);
         });
@@ -867,7 +895,7 @@ describe('Microstate', () => {
         boolean = Microstate.create(Boolean, true);
         beforeTransition = jest.fn();
         afterTransition = jest.fn();
-        mapped = Microstate.map(tree => tree.use(next => (microstate, transition, args) => {
+        mapped = map(tree => tree.use(next => (microstate, transition, args) => {
           beforeTransition(microstate, transition, args);
           let result = next(microstate, transition, args);
           afterTransition(result);
@@ -1049,43 +1077,43 @@ describe('Microstate', () => {
       class Anonymous extends Session {
         signin() {}
       }
-  
+
       describe('initialize without token', () => {
         let initialized;
         beforeEach(() => {
           initialized = Microstate.create(Session);
         });
-  
+
         it('initilizes into another type', () => {
           expect(initialized.state).toBeInstanceOf(Anonymous);
         });
-  
+
         it('has signin transition', () => {
           expect(initialized.signin).toBeInstanceOf(Function);
         });
-  
+
         describe('calling initialize on initialized microstate', () => {
           let reinitialized;
           beforeEach(() => {
             reinitialized = initialized.initialize({ token: 'foo' });
           });
-  
+
           it('initilizes into Authenticated', () => {
             expect(reinitialized.state).toBeInstanceOf(Authenticated);
           });
         });
       });
-  
+
       describe('initialize with token', () => {
         let initialized;
         beforeEach(() => {
           initialized = Microstate.create(Session, { token: 'SECRET' });
         });
-  
+
         it('initilizes into Authenticated', () => {
           expect(initialized.state).toBeInstanceOf(Authenticated);
         });
-  
+
         it('has signin transition', () => {
           expect(initialized.logout).toBeInstanceOf(Function);
         });
@@ -1106,10 +1134,10 @@ describe('Microstate', () => {
           };
         };
       }
-    
+
       describe('initialization', () => {
         let root;
-        
+
         beforeEach(() => {
           root = Microstate.create(Root, { first: { } });
         });
@@ -1130,7 +1158,7 @@ describe('Microstate', () => {
           beforeEach(() => {
             changed = root.first.second.name.concat("!!!");
           });
-        
+
           it("has result after transition valueOf", () => {
             expect(changed.valueOf()).toEqual({
               first: {
@@ -1140,26 +1168,13 @@ describe('Microstate', () => {
               },
             });
           });
-  
-        });  
+
+        });
       });
     });
   });
 
   describe("State", () => {
-    it('has state alias', () => {
-      class Person {
-        firstName = String;
-        lastName = String;
-        get fullName() {
-          return `${this.state.firstName} ${this.state.lastName}`;
-        }
-      }
-
-      let person = Microstate.create(Person, { firstName: 'Taras', lastName: 'Mankovski' });
-
-      expect(person.state.fullName).toBe('Taras Mankovski');
-    });
     describe("recursive type", () => {
       class Person {
         father = Person;
@@ -1202,7 +1217,7 @@ describe('Microstate', () => {
           expect(person.state.mother).toBeInstanceOf(Person);
         });
         it('composed type without data is undefined', () => {
-          expect(person.state.father).toBeUndefined();          
+          expect(person.state.father).toBeUndefined();
         })
         it('composted types have primivite values', () => {
           expect(person.state.mother.name).toBe('');
@@ -1228,16 +1243,14 @@ describe('resolveType', () => {
   })
 });
 
-describe('stabilizeClass', () => {
-  it('is stable for sugar type', () => {
-    let Type = [String];
-    expect(stabilizeClass(Type)).toBe(stabilizeClass(Type));
-  });
-});
-
 describe('transitionsClass', () => {
   it('is stable for sugar type', () => {
     let Type = [String];
     expect(transitionsClass(Type)).toBe(transitionsClass(Type));
+  });
+
+  it('has Microstate<Type> name', () => {
+    class Foo {}
+    expect(transitionsClass(Foo).name).toBe('Transitions<Foo>');
   });
 });
