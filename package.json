@@ -3,7 +3,7 @@
   "version": "0.8.0",
   "description": "Graceful state transitions for data of any shape.",
   "keywords": [
-    "blood",
+    "statemachines",
     "immutable",
     "microstates"
   ],
