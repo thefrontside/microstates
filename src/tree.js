@@ -48,12 +48,17 @@ export const transitionsClass = stable(function transitionsClass(Type) {
 
   let transitions = $(descriptors)
     .filter(({ key, value }) => typeof value.value === 'function' && key !== 'constructor')
-    .map(descriptor => ({
-      enumerable: true,
+    .map((descriptor, key) => ({
+      enumerable: false,
       configurable: true,
-      value(...args) {
-        // transition that the user is invoking
-        return reveal(this).root.data.middleware(this, descriptor.value, args);
+      get() {
+        let bound = (...args) => reveal(this).root.data.middleware(this, descriptor.value, args);
+        Object.defineProperty(bound, 'name', {
+          value: key,
+          configurable: true,
+          enumerable: false
+        });
+        return bound;
       }
     }))
     .valueOf();
