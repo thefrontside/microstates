@@ -46,6 +46,72 @@ const defaultMiddleware = (localMicrostate, transition, args) => {
   return map(tree => tree, nextTree).microstate;
 };
 
+function makeMiddleware(tree) {
+  let { root, path } = tree;
+
+  // transition that the user is invoking
+  let { middlewares } = foldl((acc, childName) => {
+    let tree = acc.tree.children[childName];
+    let middleware = tree.data.middleware.map(fn => next => fn(next, tree));
+    return {
+      middlewares: [...acc.middlewares, ...middleware],
+      tree
+    }
+  }, { tree: root, middlewares: [ ...root.data.middleware ] }, path);
+
+  return middlewares
+    .reduce((fn, middleware) => middleware(fn), defaultMiddleware);
+}
+
+function setupTransition(transition, name) {
+  let middleware = makeMiddleware(reveal(this));
+  let bound = (...args) => middleware(this, transition, args);
+
+  Object.defineProperty(bound, 'name', {
+    value: name,
+    configurable: true,
+    enumerable: false
+  });
+
+  return bound;
+}
+
+function setupQuery(query, name) {
+  let origin = Tree.from(this);
+
+  let middleware = next => {
+    return (microstate, transition, args) => {
+      let { meta: { origin } } = Tree.from(microstate);
+      return makeMiddleware(origin)(origin.microstate, transition, args);
+    }
+  }
+
+  let context = map(tree => {
+    return tree.assign({
+      meta: { origin: tree },
+      data: { middleware: tree.isRoot ? [] : tree.data.middleware }
+    })
+  }, origin);
+
+  let queried = query.call(context.microstate);
+  
+  let queriedTree = Tree.from(queried);
+
+  let withMiddleware = map(tree => { 
+    if (tree.isRoot) {
+      return tree.assign({
+        data: {
+          middleware: [middleware]
+        }
+      })
+    } else {
+      return tree; 
+    }
+  }, queriedTree.root);
+
+  return withMiddleware.treeAt(queriedTree.path).microstate;
+}
+
 export const transitionsClass = stable(function transitionsClass(Type) {
   class Transitions extends Microstate {
     static get name() {
@@ -56,34 +122,13 @@ export const transitionsClass = stable(function transitionsClass(Type) {
   let descriptors = Type === types.Any ? getPrototypeDescriptors(types.Any) : assign(getPrototypeDescriptors(resolveType(Type)), getPrototypeDescriptors(types.Any))
 
   let transitions = $(descriptors)
-    .filter(({ key, value }) => typeof value.value === 'function' && key !== 'constructor')
+    .filter(({ key, value }) => (typeof value.value === 'function' || typeof value.get === 'function') && key !== 'constructor')
     .map((descriptor, key) => ({
       enumerable: false,
       configurable: true,
-      get() {
-        let { root, path } = reveal(this);
-
-        // transition that the user is invoking
-        let { middlewares } = foldl((acc, childName) => {
-          let tree = acc.tree.children[childName];
-          let middleware = tree.data.middleware.map(fn => next => fn(next, tree));
-          return {
-            middlewares: [...acc.middlewares, ...middleware],
-            tree
-          }
-        }, { tree: root, middlewares: [ ...root.data.middleware ] }, path);
-
-        let middleware = middlewares
-          .reduce((fn, middleware) => middleware(fn), defaultMiddleware);
-        
-        let bound = (...args) => middleware(this, descriptor.value, args);
-        Object.defineProperty(bound, 'name', {
-          value: key,
-          configurable: true,
-          enumerable: false
-        });
-        return bound;
-      }
+      get() { return descriptor.get ? 
+        setupQuery.call(this, descriptor.get, key) : 
+        setupTransition.call(this, descriptor.value, key) }
     }))
     .valueOf();
 
