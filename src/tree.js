@@ -27,14 +27,23 @@ const { assign, defineProperties } = Object;
  * @param {Array<any>} args
  */
 const defaultMiddleware = (localMicrostate, transition, args) => {
-  let tree = reveal(localMicrostate);
+  let { lens, root } = reveal(localMicrostate);
 
-  let { microstate } = tree.apply(focus => {
+  let applyTransition = focus => {
     let next = transition.apply(focus.microstate, args);
-    return next instanceof Microstate ? reveal(next) : focus.assign({ data: { value: next }});
-  });
+    if (next instanceof Microstate) {
+      return reveal(next);
+    } else {
+      return focus.assign({ data: { value: next }});
+    }
+  };
 
-  return microstate;
+  // transition is applied to the end of the path
+  // it returns the next tree which is returned
+  let nextTree = over(lens, applyTransition, root);
+
+  // map tree to make sure that it gets the root applied
+  return map(tree => tree, nextTree).microstate;
 };
 
 export const transitionsClass = stable(function transitionsClass(Type) {
@@ -346,26 +355,6 @@ export default class Tree {
         }
       }
     });
-  }
-
-  /**
-   * Returns a new root tree with after applying the function argument to the current tree.
-   * Apply will backup the middleware on this tree to ensure that context specific middleware
-   * is not applied when the tree is pruned.
-   */
-  apply(fn) {
-    // overload custom middleware to allow context free transitions
-    let root = this.root.assign({ data: { middleware: defaultMiddleware } });
-    // focus on current tree and apply the function to it
-    let nextRoot = over(this.lens, fn, root);
-    // put the original middleware into the next root tree so the middleware will
-    return map(tree => {
-      if (tree.is(nextRoot)) {
-        return nextRoot.assign({ data: { middleware: this.root.data.middleware } });
-      } else {
-        return tree;
-      }
-    }, nextRoot);
   }
 
   /**

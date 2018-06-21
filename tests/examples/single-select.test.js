@@ -1,7 +1,6 @@
 import "jest";
-import { create, types, parameterized, Tree } from "microstates";
-import { map, foldl } from "funcadelic";
-import over from 'ramda/src/over';
+import { create, parameterized, Tree, use } from "microstates";
+import { foldl } from "funcadelic";
 import values from '../../src/values';
 class Color {}
 
@@ -47,7 +46,7 @@ class SingleSelect {
 
     class SingleSelectList extends parameterized(Array, Selectable) {
       initialize() {
-        return map(root => root.use(selectMiddleware), this);
+        return use(selectMiddleware, this);
       }
     }
 
