@@ -73,37 +73,38 @@ But, most imporantly, Microstates makes working with state fun.
 
 **When was the last time you had fun working with state?**
 
-For many, the answer is probably never, because state management in JavaScript is an endless game of compromises. You can choose to go fully immutable and write endless reducers. You can go mutable and everything becomes an observable. Or you can `setState` and loose the benefit of serialization and time travel debugging.
+For many, the answer is probably never, because state management in JavaScript is an endless game of compromises. You can choose to go fully immutable and write endless reducers. You can go mutable and everything becomes an observable. Or you can `setState` and lose the benefits of serialization and time travel debugging.
 
-Unlike the view layer, where most frameworks agree on some variation of React components, state management is a lot less certain. It's less certain because none of the available tools strike the balance that React components introduced to the view layer.
+Unlike the view layer, where most frameworks agree on some variation of React's concept of components, state management is a lot less certain. This is because none of the available tools strike the balance that React components introduced to the view layer.
 
-React components have a tiny API. They are functional, simple and extremely reusable. The tiny API gives you high productivity for little necessary knowledge. Functional components are predictable and easy to reason about. They are conceptually simple, but simplicity hides architecture that makes them performant. Their simplicity, predictability and isolation makes them composable and reusable.
+React components have a tiny API. They are functional, simple and extremely reusable. The tiny API gives you high productivity for little necessary knowledge. Functional components are predictable and easy to reason about. They are conceptually simple, but simplicity hides an underlying architecture geared for performance. Their simplicity, predictability and isolation makes them composable and reusable.
 
-These factors combined is what makes React style components easy to work with and ultimately fun to write. Tiny API abstracting sophisticated architecture that delivers performance and is equaly useful on small and big projects is the outcome that we set out to achieve for state management with Microstates.
+These factors combined are what make React style components easy to work with and ultimately fun to write. A Tiny API abstracting a sophisticated architecture that delivers performance and is equaly useful on small and big projects is the outcome that we set out to achieve for state management with Microstates.
 
 It's not easy to find the right balance between simplicity and power, but considering the importance of state management in web applications, we believe it's a worthy challenge.
 
 # Why Microstates?
 
-Out tools effect how we solve problems and collaborate. 
+Our tools affect how we solve problems and collaborate.
 
-Two tools can serve the same purpose but foster a completely different kind of ecosystem. Take jQuery plugins and React components as an example. Both of these tools provided a way to add custom behaviour to a DOM element but they fostered very different communities.
+Two tools can serve the same purpose but foster completely different ecosystems. Take jQuery plugins and React components as examples. Both of these tools provided a way to add custom behaviour to a DOM element but they fostered very different communities.
 
-In React world today, we see many special purpose components that are easy to combine to create sophisticated user experiences. These components tend to have few options but provide just the right API for you to build what you need.
+In the React world today, we see many special purpose components that are easily combined to create sophisticated user experiences. These components tend to have few options but provide just the right API for you to build what you need.
 
-jQuery plugins on the other hand offer endsless list of options that are difficult get just right. In jQuery ecosystem, libraries tended to be monolithic because plugins from different libraries often did not work well together.
+jQuery plugins, on the other hand, offer endsless lists of options that are difficult get just right. In the jQuery ecosystem, libraries tend to be monolithic because plugins from different libraries often do not work well together.
 
-As a result, in React ecosystem we see components like [react-virtualized](https://github.com/bvaughn/react-virtualized) and [react-dnd](https://github.com/react-dnd/react-dnd) that are made by experienced React developers. These components save companies and developers millions of dollars in wasted development by eliminating the need for everyone to re-invent these components to build their user experiences.
+As a result, in the React ecosystem we see components like [react-virtualized](https://github.com/bvaughn/react-virtualized) and [react-dnd](https://github.com/react-dnd/react-dnd) that are made by experienced React developers. These components save companies and developers millions of dollars in wasted development by eliminating the need for everyone to re-invent these components to build their user experiences.
 
-The ability to leverage the experience of other developers that they made available as packages elevates our entire ecosystem. We call this _standing on the shoulders of giants_. Our goal is to bring this level of collaboration to state management.
+The ability to leverage the experience of other developers in the form of published packages elevates our entire ecosystem. We call this _standing on the shoulders of giants_. Our goal is to bring this level of collaboration to state management.
 
 ## M in MVC
 
-If you're a web developer and using a framework, you might be wondering how Microstates will work within your framework. For now, I will say that we'll have an integration for each framework, but it's important that we're on the same page about the role of Microstates within your application. Once we have that, you'll see more ways to use Microstates than I can cover in this README.
+If you're a web developer and are using a framework, you might be wondering how Microstates will work within said framework. For now, I will say that we'll have an integration for each framework, but it's important that we're on the same page about the role of Microstates within your application. Once we have that, you'll see more ways to use Microstates than I can cover in this README.
 
 Regardless of the kind of application you're building, your application is made of code that roughly represents data, converts user input into data and presents data to the user. This traditionally has been described as MVC pattern where M, model, is data that is persisted or accumulated through user actions or input. V, view, is how that data is presented to the user, often we describe with components and C, controller, which represents the constraints that exist on the user's actions.
 
-Talking about MVC is a little passe in some communities and understandbly so because traditional MVC did not bring a lot of comfort to early adopters of web frameworks. Of the early adopters, only a few MVCish frameworks are left, but regardless of the popularity of the term, the architectural pattern is still a big part of our applications.
+Talking about MVC is a little passé in some communities, and understandbly so. Traditional MVC did not bring a lot of comfort to early adopters of web frameworks. Of the early adopters, only a few MVCish frameworks are left, but regardless of the popularity of the term, the architectural pattern is still a big part of our applications.
+
 
 What we're seeing now is the discovery of what MVC looks like in modern web applications. One thing that most of us can agree on is that our views are now called components. Over the last 5 years, we saw a lot of competition in the view layer to make the most performant and ergonomic view building developer experience.
 
@@ -111,13 +112,13 @@ What we're seeing now is the discovery of what MVC looks like in modern web appl
 
 The view boom was in big part ignited by the introduction of React. With React, came the introduction and mass adoption of functional programming ideas in the JavaScript ecosystem. Functional thinking brought a lot of simplicity to the view layer. It is conceptually simple - a component is a function that takes props and returns DOM. This simplicity helped developers learn React and has been adopted to a varied degree by most frameworks. The API that each frameworks exposes to their view is somewhat different but the general idea is the same.
 
-Microstates brings the same kind of simplicity to the model layer. A Microstate is a functional model in a way that a component is a functional view. Component takes props and returns DOM, a Microstate takes value and returns state. DOM is a tree of element instances, state is a tree of model instances. A DOM tree is created by passing data to a root component. A state tree is created from a root type and value. A component is an abstraction that we use to manipulate the DOM tree. A microstate is an abstraction that we use to manipulate the state tree.
+Microstates brings the same kind of simplicity to the model layer. A Microstate is a functional model in a way that a component is a functional view. A component takes props and returns DOM; a Microstate takes value and returns state. DOM is a tree of element instances, state is a tree of model instances. A DOM tree is created by passing data to a root component. A state tree is created from a root type and value. A component is an abstraction that we use to manipulate the DOM tree. A microstate is an abstraction that we use to manipulate the state tree.
 
 When you want to change what the user sees, you could imperatively manipulate the DOM elements with jQuery, but React taught us to change DOM declaratively by changing the data that the DOM reflects. In the same way, when you want to change the state, you must change the value and allow the state to be reflected.
 
 # What is a Microstate?
 
-A microstate is a JavaScript object that is created from a Microstate type and pojo value. The shape and methods of the microstate are determined by the type and value it contains. A type describes the structure and transitions that can be performed on the microstate. Using type and value, Microstates derives a single immutable state tree.
+A Microstate is a JavaScript object that is created from a Microstate type and POJO value. The shape and methods of the Microstate are determined by its type and the value it contains. A type describes the structure and transitions that can be performed on the microstate. Using type and value, Microstates derives a single immutable state tree.
 
 # Types
 
@@ -125,13 +126,13 @@ Microstates comes with 5 primitive types: `Boolean`, `Number`, `String`, `Object
 
 ## Type Composition
 
-Microstates types are composable, which mean that you can combine types to create other types. Types that compose other types are called `class` types. They look similar to regular JavaScript classes but they must conform to certain conventions that allow them to be composable.
+Microstates types are composable, which means that you can combine types to create other types. Types that compose other types are called `class` types. They look similar to regular JavaScript classes but they must conform to certain conventions that allow them to be composable.
 
 ## Defining class types
 
-To define a class type with Microstates, you define a regular JavaScript class and use class properties(aka class fields) to describe where composed microstates will be. 
+To define a class type with Microstates, you define a regular JavaScript class and use class properties (aka class fields) to describe where composed Microstates will be.
 
-Let say we wanted to create a microstate type that represents a person. The person type will have a name that is a string and age that is just a number. 
+Let's say we want to create a Microstate type that represents a person. The `Person` type will have a name that is a string and age that is just a number.
 
 You would declare a Microstate type in the following way,
 
@@ -142,7 +143,7 @@ class Person {
 }
 ```
 
-Once you have a type, you can use that type to create as many people as your application requires,
+Once you have a type, you can use that type to create as many people as your application requires:
 
 ```js
 import { create } from "microstates";
@@ -150,7 +151,7 @@ import { create } from "microstates";
 let person = create(Person, { name: "Homer", age: 39 });
 ```
 
-Every microstate created with `Person` type will be an object that looks like this,
+Every microstate created with a type of `Person` will be an object that looks like this:
 
 ```txt
 +----------------------+
@@ -174,7 +175,7 @@ Every microstate created with `Person` type will be an object that looks like th
 
 ## Composing class types
 
-`class` types can compose other `class` types. This makes it possible to build complex data structures that accurately describe your domain. Since Microstates are atomic and all transitions return microstates, Microstates can automatically handle transitions regardless of how your `class` types are composed.
+`class` types can compose other `class` types. This makes it possible to build complex data structures that accurately describe your domain. Since Microstates are atomic and all transitions return Microstates, Microstates can automatically handle transitions regardless of how your `class` types are composed.
 
 Let's define another type that composes the person type.
 
@@ -222,7 +223,7 @@ let theHomerCar = create(Car, {
 +-------------------+
 ```
 
-The property names are important when defining `class` types because they are used to reference composed microstates. You can use the object dot notation to access a composed microstate. Using the same example from
+The property names are important when defining `class` types because they are used to reference composed microstates. You can use the object dot notation to access a composed microstate. Using the same example from above:
 
 ```js
 theHomerCar.designer.state;
@@ -237,7 +238,7 @@ theHomerCar.name.state;
 
 ## Parameterized Types
 
-Quiet often it is helpful to describe your data as a collection of types. A blog might have an array of posts. To do this, you can use the parameterized array notation, `[Post]`. This signals to microstates that the microstate represents the state of an array collection of `Post` type.
+Quite often it is helpful to describe your data as a collection of types. A blog might have an array of posts. To do this, you can use the parameterized array notation, `[Post]`. This signals to Microstates that the Microstate represents the state of an array collection of `Post` type.
 
 ```js
 class Blog {
@@ -309,7 +310,7 @@ blog2.posts["3"].state;
 
 # State
 
-State is an object graph that is lazily constructred from Microstate's type and value. It mirrors the structure of the Microstate type that was used to create it.  
+State is an object graph that is lazily constructred from Microstate's type and value. It mirrors the structure of the Microstate type that was used to create it.
 
 ## Building state
 
@@ -336,12 +337,12 @@ If we were to create this type, we'd get the following,
 ```js
 import { create } from 'microstates';
 
-let app = create(App, { 
-  shop: { 
+let app = create(App, {
+  shop: {
     products: [
       { id: 1, title: 'Sponge' }
-    ] 
-  } 
+    ]
+  }
 });
 
 app.state instanceof App //> true
@@ -352,11 +353,11 @@ app.state.shop.products[0].title === 'Sponge' // true
 app.state.shop.products[0].id === 1 //> true
 ```
 
-What I tried to show here is that the object that's created from state property is the same structure as the microstate itself. According to the structure, each instance is populated by it's corresponding value from the value object. 
+What I tried to show here is that the object that's created from state property is the same structure as the microstate itself. According to the structure, each instance is populated by it's corresponding value from the value object.
 
 ## All getters are cached
 
-A microstate is a pure function of type and value, which means that for any type and value you can only ever have one state. We can rely on this to cache all of the computations that are derived off this state. 
+A microstate is a pure function of type and value, which means that for any type and value you can only ever have one state. We can rely on this to cache all of the computations that are derived off this state.
 
 Let's say you have some state were you need to perform a heavy computation,
 
@@ -384,13 +385,13 @@ let table = create(Table, {
 table.state.sortedRows === table.state.sortedRows
 ```
 
-When you read this getter, it'll be evaluated and result will be cached. All future reads will return the same value. 
+When you read this getter, it'll be evaluated and result will be cached. All future reads will return the same value.
 
-*Note*: It's ok if you've never done this before with regular JavaScript classes. JavaScript classes that were not instantiated with Microstates are mutable and do not cache their getters. A similar example without Microstates would cause the sort function to be invoked on each read. 
+*Note*: It's ok if you've never done this before with regular JavaScript classes. JavaScript classes that were not instantiated with Microstates are mutable and do not cache their getters. A similar example without Microstates would cause the sort function to be invoked on each read.
 
 ## Reuse of immutable state instances
 
-When you create a deeply composed microstate, your state has the shape of a nesting doll. Each higher level contains all of it's children states. In this scenario, it's critical that the parents reference the same state objects as the children. 
+When you create a deeply composed microstate, your state has the shape of a nesting doll. Each higher level contains all of it's children states. In this scenario, it's critical that the parents reference the same state objects as the children.
 
 In our shop example, the state generated on app object should be the same state that's generated on product object. Let's look at the example again,
 
@@ -409,23 +410,23 @@ class Product {
   title = String;
 }
 
-let app = create(App, { 
-  shop: { 
+let app = create(App, {
+  shop: {
     products: [
       { id: 1, title: 'Sponge' }
-    ] 
-  } 
+    ]
+  }
 });
 
 app.state.shop.products[0] === app.shop.products[0].state
-//    ^    state object on app, should be same as    ^ 
+//    ^    state object on app, should be same as    ^
 ```
 
-The state is generated from another microstate, but it's the same state as on the children. This ensures we maintain `===` (exact equality) down the state tree. This is very important in most frameworks today because they have built in optimizations that rely on exact equality. 
+The state is generated from another microstate, but it's the same state as on the children. This ensures we maintain `===` (exact equality) down the state tree. This is very important in most frameworks today because they have built in optimizations that rely on exact equality.
 
 ## Reuse of state between transitions
 
-Microstates are designed to allow construction of complex state trees. When a state tree is deeply nested, a branch of the state tree can get transitioned without effecting other branches. Branches that are uneffected by a transition should reuse their state instances. This eliminates unneccessary re-renders in frameworks that use exact equality to optimize perfomance. 
+Microstates are designed to allow construction of complex state trees. When a state tree is deeply nested, a branch of the state tree can get transitioned without effecting other branches. Branches that are uneffected by a transition should reuse their state instances. This eliminates unneccessary re-renders in frameworks that use exact equality to optimize perfomance.
 
 # Transitions
 
@@ -516,7 +517,7 @@ Many transitions on primitive type are similar to methods on original classes. T
 
 ## class type transitions
 
-You can define transitions for class types. Inside of a transition, you can invoke transitions on other microstates that are composed onto this microstate. You can use the fact that composed microstates always return root microstates to chain transitions. 
+You can define transitions for class types. Inside of a transition, you can invoke transitions on other microstates that are composed onto this microstate. You can use the fact that composed microstates always return root microstates to chain transitions.
 
 ```js
 import { create } from "microstates";
@@ -537,7 +538,7 @@ let lisa = homer.changeName('Lisa');
 
 ## chaining transitions
 
-The result of the last operation in the chain will be merged into the microstate. 
+The result of the last operation in the chain will be merged into the microstate.
 
 ```js
 class Session {
@@ -609,7 +610,7 @@ number.valueOf()
 //> 43
 ```
 
-You can also use `set` transition to replace the current microstate with another microstate. This is especially useful when building state machines because it allows you to change the type of the current microstate. By changing the type, you're also changing available transitions and how the state is calculated. 
+You can also use `set` transition to replace the current microstate with another microstate. This is especially useful when building state machines because it allows you to change the type of the current microstate. By changing the type, you're also changing available transitions and how the state is calculated.
 
 ```js
 import { types } from 'microstates';
@@ -666,7 +667,7 @@ result.vehicle.state.isTowing
 //> true
 ```
 
-Those familiar with functional programming might recognize this as a flatMap operation. It is not required for you to understand Monads to use Microstates transitions. If you're interested in learning about the primitives of functional programming, you may checkout [funcadelic.js](https://github.com/cowboyd/funcadelic.js). Microstates uses Funcadelic under the hood. 
+Those familiar with functional programming might recognize this as a flatMap operation. It is not required for you to understand Monads to use Microstates transitions. If you're interested in learning about the primitives of functional programming, you may checkout [funcadelic.js](https://github.com/cowboyd/funcadelic.js). Microstates uses Funcadelic under the hood.
 
 ## Scope rules
 
@@ -826,7 +827,7 @@ This mechanism provides is the starting point for integration between Observable
 
 # The Vision of Microstates
 
-What if switching framework was easy? What if a company could build domain specific code that worked across frameworks? Imagine what it would be like if you tools stayed with you as you progressed in your career as an engineer. This is the world what we hope to create with Microstates. 
+What if switching framework was easy? What if a company could build domain specific code that worked across frameworks? Imagine what it would be like if you tools stayed with you as you progressed in your career as an engineer. This is the world what we hope to create with Microstates.
 
 ## Shared Solutions
 
