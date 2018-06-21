@@ -671,13 +671,13 @@ Those familiar with functional programming might recognize this as a flatMap ope
 
 ## Scope rules
 
-For Microstates to be composable, they must work the same as a root Microstate or composed into another microstate. For this reason, microstate transitions only have access to their own transitions and the transitions of the microstates that are composed into them. They do not have access to their context. This is similar to how components work. The parent component can render a child component and pass data to them. The childer components do not have direct access to the parent component. Same in Microstates.
+For Microstates to be composable, they must work the same as a root Microstate or composed into another Microstate. For this reason, Microstate transitions only have access to their own transitions and the transitions of the Microstates that are composed into them. They do not have access to their context. This is similar to how components work. The parent component can render a child component and pass data to them. The children components do not have direct access to the parent component. Same in Microstates.
 
 # `microstates` npm package
 
-The `microstates` package provides the `Microstate` class and functions that operate on microstate objects.
+The `microstates` package provides the `Microstate` class and functions that operate on Microstate objects.
 
-You can import microstates library using,
+You can import the `microstates` package using:
 
 ```bash
 npm install microstates
@@ -687,7 +687,7 @@ npm install microstates
 yarn add microstates
 ```
 
-Then import the libraries using,
+Then import the libraries using:
 
 ```js
 import Microstate, { create, from, map } from "microstates";
@@ -695,7 +695,7 @@ import Microstate, { create, from, map } from "microstates";
 
 ## create(Type, value): Microstate
 
-`create` function is conceptually similar to `Object.create`. It creates a microstate object from type class and a value. This function is lazy, so it should be safe in most high performant operations even with complex and deeply nested data structures.
+The `create` function is conceptually similar to `Object.create`. It creates a Microstate object from type class and a value. This function is lazy, so it should be safe in most high performant operations even with complex and deeply nested data structures.
 
 ```js
 import { create } from "microstates";
@@ -706,7 +706,7 @@ create(Number, 42);
 
 ## from(any): Microstate
 
-`from` allows to convert any POJO(plain JavaScript object) into a Microstate. Once you created a microstate, you can perform operations on all properties of the value.
+`from` allows the conversion of any POJO (plain JavaScript object) into a Microstate. Once you've created a Microstate, you can perform operations on all properties of the value.
 
 ```js
 import { from } from "microstates";
@@ -727,7 +727,7 @@ from({ hello: "world" });
 //> Microstate<Object>
 ```
 
-`from` is lazy, so you can put in any deeply nested pojo and microstates will allow you to transition it. The cost of building the objects inside of microstates is paid whenever you reach for a microstate inside. For example, `let o = from({ a: { b: c: 42 }})` doesn't do anything until you start to read the properties with dot notiation like `o.a.b.c`.
+`from` is lazy, so you can consume any deeply nested POJO and Microstates will allow you to perform transitions with it. The cost of building the objects inside of Microstates is paid whenever you reach for a Microstate inside. For example, `let o = from({ a: { b: c: 42 }})` doesn't do anything until you start to read the properties with dot notiation like `o.a.b.c`.
 
 ```js
 from({ a: { b: c: 42 }}).a.b.c.increment().valueOf();
@@ -739,7 +739,7 @@ from({ hello: [ 'world' ]}).hello[0].concat('!!!').valueOf();
 
 ## map(fn: tree => tree, microstate: Microstate): Microstate
 
-`map` function is used to perform operations on the that is used to build the microstate. It expects a function and a microstate and returns a microstate. This function accepts a mapping function which will receive the microstate's tree. The mapping function is expected to return a tree. The tree that is returned from the mapping will be used to generate the microstate that's returned by the map operation.
+The `map` function is used to perform operations on the tree that are used to build a new Microstate. It expects a function and a Microstate and returns a Microstate. This function accepts a mapping function which will receive the Microstate's tree. The mapping function is expected to return a tree. The tree that is returned from the mapping will be used to generate the microstate that's returned by the map operation.
 
 This is most frequently used go derive a microstate with middleware installed.
 
@@ -766,11 +766,11 @@ loggedNumber.increment();
 
 # Middleware
 
-Middleware makes it possible to modify what is called before a transition is performed and what is returned by a transition. You can use it to change the outcome of a transition or emit side effects.
+Middleware makes it possible to modify what occurs before a transition is performed and what is ultimately returned by a transition. You can use it to change the outcome of a transition or emit side effects.
 
 Installation of a middleware is done in an immutable fashion as with all other operations in Microstates. To install a middleware, you must map a microstate to create a new microstate that uses the given middleware.
 
-Let's create logging middleware that will log every transition.
+Let's create logging middleware that will log every transition:
 
 ```js
 import { create, map } from "microstates";
@@ -798,8 +798,7 @@ The middleware will be invoked on any transition that you call on this Microstat
 
 # Observable Microstates
 
-Microstates provides an easy way to convert a microstate which represents a single value into a Observable stream of values. This is done by passing a microstate to `Observable.from` function. This function will return a Observable object with a subscribe method. You can subscribe to the stream by passing an observer to the subscribe function. Once you subscribe,
-you will syncronously receive a microstate with middleware installed that will cause the result of transitions to be pushed through the stream.
+Microstates provides an easy way to convert a Microstate which represents a single value into a Observable stream of values. This is done by passing a Microstate to `Observable.from` function. This function will return a Observable object with a `subscribe` method. You can subscribe to the stream by passing an observer to the subscribe function. Once you subscribe, you will syncronously receive a microstate with middleware installed that will cause the result of transitions to be pushed through the stream.
 
 You should be able to use to any implementation of Observables that supports `Observer.from` using [symbol-observable](https://github.com/benlesh/symbol-observable). We'll use `RxJS` for our example.
 
@@ -823,11 +822,11 @@ last.valueOf();
 //> { firstName: 'Homer J', lastName: 'Simpson' }
 ```
 
-This mechanism provides is the starting point for integration between Observables ecosystem and Microstates.
+This mechanism provides the starting point for integration between the Observables ecosystem and Microstates.
 
 # The Vision of Microstates
 
-What if switching framework was easy? What if a company could build domain specific code that worked across frameworks? Imagine what it would be like if you tools stayed with you as you progressed in your career as an engineer. This is the world what we hope to create with Microstates.
+What if switching frameworks were easy? What if a company could build domain specific code that worked across frameworks? Imagine what it would be like if you tools stayed with you as you progressed in your career as an engineer. This is the world what we hope to create with Microstates.
 
 ## Shared Solutions
 
@@ -845,11 +844,11 @@ class MyApp {
 
 The knowledge about building normalized data stores is available in libraries like [Ember Data](https://github.com/emberjs/data), [Orbit.js](https://github.com/orbitjs/orbit), [Apollo](https://www.apollographql.com) and [urql](https://github.com/FormidableLabs/urql), yet many companies end up rolling their own because these tools are coupled to other stacks.
 
-As time and resource permit, we hope to create a solution that will be flexible enough for use in most applications. If you're interested in helping us with this, please reach out.
+As time and resources permit, we hope to create a solution that will be flexible enough for use in most applications. If you're interested in helping us with this, please reach out.
 
 ## Added Flexibility
 
-Imagine if your favourite Calendar component came with a Microstate that allowed you to customized the logic of the calendar without touching the rendered output. It might looks something like this,
+Imagine if your favourite Calendar component came with a Microstate that allowed you to customize the logic of the calendar without touching the rendered output. It might looks something like this,
 
 ```js
 import Calendar from "awesome-calendar";
@@ -867,15 +866,15 @@ class MyCalendar extends Calendar.Model {
 <Calendar.Component model={MyCalendar} />;
 ```
 
-Currently, these are pseudo code, but Microstates was architectured to allow these kinds of solutions to be created.
+Currently, this is pseudocode, but Microstates was architected to allow for these kinds of solutions.
 
 ## Framework Agnostic Solutions
 
-Competition moves our industry forward but concensus builds ecosystems.
+Competition moves our industry forward but consensus builds ecosystems.
 
-Unfortunately, when it comes to the M(odel) of the MVC pattern, we are seeing neither competition nor concesus. Every framework has it's own model layer that is not compatible with another. This makes it difficult to create trully portable solutions that can be used on all frameworks.
+Unfortunately, when it comes to the M(odel) of the MVC pattern, we are seeing neither competition nor consensus. Every framework has its own model layer that is not compatible with others. This makes it difficult to create truly portable solutions that can be used on all frameworks.
 
-It creates lockin that is detremental to businesses that use these frameworks and developers who are forced to make career altering decisions before they fully understand their choices.
+It creates lock-in that is detrimental to the businesses that use these frameworks and to the developers who are forced to make career altering decisions before they fully understand their choices.
 
 We don't expect everyone to agree that Microstates is the right solution, but we would like to start the conversation about what a shared primitive for state management in JavaScript might look like. Microstates is our proposal.
 
