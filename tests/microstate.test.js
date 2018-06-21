@@ -6,14 +6,31 @@ it('exports create', function() {
 });
 
 describe('create', () => {
-  it(`uses valueOf microstates instance that's passed to it`, () => {
-    class Person {
-      name = String;
-    }
-    let value = { name: "Taras" };
-    let m1 = create(Person, value);
-    expect(m1.valueOf()).toEqual(value);
+  class Person {
+    name = String;
+  }
+  let value = { name: "Homer" };
+  let homer;
+  beforeEach(() => {
+    homer = create(Person, value);
   });
+  it('uses valueOf microstates instance that\'s passed to it', () => {
+    expect(homer.valueOf()).toEqual(value);
+  });
+  describe('calling create with microstate', () => {
+    class AgingPerson {
+      name = String;
+      age = Number;
+    }
+    let homerWithAge;
+    beforeEach(() => {
+      homerWithAge = create(AgingPerson, homer);
+    });
+    it('has values for both composed types', () => {
+      expect(homerWithAge.name.state).toBe('Homer');
+      expect(homerWithAge.age.state).toBe(0);
+    });
+  })
 });
 
 describe('valueOf', () => {

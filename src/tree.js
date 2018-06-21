@@ -105,6 +105,7 @@ export class Microstate {
   }
 
   static create(Type, value) {
+    value = value ? value.valueOf() : value;
     return flatMap(tree => {
       if (tree.Type.prototype.hasOwnProperty("initialize")) {
         let initialized = tree.microstate.initialize(tree.value);
