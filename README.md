@@ -58,7 +58,7 @@ a tool that provides a tiny API to describe complex data structures and provide 
 
 # Features
 
-With microstates added to your project, you get:
+With Microstates added to your project, you get:
 
 * 🍇 Composable type system
 * 🍱 Reusable state atoms
@@ -264,7 +264,7 @@ blog.posts[1].state;
 //> Post<{ id: 2, title: 'Most fascinating blog in the world' }>
 ```
 
-When you're working with parameterized types, the shape of the microstate is determined by the value. In this case, `posts` is created with two items which will create a microstate with two items. Each item will be a microstate of type `Post`. If you push another item the `posts` microstate, it'll be treated as a `Post`.
+When you're working with parameterized types, the shape of the Microstate is determined by the value. In this case, `posts` is created with two items which will, in turn, create a Microstate with two items. Each item will be a Microstate of type `Post`. If you push another item onto the `posts` Microstate, it'll be treated as a `Post`.
 
 ```js
 let blog2 = blog.posts.push({ id: 3, title: "It is only getter better" });
@@ -310,13 +310,13 @@ blog2.posts["3"].state;
 
 # State
 
-State is an object graph that is lazily constructred from Microstate's type and value. It mirrors the structure of the Microstate type that was used to create it.
+State is an object graph that is lazily constructred from a Microstate's type and value. It mirrors the structure of the Microstate type that was used to create it.
 
 ## Building state
 
-State is built from the root of the microstate down one child at a time as your application reaches for that state. The constuction of the state is done lazily which allows recursive data structures. `class` types are instantiated from their JavaScript classes.
+State is built from the root of the Microstate down, one child at a time, as your application reaches for that state. The constuction of the state is done lazily which affords the use of recursive data structures. `class` types are instantiated from their JavaScript classes.
 
-Let's consider a fairly deep data structure,
+Let's consider a fairly deep data structure:
 
 ```js
 class App {
@@ -332,7 +332,7 @@ class Product {
 }
 ```
 
-If we were to create this type, we'd get the following,
+If we were to create this type, we'd get the following:
 
 ```js
 import { create } from 'microstates';
@@ -353,13 +353,13 @@ app.state.shop.products[0].title === 'Sponge' // true
 app.state.shop.products[0].id === 1 //> true
 ```
 
-What I tried to show here is that the object that's created from state property is the same structure as the microstate itself. According to the structure, each instance is populated by it's corresponding value from the value object.
+This illustrates that the object that's created from the state property is the same structure as the Microstate itself. According to its structure, each instance is populated by it's corresponding value from the value object.
 
 ## All getters are cached
 
-A microstate is a pure function of type and value, which means that for any type and value you can only ever have one state. We can rely on this to cache all of the computations that are derived off this state.
+A Microstate is a pure function of type and value, which means that for any type and value you can only ever have one state. We can rely on this to cache all of the computations that are derived off of this state.
 
-Let's say you have some state were you need to perform a heavy computation,
+Let's say you have some state were you need to perform a heavy computation:
 
 ```js
 class Table {
@@ -391,9 +391,9 @@ When you read this getter, it'll be evaluated and result will be cached. All fut
 
 ## Reuse of immutable state instances
 
-When you create a deeply composed microstate, your state has the shape of a nesting doll. Each higher level contains all of it's children states. In this scenario, it's critical that the parents reference the same state objects as the children.
+When you create a deeply composed microstate, your state has the shape of a nesting doll. Each higher level contains all of its children. In this scenario, it's critical that the parents reference the same state objects as the children.
 
-In our shop example, the state generated on app object should be the same state that's generated on product object. Let's look at the example again,
+In our shop example, the state generated on app object should be the same state that's generated on product object. Let's look at the example again:
 
 ```js
 import { create } from 'microstates';
@@ -422,15 +422,15 @@ app.state.shop.products[0] === app.shop.products[0].state
 //    ^    state object on app, should be same as    ^
 ```
 
-The state is generated from another microstate, but it's the same state as on the children. This ensures we maintain `===` (exact equality) down the state tree. This is very important in most frameworks today because they have built in optimizations that rely on exact equality.
+The state is generated from another microstate, but it's the same state as that which is on the children. This ensures we maintain `===` (exact equality) down the state tree. This is very important in most frameworks today because they have built in optimizations that rely on exact equality.
 
 ## Reuse of state between transitions
 
-Microstates are designed to allow construction of complex state trees. When a state tree is deeply nested, a branch of the state tree can get transitioned without effecting other branches. Branches that are uneffected by a transition should reuse their state instances. This eliminates unneccessary re-renders in frameworks that use exact equality to optimize perfomance.
+Microstates are designed to allow construction of complex state trees. When a state tree is deeply nested, a branch of the state tree can get transitioned without affecting other branches. Branches that are unaffected by a transition should reuse their state instances. This eliminates unneccessary re-renders in frameworks that use exact equality to optimize perfomance.
 
 # Transitions
 
-Transitions are declarative operations that you can perform on a microstate to derive another state. All transitions return another microstate.
+Transitions are declarative operations that you can perform on a microstate to derive another state. All transitions return another Microstate.
 
 The simplest example of this is `toggle` transition on the `Boolean` type. The `toggle` transition takes no arguments and creates a new microstate with the state that is opposite of the current state. The `Boolean` type can be described with the following state chart.
 
@@ -452,7 +452,7 @@ b2.state;
 //> true
 ```
 
-An important quality of the transitions in Microstates is that they always return a microstate. This is true inside of transition functions and outside where the transition is invoked. Microstates use this convention to allow composition to crazy complexity.
+An important quality of the transitions in Microstates is that they always return a Microstate. This is true inside of transition functions and outside where the transition is invoked. Microstates use this convention to allow composition to reach crazy levels of complexity.
 
 Let's compose a Boolean into another class type and see what happens.
 
@@ -487,33 +487,33 @@ opened.valueOf();
 // }}
 ```
 
-In the above example, I invoked the boolean transition on `app.notification.isOpen` but we still got a new App microstate. The value was changed immutably without modifying the original object and the transition returned App microstate.
+In the above example, I invoked the boolean transition on `app.notification.isOpen` but we still got a new App Microstate. The value was changed immutably without modifying the original object and the transition returned a new App Microstate.
 
 ## Primitive type transitions
 
 The primitive types have predefined transitions,
 
 * `Boolean`
-  * `toggle(): microstate` - return a microstate with opposite boolean value
+  * `toggle(): Microstate` - return a Microstate with opposite boolean value
 * `String`
-  * `concat(str: String): microstate` - return a microstate with `str` added to the end of the current value
+  * `concat(str: String): Microstate` - return a Microstate with `str` added to the end of the current value
 * `Number`
-  * `increment(step = 1: Number): microstate` - return a microstate with number decreased by `step`, default is 1.
-  * `decrement(step = 1: Number): microstate` - return a microstate with number decreased by `step`, default is 1.
+  * `increment(step = 1: Number): Microstate` - return a Microstate with number decreased by `step`, default is 1.
+  * `decrement(step = 1: Number): Microstate` - return a Microstate with number decreased by `step`, default is 1.
 * `Object`
-  * `assign(object): microstate` - return a microstate after merging object into current object.
-  * `put(key: String, value: Any): microstate` - return a microstate after adding value at given key.
-  * `delete(key: String): microstate` - return a microstate after removing property at given key.
+  * `assign(object): Microstate` - return a Microstate after merging object into current object.
+  * `put(key: String, value: Any): Microstate` - return a Microstate after adding value at given key.
+  * `delete(key: String): Microstate` - return a Microstate after removing property at given key.
 * `Array`
-  * `map(fn: (microstate) => microstate): microstate` - return a microstate with mapping function applied to each element in the array. For each element, the mapping function will receive the microstate for that element. Any transitions performed in the mapping function will be included in the final result.
-  * `push(value: any): microstate` - return a microstate with value added to the end of the array.
-  * `pop(): microstate` - return a microstate with last element removed from the array.
-  * `shift(): microstate` - return a microstate with element removed from the array.
-  * `unshift(value: any): microstate` - return a microstate with value added to the beginning of the array.
-  * `filter(fn: state => boolean): microstate` - return a microstate with filtered array. The predicate function will receive state of each element in the array. If you return a falsy value from the predicate, the item will be excluded from the returned microstate.
+  * `map(fn: (Microstate) => Microstate): Microstate` - return a Microstate with mapping function applied to each element in the array. For each element, the mapping function will receive the microstate for that element. Any transitions performed in the mapping function will be included in the final result.
+  * `push(value: any): Microstate` - return a Microstate with value added to the end of the array.
+  * `pop(): Microstate` - return a Microstate with last element removed from the array.
+  * `shift(): Microstate` - return a Microstate with element removed from the array.
+  * `unshift(value: any): Microstate` - return a Microstate with value added to the beginning of the array.
+  * `filter(fn: state => boolean): Microstate` - return a Microstate with filtered array. The predicate function will receive state of each element in the array. If you return a falsy value from the predicate, the item will be excluded from the returned microstate.
   * `clear(): microstate` - return a microstate with an empty array.
 
-Many transitions on primitive type are similar to methods on original classes. The biggest difference is that transitions return microstates.
+Many transitions on primitive type are similar to methods on original classes. The biggest difference is that transitions always return Microstates.
 
 ## class type transitions
 
@@ -570,11 +570,11 @@ authenticated.valueOf();
 
 ## `initialize` transition
 
-Initialize transition converts value into a microstate when a microstate is being created with the `create` function. The initialize transition is invoked for every microstate that declares one. They are called from top to bottom, meaning that a parent microstate is initalized before the children. This is imporant because the parent microstate can change what children are created.
+The `initialize` transition converts value into a Microstate when a Microstate is being created with the `create` function. The initialize transition is invoked for every microstate that declares one. They are called from top to bottom, meaning that a parent microstate is initalized before the children. This is imporant because the parent microstate can change what children are created.
 
-You can use this mechanism to change the value that is used to initialize children microstates.
+You can use this mechanism to change the value that is used to initialize children Microstates.
 
-For example,
+For example:
 
 ```js
 class Person {
@@ -599,7 +599,7 @@ class Person {
 
 ## `set` transition
 
-`set` transition is the only transition that is available on all types. It can be used to replace the value of the current microstate with another value.
+The `set` transition is the only transition that is available on all types. It can be used to replace the value of the current Microstate with another value.
 
 ```js
 import { create } from 'microstates'
@@ -610,7 +610,7 @@ number.valueOf()
 //> 43
 ```
 
-You can also use `set` transition to replace the current microstate with another microstate. This is especially useful when building state machines because it allows you to change the type of the current microstate. By changing the type, you're also changing available transitions and how the state is calculated.
+You can also use `set` transition to replace the current Microstate with another Microstate. This is especially useful when building state machines because it allows you to change the type of the current Microstate. By changing the type, you're also changing available transitions and how the state is calculated.
 
 ```js
 import { types } from 'microstates';
@@ -671,7 +671,7 @@ Those familiar with functional programming might recognize this as a flatMap ope
 
 ## Scope rules
 
-For Microstates to be composable, they must work the same as a root microstate or composed into another microstate. For this reason, microstate transitions only have access to their own transitions and the transitions of the microstates that are composed into them. They do not have access to their context. This is similar to how components work. The parent component can render a child component and pass data to them. The childer components do not have direct access to the parent component. Same in Microstates.
+For Microstates to be composable, they must work the same as a root Microstate or composed into another microstate. For this reason, microstate transitions only have access to their own transitions and the transitions of the microstates that are composed into them. They do not have access to their context. This is similar to how components work. The parent component can render a child component and pass data to them. The childer components do not have direct access to the parent component. Same in Microstates.
 
 # `microstates` npm package
 
