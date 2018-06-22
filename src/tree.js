@@ -17,7 +17,7 @@ import { keep, reveal } from './utils/secret';
 import values from './values';
 import invariant from 'invariant';
 
-const { assign, defineProperties } = Object;
+const { assign, defineProperties, defineProperty } = Object;
 
 /**
  * Apply a transition to a microstate and return the next
@@ -52,6 +52,7 @@ function makeMiddleware(tree) {
   // transition that the user is invoking
   let { middlewares } = foldl((acc, childName) => {
     let tree = acc.tree.children[childName];
+    invariant(tree, `Could not find a ${childName} in [${path.join()}]`);
     let middleware = tree.data.middleware.map(fn => next => fn(next, tree));
     return {
       middlewares: [...acc.middlewares, ...middleware],
@@ -77,6 +78,7 @@ function setupTransition(transition, name) {
 }
 
 function setupQuery(query, name) {
+  let source = Tree.from(this);
   /**
    * Create a copy of the tree and store a reference to the original tree objects
    * in the meta property. Also, remove any middleware from the root node because
@@ -87,10 +89,10 @@ function setupQuery(query, name) {
       meta: { origin: tree },
       data: { middleware: tree.isRoot ? [] : tree.data.middleware }
     })
-  }, Tree.from(this));
+  }, source);
 
   // invoke the query to compute the derived microstate
-  let queried = query.call(context.microstate);
+  let queried = query.call(context.prune().microstate);
   
   invariant(queried instanceof Microstate, `Microstate queries must return microstates. Query called ${name} returned ${queried}`)
   
@@ -140,9 +142,17 @@ export const transitionsClass = stable(function transitionsClass(Type) {
     .map((descriptor, key) => ({
       enumerable: false,
       configurable: true,
-      get() { return descriptor.get ? 
-        setupQuery.call(this, descriptor.get, key) : 
-        setupTransition.call(this, descriptor.value, key) }
+      get() { 
+        let value = descriptor.get ? setupQuery.call(this, descriptor.get, key) : setupTransition.call(this, descriptor.value, key);
+
+        defineProperty(this, key, {
+          enumerable: false,
+          configurable: true,
+          value
+        });
+        
+        return value;
+      }
     }))
     .valueOf();
 

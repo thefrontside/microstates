@@ -1,5 +1,6 @@
 import 'jest'
 import { create, Tree, use } from 'microstates';
+import Microstate from '../src';
 
 describe('reading', () => {
   class Person {
@@ -30,7 +31,45 @@ describe('reading', () => {
     it('trees dont have the same root', () => {
       expect(tree.root).not.toBe(oTree.root);
     })
-  })
+  });
+
+  describe('query on composed microstate', () => {
+    class Person {
+      age = Number;
+      get older() {
+        return this.age.increment().age;
+      }
+    }
+
+    class Group {
+      birthdayGirl = Person;
+    }
+
+    let p;
+    beforeEach(() => {
+      p = create(Group, { birthdayGirl: { age: 15 } } );
+    });
+
+    it('gives the incremented value in the query', () => {
+      expect(p.birthdayGirl.older.state).toBe(16);
+    });
+
+    describe('increment again', () => {
+      let result;
+      beforeEach(() => {
+        result = p.birthdayGirl.older.increment();
+      });
+      it('increments the result', () => {
+        expect(result.valueOf()).toEqual({
+          birthdayGirl: { age: 16 }
+        })
+      });
+      it('changed the state of both', () => {
+        expect(result.birthdayGirl.age.state).toBe(16);
+        expect(result.birthdayGirl.older.state).toBe(17);
+      });
+    });
+  });
   
   describe('middleware', () => {
     let withMiddleware;
@@ -116,6 +155,9 @@ describe('todomvc', () => {
     beforeEach(() => {
       showCompleted = todomvc.filter.set('show_completed');
     });
+    it('has stable filtered query result', () => {
+      expect(showCompleted.filtered).toBe(showCompleted.filtered);
+    });
     it('returns only completed item when show_completed', () => {
       expect(showCompleted.filtered).toHaveLength(1);
       expect(showCompleted.filtered[0].title.state).toBe('Greetings');
@@ -134,6 +176,11 @@ describe('todomvc', () => {
             { title: 'Ola', completed: false }
           ]
         })
+      });
+      it('has filtered state in state object', () => {
+        expect(showActive.state.filtered).toHaveLength(2);
+        expect(showActive.state.filtered[0]).toBeInstanceOf(Todo)
+        expect(showActive.state.filtered[1]).toBeInstanceOf(Todo)
       });
       it('returns only active items when show_active', () => {
         expect(showActive.filtered).toHaveLength(2);
