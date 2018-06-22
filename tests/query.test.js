@@ -9,9 +9,11 @@ describe('reading', () => {
     }
   }
   let homer;
+  
   beforeEach(() => {
     homer = create(Person, { age: 42 });
-  })
+  });
+
   it('has getter as microstate', () => {
     expect(homer._age.state).toBe(42);
   });
@@ -165,4 +167,16 @@ describe('todomvc', () => {
       });
     });
   });
+});
+
+describe('validation', () => {
+  it('throws an exception when query does not return a microstate', () => {
+    class Person { 
+      get bad() { return true; }
+    }
+    let p = create(Person);
+    expect(() => {
+      p.bad
+    }).toThrowError(/Microstate queries must return microstates. Query called bad returned true/)
+  })
 });

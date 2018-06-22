@@ -95,6 +95,8 @@ function setupQuery(query, name) {
 
   let queried = query.call(context.microstate);
   
+  invariant(queried instanceof Microstate, `Microstate queries must return microstates. Query called ${name} returned ${queried}`)
+  
   let queriedTree = Tree.from(queried);
 
   let withMiddleware = map(tree => { 
