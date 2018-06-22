@@ -178,5 +178,20 @@ describe('validation', () => {
     expect(() => {
       p.bad
     }).toThrowError(/Microstate queries must return microstates. Query called bad returned true/)
+  });
+
+  it('throws an exception when query returns a microstate that has a tree without origin', () => {
+    class List {
+      numbers = [Number]
+      get moreNumbers() {
+        return this.numbers.push(5).numbers;
+      }
+    }
+
+    let l = create(List, { numbers: [ 1, 2, 3, 4 ]});
+
+    expect(() => {
+      l.moreNumbers[4].increment();
+    }).toThrowError(/Could not find an microstate at \[numbers.4\]. You might have tried to modify a microstate that does not exist in original microstate./)
   })
 });

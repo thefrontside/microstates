@@ -81,7 +81,8 @@ function setupQuery(query, name) {
 
   let middleware = next => {
     return (microstate, transition, args) => {
-      let { meta: { origin } } = Tree.from(microstate);
+      let { path, meta: { origin } } = Tree.from(microstate);
+      invariant(origin, `Could not find an microstate at [${path.join(',')}]. You might have tried to modify a microstate that does not exist in original microstate.`)
       return makeMiddleware(origin)(origin.microstate, transition, args);
     }
   }
