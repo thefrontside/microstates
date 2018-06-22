@@ -129,36 +129,56 @@ function setupQuery(query, name) {
 }
 
 export const transitionsClass = stable(function transitionsClass(Type) {
+
+  let descriptors = Type === types.Any ? getPrototypeDescriptors(types.Any) : assign(getPrototypeDescriptors(resolveType(Type)), getPrototypeDescriptors(types.Any))
+
+  let queries = $(descriptors)
+    .filter(({ key, value }) => typeof value.get === 'function' && key !== 'constructor')
+    .map(({ get }, key) => instance => setupQuery.call(instance, get, key))
+    .valueOf();
+    
+  let transitions = $(descriptors)
+    .filter(({ key, value }) => typeof value.value === 'function' && key !== 'constructor')
+    .map(({ value }, key) => instance => setupTransition.call(instance, value, key))
+    .valueOf(); 
+    
   class Transitions extends Microstate {
     static get name() {
       return `Transitions<${Type.name}>`;
     }
+
+    static get queries() {
+      return queries;
+    }
+
+    static get transitions() {
+      return transitions;
+    }
   }
 
-  let descriptors = Type === types.Any ? getPrototypeDescriptors(types.Any) : assign(getPrototypeDescriptors(resolveType(Type)), getPrototypeDescriptors(types.Any))
+  defineProperties(Transitions.prototype, map((query, key) => ({
+    enumerable: false,
+    configurable: true,
+    get() {
+      let value = query(this);
 
-  let transitions = $(descriptors)
-    .filter(({ key, value }) => (typeof value.value === 'function' || typeof value.get === 'function') && key !== 'constructor')
-    .map(({ get, value }, key) => ({
-      enumerable: false,
-      configurable: true,
-      get() { 
-        let computed = get ? setupQuery.call(this, get, key) : setupTransition.call(this, value, key);
+      // once the property is computed, 
+      // replace the getter with the value to prevent getter from re-evaluating.
+      defineProperty(this, key, {
+        enumerable: false,
+        configurable: true,
+        value
+      });
 
-        // once the property is computed, 
-        // replace the getter with the value to prevent getter from re-evaluating.
-        defineProperty(this, key, {
-          enumerable: false,
-          configurable: true,
-          value: computed
-        });
+      return value;
+    }
+  }), queries));
 
-        return computed;
-      }
-    }))
-    .valueOf();
-
-  defineProperties(Transitions.prototype, transitions);
+  defineProperties(Transitions.prototype, map(transition => ({
+    enumerable: false,
+    configurable: true,
+    get() { return transition(this) }
+  }), transitions));
 
   return Transitions;
 });
