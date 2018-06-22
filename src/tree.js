@@ -139,19 +139,21 @@ export const transitionsClass = stable(function transitionsClass(Type) {
 
   let transitions = $(descriptors)
     .filter(({ key, value }) => (typeof value.value === 'function' || typeof value.get === 'function') && key !== 'constructor')
-    .map((descriptor, key) => ({
+    .map(({ get, value }, key) => ({
       enumerable: false,
       configurable: true,
       get() { 
-        let value = descriptor.get ? setupQuery.call(this, descriptor.get, key) : setupTransition.call(this, descriptor.value, key);
+        let computed = get ? setupQuery.call(this, get, key) : setupTransition.call(this, value, key);
 
+        // once the property is computed, 
+        // replace the getter with the value to prevent getter from re-evaluating.
         defineProperty(this, key, {
           enumerable: false,
           configurable: true,
-          value
+          value: computed
         });
-        
-        return value;
+
+        return computed;
       }
     }))
     .valueOf();
