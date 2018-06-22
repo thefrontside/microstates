@@ -5,8 +5,6 @@
 
 # Microstates
 
-Composable State Primitives with a GraphQL inspired API.
-
 Microstates is a functional runtime type system designed to ease state management in component based applications. It allows to declaratively compose application state from atomic state machines.
 
 By combining lazy execution, algebraic data types and structural sharing, we created
@@ -75,14 +73,14 @@ But, most imporantly, Microstates makes working with state fun.
 
 For many, the answer is probably never, because state management in JavaScript is an endless game of compromises. You can choose to go fully immutable and write endless reducers. You can go mutable and everything becomes an observable. Or you can `setState` and lose the benefits of serialization and time travel debugging.
 
-Unlike the view layer, where most frameworks agree on some variation of React's concept of components, state management is a lot less certain. This is because none of the available tools strike the balance that React components introduced to the view layer.
+Unlike the view layer, where most frameworks agree on some variation of React's concept of components, none of the current crop of state management tools strike the same balance that React components introduced to the API.
 
 React components have a tiny API. They are functional, simple and extremely reusable. The tiny API gives you high productivity for little necessary knowledge. Functional components are predictable and easy to reason about. They are conceptually simple, but simplicity hides an underlying architecture geared for performance. Their simplicity, predictability and isolation makes them composable and reusable.
 
 These factors combined are what make React style components easy to work with and ultimately fun to write. A Tiny API abstracting a sophisticated architecture that delivers performance and is equaly useful on small and big projects is the outcome that we set out to achieve for state management with Microstates.
 
 It's not easy to find the right balance between simplicity and power, but considering the importance of state management in web applications, we believe it's a worthy challenge.
-
+<!-- 
 # Why Microstates?
 
 Our tools affect how we solve problems and collaborate.
@@ -114,11 +112,11 @@ The view boom was in big part ignited by the introduction of React. With React, 
 
 Microstates brings the same kind of simplicity to the model layer. A Microstate is a functional model in a way that a component is a functional view. A component takes props and returns DOM; a Microstate takes value and returns state. DOM is a tree of element instances, state is a tree of model instances. A DOM tree is created by passing data to a root component. A state tree is created from a root type and value. A component is an abstraction that we use to manipulate the DOM tree. A microstate is an abstraction that we use to manipulate the state tree.
 
-When you want to change what the user sees, you could imperatively manipulate the DOM elements with jQuery, but React taught us to change DOM declaratively by changing the data that the DOM reflects. In the same way, when you want to change the state, you must change the value and allow the state to be reflected.
+When you want to change what the user sees, you could imperatively manipulate the DOM elements with jQuery, but React taught us to change DOM declaratively by changing the data that the DOM reflects. In the same way, when you want to change the state, you must change the value and allow the state to be reflected. -->
 
 # What is a Microstate?
 
-A Microstate is a JavaScript object that is created from a Microstate type and POJO value. The shape and methods of the Microstate are determined by its type and the value it contains. A type describes the structure and transitions that can be performed on the microstate. Using type and value, Microstates derives a single immutable state tree.
+A Microstate is a JavaScript object that is created from a type and POJO value. The shape and methods of the Microstate are determined by its type and the value it contains. A type describes the structure and transitions that can be performed on the microstate. Using type and value, Microstates derives a single immutable state tree.
 
 # Types
 
@@ -126,15 +124,7 @@ Microstates comes with 5 primitive types: `Boolean`, `Number`, `String`, `Object
 
 ## Type Composition
 
-Microstates types are composable, which means that you can combine types to create other types. Types that compose other types are called `class` types. They look similar to regular JavaScript classes but they must conform to certain conventions that allow them to be composable.
-
-## Defining class types
-
-To define a class type with Microstates, you define a regular JavaScript class and use class properties (aka class fields) to describe where composed Microstates will be.
-
-Let's say we want to create a Microstate type that represents a person. The `Person` type will have a name that is a string and age that is just a number.
-
-You would declare a Microstate type in the following way,
+Apart from these basic types, every other type in Microstates is composed out of other types. So for example, to create a `Person` you would define a JavaScript class and declare composed types with class properties(aka class fields).
 
 ```js
 class Person {
@@ -173,9 +163,9 @@ Every microstate created with a type of `Person` will be an object that looks li
 +----------------------+
 ```
 
-## Composing class types
+## Composing types
 
-`class` types can compose other `class` types. This makes it possible to build complex data structures that accurately describe your domain. Since Microstates are atomic and all transitions return Microstates, Microstates can automatically handle transitions regardless of how your `class` types are composed.
+Types can be composed with other types freely. This makes it possible to build complex data structures that accurately describe your domain. Since Microstates are atomic and all transitions return Microstates, Microstates can automatically handle transitions regardless of how your `class` types are composed.
 
 Let's define another type that composes the person type.
 
@@ -236,9 +226,9 @@ theHomerCar.name.state;
 //> The Homer
 ```
 
-## Parameterized Types
+## Array Microstates
 
-Quite often it is helpful to describe your data as a collection of types. A blog might have an array of posts. To do this, you can use the parameterized array notation, `[Post]`. This signals to Microstates that the Microstate represents the state of an array collection of `Post` type.
+Quite often it is helpful to describe your data as a collection of types. A blog might have an array of posts. To do this, you can use the array of type notation, `[Post]`. This signals that Microstates of this type represent an array whose members are each of the `Post` type.
 
 ```js
 class Blog {
@@ -273,6 +263,8 @@ blog2.posts[2].state;
 //> Post<{ id: 3, title: 'It is only getter better' }>
 ```
 
+## Object Microstates
+
 You can also create a parameterized object with `{Post}`. The difference is that the collection is treated as an object. This can be helpful when create normalized data stores.
 
 ```js
@@ -299,7 +291,7 @@ blog.posts["1"].state;
 //> Post<{ id: 2, title: 'Most fascinating blog in the world' }>
 ```
 
-Parameterized objects have `Object` type transitions which allow you to use `assign` and `put`.
+Object microstates have `Object` transitions, such as `assign`, `put` and `delete`.
 
 ```js
 let blog2 = blog.posts.put("3", { id: 3, title: "It is only getter better" });
@@ -307,126 +299,6 @@ let blog2 = blog.posts.put("3", { id: 3, title: "It is only getter better" });
 blog2.posts["3"].state;
 //> Post<{ id: 3, title: 'It is only getter better' }>
 ```
-
-# State
-
-State is an object graph that is lazily constructred from a Microstate's type and value. It mirrors the structure of the Microstate type that was used to create it.
-
-## Building state
-
-State is built from the root of the Microstate down, one child at a time, as your application reaches for that state. The constuction of the state is done lazily which affords the use of recursive data structures. `class` types are instantiated from their JavaScript classes.
-
-Let's consider a fairly deep data structure:
-
-```js
-class App {
-  shop = Shop
-}
-
-class Shop {
-  products = [Product]
-}
-
-class Product {
-  title = String;
-}
-```
-
-If we were to create this type, we'd get the following:
-
-```js
-import { create } from 'microstates';
-
-let app = create(App, {
-  shop: {
-    products: [
-      { id: 1, title: 'Sponge' }
-    ]
-  }
-});
-
-app.state instanceof App //> true
-app.state.shop instanceof Shop //> true
-app.state.shop.products instanceof Array //> true
-app.state.shop.products[0] instanceof Product //> true
-app.state.shop.products[0].title === 'Sponge' // true
-app.state.shop.products[0].id === 1 //> true
-```
-
-This illustrates that the object that's created from the state property is the same structure as the Microstate itself. According to its structure, each instance is populated by it's corresponding value from the value object.
-
-## All getters are cached
-
-A Microstate is a pure function of type and value, which means that for any type and value you can only ever have one state. We can rely on this to cache all of the computations that are derived off of this state.
-
-Let's say you have some state were you need to perform a heavy computation:
-
-```js
-class Table {
-  rows = [Row]
-
-  get sortedRows() {
-    return this.rows.sort((a, b) => b.order - a.order));
-  }
-}
-
-class Row {
-  order = Number;
-}
-
-import { create } from 'microstates';
-
-let table = create(Table, {
-  rows: [
-    { order: 10 }, { order: 4 }, { order: 2 }
-  ]
-});
-
-table.state.sortedRows === table.state.sortedRows
-```
-
-When you read this getter, it'll be evaluated and result will be cached. All future reads will return the same value.
-
-*Note*: It's ok if you've never done this before with regular JavaScript classes. JavaScript classes that were not instantiated with Microstates are mutable and do not cache their getters. A similar example without Microstates would cause the sort function to be invoked on each read.
-
-## Reuse of immutable state instances
-
-When you create a deeply composed microstate, your state has the shape of a nesting doll. Each higher level contains all of its children. In this scenario, it's critical that the parents reference the same state objects as the children.
-
-In our shop example, the state generated on app object should be the same state that's generated on product object. Let's look at the example again:
-
-```js
-import { create } from 'microstates';
-
-class App {
-  shop = Shop
-}
-
-class Shop {
-  products = [Product]
-}
-
-class Product {
-  title = String;
-}
-
-let app = create(App, {
-  shop: {
-    products: [
-      { id: 1, title: 'Sponge' }
-    ]
-  }
-});
-
-app.state.shop.products[0] === app.shop.products[0].state
-//    ^    state object on app, should be same as    ^
-```
-
-The state is generated from another microstate, but it's the same state as that which is on the children. This ensures we maintain `===` (exact equality) down the state tree. This is very important in most frameworks today because they have built in optimizations that rely on exact equality.
-
-## Reuse of state between transitions
-
-Microstates are designed to allow construction of complex state trees. When a state tree is deeply nested, a branch of the state tree can get transitioned without affecting other branches. Branches that are unaffected by a transition should reuse their state instances. This eliminates unneccessary re-renders in frameworks that use exact equality to optimize perfomance.
 
 # Transitions
 
