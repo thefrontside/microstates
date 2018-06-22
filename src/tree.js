@@ -77,8 +77,28 @@ function setupTransition(transition, name) {
 }
 
 function setupQuery(query, name) {
-  let origin = Tree.from(this);
+  /**
+   * Create a copy of the tree and store a reference to the original tree objects
+   * in the meta property. Also, remove any middleware from the root node because
+   * we don't want transitions inside of the query to emit any side effects.
+   */
+  let context = map(tree => {
+    return tree.assign({
+      meta: { origin: tree },
+      data: { middleware: tree.isRoot ? [] : tree.data.middleware }
+    })
+  }, Tree.from(this));
 
+  // invoke the query to compute the derived microstate
+  let queried = query.call(context.microstate);
+  
+  invariant(queried instanceof Microstate, `Microstate queries must return microstates. Query called ${name} returned ${queried}`)
+  
+  let queriedTree = Tree.from(queried);
+  
+  /**
+   * This middleware redirects the transition to the original microstate
+   */
   let middleware = next => {
     return (microstate, transition, args) => {
       let { path, meta: { origin } } = Tree.from(microstate);
@@ -87,19 +107,9 @@ function setupQuery(query, name) {
     }
   }
 
-  let context = map(tree => {
-    return tree.assign({
-      meta: { origin: tree },
-      data: { middleware: tree.isRoot ? [] : tree.data.middleware }
-    })
-  }, origin);
-
-  let queried = query.call(context.microstate);
-  
-  invariant(queried instanceof Microstate, `Microstate queries must return microstates. Query called ${name} returned ${queried}`)
-  
-  let queriedTree = Tree.from(queried);
-
+  /**
+   * Put the middleware into the queried tree to allow redirecting transitions to the original microstate
+   */
   let withMiddleware = map(tree => { 
     if (tree.isRoot) {
       return tree.assign({
@@ -112,6 +122,7 @@ function setupQuery(query, name) {
     }
   }, queriedTree.root);
 
+  // return the same part of the microstate that was returned by the query
   return withMiddleware.treeAt(queriedTree.path).microstate;
 }
 
