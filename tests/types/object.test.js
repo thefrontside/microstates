@@ -4,10 +4,9 @@ import { create, from, reveal } from 'microstates';
 
 describe('created without value', () => {
   class Thing {
-    constructor(value) {
-      this.value = value;
-    }
+    foo = String;
   };
+  
   let object;
   beforeEach(() => {
     object = create({ Thing });
@@ -26,9 +25,10 @@ describe('created without value', () => {
     it('received the assigned value', () => {
       expect(assigned.valueOf()).toEqual({ foo: 'bar' });
     });
+
     it('wraps the assigned values the parameterized type', function() {
       expect(assigned.state.foo).toBeInstanceOf(Thing)
-      expect(assigned.state.foo.value).toEqual('bar')
+      expect(assigned.state.foo).toEqual('bar')
     });
 
     describe('assign twice', () => {

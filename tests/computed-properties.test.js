@@ -6,7 +6,7 @@ class State {
   lastName = String;
 
   get fullName() {
-    return `${this.firstName} ${this.lastName}`;
+    return `${this.firstName.state} ${this.lastName.state}`;
   }
 
   get birthDate() {

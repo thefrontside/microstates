@@ -1,6 +1,5 @@
 import 'jest'
 import { create, Tree, use } from 'microstates';
-import Microstate from '../src';
 
 describe('reading', () => {
   class Person {
