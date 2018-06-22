@@ -121,6 +121,24 @@ describe('reading', () => {
   });
 });
 
+describe('returning primitive value', () => {
+  class Person {
+    firstName = String;
+    lastName = String;
+    get fullName() {
+      return `${this.firstName.state} ${this.lastName.state}`;
+    }
+  }
+
+  let homer;
+  beforeEach(() => {
+    homer = create(Person, { firstName: 'Homer', lastName: 'Simpson' });
+  });
+  it('allows state to be read off the getter value', () => {
+    expect(homer.fullName.state).toBe('Homer Simpson');
+  });
+})
+
 describe('todomvc', () => {
   class Todo {
     title = String;
@@ -217,16 +235,6 @@ describe('todomvc', () => {
 });
 
 describe('validation', () => {
-  it('throws an exception when query does not return a microstate', () => {
-    class Person { 
-      get bad() { return true; }
-    }
-    let p = create(Person);
-    expect(() => {
-      p.bad
-    }).toThrowError(/Microstate queries must return microstates. Query called bad returned true/)
-  });
-
   it('throws an exception when query returns a microstate that has a tree without origin', () => {
     class List {
       numbers = [Number]

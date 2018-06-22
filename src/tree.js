@@ -91,13 +91,11 @@ function setupQuery(query, name) {
     })
   }, source);
 
-  // invoke the query to compute the derived microstate
   let queried = query.call(context.prune().microstate);
-  
-  invariant(queried instanceof Microstate, `Microstate queries must return microstates. Query called ${name} returned ${queried}`)
-  
+
+  // invoke the query to compute the derived microstate
   let queriedTree = Tree.from(queried);
-  
+      
   /**
    * This middleware redirects the transition to the original microstate
    */
@@ -552,17 +550,18 @@ class State extends CachedValue {}
 class Children extends CachedValue {}
 
 export function stateFromTree(tree) {
-  let { meta: { Type } } = tree;
+  let { meta: { Type, TransitionsClass } } = tree;
 
-    if (tree.isSimple || tree.value === undefined) {
-      return tree.value;
+  if (tree.isSimple || tree.value === undefined) {
+    return tree.value;
+  } else {
+    if (Array.isArray(tree.children)) {
+      return map(child => child.state, tree.children);
     } else {
-      if (Array.isArray(tree.children)) {
-        return map(child => child.state, tree.children);
-      } else {
-        return append(new Type(tree.value), map(child => child.state, tree.children));
-      }
+      let queries = map((query, key) => tree.microstate[key], TransitionsClass.queries);
+      return append(Object.create(Type.prototype), map(({ state }) => state, append(queries, tree.children)));
     }
+  }
 }
 
 /**
