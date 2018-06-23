@@ -1,5 +1,5 @@
 import "jest";
-import { create, reveal, types } from "microstates";
+import { create, reveal } from "microstates";
 
 describe("type-shifting", () => {
   class Shape {
