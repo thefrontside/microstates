@@ -305,7 +305,7 @@ export default class Tree {
   }
 
   get isSimple() {
-    return isSimple(this.Type) && !values(this.children).some(tree => tree.isSimple);
+    return isSimple(this.Type) && values(this.children).every(tree => tree.isSimple);
   }
 
   get isRoot() {
@@ -552,6 +552,7 @@ class Children extends CachedValue {}
 export function stateFromTree(tree) {
   let { meta: { Type, TransitionsClass } } = tree;
 
+
   if (tree.isSimple || tree.value === undefined) {
     return tree.value;
   } else {
@@ -559,7 +560,8 @@ export function stateFromTree(tree) {
       return map(child => child.state, tree.children);
     } else {
       let queries = map((query, key) => tree.microstate[key], TransitionsClass.queries);
-      return append(Object.create(Type.prototype), map(({ state }) => state, append(queries, tree.children)));
+      let properties = map(({ state }) => state, append(queries, tree.children));
+      return append(Object.create(Type.prototype), properties);
     }
   }
 }

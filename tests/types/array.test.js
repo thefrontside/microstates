@@ -302,4 +302,30 @@ describe("ArrayType", function() {
       });
     });
   });
+
+  describe('reduce', () => {
+    let numbers;
+    beforeEach(() => {
+      numbers = create(Array, [1, 2, 3, 4]);
+    });
+    it('throws an exception when initial value is not specified', () => {
+      expect(function() {
+        numbers.reduce()
+      }).toThrowError(/reduce transition expects a reduce function as first argument, got undefined/)
+    });
+    it('throws an exception when initial value is not specified', () => {
+      expect(function() {
+        numbers.reduce(() => {})
+      }).toThrowError(/reduce transition requires initial value as second arguement, got undefined/)
+    });
+    let sum;
+    beforeEach(() => {
+      sum = numbers.reduce((memo, value) => {
+        return memo.increment(value);
+      }, create(Number, 0))
+    });
+    it('sum has returned value', () => {
+      expect(sum.state).toEqual(10);
+    });
+  })
 });

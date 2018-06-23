@@ -136,7 +136,37 @@ describe('returning primitive value', () => {
   it('allows state to be read off the getter value', () => {
     expect(homer.fullName.state).toBe('Homer Simpson');
   });
-})
+});
+
+describe('multiple queries on same object', () => {
+  class Calculation {
+    numbers = Array;
+
+    get sum() {
+      return this
+        .numbers.reduce((sum, item) => sum.increment(item.state), 0)
+        .numbers;
+    }
+
+    get summary() {
+      return `Sum of numbers is ${this.sum.state}.`
+    }
+  }
+
+  let c;
+  beforeEach(() => {
+    c = create(Calculation, { numbers: [1, 2, 3, 4] });
+  });
+
+  it('computes sum', () => {
+    expect(c.sum.state).toBe(10);
+  });
+
+  it('computes summary', () => {
+    expect(c.summary.state).toBe('Sum of numbers is 10.')
+  });
+
+});
 
 describe('todomvc', () => {
   class Todo {
