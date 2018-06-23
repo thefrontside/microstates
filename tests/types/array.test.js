@@ -46,7 +46,7 @@ describe("ArrayType", function() {
       let filtered;
 
       beforeEach(() => {
-        filtered = ms.filter(v => v !== "a");
+        filtered = ms.filter(v => v.state !== "a");
       });
 
       it("value", () => {
@@ -216,7 +216,7 @@ describe("ArrayType", function() {
       describe("filter", () => {
         let filtered;
         beforeEach(() => {
-          filtered = dataset.records.filter(state => state.content[0] === "S");
+          filtered = dataset.records.filter(record => record.state.content[0] === "S");
         });
 
         it("filtered out items", () => {

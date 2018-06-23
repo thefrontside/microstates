@@ -89,7 +89,7 @@ class ArrayType {
             }
           })
         }, child);
-      }, children.filter(tree => fn(tree.state)));
+      }, children.filter(tree => fn(tree.microstate)));
     }, this);
   }
 
@@ -124,8 +124,16 @@ class ArrayType {
   }
 
   /**
+   * The reduce() transition applies a function against an accumulator 
+   * and each element in the array (from left to right) to reduce it to 
+   * a single value.
+   * 
+   * The reducer function will receive a microstate as an accumulator and 
+   * a microstate for each value. The microstate returned from the reducer 
+   * function will be passed to next invocation of the reducer function.
    * 
    * @param {*} fn
+   * @param {*|Microstate}
    * @returns {Microstate}
    */
   reduce(fn, initial) {

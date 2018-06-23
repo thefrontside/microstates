@@ -178,8 +178,8 @@ describe('todomvc', () => {
     filter = String;
     get filtered() {
       switch(this.filter.state) {
-        case 'show_completed': return this.todos.filter(todo => todo.completed).todos;
-        case 'show_active': return this.todos.filter(todo => !todo.completed).todos;
+        case 'show_completed': return this.todos.filter(todo => todo.completed.state).todos;
+        case 'show_active': return this.todos.filter(todo => !todo.completed.state).todos;
         default: return this.todos;
       }
     }
