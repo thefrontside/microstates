@@ -168,6 +168,31 @@ describe('multiple queries on same object', () => {
 
 });
 
+describe('stability of query results amongst queries', () => {
+  let type = class {
+    get query() {
+      return {};
+    }
+
+    get aQuery() {
+      return this.query.state;
+    }
+
+    get bQuery() {
+      return this.query.state;
+    }
+  }
+
+  let instance;
+  beforeEach(() => {
+    instance = create(type);
+  });
+
+  it('has same same state on both queries', () => {
+    expect(instance.aQuery.state).toBe(instance.bQuery.state);
+  });
+});
+
 describe('todomvc', () => {
   class Todo {
     title = String;
