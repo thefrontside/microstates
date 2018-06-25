@@ -170,6 +170,8 @@ describe('multiple queries on same object', () => {
 
 describe('stability of query results amongst queries', () => {
   let type = class {
+    result = Boolean;
+
     get query() {
       return {};
     }
@@ -181,15 +183,23 @@ describe('stability of query results amongst queries', () => {
     get bQuery() {
       return this.query.state;
     }
+
+    check() {
+      return this.result.set(this.aQuery.state === this.bQuery.state);
+    }
   }
 
   let instance;
   beforeEach(() => {
-    instance = create(type);
+    instance = create(type);    
   });
 
   it('has same same state on both queries', () => {
     expect(instance.aQuery.state).toBe(instance.bQuery.state);
+  });
+
+  it('has same state for both queries in transition', () => {
+    expect(instance.check().result.state).toBe(true);
   });
 });
 
