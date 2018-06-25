@@ -64,51 +64,17 @@ function makeMiddleware(tree) {
     .reduce((fn, middleware) => middleware(fn), defaultMiddleware);
 }
 
-function setupQuery(query, name) {
-  let { queries } = Tree.from(this);
-  
-  // invoke the query to compute the derived microstate
-  let queriedTree = Tree.from(queries[name]);
-
-  /**
-   * This middleware redirects the transition to the original microstate
-   */
-  let middleware = () => (microstate, transition, args) => {
-    let { path, meta: { origin } } = Tree.from(microstate);
-    invariant(origin, `Could not find an microstate at [${path.join(',')}]. You might have tried to modify a microstate that does not exist in original microstate.`)
-    return makeMiddleware(origin)(origin.microstate, transition, args);
-  }
-
-  /**
-   * Put the middleware into the queried tree to allow redirecting transitions to the original microstate
-   */
-  let withMiddleware = map(tree => { 
-    if (tree.isRoot) {
-      return tree.assign({
-        data: {
-          middleware: [middleware]
-        }
-      })
-    } else {
-      return tree; 
-    }
-  }, queriedTree.root);
-
-  // return the same part of the microstate that was returned by the query
-  return withMiddleware.treeAt(queriedTree.path).microstate;
-}
-
 export const transitionsClass = stable(function transitionsClass(Type) {
 
   let descriptors = Type === types.Any ? getPrototypeDescriptors(types.Any) : assign(getPrototypeDescriptors(resolveType(Type)), getPrototypeDescriptors(types.Any))
 
   let queries = $(descriptors)
-    .filter(({ key, value }) => typeof value.get === 'function' && key !== 'constructor')
+    .filter(({ value: { get } }) => get)
     .map(({ get }) => get)
     .valueOf();
     
   let transitions = $(descriptors)
-    .filter(({ key, value }) => typeof value.value === 'function' && key !== 'constructor')
+    .filter(({ key, value: { value } }) => typeof value === 'function' && key !== 'constructor')
     .map(({ value }) => value)
     .valueOf(); 
     
@@ -130,7 +96,37 @@ export const transitionsClass = stable(function transitionsClass(Type) {
     enumerable: false,
     configurable: true,
     get() {
-      let value = setupQuery.call(this, query, name);
+      let { queries } = Tree.from(this);
+  
+      // invoke the query to compute the derived microstate
+      let queriedTree = Tree.from(queries[name]);
+    
+      /**
+       * This middleware redirects the transition to the original microstate
+       */
+      let middleware = () => (microstate, transition, args) => {
+        let { path, meta: { origin } } = Tree.from(microstate);
+        invariant(origin, `Could not find an microstate at [${path.join(',')}]. You might have tried to modify a microstate that does not exist in original microstate.`)
+        return makeMiddleware(origin)(origin.microstate, transition, args);
+      }
+    
+      /**
+       * Put the middleware into the queried tree to allow redirecting transitions to the original microstate
+       */
+      let withMiddleware = map(tree => { 
+        if (tree.isRoot) {
+          return tree.assign({
+            data: {
+              middleware: [middleware]
+            }
+          })
+        } else {
+          return tree; 
+        }
+      }, queriedTree.root);
+    
+      // return the same part of the microstate that was returned by the query
+      let value = withMiddleware.treeAt(queriedTree.path).microstate;
 
       // once the property is computed, 
       // replace the getter with the value to prevent getter from re-evaluating.
