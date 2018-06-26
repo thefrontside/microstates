@@ -7,14 +7,12 @@
 
 Microstates is a functional runtime type system designed to ease state management in component based applications. It allows to declaratively compose application state from atomic state machines.
 
-By combining lazy execution, algebraic data types and structural sharing, we created
-a tool that provides a tiny API to describe complex data structures and provide a mechanism to change the value in an immutable way.
+By combining lazy execution, algebraic data types and structural sharing, we created a tool that provides a tiny API to describe complex data structures and provide a mechanism to change the value in an immutable way.
 
 <details>
   <summary><strong>Table of Contents</strong></summary>
 <!-- toc -->
 
-* [Microstates](#microstates)
 * [Features](#features)
 * [What is a Microstate?](#what-is-a-microstate)
 * [Types](#types)
@@ -29,6 +27,11 @@ a tool that provides a tiny API to describe complex data structures and provide 
   * [initialize transition](#initialize-transition)
   * [set transition](#set-transition)
   * [Scope rules](#scope-rules)
+* [State Machines](#state-machines)
+    * [Explicit Transitions vs Transition Matching](#explicit-transitions-vs-transition-matching)
+    * [No transitionTo function](#no-transitionto-function)
+    * [Functional Immutable Object vs Functional Immutable Data Structure](#functional-immutable-object-vs-functional-immutable-data-structure)
+* [Framework Integrations](#framework-integrations)
 * [microstates npm package](#microstates-npm-package)
   * [create(Type, value): Microstate](#createtype-value-microstate)
   * [from(any): Microstate](#fromany-microstate)
@@ -538,6 +541,109 @@ Those familiar with functional programming might recognize this as a flatMap ope
 ## Scope rules
 
 For Microstates to be composable, they must work the same as a root Microstate or composed into another Microstate. For this reason, Microstate transitions only have access to their own transitions and the transitions of the Microstates that are composed into them. They do not have access to their context. This is similar to how components work. The parent component can render a child component and pass data to them. The children components do not have direct access to the parent component. Same in Microstates.
+
+# State Machines
+
+A state machine is a system that has a predefined set of states. At any given point, the state machine can only be in one of these states. Each state has a predefined set of transtions that can be derived from that state. These constraints are beneficial to application architecture because they provide a way to identify application state and suggest how the application state can change.
+
+From its conception, Microstates was created to be the most convinient way to express state machines. The goal was to design an API that would eliminate the barrier of using state machines and allow for them to be composable. The result of 2 years of work is an API that does not look like a traditional state machine.
+
+## Explicit Transitions vs Transition Matching
+
+Most state machine libraries focus on finding the next state given configuration. For example, [xstate](https://github.com/davidkpiano/xstate#finite-state-machines) declaration describes what state id to match when in a specific state.
+
+```js
+import { Machine } from 'xstate';
+
+const lightMachine = Machine({
+  key: 'light',
+  initial: 'green',
+  states: {
+    green: {
+      on: {
+        TIMER: 'yellow',
+      }
+    },
+    yellow: {
+      on: {
+        TIMER: 'red',
+      }
+    },
+    red: {
+      on: {
+        TIMER: 'green',
+      }
+    }
+  }
+});
+```
+
+Here is equivalent state machine in Microstates,
+
+```js
+class LightMachine {
+  color = String;
+
+  initialize({ color: 'green' } = {}) {
+    return this.color.set(color);
+  }
+
+  timer() {
+    switch (this.color.state) {
+      case 'green': return this.color.set('yellow');
+      case 'yellow': return this.color.set('red');
+      case 'red':
+      default:
+        return this.color.set('green'); 
+    }
+  }
+}
+```
+
+With Microstates, you explicitely describe what happens on transition and define the matching mechanism. 
+
+### No transitionTo function
+
+`transitionTo` is often used by state machine libraries to trigger state transition. 
+
+Here is an example with xstate library,
+
+```js
+const nextState = lightMachine.transition('green', 'TIMER').value;
+
+//> 'yellow'
+```
+
+Microstates does not have such a method. Instead, next state is derived by invoking a method on the microstate which returns the next state.
+
+```js
+import { create } from 'microstates';
+
+let lightMachine = create(LightMachine);
+
+const nextState = lightMachine.timer();
+
+nextState.color.state
+//> 'yellow'
+```
+
+Again, different approaches with their own tradeoffs. 
+
+## Functional Immutable Object vs Functional Immutable Data Structure
+
+I will use xstate as an example again because it's the best library in this category. When you create a state machine with xstate, you create a functional immutable object. When you invoke a transition on the state machine, the value of the object is the ID of the next state. All of the concerns of immutable value change as a result of state change are left for you to handle manually.
+
+Microstates treats value as part of the state machine which allows you to handle immutable state transitions as part of your state transition declaration. It allows you to colocate your state transitions with reducers that change the value of the state.
+
+*NOTE*: This entire section is not meant to be a criticism of `xstate` library. It's a great library and it addresses real need for state machines and statecharts. I'm using it to illustrate API choices that Microstates made.
+
+
+# Framework Integrations
+
+* [React.js](https://github.com/microstates/react)
+* [Ember.js](https://github.com/cowboyd/ember-microstates)
+* Create a PR if you created an integration that you'd like to add to this list.
+* Create an issue if you'd like help integrating Microstates with a framework
 
 # `microstates` npm package
 
