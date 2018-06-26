@@ -14,21 +14,14 @@ a tool that provides a tiny API to describe complex data structures and provide 
   <summary><strong>Table of Contents</strong></summary>
 <!-- toc -->
 
+* [Microstates](#microstates)
 * [Features](#features)
-* [Why Microstates?](#why-microstates)
-  * [M in MVC](#m-in-mvc)
-  * [Functional Models](#functional-models)
 * [What is a Microstate?](#what-is-a-microstate)
 * [Types](#types)
   * [Type Composition](#type-composition)
-  * [Defining class types](#defining-class-types)
-  * [Composing class types](#composing-class-types)
-  * [Parameterized Types](#parameterized-types)
-* [State](#state)
-  * [Building state](#building-state)
-  * [All getters are cached](#all-getters-are-cached)
-  * [Reuse of immutable state instances](#reuse-of-immutable-state-instances)
-  * [Reuse of state between transitions](#reuse-of-state-between-transitions)
+  * [Composing types](#composing-types)
+  * [Array Microstates](#array-microstates)
+  * [Object Microstates](#object-microstates)
 * [Transitions](#transitions)
   * [Primitive type transitions](#primitive-type-transitions)
   * [class type transitions](#class-type-transitions)
@@ -39,7 +32,8 @@ a tool that provides a tiny API to describe complex data structures and provide 
 * [microstates npm package](#microstates-npm-package)
   * [create(Type, value): Microstate](#createtype-value-microstate)
   * [from(any): Microstate](#fromany-microstate)
-  * [map(fn: tree =&gt; tree, microstate: Microstate): Microstate](#mapfn-tree--tree-microstate-microstate-microstate)
+  * [map(fn, microstate): Microstate](#mapfn-microstate-microstate)
+  * [use(middleware, microstate: Microstate): Microstate](#usemiddleware-microstate-microstate-microstate)
 * [Middleware](#middleware)
 * [Observable Microstates](#observable-microstates)
 * [The Vision of Microstates](#the-vision-of-microstates)
@@ -511,7 +505,7 @@ class Truck extends Vehicle {
 
   tow(vehicle) {
     if (vehicle.weight.state < this.towCapacity.state) {
-      return this.vehicle.set(vehicle);
+      return this.towing.set(vehicle);
     } else {
       throw new Error(`Unable to tow ${vehicle.weight.state} because it exceeds tow capacity of ${this.towCapacity.state}`);
     }
@@ -527,7 +521,7 @@ let prius = create(Car, { weight: 3000 });
 let mustang = create(Car, { weight: 3500, towCapacity: 1000 });
 let f150 = create(Truck, { weight: 5000, towCapacity: 13000 });
 
-let rob = create(Friend).vehicle.set(mustant);
+let rob = create(Friend).vehicle.set(mustang);
 let charles = create(Friend).vehicle.set(f150);
 
 rob.vehicle.tow(prius);
@@ -609,27 +603,37 @@ from({ hello: [ 'world' ]}).hello[0].concat('!!!').valueOf();
 // { hello: [ 'world!!!' ]}
 ```
 
-## map(fn: tree => tree, microstate: Microstate): Microstate
+## map(fn, microstate): Microstate
 
-The `map` function is used to perform operations on the tree that are used to build a new Microstate. It expects a function and a Microstate and returns a Microstate. This function accepts a mapping function which will receive the Microstate's tree. The mapping function is expected to return a tree. The tree that is returned from the mapping will be used to generate the microstate that's returned by the map operation.
-
-This is most frequently used go derive a microstate with middleware installed.
+The `map` function invokes the function for each microstate in an array microstate. It usually used to map over an array of microstate and return an array of components. The mapping function will receive each microstate in the array. You can invoke transitions on each microstate as you would usually.
 
 ```js
-import { map, from } from "microstates";
+let numbers = create([Number], [1, 2, 3, 4]);
+
+<ul>
+  {map(number => (
+    <li onClick={() => number.increment()}>{number.state}</li>
+  ), numbers)}
+</ul>
+```
+
+## use(middleware, microstate: Microstate): Microstate
+
+The `use` function is used to add middleware to a microstate. This function will return a new microstate with the provided middleware installed. 
+
+```js
+import { use, from } from "microstates";
 
 let number = from(42);
 
-function loggingMiddleware(next) {
-  return (microstate, transition, args) => {
-    console.log(`before ${transition.name} value is`, microstate.valueOf());
-    let result = next(microstate, transition, args);
-    console.log(`after ${transition.name} value is`, result.valueOf());
-    return result;
-  };
+const loggingMiddleware = next => (microstate, transition, args) => {
+  console.log(`before ${transition.name} value is`, microstate.valueOf());
+  let result = next(microstate, transition, args);
+  console.log(`after ${transition.name} value is`, result.valueOf());
+  return result;
 }
 
-let loggedNumber = map(tree => tree.use(loggingMiddleware), number);
+let loggedNumber = use(loggingMiddleware, number);
 
 loggedNumber.increment();
 // before increment value is 42
@@ -663,7 +667,7 @@ function loggingMiddleware(next) {
   };
 }
 
-let homerWithMiddleware = map(tree => tree.use(loggingMiddleware), homer);
+let homerWithMiddleware = use(loggingMiddleware, homer);
 ```
 
 The middleware will be invoked on any transition that you call on this Microstate. The middleware will be carried over on every consequent transition as it is now part of the Microstate. We use this mechanism to create Observable Microstates.
