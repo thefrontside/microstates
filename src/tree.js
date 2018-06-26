@@ -27,23 +27,18 @@ const { assign, defineProperties, defineProperty } = Object;
  * @param {Array<any>} args
  */
 const defaultMiddleware = (localMicrostate, transition, args) => {
-  let { lens, root } = reveal(localMicrostate);
+  let tree = reveal(localMicrostate);
 
-  let applyTransition = focus => {
+  let { microstate } = tree.apply(focus => {
     let next = transition.apply(focus.microstate, args);
     if (next instanceof Microstate) {
       return reveal(next);
     } else {
       return focus.assign({ data: { value: next }});
     }
-  };
+  });
 
-  // transition is applied to the end of the path
-  // it returns the next tree which is returned
-  let nextTree = over(lens, applyTransition, root);
-
-  // map tree to make sure that it gets the root applied
-  return map(tree => tree, nextTree).microstate;
+  return microstate;
 };
 
 function makeMiddleware(tree) {
@@ -104,10 +99,12 @@ export const transitionsClass = stable(function transitionsClass(Type) {
       /**
        * This middleware redirects the transition to the original microstate
        */
-      let middleware = () => (microstate, transition, args) => {
-        let { path, meta: { origin } } = Tree.from(microstate);
-        invariant(origin, `Could not find an microstate at [${path.join(',')}]. You might have tried to modify a microstate that does not exist in original microstate.`)
-        return makeMiddleware(origin)(origin.microstate, transition, args);
+      let middleware = next => {
+        return (microstate, transition, args) => {
+          let { path, meta: { origin } } = Tree.from(microstate);
+          invariant(origin, `Could not find an microstate at [${path.join(',')}]. You might have tried to modify a microstate that does not exist in original microstate.`);
+          return makeMiddleware(origin)(origin.microstate, transition, args);
+        };
       }
     
       /**
@@ -344,7 +341,7 @@ export default class Tree {
    */
   use(middleware) {
     return map(tree => {
-      if (tree.is(this)) {
+      if (tree.isRoot) {
         return tree.assign({
           data: { middleware: [...tree.data.middleware, middleware] },
         });
@@ -413,6 +410,26 @@ export default class Tree {
         data: data && data !== tree.data ? assign({}, tree.data, data) : tree.data
       }
     });
+  }
+
+  /**
+   * Returns a new root tree with after applying the function argument to the current tree.
+   * Apply will backup the middleware on this tree to ensure that context specific middleware
+   * is not applied when the tree is pruned.
+   */
+  apply(fn) {
+    // overload custom middleware to allow context free transitions
+    let root = this.root.assign({ data: { middleware: [] } });
+    // focus on current tree and apply the function to it
+    let nextRoot = over(this.lens, fn, root);
+    // put the original middleware into the next root tree so the middleware will
+    return map(tree => {
+      if (tree.is(nextRoot)) {
+        return nextRoot.assign({ data: { middleware: this.root.data.middleware } });
+      } else {
+        return tree;
+      }
+    }, nextRoot);
   }
 
   derive(fn) {
@@ -566,12 +583,12 @@ export function queriesForTree(tree) {
   let context = map(tree => {
     return tree.assign({
       meta: { origin: tree },
-      data: { middleware: tree.isRoot ? [] : tree.data.middleware }
+      data: { middleware: [] }
     })
-  }, tree).prune().microstate;
+  }, tree).prune();
 
   return map(query => {
-    return Tree.from(query.call(context)).microstate;
+    return Tree.from(query.call(context.microstate)).microstate;
   }, TransitionsClass.queries);
 }
 

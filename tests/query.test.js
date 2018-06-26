@@ -8,8 +8,8 @@ describe('reading', () => {
       return this.age;
     }
   }
+
   let homer;
-  
   beforeEach(() => {
     homer = create(Person, { age: 42 });
   });
@@ -77,9 +77,9 @@ describe('reading', () => {
     let tree, oTree;
     beforeEach(() => {
       callback = jest.fn();
-      middleware = next => (...args) => {
-        callback(...args);
-        return next(...args);
+      middleware = next => (microstate, transition, args) => {
+        callback(transition.name);
+        return next(microstate, transition, args);
       }
       withMiddleware = use(middleware, homer);
       oTree = Tree.from(withMiddleware.age);
@@ -91,7 +91,7 @@ describe('reading', () => {
     it('does not have middleware in root of tree', () => {
       expect(tree.root.data.middleware.includes(middleware)).toBe(false);
     });
-    describe('invoked middleware', () => {
+    describe('transition', () => {
       describe('on original', () => {
         let result;
         beforeEach(() => {
@@ -100,7 +100,7 @@ describe('reading', () => {
         it('has correct result from original tree', () => {
           expect(result.valueOf()).toEqual({ age: 43 })
         });
-        it('invoked the middleware', () => {
+        it('called callback', () => {
           expect(callback).toHaveBeenCalledTimes(1);
         });
       });
@@ -112,7 +112,7 @@ describe('reading', () => {
         it('has correct result from original tree', () => {
           expect(result.valueOf()).toEqual({ age: 43 })
         });
-        it('invoked the middleware', () => {
+        it('called callback', () => {
           expect(callback).toHaveBeenCalledTimes(1);
         });
       });
@@ -200,6 +200,69 @@ describe('stability of query results amongst queries', () => {
 
   it('has same state for both queries in transition', () => {
     expect(instance.check().result.state).toBe(true);
+  });
+});
+
+describe('transition of query result inside of a transition', () => {
+  class CollectionOfNumbers {
+    numbers = [Number]
+
+    get timesThree() {
+      return this
+        .numbers.map(number => number.set(number.state * 3))
+        .numbers;
+    }
+
+    removeOdd() {
+      return this.timesThree.filter(number => number.state % 2 === 0);
+    }
+  }
+
+  let collection;
+  beforeEach(() => {
+    collection = create(CollectionOfNumbers, { numbers: [ 1, 2, 3, 4 ] });
+  });
+
+  it('computes times three', () => {
+    expect(collection.timesThree.state).toEqual([3, 6, 9, 12]);
+  });
+
+  describe('transition using getter', () => {
+    let withoutOdd;
+    beforeEach(() => {
+      withoutOdd = collection.removeOdd();
+    });
+    it('removes items from the list', () => {
+      expect(withoutOdd.state.numbers).toEqual([2, 4]);
+    });
+  });
+
+  describe('transition with middleware', () => {
+    let withMiddleware;
+    let callback;
+    beforeEach(() => {
+      callback = jest.fn();
+      let middleware = next => (microstate, transition, args) => {
+        callback(transition.name);
+        return next(microstate, transition, args);
+      };
+      withMiddleware = use(middleware, collection);
+    });
+    let withoutOdd;
+    beforeEach(() => {
+      withoutOdd = withMiddleware.removeOdd();
+    });
+    it('removes items from the list', () => {
+      expect(withoutOdd.state.numbers).toEqual([2, 4]);
+    });
+    it('only calls callback once', () => {
+      expect(callback).toHaveBeenCalledTimes(1);
+    });
+    it('was called with removeOdd', () => {
+      expect(callback.mock.calls[0][0]).toBe('removeOdd')
+      expect(callback.mock.calls[1]).toBeUndefined();
+      expect(callback.mock.calls[2]).toBeUndefined();
+    });
   });
 });
 
