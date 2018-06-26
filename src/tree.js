@@ -84,6 +84,46 @@ export class Microstate {
     return map(tree => fn(tree.microstate), reveal(microstate).children);
   }
 
+  /**
+   * # Middleware
+   * 
+   * Middleware makes it possible to modify what occurs before a transition is 
+   * performed and what is ultimately returned by a transition. You can use it 
+   * to change the outcome of a transition or emit side effects.
+   * 
+   * Installation of a middleware is done in an immutable fashion as with all 
+   * other operations in Microstates. To install a middleware, you must map a 
+   * microstate to create a new microstate that uses the given middleware.
+   * Let's create logging middleware that will log every transition:
+   * 
+   * ```js
+   * import { create, map } from "microstates";
+   * 
+   * class Person {
+   *   firstName = String;
+   *   lastName = String;
+   * }
+   * 
+   * let homer = create(Person, { firstName: "Homer", lastName: "Simpson" });
+   * 
+   * function loggingMiddleware(next) {
+   *   return (microstate, transition, args) => {
+   *     console.log(`before ${transition.name} value is`, microstate.valueOf());
+   *     let result = next(microstate, transition, args);
+   *     console.log(`after ${transition.name} value is`, result.valueOf());
+   *     return result;
+   *   };
+   * }
+   * let homerWithMiddleware = use(loggingMiddleware, homer)
+   * ```
+   * 
+   * The middleware will be invoked on any transition that you call on this Microstate. 
+   * The middleware will be carried over on every consequent transition as it is now part 
+   * of the Microstate. We use this mechanism to create Observable Microstates.
+   * 
+   * @param {*} middleware 
+   * @param {*} microstate 
+   */
   static use(middleware, microstate) {
     return map(tree => tree.use(middleware), microstate);
   }

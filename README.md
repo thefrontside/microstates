@@ -5,7 +5,7 @@
 
 # Microstates
 
-Microstates is a functional runtime type system designed to ease state management in component based applications. It allows to declaratively compose application state from atomic state machines.
+Microstates is a functional runtime type system designed to ease state management in component based applications. It allows you to declaratively compose application state from atomic state machines.
 
 By combining lazy execution, algebraic data types and structural sharing, we created a tool that provides a tiny API to describe complex data structures and provide a mechanism to change the value in an immutable way.
 
@@ -76,7 +76,8 @@ React components have a tiny API. They are functional, simple and extremely reus
 
 These factors combined are what make React style components easy to work with and ultimately fun to write. A Tiny API abstracting a sophisticated architecture that delivers performance and is equaly useful on small and big projects is the outcome that we set out to achieve for state management with Microstates.
 
-It's not easy to find the right balance between simplicity and power, but considering the importance of state management in web applications, we believe it's a worthy challenge.
+It's not easy to find the right balance between simplicity and power, but considering the importance of state management in web applications, we believe it's a worthy challenge. Checkout the [Vision of Microstates](#the-vision-of-microstates) section if you're interested in learning more about where we're going.
+
 <!-- 
 # Why Microstates?
 
@@ -113,13 +114,35 @@ When you want to change what the user sees, you could imperatively manipulate th
 
 # What is a Microstate?
 
-A Microstate is a JavaScript object that is created from a type and POJO value. The shape and methods of the Microstate are determined by its type and the value it contains. A type describes the structure and transitions that can be performed on the microstate. Using type and value, Microstates derives a single immutable state tree.
+A Microstate is just an object that is created from a value and a type. The value is just data, and the type is what defines how you can transition that data from one form into the next.
 
-# Types
+# Types and Type Composition
 
-Microstates comes with 5 primitive types: `Boolean`, `Number`, `String`, `Object` and `Array`. In addition to primivite types, Microstates allows you to declare `class` types and two kinds of parameterized types: `[Type]` and `{Type}`.
+Microstates comes out of the box with 5 primitive types: `Boolean`, `Number`, `String`, `Object` and `Array`. With Just these basic types there's actually a lot you can do.
 
-## Type Composition
+```js
+import { create } from 'microstates';
+
+let meaningOfLifeAndEverything = create(Number, 42);
+meaningOfLifeAndEverything.state
+//> 42
+
+let greeting = create(String, 'Hello World');
+greeting.state
+//> Hello World
+
+let isOpen = create(Boolean, true);
+isOpen.state
+//> true
+
+let foo = create(Object, { foo: 'bar' });
+foo.state
+//> { foo: 'bar' }
+
+let numbers = create(Array, [ 1, 2, 3, 4 ]);
+numbers.state
+//> [ 1, 2, 3, 4 ]
+```
 
 Apart from these basic types, every other type in Microstates is composed out of other types. So for example, to create a `Person` you would define a JavaScript class and declare composed types with class properties(aka class fields).
 
@@ -225,7 +248,7 @@ theHomerCar.name.state;
 
 ## Array Microstates
 
-Quite often it is helpful to describe your data as a collection of types. A blog might have an array of posts. To do this, you can use the array of type notation, `[Post]`. This signals that Microstates of this type represent an array whose members are each of the `Post` type.
+Quite often it is helpful to describe your data as a collection of types. For example, a blog might have an array of posts. To do this, you can use the array of type notation, `[Post]`. This signals that Microstates of this type represent an array whose members are each of the `Post` type.
 
 ```js
 class Blog {
@@ -260,7 +283,7 @@ blog2.posts[2].state;
 //> Post<{ id: 3, title: 'It is only getter better' }>
 ```
 
-## Object Microstates
+## Object type Microstates
 
 You can also create a parameterized object with `{Post}`. The difference is that the collection is treated as an object. This can be helpful when create normalized data stores.
 
@@ -288,7 +311,7 @@ blog.posts["1"].state;
 //> Post<{ id: 2, title: 'Most fascinating blog in the world' }>
 ```
 
-Object microstates have `Object` transitions, such as `assign`, `put` and `delete`.
+Object type microstates have `Object` transitions, such as `assign`, `put` and `delete`.
 
 ```js
 let blog2 = blog.posts.put("3", { id: 3, title: "It is only getter better" });
@@ -299,11 +322,11 @@ blog2.posts["3"].state;
 
 # Transitions
 
-Transitions are declarative operations that you can perform on a microstate to derive another state. All transitions return another Microstate.
+Transitions are the operations that let you derive a new state from an existing state. All transitions return another Microstate.
+
+![Boolean Statechart](README/boolean-statechart.png?v=50%)
 
 The simplest example of this is `toggle` transition on the `Boolean` type. The `toggle` transition takes no arguments and creates a new microstate with the state that is opposite of the current state. The `Boolean` type can be described with the following state chart.
-
-![Boolean Statechart](README/boolean-statechart.png)
 
 Here is what this looks like with Microstates.
 
@@ -321,7 +344,7 @@ b2.state;
 //> true
 ```
 
-An important quality of the transitions in Microstates is that they always return a Microstate. This is true inside of transition functions and outside where the transition is invoked. Microstates use this convention to allow composition to reach crazy levels of complexity.
+> *Pro tip* Remember, Microstate transitions always return a Microstate. This is true both inside and outside the transition function. Using this convention to allow composition to reach crazy levels of complexity.
 
 Let's compose a Boolean into another class type and see what happens.
 
@@ -356,7 +379,7 @@ opened.valueOf();
 // }}
 ```
 
-In the above example, I invoked the boolean transition on `app.notification.isOpen` but we still got a new App Microstate. The value was changed immutably without modifying the original object and the transition returned a new App Microstate.
+Microstate transitions always return the whole object. Notice how we invoked the boolean transition `app.notification.isOpen`, but we didn't get a new Boolean microstate? Instead, we got a completely new App where everything was the same except for that single toggled value.
 
 ## Primitive type transitions
 
@@ -407,7 +430,7 @@ let lisa = homer.changeName('Lisa');
 
 ## chaining transitions
 
-The result of the last operation in the chain will be merged into the microstate.
+Transitions can be composed out of any number of subtransitions. This is often referred to as "batch transitions" or "transactions". Let's say that when we authenticate a session, we need to both store the token and indicate that the user is now authenticated. To do this, we can chain transitions. The result of the last operation in the chain will be merged into the microstate.
 
 ```js
 class Session {
@@ -538,7 +561,7 @@ result.vehicle.state.isTowing
 
 Those familiar with functional programming might recognize this as a flatMap operation. It is not required for you to understand Monads to use Microstates transitions. If you're interested in learning about the primitives of functional programming, you may checkout [funcadelic.js](https://github.com/cowboyd/funcadelic.js). Microstates uses Funcadelic under the hood.
 
-## Scope rules
+## Transition scope
 
 For Microstates to be composable, they must work the same as a root Microstate or composed into another Microstate. For this reason, Microstate transitions only have access to their own transitions and the transitions of the Microstates that are composed into them. They do not have access to their context. This is similar to how components work. The parent component can render a child component and pass data to them. The children components do not have direct access to the parent component. Same in Microstates.
 
@@ -631,7 +654,7 @@ Again, different approaches with their own tradeoffs.
 
 ## Functional Immutable Object vs Functional Immutable Data Structure
 
-I will use xstate as an example again because it's the best library in this category. When you create a state machine with xstate, you create a functional immutable object. When you invoke a transition on the state machine, the value of the object is the ID of the next state. All of the concerns of immutable value change as a result of state change are left for you to handle manually.
+We will use xstate as an example again because it's the best library in this category. When you create a state machine with xstate, you create a functional immutable object. When you invoke a transition on the state machine, the value of the object is the ID of the next state. All of the concerns of immutable value change as a result of state change are left for you to handle manually.
 
 Microstates treats value as part of the state machine which allows you to handle immutable state transitions as part of your state transition declaration. It allows you to colocate your state transitions with reducers that change the value of the state.
 
@@ -746,41 +769,20 @@ loggedNumber.increment();
 // after increment value is 43
 ```
 
-# Middleware
-
-Middleware makes it possible to modify what occurs before a transition is performed and what is ultimately returned by a transition. You can use it to change the outcome of a transition or emit side effects.
-
-Installation of a middleware is done in an immutable fashion as with all other operations in Microstates. To install a middleware, you must map a microstate to create a new microstate that uses the given middleware.
-
-Let's create logging middleware that will log every transition:
-
-```js
-import { create, map } from "microstates";
-
-class Person {
-  firstName = String;
-  lastName = String;
-}
-
-let homer = create(Person, { firstName: "Homer", lastName: "Simpson" });
-
-function loggingMiddleware(next) {
-  return (microstate, transition, args) => {
-    console.log(`before ${transition.name} value is`, microstate.valueOf());
-    let result = next(microstate, transition, args);
-    console.log(`after ${transition.name} value is`, result.valueOf());
-    return result;
-  };
-}
-
-let homerWithMiddleware = use(loggingMiddleware, homer);
-```
-
-The middleware will be invoked on any transition that you call on this Microstate. The middleware will be carried over on every consequent transition as it is now part of the Microstate. We use this mechanism to create Observable Microstates.
-
 # Observable Microstates
 
-Microstates provides an easy way to convert a Microstate which represents a single value into a Observable stream of values. This is done by passing a Microstate to `Observable.from` function. This function will return a Observable object with a `subscribe` method. You can subscribe to the stream by passing an observer to the subscribe function. Once you subscribe, you will syncronously receive a microstate with middleware installed that will cause the result of transitions to be pushed through the stream.
+By themselves microstates are purely functional. They have no builtin concept of identity, 
+time or sequencing. However, it is precisely because of these properties that they can be 
+used with almost any state management solution that does. In fact, Microstates comes bundled 
+out of the box with the ability to convert any microstate into a stream of transitions using 
+the the Observable API.
+
+Microstates provides an easy way to convert a Microstate which represents a single value into 
+a Observable stream of values. This is done by passing a Microstate to `Observable.from` function. 
+This function will return a Observable object with a `subscribe` method. You can subscribe to the 
+stream by passing an observer to the subscribe function. Once you subscribe, you will syncronously 
+receive a microstate with middleware installed that will cause the result of transitions to be pushed 
+through the stream.
 
 You should be able to use to any implementation of Observables that supports `Observer.from` using [symbol-observable](https://github.com/benlesh/symbol-observable). We'll use `RxJS` for our example.
 
