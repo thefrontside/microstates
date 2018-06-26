@@ -324,7 +324,7 @@ blog2.posts["3"].state;
 
 Transitions are the operations that let you derive a new state from an existing state. All transitions return another Microstate.
 
-![Boolean Statechart](README/boolean-statechart.png?v=50%)
+![Boolean Statechart](README/boolean-statechart.png)
 
 The simplest example of this is `toggle` transition on the `Boolean` type. The `toggle` transition takes no arguments and creates a new microstate with the state that is opposite of the current state. The `Boolean` type can be described with the following state chart.
 
