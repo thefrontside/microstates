@@ -17,9 +17,9 @@ By combining lazy execution, algebraic data types and structural sharing, we cre
 - [Features](#features)
 - [What is a Microstate?](#what-is-a-microstate)
 - [Types and Type Composition](#types-and-type-composition)
-  - [Composing types](#composing-types)
+  - [Creating your own microstates](#creating-your-own-microstates)
   - [Array Microstates](#array-microstates)
-  - [Object type Microstates](#object-type-microstates)
+  - [Object Microstates](#object-microstates)
 - [Transitions](#transitions)
   - [Primitive type transitions](#primitive-type-transitions)
   - [class type transitions](#class-type-transitions)
@@ -113,11 +113,11 @@ When you want to change what the user sees, you could imperatively manipulate th
 
 # What is a Microstate?
 
-A Microstate is just an object that is created from a value and a type. The value is just data, and the type is what defines how you can transition that data from one form into the next.
+A Microstate is just an object that is created from a value and a type. The value is just data, and the type is what defines how you can transition that data from one form into the next. Unlike normal JavaScript objects, microstates are 100% immutable and cannot be changed. They can only derive new immutable microstates through one of their type's transitions.
 
 # Types and Type Composition
 
-Microstates comes out of the box with 5 primitive types: `Boolean`, `Number`, `String`, `Object` and `Array`. With Just these basic types there's actually a lot you can do.
+Microstates comes out of the box with 5 primitive types: `Boolean`, `Number`, `String`, `Object` and `Array`.
 
 ```js
 import { create } from 'microstates';
@@ -182,11 +182,13 @@ Every microstate created with a type of `Person` will be an object that looks li
 +----------------------+
 ```
 
-## Composing types
+For the five built in types, Microstates automatically gives you transitions that you can use to change their value. You don't have to write any code to handle common operations. 
 
-Types can be composed with other types freely. This makes it possible to build complex data structures that accurately describe your domain. Since Microstates are atomic and all transitions return Microstates, Microstates can automatically handle transitions regardless of how your `class` types are composed.
+## Creating your own microstates
 
-Let's define another type that composes the person type.
+Types can be composed with other types freely and Microstates will take care of handling the transitions for you. This makes it possible to build complex data structures that accurately describe your domain.
+
+Let's define another type that uses the person type.
 
 ```js
 class Car {
@@ -232,7 +234,7 @@ let theHomerCar = create(Car, {
 +-------------------+
 ```
 
-The property names are important when defining `class` types because they are used to reference composed microstates. You can use the object dot notation to access a composed microstate. Using the same example from above:
+You can use the object dot notation to access a composed microstate. Using the same example from above:
 
 ```js
 theHomerCar.designer.state;
@@ -243,6 +245,13 @@ theHomerCar.designer.age.state;
 
 theHomerCar.name.state;
 //> The Homer
+```
+
+The state from composed microstates is also available on the parent object. 
+
+```js
+theHomerCar.state
+//> Car<{ designer: Person<{ name: 'Homer', age: 39 }>, name: 'The Homer' }>
 ```
 
 ## Array Microstates
@@ -273,7 +282,7 @@ blog.posts[1].state;
 //> Post<{ id: 2, title: 'Most fascinating blog in the world' }>
 ```
 
-When you're working with parameterized types, the shape of the Microstate is determined by the value. In this case, `posts` is created with two items which will, in turn, create a Microstate with two items. Each item will be a Microstate of type `Post`. If you push another item onto the `posts` Microstate, it'll be treated as a `Post`.
+When you're working with an array microstate, the shape of the Microstate is determined by the value. In this case, `posts` is created with two items which will, in turn, create a Microstate with two items. Each item will be a Microstate of type `Post`. If you push another item onto the `posts` Microstate, it'll be treated as a `Post`.
 
 ```js
 let blog2 = blog.posts.push({ id: 3, title: "It is only getter better" });
@@ -282,9 +291,11 @@ blog2.posts[2].state;
 //> Post<{ id: 3, title: 'It is only getter better' }>
 ```
 
-## Object type Microstates
+Notice how we didn't have to do any extra work to define the state transition of adding another post to the list? That's the power of composition!
 
-You can also create a parameterized object with `{Post}`. The difference is that the collection is treated as an object. This can be helpful when create normalized data stores.
+## Object Microstates
+
+You can also create an object microstate with `{Post}`. The difference is that the collection is treated as an object. This can be helpful when create normalized data stores.
 
 ```js
 class Blog {
@@ -321,11 +332,11 @@ blog2.posts["3"].state;
 
 # Transitions
 
-Transitions are the operations that let you derive a new state from an existing state. All transitions return another Microstate.
+Transitions are the operations that let you derive a new state from an existing state. All transitions return another Microstate. You can use state charts to visualize microstates. The `Boolean` type can be described with the following statechart. 
 
-<img src="README/boolean-statechart.png" alt="Boolean Statechart" width="100" />
+<img src="README/boolean-statechart.png" alt="Boolean Statechart" width="250" />
 
-The simplest example of this is `toggle` transition on the `Boolean` type. The `toggle` transition takes no arguments and creates a new microstate with the state that is opposite of the current state. The `Boolean` type can be described with the following state chart.
+The `Boolean` type has a `toggle` transition takes no arguments and creates a new microstate with the state that is opposite of the current state. 
 
 Here is what this looks like with Microstates.
 
