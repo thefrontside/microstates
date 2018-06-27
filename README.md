@@ -324,7 +324,7 @@ blog2.posts["3"].state;
 
 Transitions are the operations that let you derive a new state from an existing state. All transitions return another Microstate.
 
-![Boolean Statechart](README/boolean-statechart.png)
+<img src="README/boolean-statechart.png" alt="Boolean Statechart" width="100" />
 
 The simplest example of this is `toggle` transition on the `Boolean` type. The `toggle` transition takes no arguments and creates a new microstate with the state that is opposite of the current state. The `Boolean` type can be described with the following state chart.
 
@@ -571,6 +571,8 @@ A state machine is a system that has a predefined set of states. At any given po
 
 From its conception, Microstates was created to be the most convinient way to express state machines. The goal was to design an API that would eliminate the barrier of using state machines and allow for them to be composable. The result of 2 years of work is an API that does not look like a traditional state machine.
 
+We will use xstate as an example of a good implementation of a state machine. It's a great library and it addresses real need for state machines and statecharts. We'll use it to illustrate API choices that we made for Microstates.
+
 ## Explicit Transitions vs Transition Matching
 
 Most state machine libraries focus on finding the next state given configuration. For example, [xstate](https://github.com/davidkpiano/xstate#finite-state-machines) declaration describes what state id to match when in a specific state.
@@ -601,7 +603,7 @@ const lightMachine = Machine({
 });
 ```
 
-Here is equivalent state machine in Microstates,
+Microstates does not do any special state resolution. You explicitely declare what happens on a state transition. Here is what a similar state machine would look like in Microstates.
 
 ```js
 class LightMachine {
@@ -627,9 +629,7 @@ With Microstates, you explicitely describe what happens on transition and define
 
 ### No transitionTo function
 
-`transitionTo` is often used by state machine libraries to trigger state transition. 
-
-Here is an example with xstate library,
+`transitionTo` is often used by state machine libraries to trigger state transition. Here is an example with xstate library,
 
 ```js
 const nextState = lightMachine.transition('green', 'TIMER').value;
@@ -637,7 +637,7 @@ const nextState = lightMachine.transition('green', 'TIMER').value;
 //> 'yellow'
 ```
 
-Microstates does not have such a method. Instead, next state is derived by invoking a method on the microstate which returns the next state.
+Microstates does not have such a method. Instead, the next state is derived by invoking a method on the microstate.
 
 ```js
 import { create } from 'microstates';
@@ -648,18 +648,13 @@ const nextState = lightMachine.timer();
 
 nextState.color.state
 //> 'yellow'
-```
+``` 
 
-Again, different approaches with their own tradeoffs. 
+## Immutable Object vs Immutable Data Structure
 
-## Functional Immutable Object vs Functional Immutable Data Structure
+When you create a state machine with xstate, you create an immutable object. When you invoke a transition on an `xstate` state machine, the value of the object is the ID of the next state. All of the concerns of immutable value change as a result of state change are left for you to handle manually.
 
-We will use xstate as an example again because it's the best library in this category. When you create a state machine with xstate, you create a functional immutable object. When you invoke a transition on the state machine, the value of the object is the ID of the next state. All of the concerns of immutable value change as a result of state change are left for you to handle manually.
-
-Microstates treats value as part of the state machine which allows you to handle immutable state transitions as part of your state transition declaration. It allows you to colocate your state transitions with reducers that change the value of the state.
-
-*NOTE*: This entire section is not meant to be a criticism of `xstate` library. It's a great library and it addresses real need for state machines and statecharts. I'm using it to illustrate API choices that Microstates made.
-
+Microstates treats value as part of the state machine. It allows you to colocate your state transitions with reducers that change the value of the state.
 
 # Framework Integrations
 
