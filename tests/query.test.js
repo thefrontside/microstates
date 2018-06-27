@@ -274,10 +274,16 @@ describe('todomvc', () => {
   class TodoMVC {
     todos = [Todo]
     filter = String;
+    get active() {
+      return this.todos.filter(todo => !todo.completed.state).todos;
+    }
+    get completed() {
+      return this.todos.filter(todo => todo.completed.state).todos; 
+    }
     get filtered() {
       switch(this.filter.state) {
-        case 'show_completed': return this.todos.filter(todo => todo.completed.state).todos;
-        case 'show_active': return this.todos.filter(todo => !todo.completed.state).todos;
+        case 'show_completed': return this.completed;
+        case 'show_active': return this.active;
         default: return this.todos;
       }
     }
