@@ -13,40 +13,39 @@ By combining lazy execution, algebraic data types and structural sharing, we cre
   <summary><strong>Table of Contents</strong></summary>
 <!-- toc -->
 
-* [Features](#features)
-* [What is a Microstate?](#what-is-a-microstate)
-* [Types](#types)
-  * [Type Composition](#type-composition)
-  * [Composing types](#composing-types)
-  * [Array Microstates](#array-microstates)
-  * [Object Microstates](#object-microstates)
-* [Transitions](#transitions)
-  * [Primitive type transitions](#primitive-type-transitions)
-  * [class type transitions](#class-type-transitions)
-  * [chaining transitions](#chaining-transitions)
-  * [initialize transition](#initialize-transition)
-  * [set transition](#set-transition)
-  * [Scope rules](#scope-rules)
-* [State Machines](#state-machines)
-    * [Explicit Transitions vs Transition Matching](#explicit-transitions-vs-transition-matching)
-    * [No transitionTo function](#no-transitionto-function)
-    * [Functional Immutable Object vs Functional Immutable Data Structure](#functional-immutable-object-vs-functional-immutable-data-structure)
-* [Framework Integrations](#framework-integrations)
-* [microstates npm package](#microstates-npm-package)
-  * [create(Type, value): Microstate](#createtype-value-microstate)
-  * [from(any): Microstate](#fromany-microstate)
-  * [map(fn, microstate): Microstate](#mapfn-microstate-microstate)
-  * [use(middleware, microstate: Microstate): Microstate](#usemiddleware-microstate-microstate-microstate)
-* [Middleware](#middleware)
-* [Observable Microstates](#observable-microstates)
-* [The Vision of Microstates](#the-vision-of-microstates)
-  * [Shared Solutions](#shared-solutions)
-  * [Added Flexibility](#added-flexibility)
-  * [Framework Agnostic Solutions](#framework-agnostic-solutions)
-* [FAQ](#faq)
-  * [What if I can't use class syntax?](#what-if-i-cant-use-class-syntax)
-  * [What if I can't use Class Properties?](#what-if-i-cant-use-class-properties)
-* [Run Tests](#run-tests)
+- [Microstates](#microstates)
+- [Features](#features)
+- [What is a Microstate?](#what-is-a-microstate)
+- [Types and Type Composition](#types-and-type-composition)
+  - [Composing types](#composing-types)
+  - [Array Microstates](#array-microstates)
+  - [Object type Microstates](#object-type-microstates)
+- [Transitions](#transitions)
+  - [Primitive type transitions](#primitive-type-transitions)
+  - [class type transitions](#class-type-transitions)
+  - [chaining transitions](#chaining-transitions)
+  - [`initialize` transition](#initialize-transition)
+  - [`set` transition](#set-transition)
+  - [Transition scope](#transition-scope)
+- [State Machines](#state-machines)
+  - [Explicit Transitions vs Transition Matching](#explicit-transitions-vs-transition-matching)
+    - [No transitionTo function](#no-transitionto-function)
+  - [Immutable Object vs Immutable Data Structure](#immutable-object-vs-immutable-data-structure)
+- [Framework Integrations](#framework-integrations)
+- [`microstates` npm package](#microstates-npm-package)
+  - [create(Type, value): Microstate](#createtype-value-microstate)
+  - [from(any): Microstate](#fromany-microstate)
+  - [map(fn, microstate): Microstate](#mapfn-microstate-microstate)
+  - [use(middleware, microstate: Microstate): Microstate](#usemiddleware-microstate-microstate-microstate)
+- [Observable Microstates](#observable-microstates)
+- [The Vision of Microstates](#the-vision-of-microstates)
+  - [Shared Solutions](#shared-solutions)
+  - [Added Flexibility](#added-flexibility)
+  - [Framework Agnostic Solutions](#framework-agnostic-solutions)
+- [FAQ](#faq)
+  - [What if I can't use class syntax?](#what-if-i-cant-use-class-syntax)
+  - [What if I can't use Class Properties?](#what-if-i-cant-use-class-properties)
+- [Run Tests](#run-tests)
 
 <!-- tocstop -->
 </details>
@@ -603,7 +602,7 @@ const lightMachine = Machine({
 });
 ```
 
-Microstates does not do any special state resolution. You explicitely declare what happens on a state transition. Here is what a similar state machine would look like in Microstates.
+Microstates does not do any special state resolution. You explicitly declare what happens on a state transition. Here is what a similar state machine looks like in Microstates.
 
 ```js
 class LightMachine {
