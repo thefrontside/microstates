@@ -363,6 +363,27 @@ describe('todomvc', () => {
           expect(oneCompleted.todos[2].completed.state).toBe(false);
         });
       });
+      describe.only('with middleware', () => {
+        let oneCompleted;
+        let callback;
+        beforeEach(() => {
+          callback = jest.fn();
+          let withMiddleware = use(next => (microstate, transition, args) => {
+            callback(transition.name);
+            return next(microstate, transition, args);
+          }, showActive);
+          oneCompleted = withMiddleware.filtered[0].completed.toggle();
+        });
+        it('called middleware', () => {
+          expect(callback).toHaveBeenCalledTimes(1);
+          expect(callback.mock.calls[0][0]).toBe('toggle');
+        });
+        it('updates original tree', () => {
+          expect(oneCompleted.todos[0].completed.state).toBe(true);
+          expect(oneCompleted.todos[1].completed.state).toBe(true);
+          expect(oneCompleted.todos[2].completed.state).toBe(false);
+        });
+      });
     });
   });
 });
