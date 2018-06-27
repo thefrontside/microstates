@@ -77,7 +77,7 @@ These factors combined are what make React style components easy to work with an
 
 It's not easy to find the right balance between simplicity and power, but considering the importance of state management in web applications, we believe it's a worthy challenge. Checkout the [Vision of Microstates](#the-vision-of-microstates) section if you're interested in learning more about where we're going.
 
-![Example of TodoMVC in Microstates and Redux](README/todomvc-redux-microstates.png)
+![Example of TodoMVC in Microstates and Redux](./README/todomvc-redux-microstates.png)
 
 <!-- 
 # Why Microstates?
