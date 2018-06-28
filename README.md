@@ -21,15 +21,15 @@ By combining lazy execution, algebraic data types and structural sharing, we cre
   - [Array Microstates](#array-microstates)
   - [Object Microstates](#object-microstates)
 - [Transitions](#transitions)
-  - [Primitive type transitions](#primitive-type-transitions)
-  - [class type transitions](#class-type-transitions)
-  - [chaining transitions](#chaining-transitions)
-  - [`initialize` transition](#initialize-transition)
-  - [`set` transition](#set-transition)
+  - [Transitions for built-in types](#transitions-for-built-in-types)
+  - [Type transitions](#type-transitions)
+  - [Chaining transitions](#chaining-transitions)
+  - [The `initialize` transition](#the-initialize-transition)
+  - [The `set` transition](#the-set-transition)
   - [Transition scope](#transition-scope)
 - [State Machines](#state-machines)
-  - [Explicit Transitions vs Transition Matching](#explicit-transitions-vs-transition-matching)
-    - [No transitionTo function](#no-transitionto-function)
+  - [Explicit Transitions](#explicit-transitions)
+  - [Transition methods](#transition-methods)
   - [Immutable Object vs Immutable Data Structure](#immutable-object-vs-immutable-data-structure)
 - [Framework Integrations](#framework-integrations)
 - [`microstates` npm package](#microstates-npm-package)
@@ -336,7 +336,7 @@ blog2.posts["3"].state;
 
 Transitions are the operations that let you derive a new state from an existing state. All transitions return another Microstate. You can use state charts to visualize microstates. The `Boolean` type can be described with the following statechart. 
 
-<img src="README/boolean-statechart.png" alt="Boolean Statechart" width="250" />
+<img src="README/boolean-statechart.png" alt="Boolean Statechart" width="500" />
 
 The `Boolean` type has a `toggle` transition takes no arguments and creates a new microstate with the state that is opposite of the current state. 
 
@@ -393,9 +393,9 @@ opened.valueOf();
 
 Microstate transitions always return the whole object. Notice how we invoked the boolean transition `app.notification.isOpen`, but we didn't get a new Boolean microstate? Instead, we got a completely new App where everything was the same except for that single toggled value.
 
-## Primitive type transitions
+## Transitions for built-in types
 
-The primitive types have predefined transitions,
+The primitive types have predefined transitions:
 
 * `Boolean`
   * `toggle(): Microstate` - return a Microstate with opposite boolean value
@@ -419,7 +419,7 @@ The primitive types have predefined transitions,
 
 Many transitions on primitive type are similar to methods on original classes. The biggest difference is that transitions always return Microstates.
 
-## class type transitions
+## Type transitions
 
 You can define transitions for class types. Inside of a transition, you can invoke transitions on other microstates that are composed onto this microstate. You can use the fact that composed microstates always return root microstates to chain transitions.
 
@@ -440,9 +440,9 @@ let homer = create(Person, { name: 'Homer', age: 39 });
 let lisa = homer.changeName('Lisa');
 ```
 
-## chaining transitions
+## Chaining transitions
 
-Transitions can be composed out of any number of subtransitions. This is often referred to as "batch transitions" or "transactions". Let's say that when we authenticate a session, we need to both store the token and indicate that the user is now authenticated. To do this, we can chain transitions. The result of the last operation in the chain will be merged into the microstate.
+Transitions can be composed out of any number of subtransitions. This is often referred to as "batch transitions" or "transactions". Let's say that when we authenticate a session, we need to both store the token and indicate that the user is now authenticated. To do this, we can chain transitions. The result of the last operation will be the new microstate.
 
 ```js
 class Session {
@@ -472,11 +472,11 @@ authenticated.valueOf();
 //> { authentication: { session: { token: 'SECRET' }, isAuthenticated: true } }
 ```
 
-## `initialize` transition
+## The `initialize` transition
 
-The `initialize` transition converts value into a Microstate when a Microstate is being created with the `create` function. The initialize transition is invoked for every microstate that declares one. They are called from top to bottom, meaning that a parent microstate is initalized before the children. This is imporant because the parent microstate can change what children are created.
+Just as every state machine must begin life in its "start state", so too must every microstate begin life in the right state. For those cases where the start state depends on some logic, there is the `initialize` transition. The `initialize` transition is just like any other transition, except that it will be invoked automatically called within create on every Microstate that declares one.
 
-You can use this mechanism to change the value that is used to initialize children Microstates.
+You can even use this mechanism to transition the microstate to one with a completely different type and value.
 
 For example:
 
@@ -501,7 +501,7 @@ class Person {
 }
 ```
 
-## `set` transition
+## The `set` transition
 
 The `set` transition is the only transition that is available on all types. It can be used to replace the value of the current Microstate with another value.
 
@@ -571,11 +571,11 @@ result.vehicle.state.isTowing
 //> true
 ```
 
-Those familiar with functional programming might recognize this as a flatMap operation. It is not required for you to understand Monads to use Microstates transitions. If you're interested in learning about the primitives of functional programming, you may checkout [funcadelic.js](https://github.com/cowboyd/funcadelic.js). Microstates uses Funcadelic under the hood.
+> *Pro tip*: Microstates will never require you to understand Monads in order to use transitions, but if you're interested in learning about the primitives of functional programming that power Microstates, you may want to checkout [funcadelic.js](https://github.com/cowboyd/funcadelic.js). 
 
 ## Transition scope
 
-For Microstates to be composable, they must work the same as a root Microstate or composed into another Microstate. For this reason, Microstate transitions only have access to their own transitions and the transitions of the Microstates that are composed into them. They do not have access to their context. This is similar to how components work. The parent component can render a child component and pass data to them. The children components do not have direct access to the parent component. Same in Microstates.
+Microstate are composable, and they work exactly the same no matter what other microstate they're a part of. For this reason, Microstate transitions only have access to their own transitions and the transitions of the Microstates that are composed into them. They do not have access to their context. This is similar to how components work. The parent component can render a child component and pass data to them. The children components do not have direct access to the parent component. Same in Microstates.
 
 # State Machines
 
@@ -585,7 +585,7 @@ From its conception, Microstates was created to be the most convinient way to ex
 
 We will use xstate as an example of a good implementation of a state machine. It's a great library and it addresses real need for state machines and statecharts. We'll use it to illustrate API choices that we made for Microstates.
 
-## Explicit Transitions vs Transition Matching
+## Explicit Transitions
 
 Most state machine libraries focus on finding the next state given configuration. For example, [xstate](https://github.com/davidkpiano/xstate#finite-state-machines) declaration describes what state id to match when in a specific state.
 
@@ -639,7 +639,7 @@ class LightMachine {
 
 With Microstates, you explicitely describe what happens on transition and define the matching mechanism. 
 
-### No transitionTo function
+## Transition methods
 
 `transitionTo` is often used by state machine libraries to trigger state transition. Here is an example with xstate library,
 
@@ -649,7 +649,7 @@ const nextState = lightMachine.transition('green', 'TIMER').value;
 //> 'yellow'
 ```
 
-Microstates does not have such a method. Instead, the next state is derived by invoking a method on the microstate.
+Microstates does not have such a method. Instead, it relies on vanilla JavaScript property lookup. The method invocation is equivalent to calling `transitionTo` with name of the transition. 
 
 ```js
 import { create } from 'microstates';
