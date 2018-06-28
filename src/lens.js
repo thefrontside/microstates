@@ -20,7 +20,6 @@ class Id extends Box {};
 
 class Const extends Box {}
 
-
 Functor.instance(Id, {
   map(fn, id) {
     var next = fn(id.value);
@@ -31,7 +30,7 @@ Functor.instance(Id, {
 Functor.instance(Const, {
   map(fn, constant) {
     return constant;
-  }
+    p  }
 })
 
 export function compose(f, g) {
@@ -52,9 +51,15 @@ export function set(lens, value, context) {
   return over(lens, () => value, context);
 }
 
-export function lensKey(key) {
-  let get = context => context != null ? context[key] : undefined;
-  let set = (value, context) => append(context || {}, {[key]: value});
+export function Prop(name) {
+  let get = context => context != null ? context[name] : undefined;
+  let set = (value, context = {}) => {
+    if (value === context[name]) {
+      return context;
+    } else {
+      return append(context, {[name]: value})
+    }
+  };
 
   return Lens(get, set);
 }
@@ -67,8 +72,30 @@ export function Lens(get, set) {
 
 export const transparent = Lens(x => x, y => y);
 
-export function lensPath(path = []) {
+export function Path(path = []) {
   return foldl((lens, key) => {
-    return compose(lens, lensKey(key))
+    return compose(lens, Prop(key))
+  }, transparent, path);
+}
+
+export function Substate(name) {
+  let get = context => context != null ? context[name] : undefined;
+  let set = (substate, context) => {
+    if (substate === context[name]) {
+      return context;
+    } else {
+      return append(context, {
+        [name]: substate,
+        state: append(context.state || {}, { [name]: substate.state })
+      })
+    }
+  };
+
+  return Lens(get, set);
+}
+
+export function SubstatePath(path = []) {
+  return foldl((lens, key) => {
+    return compose(lens, Substate(key))
   }, transparent, path);
 }
