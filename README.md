@@ -77,8 +77,6 @@ These factors combined are what make React style components easy to work with an
 
 It's not easy to find the right balance between simplicity and power, but considering the importance of state management in web applications, we believe it's a worthy challenge. Checkout the [Vision of Microstates](#the-vision-of-microstates) section if you're interested in learning more about where we're going.
 
-![Example of TodoMVC in Microstates and Redux](./README/todomvc-redux-microstates.png)
-
 <!-- 
 # Why Microstates?
 
@@ -145,7 +143,7 @@ numbers.state
 //> [ 1, 2, 3, 4 ]
 ```
 
-Apart from these basic types, every other type in Microstates is composed out of other types. So for example, to create a `Person` you would define a JavaScript class and declare composed types with class properties(aka class fields).
+Apart from these basic types, every other type in Microstates is sub out of other types. So for example, to create a Person type you could define a JavaScript class with two properties, name which has type String and age which has type Number.
 
 ```js
 class Person {
@@ -188,7 +186,7 @@ For the five built in types, Microstates automatically gives you transitions tha
 
 ## Creating your own microstates
 
-Types can be composed with other types freely and Microstates will take care of handling the transitions for you. This makes it possible to build complex data structures that accurately describe your domain.
+Types can be sub with other types freely and Microstates will take care of handling the transitions for you. This makes it possible to build complex data structures that accurately describe your domain.
 
 Let's define another type that uses the person type.
 
@@ -236,7 +234,7 @@ let theHomerCar = create(Car, {
 +-------------------+
 ```
 
-You can use the object dot notation to access a composed microstate. Using the same example from above:
+You can use the object dot notation to access sub microstates. Using the same example from above:
 
 ```js
 theHomerCar.designer.state;
@@ -249,7 +247,7 @@ theHomerCar.name.state;
 //> The Homer
 ```
 
-The state from composed microstates is also available on the parent object. 
+The state from sub microstates is also available on the parent object. 
 
 ```js
 theHomerCar.state
@@ -334,11 +332,11 @@ blog2.posts["3"].state;
 
 # Transitions
 
-Transitions are the operations that let you derive a new state from an existing state. All transitions return another Microstate. You can use state charts to visualize microstates. The `Boolean` type can be described with the following statechart. 
+Transitions are the operations that let you derive a new state from an existing state. All transitions return another Microstate. You can use state charts to visualize microstates. For example, the `Boolean` type can be described with the following statechart. 
 
 <img src="README/boolean-statechart.png" alt="Boolean Statechart" width="500" />
 
-The `Boolean` type has a `toggle` transition takes no arguments and creates a new microstate with the state that is opposite of the current state. 
+The `Boolean` type has a `toggle` transition which takes no arguments and creates a new microstate with the state that is opposite of the current state. 
 
 Here is what this looks like with Microstates.
 
@@ -358,7 +356,7 @@ b2.state;
 
 > *Pro tip* Remember, Microstate transitions always return a Microstate. This is true both inside and outside the transition function. Using this convention to allow composition to reach crazy levels of complexity.
 
-Let's compose a Boolean into another class type and see what happens.
+Let's use a `Boolean` in another type and see what happens.
 
 ```js
 class App {
@@ -421,7 +419,7 @@ Many transitions on primitive type are similar to methods on original classes. T
 
 ## Type transitions
 
-You can define transitions for class types. Inside of a transition, you can invoke transitions on other microstates that are composed onto this microstate. You can use the fact that composed microstates always return root microstates to chain transitions.
+You can define a transition for your types using a method. Inside of a transition, you can invoke transitions on sub microstates.
 
 ```js
 import { create } from "microstates";
@@ -474,7 +472,7 @@ authenticated.valueOf();
 
 ## The `initialize` transition
 
-Just as every state machine must begin life in its "start state", so too must every microstate begin life in the right state. For those cases where the start state depends on some logic, there is the `initialize` transition. The `initialize` transition is just like any other transition, except that it will be invoked automatically called within create on every Microstate that declares one.
+Just as every state machine must begin life in its "start state", so too must every microstate begin life in the right state. For those cases where the start state depends on some logic, there is the `initialize` transition. The `initialize` transition is just like any other transition, except that it will be automatically called within create on every Microstate that declares one.
 
 You can even use this mechanism to transition the microstate to one with a completely different type and value.
 
@@ -575,7 +573,7 @@ result.vehicle.state.isTowing
 
 ## Transition scope
 
-Microstate are composable, and they work exactly the same no matter what other microstate they're a part of. For this reason, Microstate transitions only have access to their own transitions and the transitions of the Microstates that are composed into them. They do not have access to their context. This is similar to how components work. The parent component can render a child component and pass data to them. The children components do not have direct access to the parent component. Same in Microstates.
+Microstate are composable, and they work exactly the same no matter what other microstate they're a part of. For this reason, Microstate transitions only have access to their own transitions and the transitions sub microstates. They do not have access to their context. This is similar to how components work. The parent component can render a child component and pass data to them. The children components do not have direct access to the parent component. Same in Microstates.
 
 # State Machines
 
