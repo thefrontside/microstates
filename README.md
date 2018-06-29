@@ -573,11 +573,11 @@ result.vehicle.state.isTowing
 
 ## Transition scope
 
-Microstate are composable, and they work exactly the same no matter what other microstate they're a part of. For this reason, Microstate transitions only have access to their own transitions and the transitions of the microstates they contain. What they do _not_ have access to their context. This is similar to how components work. The parent component can render a children and pass data to them, but the child components do not have direct access to the parent component. The same principle applies in Microstates, so as a result, it benefits from the same advantages of isolation and composability that make components awesome.
+Microstates are composable, and they work exactly the same no matter what other microstate they're a part of. For this reason, Microstate transitions only have access to their own transitions and the transitions of the microstates they contain. What they do _not_ have access to their context. This is similar to how components work. The parent component can render a children and pass data to them, but the child components do not have direct access to the parent component. The same principle applies in Microstates, so as a result, it benefits from the same advantages of isolation and composability that make components awesome.
 
 # State Machines
 
-A state machine is a system that has a predefined set of states. At any given point, the state machine can only be in one of these states. Each state has a predefined set of transtions that can be derived from that state. These constraints are beneficial to application architecture because they provide a way to identify application state and suggest how the application state can change.
+A state machine is a system that has a predefined set of states. At any given point, the state machine can only be in one of these states. Each state has a predefined set of transitions that can be derived from that state. These constraints are beneficial to application architecture because they provide a way to identify application state and suggest how the application state can change.
 
 From its conception, Microstates was created to be the most convenient way to express state machines. The goal was to design an API that would eliminate the barrier of using state machines and allow for them to be composable. After almost two years of refinement, the result is an API that has evolved significantly beyond what we typically associate with code that expresses state machines.
 
@@ -785,7 +785,7 @@ the the Observable API.
 Microstates provides an easy way to convert a Microstate which represents a single value into
 a Observable stream of values. This is done by passing a Microstate to `Observable.from` function.
 This function will return a Observable object with a `subscribe` method. You can subscribe to the
-stream by passing an observer to the subscribe function. Once you subscribe, you will syncronously
+stream by passing an observer to the subscribe function. Once you subscribe, you will synchronously
 receive a microstate with middleware installed that will cause the result of transitions to be pushed
 through the stream.
 
