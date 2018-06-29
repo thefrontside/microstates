@@ -1,5 +1,9 @@
 # Change Log
 
+## [0.8.1](https://github.com/microstates/microstates.js/compare/v0.8.0...v0.8.1)
+
+- [CHORE] Bump to funcadelic 0.5.1 #139
+
 ## [0.8.0](https://github.com/microstates/microstates.js/compare/v0.7.3...v0.8.0)
 
 - [BREAKING] Removed automatic caching of getters and memoize getters dependency #139
