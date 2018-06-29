@@ -80,13 +80,13 @@ export function Path(path = []) {
 
 export function Substate(name) {
   let get = context => context != null ? context[name] : undefined;
-  let set = (substate, context) => {
-    if (substate === context[name]) {
-      return context;
+  let set = (substate, picostate) => {
+    if (substate === picostate[name]) {
+      return picostate;
     } else {
-      return append(context, {
+      return append(picostate, {
         [name]: substate,
-        state: append(context.state || {}, { [name]: substate.state })
+        state: append(picostate.state || {}, { [name]: substate.state })
       })
     }
   };

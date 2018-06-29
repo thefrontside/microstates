@@ -1,5 +1,5 @@
 import { expect } from 'chai';
-import { create, Any } from '../src/picostates';
+import { create, Any, Meta } from '../src/picostates';
 
 describe("Picostates", () => {
   describe("default", () => {
@@ -76,7 +76,7 @@ describe("Picostates", () => {
     });
   });
 
-  describe('Custom transitions', function() {
+  describe('Nested Picostates with Custom transitions', function() {
     class BooleanType extends Any {
       toggle() {
         return this.set(!this.state);
@@ -94,8 +94,19 @@ describe("Picostates", () => {
         return this.isOpen.set(false);
       }
     }
-    let modal;
 
+    class App {
+      error = create(Modal, { isOpen: false })
+      warning = create(Modal, { isOpen: false})
+
+      openAll() {
+        return this
+          .error.show()
+          .warning.show()
+      }
+    }
+
+    let modal;
     beforeEach(function() {
       modal = create(Modal, { isOpen: false });
     });
@@ -104,6 +115,23 @@ describe("Picostates", () => {
       expect(next).to.be.instanceof(Modal);
       expect(next.state).to.deep.equal({ isOpen: true });
     });
+
+    describe('nested within nested transitions', function() {
+      let app;
+      beforeEach(function() {
+        app = create(App).openAll();
+      });
+      it('returns an App', function() {
+        expect(app).to.be.instanceof(App);
+      });
+      it('has the right state', function() {
+        expect(app.state).to.deep.equal({ error: { isOpen: true }, warning: { isOpen: true }});
+      });
+    });
   });
 
 })
+
+function context(object) {
+  return Meta.get(object).context
+}

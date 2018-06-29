@@ -1,6 +1,6 @@
 import { expect } from 'chai';
 
-import { Any, Meta } from '../src/picostates';
+import { create, Any, Meta } from '../src/picostates';
 
 describe("Meta", () => {
 
@@ -18,8 +18,8 @@ describe("Meta", () => {
 
   describe('updating metadata', function() {
     it('updates the object in an immutable way while preserving type', function() {
-      class X extends Any {};
-      let x = new X();
+      class X {};
+      let x = create(X);
       let meta = Meta.get(x);
       let updated = Meta.map(meta => ({path: meta.path.concat(['nest'])}), x);
       expect(updated).to.be.instanceof(X);
@@ -28,11 +28,3 @@ describe("Meta", () => {
   });
 
 });
-
-// function contextualize(key, value, context) {
-//   return Meta.map(meta => ({
-//     context: context,
-//     path: append(key, meta.path),
-//     lens: compose(Prop('key'), meta.lens)
-//   }), value);
-// }

@@ -1,37 +1,67 @@
-import { append, Semigroup, map } from 'funcadelic';
+import { append, filter, foldl, Semigroup, map, stable } from 'funcadelic';
 import { view, set, over, Lens, SubstatePath } from './lens';
 
 export function create(Type = Any, value) {
+  let PicoType = toPicoType(Type);
   let instance = map((child, name) => {
     let initialized = value ? child.set(value[name]) : child;
     return Meta.map(meta => ({ path: meta.path.concat(name), context: instance }), initialized);
-  }, new Type());
+  }, new PicoType());
   instance.state = value;
-  return instance;
+  let context = Meta.treemap(meta => ({ context }), instance);
+  return context;
 }
 
-export class Any {
-  set(value) {
-    let microstate
-    if (value === this.state) {
-      microstate = this;
-    } else if (value instanceof Any ) {
-      microstate = value;
-    } else {
-      microstate = create(this.constructor, value);
-    }
-    let meta = Meta.get(this);
-    let next = set(meta.lens, microstate, meta.context);
-    if (next === microstate) {
-      return microstate;
-    }
-    //set the root context across the entire tree.
-    let context = Meta.treemap(meta => ({
-      get context() { return context; }
-    }), next);
-    return context;
+const toPicoType = stable(function toPicoType(Type) {
+  if (Type.isPicostateType) {
+    return Type;
   }
+  let PicoType = class extends Type {
+    static get name() {
+      return `Picostate<${Type.name}>`;
+    }
+    static get isPicostateType() {
+      return true;
+    }
+
+    set(value) {
+      let microstate
+      if (value === this.state) {
+        microstate = this;
+      } else if (isPicostate(value)) {
+        microstate = value;
+      } else {
+        microstate = create(this.constructor, value);
+      }
+      let meta = Meta.get(this);
+      let next = set(meta.lens, microstate, meta.context);
+      if (next === microstate) {
+        return microstate;
+      }
+      //set the root context across the entire tree.
+      let context = Meta.treemap(meta => ({ context }), next);
+      return context;
+    }
+  }
+  let methods = filter(name => name !== 'constructor' && name !== 'set' && typeof Type.prototype[name] === 'function', Object.getOwnPropertyNames(Type.prototype));
+
+  Object.assign(PicoType.prototype, foldl((methods, name) =>  {
+    methods[name] = function(...args) {
+      let method = Type.prototype[name];
+      let local = create(this.constructor, this.state);
+      let result = method.apply(local, args);
+      return this.set(result);
+    }
+    return methods;
+  }, {}, methods))
+  return PicoType;
+});
+
+function isPicostate(value) {
+  return value != null && value.constructor.isPicostateType;
 }
+
+export class Any { }
 
 export class Meta {
   constructor(attrs = {}) {
@@ -51,12 +81,12 @@ export class Meta {
   }
 
   static treemap(fn, object) {
-    let children = map(child => child instanceof Any ? Meta.map(fn, child) : child, object);
+    let children = map(child => isPicostate(child) ? Meta.treemap(fn, child) : child, object);
     return append(Meta.map(fn, object), children);
   }
 
   static lookup(object) {
-    if (!(object instanceof Any)) {
+    if (!(isPicostate(object))) {
       throw new Error(`Tried to retrieve metadata from '${object}' which is not a picostate`);
     }
     return object[Meta.LOOKUP] || new Meta({ context: object });
