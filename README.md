@@ -5,757 +5,875 @@
 
 # Microstates
 
-* [Intro](#intro)
-* [microstate constructor](#microstate-constructor)
-* [Composition](#composition)
-* [Static values](#static-values)
-* [Computed Properties](#computed-properties)
-* [Transitions](#transitions)
-* [Batch Transitions](#batch-transitions)
-* [Changing structure](#changing-structure)
-* [Parameterized Arrays & Objects](#parameterized-arrays--objects)
-* [Observable interoperability](#observable-interoperability)
-* [Built-in types](#built-in-types)
-  * [`Boolean`](#boolean)
-    * [set(value: any) => microstate](#setvalue-any--microstate)
-    * [toggle() => microstate](#toggle--microstate)
-  * [`Number`](#number)
-    * [set(value: any) => microstate](#setvalue-any--microstate-1)
-    * [increment(step: Number = 1) => microstate](#incrementstep-number--1--microstate)
-    * [decrement(step: Number = 1) => microstate](#decrementstep-number--1--microstate)
-  * [`String`](#string)
-    * [set(value: any) => microstate](#setvalue-any--microstate-2)
-    * [concat(str: String [, str1: String]) => microstate](#concatstr-string--str1-string--microstate)
-  * [`Array`](#array)
-    * [set(value: any) => microstate](#setvalue-any--microstate-3)
-    * [push(value: any) => microstate](#pushvalue-any--value1-any--microstate)
-    * [pop() => microstate](#pop--microstate)
-    * [shift() => microstate](#shift--microstate)
-    * [unshift(value: any) => microstate](#unshift-any--value1-any--microstate)
-    * [filter(fn: value => boolean) => microstate](#filterfn-value--boolean--microstate)
-    * [map(fn: (microstate, index) => any) => microstate](#mapfn-microstate-index--any--microstate)
-    * [clear() => microstate](#clear--microstate)
-  * [`Object`](#object)
-    * [set(value: any) => microstate](#setvalue-any--microstate-4)
-    * [assign(object: Object) => microstate](#assignobject-object--microstate)
-    * [put(key: string, value: any) => microstate]()
-    * [delete(key: string) => microstate]()
-* [FAQ](#faq)
-  * [What if I can't use class syntax?](#what-if-i-cant-use-class-syntax)
-  * [What if I can't use Class Properties?](#what-if-i-cant-use-class-properties)
-* [Run Tests](#run-tests)
+Microstates is a functional runtime type system designed to ease state management in component based applications. It allows you to declaratively compose application state from atomic state machines.
 
-## Intro
+By combining lazy execution, algebraic data types and structural sharing, we created a tool that provides a tiny API to describe complex data structures and provide a mechanism to change the value in an immutable way.
 
-Microstates are a _typed_, _composable_ and _immutable_ state container.
+<details>
+  <summary><strong>Table of Contents</strong></summary>
+<!-- toc -->
 
-Let's get some terminology out of the way so we're on the same page for the rest of the README.
+- [Microstates](#microstates)
+- [Features](#features)
+- [What is a Microstate?](#what-is-a-microstate)
+- [Types and Type Composition](#types-and-type-composition)
+  - [Creating your own microstates](#creating-your-own-microstates)
+  - [Array Microstates](#array-microstates)
+  - [Object Microstates](#object-microstates)
+- [Transitions](#transitions)
+  - [Transitions for built-in types](#transitions-for-built-in-types)
+  - [Type transitions](#type-transitions)
+  - [Chaining transitions](#chaining-transitions)
+  - [The `initialize` transition](#the-initialize-transition)
+  - [The `set` transition](#the-set-transition)
+  - [Transition scope](#transition-scope)
+- [State Machines](#state-machines)
+  - [Explicit Transitions](#explicit-transitions)
+  - [Transition methods](#transition-methods)
+  - [Immutable Object vs Immutable Data Structure](#immutable-object-vs-immutable-data-structure)
+- [Framework Integrations](#framework-integrations)
+- [`microstates` npm package](#microstates-npm-package)
+  - [create(Type, value): Microstate](#createtype-value-microstate)
+  - [from(any): Microstate](#fromany-microstate)
+  - [map(fn, microstate): Microstate](#mapfn-microstate-microstate)
+  - [use(middleware, microstate: Microstate): Microstate](#usemiddleware-microstate-microstate-microstate)
+- [Observable Microstates](#observable-microstates)
+- [The Vision of Microstates](#the-vision-of-microstates)
+  - [Shared Solutions](#shared-solutions)
+  - [Added Flexibility](#added-flexibility)
+  - [Framework Agnostic Solutions](#framework-agnostic-solutions)
+- [FAQ](#faq)
+  - [What if I can't use class syntax?](#what-if-i-cant-use-class-syntax)
+  - [What if I can't use Class Properties?](#what-if-i-cant-use-class-properties)
+- [Run Tests](#run-tests)
 
-* _Typed_ means that microstates know about the kind of data it contains and transitions that can be
-  performed on that data.
-* _Composable_ means that simple types can be grouped to describe complex data structures.
-  Microstates knows how to transition complex data structures in an immutable way.
-* _Immutable_ means that state in the microstate cannot be modified. To change the state, you must invoke a transition.
-* _Transition_ is an operation that has access to the current state, might perform computations/transformations on it and returns a new state.
+<!-- tocstop -->
+</details>
 
-To add microstates to your project,
+# Features
+
+With Microstates added to your project, you get:
+
+* 🍇 Composable type system
+* 🍱 Reusable state atoms
+* 💎 Pure immutable state transitions without writing reducers
+* ⚡️ Lazy and synchronous out of the box
+* 🦋 Most elegant way to express state machines
+* 🎯 Transpilation free type system
+* 🔭 Optional integration with Observables
+* ⚛ Use in Node.js and browser
+
+But, most imporantly, Microstates makes working with state fun.
+
+**When was the last time you had fun working with state?**
+
+For many, the answer is probably never, because state management in JavaScript is an endless game of compromises. You can choose to go fully immutable and write endless reducers. You can go mutable and everything becomes an observable. Or you can `setState` and lose the benefits of serialization and time travel debugging.
+
+Unlike the view layer, where most frameworks agree on some variation of React's concept of components, none of the current crop of state management tools strike the same balance that React components introduced to the API.
+
+React components have a tiny API. They are functional, simple and extremely reusable. The tiny API gives you high productivity for little necessary knowledge. Functional components are predictable and easy to reason about. They are conceptually simple, but simplicity hides an underlying architecture geared for performance. Their simplicity, predictability and isolation makes them composable and reusable.
+
+These factors combined are what make React style components easy to work with and ultimately fun to write. A Tiny API abstracting a sophisticated architecture that delivers performance and is equaly useful on small and big projects is the outcome that we set out to achieve for state management with Microstates.
+
+It's not easy to find the right balance between simplicity and power, but considering the importance of state management in web applications, we believe it's a worthy challenge. Checkout the [Vision of Microstates](#the-vision-of-microstates) section if you're interested in learning more about where we're going.
+
+<!--
+# Why Microstates?
+
+Our tools affect how we solve problems and collaborate.
+
+Two tools can serve the same purpose but foster completely different ecosystems. Take jQuery plugins and React components as examples. Both of these tools provided a way to add custom behaviour to a DOM element but they fostered very different communities.
+
+In the React world today, we see many special purpose components that are easily combined to create sophisticated user experiences. These components tend to have few options but provide just the right API for you to build what you need.
+
+jQuery plugins, on the other hand, offer endsless lists of options that are difficult get just right. In the jQuery ecosystem, libraries tend to be monolithic because plugins from different libraries often do not work well together.
+
+As a result, in the React ecosystem we see components like [react-virtualized](https://github.com/bvaughn/react-virtualized) and [react-dnd](https://github.com/react-dnd/react-dnd) that are made by experienced React developers. These components save companies and developers millions of dollars in wasted development by eliminating the need for everyone to re-invent these components to build their user experiences.
+
+The ability to leverage the experience of other developers in the form of published packages elevates our entire ecosystem. We call this _standing on the shoulders of giants_. Our goal is to bring this level of collaboration to state management.
+
+## M in MVC
+
+If you're a web developer and are using a framework, you might be wondering how Microstates will work within said framework. For now, I will say that we'll have an integration for each framework, but it's important that we're on the same page about the role of Microstates within your application. Once we have that, you'll see more ways to use Microstates than I can cover in this README.
+
+Regardless of the kind of application you're building, your application is made of code that roughly represents data, converts user input into data and presents data to the user. This traditionally has been described as MVC pattern where M, model, is data that is persisted or accumulated through user actions or input. V, view, is how that data is presented to the user, often we describe with components and C, controller, which represents the constraints that exist on the user's actions.
+
+Talking about MVC is a little passé in some communities, and understandbly so. Traditional MVC did not bring a lot of comfort to early adopters of web frameworks. Of the early adopters, only a few MVCish frameworks are left, but regardless of the popularity of the term, the architectural pattern is still a big part of our applications.
+
+
+What we're seeing now is the discovery of what MVC looks like in modern web applications. One thing that most of us can agree on is that our views are now called components. Over the last 5 years, we saw a lot of competition in the view layer to make the most performant and ergonomic view building developer experience.
+
+## Functional Models
+
+The view boom was in big part ignited by the introduction of React. With React, came the introduction and mass adoption of functional programming ideas in the JavaScript ecosystem. Functional thinking brought a lot of simplicity to the view layer. It is conceptually simple - a component is a function that takes props and returns DOM. This simplicity helped developers learn React and has been adopted to a varied degree by most frameworks. The API that each frameworks exposes to their view is somewhat different but the general idea is the same.
+
+Microstates brings the same kind of simplicity to the model layer. A Microstate is a functional model in a way that a component is a functional view. A component takes props and returns DOM; a Microstate takes value and returns state. DOM is a tree of element instances, state is a tree of model instances. A DOM tree is created by passing data to a root component. A state tree is created from a root type and value. A component is an abstraction that we use to manipulate the DOM tree. A microstate is an abstraction that we use to manipulate the state tree.
+
+When you want to change what the user sees, you could imperatively manipulate the DOM elements with jQuery, but React taught us to change DOM declaratively by changing the data that the DOM reflects. In the same way, when you want to change the state, you must change the value and allow the state to be reflected. -->
+
+# What is a Microstate?
+
+A Microstate is just an object that is created from a value and a type. The value is just data, and the type is what defines how you can transition that data from one form into the next. Unlike normal JavaScript objects, microstates are 100% immutable and cannot be changed. They can only derive new immutable microstates through one of their type's transitions.
+
+# Types and Type Composition
+
+Microstates comes out of the box with 5 primitive types: `Boolean`, `Number`, `String`, `Object` and `Array`.
+
+```js
+import { create } from 'microstates';
+
+let meaningOfLifeAndEverything = create(Number, 42);
+meaningOfLifeAndEverything.state
+//> 42
+
+let greeting = create(String, 'Hello World');
+greeting.state
+//> Hello World
+
+let isOpen = create(Boolean, true);
+isOpen.state
+//> true
+
+let foo = create(Object, { foo: 'bar' });
+foo.state
+//> { foo: 'bar' }
+
+let numbers = create(Array, [ 1, 2, 3, 4 ]);
+numbers.state
+//> [ 1, 2, 3, 4 ]
+```
+
+Apart from these basic types, every other type in Microstates is built by combining other types. So for example, to create a Person type you could define a JavaScript class with two properties: `name` which has type String and `age` which has type Number.
+
+```js
+class Person {
+  name = String;
+  age = Number;
+}
+```
+
+Once you have a type, you can use that type to create as many people as your application requires:
+
+```js
+import { create } from "microstates";
+
+let person = create(Person, { name: "Homer", age: 39 });
+```
+
+Every microstate created with a type of `Person` will be an object that looks like this:
+
+```txt
++----------------------+
+|                      |       +--------------------+
+|  Microstate<Person>  +-name--+                    +-concat()->
+|                      |       | Microstate<String> +-set()->
+|                      |       |                    +-state: 'Homer'
+|                      |       +--------------------+
+|                      |
+|                      |       +--------------------+
+|                      +-age---+                    +-increment()->
+|                      |       | Microstate<Number> +-decrement()->
+|                      |       |                    +-set()->
+|                      |       |                    +-state: 39
+|                      |       +--------------------+
+|                      |
+|                      +-set()->
+|                      +-state: Person { name: 'Homer', age: 39 }
++----------------------+
+```
+
+For the five built in types, Microstates automatically gives you transitions that you can use to change their value. You don't have to write any code to handle common operations.
+
+## Creating your own microstates
+
+Types can be combined with other types freely and Microstates will take care of handling the transitions for you. This makes it possible to build complex data structures that accurately describe your domain.
+
+Let's define another type that uses the person type.
+
+```js
+class Car {
+  designer = Person;
+  name = String;
+}
+
+let theHomerCar = create(Car, {
+  designer: { name: "Homer", age: 39 },
+  name: "The Homer"
+});
+```
+
+`theHomerCar` object will have the following shape,
+
+```txt
++-------------------+           +----------------------+
+|                   |           |                      |       +--------------------+
+|  Microstate<Car>  |           |  Microstate<Person>  +-name--+                    +-concat()->
+|                   |           |                      |       | Microstate<String> +-set()->
+|                   +-designer--+                      |       |                    +-state: 'Homer'
+|                   |           |                      |       +--------------------+
+|                   |           |                      |
+|                   |           |                      |       +--------------------+
+|                   |           |                      +-age---+                    +-increment()->
+|                   |           |                      |       | Microstate<Number> +-decrement()->
+|                   |           |                      |       |                    +-set()->
+|                   |           |                      |       |                    +-state: 39
+|                   |           |                      |       +--------------------+
+|                   |           |                      |
+|                   |           |                      +-set()->
+|                   |           |                      +-state: Person<{ name: 'Homer', age: 39 }>
+|                   |           +----------------------+
+|                   |
+|                   |           +--------------------+
+|                   +-name------+                    +-concat()->
+|                   |           | Microstate<String> +-set()->
+|                   |           |                    +-state: 'The Homer'
+|                   |           +--------------------+
+|                   |
+|                   +-set()->
+|                   +-state: Car<{ designer: Person<{ name: 'Homer', age: 39 }> }, name: 'The Homer' }>
++-------------------+
+```
+
+You can use the object dot notation to access sub microstates. Using the same example from above:
+
+```js
+theHomerCar.designer.state;
+//> Person<{ name: 'Homer', age: 39 }>
+
+theHomerCar.designer.age.state;
+//> 39
+
+theHomerCar.name.state;
+//> The Homer
+```
+
+The state from sub microstates is also available on the parent object.
+
+```js
+theHomerCar.state
+//> Car<{ designer: Person<{ name: 'Homer', age: 39 }>, name: 'The Homer' }>
+```
+
+## Array Microstates
+
+Quite often it is helpful to describe your data as a collection of types. For example, a blog might have an array of posts. To do this, you can use the array of type notation `[Post]`. This signals that Microstates of this type represent an array whose members are each of the `Post` type.
+
+```js
+class Blog {
+  posts = [Post];
+}
+
+class Post {
+  id = Number;
+  title = String;
+}
+
+let blog = create(Blog, {
+  posts: [
+    { id: 1, title: "Hello World" },
+    { id: 2, title: "Most fascinating blog in the world" }
+  ]
+});
+
+blog.posts[0].state;
+//> Post<{ id: 1, title: 'Hello World' }>
+
+blog.posts[1].state;
+//> Post<{ id: 2, title: 'Most fascinating blog in the world' }>
+```
+
+When you're working with an array microstate, the shape of the Microstate is determined by the value. In this case, `posts` is created with two items which will, in turn, create a Microstate with two items. Each item will be a Microstate of type `Post`. If you push another item onto the `posts` Microstate, it'll be treated as a `Post`.
+
+```js
+let blog2 = blog.posts.push({ id: 3, title: "It is only getter better" });
+
+blog2.posts[2].state;
+//> Post<{ id: 3, title: 'It is only getter better' }>
+```
+
+Notice how we didn't have to do any extra work to define the state transition of adding another post to the list? That's the power of composition!
+
+## Object Microstates
+
+You can also create an object microstate with `{Post}`. The difference is that the collection is treated as an object. This can be helpful when create normalized data stores.
+
+```js
+class Blog {
+  posts = { Post };
+}
+
+class Post {
+  id = Number;
+  title = String;
+}
+
+let blog = create(Blog, {
+  posts: {
+    "1": { id: "1", title: "Hello World" },
+    "2": { id: 2, title: "Most fascinating blog in the world" }
+  }
+});
+
+blog.posts["0"].state;
+//> Post<{ id: 1, title: 'Hello World' }>
+
+blog.posts["1"].state;
+//> Post<{ id: 2, title: 'Most fascinating blog in the world' }>
+```
+
+Object type microstates have `Object` transitions, such as `assign`, `put` and `delete`.
+
+```js
+let blog2 = blog.posts.put("3", { id: 3, title: "It is only getter better" });
+
+blog2.posts["3"].state;
+//> Post<{ id: 3, title: 'It is only getter better' }>
+```
+
+# Transitions
+
+Transitions are the operations that let you derive a new state from an existing state. All transitions return another Microstate. You can use state charts to visualize microstates. For example, the `Boolean` type can be described with the following statechart.
+
+<img src="README/boolean-statechart.png" alt="Boolean Statechart" width="500" />
+
+The `Boolean` type has a `toggle` transition which takes no arguments and creates a new microstate with the state that is opposite of the current state.
+
+Here is what this looks like with Microstates.
+
+```js
+import { create } from "microstates";
+
+let bool = create(Boolean, false);
+
+bool.state;
+//> false
+
+let inverse = bool.toggle();
+
+b2.state;
+//> true
+```
+
+> *Pro tip* Remember, Microstate transitions always return a Microstate. This is true both inside and outside the transition function. Using this convention to allow composition to reach crazy levels of complexity.
+
+Let's use a `Boolean` in another type and see what happens.
+
+```js
+class App {
+  name = String;
+  notification = Modal;
+}
+
+class Modal {
+  text = String;
+  isOpen = Boolean;
+}
+
+let app = create(App, {
+  name: "Welcome to your app",
+  notification: {
+    text: "Hello there",
+    isOpen: false
+  }
+});
+
+let opened = app.notification.isOpen.toggle();
+//> Microstate<App>
+
+opened.valueOf();
+//> {
+// name: 'Welcome to your app',
+// notification: {
+//   text: 'Hello there',
+//   isOpen: true
+// }}
+```
+
+Microstate transitions always return the whole object. Notice how we invoked the boolean transition `app.notification.isOpen`, but we didn't get a new Boolean microstate? Instead, we got a completely new App where everything was the same except for that single toggled value.
+
+## Transitions for built-in types
+
+The primitive types have predefined transitions:
+
+* `Boolean`
+  * `toggle(): Microstate` - return a Microstate with opposite boolean value
+* `String`
+  * `concat(str: String): Microstate` - return a Microstate with `str` added to the end of the current value
+* `Number`
+  * `increment(step = 1: Number): Microstate` - return a Microstate with number decreased by `step`, default is 1.
+  * `decrement(step = 1: Number): Microstate` - return a Microstate with number decreased by `step`, default is 1.
+* `Object`
+  * `assign(object): Microstate` - return a Microstate after merging object into current object.
+  * `put(key: String, value: Any): Microstate` - return a Microstate after adding value at given key.
+  * `delete(key: String): Microstate` - return a Microstate after removing property at given key.
+* `Array`
+  * `map(fn: (Microstate) => Microstate): Microstate` - return a Microstate with mapping function applied to each element in the array. For each element, the mapping function will receive the microstate for that element. Any transitions performed in the mapping function will be included in the final result.
+  * `push(value: any): Microstate` - return a Microstate with value added to the end of the array.
+  * `pop(): Microstate` - return a Microstate with last element removed from the array.
+  * `shift(): Microstate` - return a Microstate with element removed from the array.
+  * `unshift(value: any): Microstate` - return a Microstate with value added to the beginning of the array.
+  * `filter(fn: state => boolean): Microstate` - return a Microstate with filtered array. The predicate function will receive state of each element in the array. If you return a falsy value from the predicate, the item will be excluded from the returned microstate.
+  * `clear(): microstate` - return a microstate with an empty array.
+
+Many transitions on primitive type are similar to methods on original classes. The biggest difference is that transitions always return Microstates.
+
+## Type transitions
+
+Define the transitions for your types using methods. Inside of a transition, you can invoke any transitions you like on sub microstates.
+
+```js
+import { create } from "microstates";
+
+class Person {
+  name = String;
+  age = Number;
+
+  changeName(name) {
+    return this.name.set(name);
+  }
+}
+
+let homer = create(Person, { name: 'Homer', age: 39 });
+
+let lisa = homer.changeName('Lisa');
+```
+
+## Chaining transitions
+
+Transitions can be composed out of any number of subtransitions. This is often referred to as "batch transitions" or "transactions". Let's say that when we authenticate a session, we need to both store the token and indicate that the user is now authenticated. To do this, we can chain transitions. The result of the last operation will become new microstate.
+
+```js
+class Session {
+  token = String;
+}
+
+class Authentication {
+  session = Session;
+  isAuthenticated = Boolean;
+
+  authenticate(token) {
+    return this
+      .session.token.set(token)
+      .isAuthenticated.set(true);
+  }
+}
+
+class App {
+  authentication = Authentication
+}
+
+let app = create(App, { authentication: {} });
+
+let authenticated = app.authentication.authenticate('SECRET');
+
+authenticated.valueOf();
+//> { authentication: { session: { token: 'SECRET' }, isAuthenticated: true } }
+```
+
+## The `initialize` transition
+
+Just as every state machine must begin life in its "start state", so too must every microstate begin life in the right state. For those cases where the start state depends on some logic, there is the `initialize` transition. The `initialize` transition is just like any other transition, except that it will be automatically called within create on every Microstate that declares one.
+
+You can even use this mechanism to transition the microstate to one with a completely different type and value.
+
+For example:
+
+```js
+class Person {
+  firstName = String;
+  lastName = String;
+
+  initialize({ firstname, lastname } = {}) {
+    let initialized = this;
+
+    if (firstname) {
+      initialized = initialized.firstName.set(firstname);
+    }
+
+    if (lastname) {
+      initialized = initialized.lastName.set(lastname);
+    }
+
+    return initialized;
+  }
+}
+```
+
+## The `set` transition
+
+The `set` transition is the only transition that is available on all types. It can be used to replace the value of the current Microstate with another value.
+
+```js
+import { create } from 'microstates'
+
+let number = create(Number, 42).set(43);
+
+number.valueOf()
+//> 43
+```
+
+You can also use then `set` transition to replace the current Microstate with another Microstate. This is especially useful when building state machines because it allows you to change the type of the current Microstate. By changing the type, you're also changing available transitions and how the state is calculated.
+
+```js
+import { types } from 'microstates';
+
+class Vehicle {
+  weight = Number;
+  towing = Vehicle;
+
+  get isTowing {
+    return !!this.towing;
+  }
+
+  get towCapacity() {
+    throw new Error('not implemented');
+  }
+
+  tow() {
+    throw new Erorr('not implemented');
+  }
+}
+
+class Car extends Vehicle {}
+
+class Truck extends Vehicle {
+  towCapacity = Number;
+
+  tow(vehicle) {
+    if (vehicle.weight.state < this.towCapacity.state) {
+      return this.towing.set(vehicle);
+    } else {
+      throw new Error(`Unable to tow ${vehicle.weight.state} because it exceeds tow capacity of ${this.towCapacity.state}`);
+    }
+  }
+}
+
+class Friend {
+  vehicle = Vehicle;
+}
+
+let prius = create(Car, { weight: 3000 });
+
+let mustang = create(Car, { weight: 3500, towCapacity: 1000 });
+let f150 = create(Truck, { weight: 5000, towCapacity: 13000 });
+
+let rob = create(Friend).vehicle.set(mustang);
+let charles = create(Friend).vehicle.set(f150);
+
+rob.vehicle.tow(prius);
+//> Error: not implemented
+
+let result = charles.vehicle.tow(prius)
+
+result.vehicle.state.isTowing
+//> true
+```
+
+> *Pro tip*: Microstates will never require you to understand Monads in order to use transitions, but if you're interested in learning about the primitives of functional programming that power Microstates, you may want to checkout [funcadelic.js](https://github.com/cowboyd/funcadelic.js).
+
+## Transition scope
+
+Microstate are composable, and they work exactly the same no matter what other microstate they're a part of. For this reason, Microstate transitions only have access to their own transitions and the transitions of the microstates they contain. What they do __not_ have access to their context. This is similar to how components work. The parent component can render a children and pass data to them, but the child components do not have direct access to the parent component. The same principle applies in Microstates, so as a result, it benefits from the same advantages of isolation and composability that make components awesome.
+
+# State Machines
+
+A state machine is a system that has a predefined set of states. At any given point, the state machine can only be in one of these states. Each state has a predefined set of transtions that can be derived from that state. These constraints are beneficial to application architecture because they provide a way to identify application state and suggest how the application state can change.
+
+From its conception, Microstates was created to be the most convenient way to express state machines. The goal was to design an API that would eliminate the barrier of using state machines and allow for them to be composable. After almost two years of refinement, the result is an API that has evolved significantly beyond what we typically associate with code that expresses state machines.
+
+[xstate](https://github.com/davidkpiano/xstate) for example, is a great specimen of the classic state machine API. It's a fantastic library and it addresses the very real need for state machines and statecharts in modern applications. For purposes of contrast, we'll use it to illustrate the API choices that went into Microstates.
+
+## Explicit Transitions
+
+Most state machine libraries focus on finding the next state given a configuration. For example, this [xstate](https://github.com/davidkpiano/xstate#finite-state-machines) declaration describes what state id to match when in a specific state.
+
+```js
+import { Machine } from 'xstate';
+
+const lightMachine = Machine({
+  key: 'light',
+  initial: 'green',
+  states: {
+    green: {
+      on: {
+        TIMER: 'yellow',
+      }
+    },
+    yellow: {
+      on: {
+        TIMER: 'red',
+      }
+    },
+    red: {
+      on: {
+        TIMER: 'green',
+      }
+    }
+  }
+});
+```
+
+Microstates does not do any special state resolution. You explicitly declare what happens on a state transition. Here is what a similar state machine looks like in Microstates.
+
+```js
+class LightMachine {
+  color = String;
+
+  initialize({ color: 'green' } = {}) {
+    return this.color.set(color);
+  }
+
+  timer() {
+    switch (this.color.state) {
+      case 'green': return this.color.set('yellow');
+      case 'yellow': return this.color.set('red');
+      case 'red':
+      default:
+        return this.color.set('green');
+    }
+  }
+}
+```
+
+With Microstates, you explicitely describe what happens on transition and define the matching mechanism.
+
+## Transition methods
+
+`transitionTo` is often used by state machine libraries to trigger state transition. Here is an example with xstate library,
+
+```js
+const nextState = lightMachine.transition('green', 'TIMER').value;
+
+//> 'yellow'
+```
+
+Microstates does not have such a method. Instead, it relies on vanilla JavaScript property lookup. The method invocation is equivalent to calling `transitionTo` with name of the transition.
+
+```js
+import { create } from 'microstates';
+
+let lightMachine = create(LightMachine);
+
+const nextState = lightMachine.timer();
+
+nextState.color.state
+//> 'yellow'
+```
+
+## Immutable Object vs Immutable Data Structure
+
+When you create a state machine with xstate, you create an immutable object. When you invoke a transition on an `xstate` state machine, the value of the object is the ID of the next state. All of the concerns of immutable value change as a result of state change are left for you to handle manually.
+
+Microstates treats value as part of the state machine. It allows you to colocate your state transitions with reducers that change the value of the state.
+
+# Framework Integrations
+
+* [React.js](https://github.com/microstates/react)
+* [Ember.js](https://github.com/cowboyd/ember-microstates)
+* Create a PR if you created an integration that you'd like to add to this list.
+* Create an issue if you'd like help integrating Microstates with a framework
+
+# `microstates` npm package
+
+The `microstates` package provides the `Microstate` class and functions that operate on Microstate objects.
+
+You can import the `microstates` package using:
 
 ```bash
-npm install --save microstates
+npm install microstates
 
-# yarn add microstates
+# or
+
+yarn add microstates
 ```
 
-Let's see some code,
+Then import the libraries using:
 
 ```js
-import { create } from 'microstates';
+import Microstate, { create, from, map } from "microstates";
+```
 
-create(Number, 42).increment().state;
-//=> 43
+## create(Type, value): Microstate
 
-class MyCounter {
-  count = Number;
+The `create` function is conceptually similar to `Object.create`. It creates a Microstate object from type class and a value. This function is lazy, so it should be safe in most high performant operations even with complex and deeply nested data structures.
+
+```js
+import { create } from "microstates";
+
+create(Number, 42);
+//> Microstate
+```
+
+## from(any): Microstate
+
+`from` allows the conversion of any POJO (plain JavaScript object) into a Microstate. Once you've created a Microstate, you can perform operations on all properties of the value.
+
+```js
+import { from } from "microstates";
+
+from("hello world");
+//Microstate<String>
+
+from(42).increment();
+//> Microstate<Number>
+
+from(true).toggle();
+//> Microstate<Boolean>
+
+from([1, 2, 3]);
+//> Microstate<Array<Number>>
+
+from({ hello: "world" });
+//> Microstate<Object>
+```
+
+`from` is lazy, so you can consume any deeply nested POJO and Microstates will allow you to perform transitions with it. The cost of building the objects inside of Microstates is paid whenever you reach for a Microstate inside. For example, `let o = from({ a: { b: c: 42 }})` doesn't do anything until you start to read the properties with dot notiation like `o.a.b.c`.
+
+```js
+from({ a: { b: c: 42 }}).a.b.c.increment().valueOf();
+// { a: { b: { c: 43 }}}
+
+from({ hello: [ 'world' ]}).hello[0].concat('!!!').valueOf();
+// { hello: [ 'world!!!' ]}
+```
+
+## map(fn, microstate): Microstate
+
+The `map` function invokes the function for each microstate in an array microstate. It usually used to map over an array of microstate and return an array of components. The mapping function will receive each microstate in the array. You can invoke transitions on each microstate as you would usually.
+
+```js
+let numbers = create([Number], [1, 2, 3, 4]);
+
+<ul>
+  {map(number => (
+    <li onClick={() => number.increment()}>{number.state}</li>
+  ), numbers)}
+</ul>
+```
+
+## use(middleware, microstate: Microstate): Microstate
+
+The `use` function is used to add middleware to a microstate. This function will return a new microstate with the provided middleware installed.
+
+```js
+import { use, from } from "microstates";
+
+let number = from(42);
+
+const loggingMiddleware = next => (microstate, transition, args) => {
+  console.log(`before ${transition.name} value is`, microstate.valueOf());
+  let result = next(microstate, transition, args);
+  console.log(`after ${transition.name} value is`, result.valueOf());
+  return result;
 }
 
-// creating microstate from composed types
-create(MyCounter).state;
-// => { count: 0 }
+let loggedNumber = use(loggingMiddleware, number);
 
-create(MyCounter).count.increment().state;
-// => { count: 1 }
-
-class MyModal {
-  isOpen = Boolean;
-  title = String;
-}
-
-// you can restore a microstate from previous value
-create(MyModal, { isOpen: true, title: 'Hello World' }).state;
-// => { isOpen: true, title: 'Hello World' }
-
-create(MyModal, { isOpen: true, title: 'Hello World' }).isOpen.toggle().state;
-// => { isOpen: false, title: 'Hello World' }
-
-// lets compose multiple types together
-class MyType {
-  modal = MyModal;
-  counter = MyCounter;
-}
-
-create(MyType).state;
-// => {
-//  modal: { isOpen: false, title: '' },
-//  counter: { count: 0 }
-// }
-
-create(MyType)
-  .counter.increment()
-  .modal.title.set('Hello World')
-  .modal.isOpen.set(true).state;
-// => {
-//  modal: { isOpen: true, title: 'Hello World' },
-//  counter: { count: 1 }
-// }
+loggedNumber.increment();
+// before increment value is 42
+// after increment value is 43
 ```
 
-## microstate constructor
+# Observable Microstates
 
-Microstate constructor creates a microstate. It accepts two arguments, `Type` class that describes the structure of your state and `value` that is the initial state.
+By themselves microstates are purely functional. They have no builtin concept of identity,
+time or sequencing. However, it is precisely because of these properties that they can be
+used with almost any state management solution that does. In fact, Microstates comes bundled
+out of the box with the ability to convert any microstate into a stream of transitions using
+the the Observable API.
 
-```js
-// initial value is undefined so state will be default value of String which is an empty string
-create(String).state;
-// => ''
+Microstates provides an easy way to convert a Microstate which represents a single value into
+a Observable stream of values. This is done by passing a Microstate to `Observable.from` function.
+This function will return a Observable object with a `subscribe` method. You can subscribe to the
+stream by passing an observer to the subscribe function. Once you subscribe, you will syncronously
+receive a microstate with middleware installed that will cause the result of transitions to be pushed
+through the stream.
 
-// initial value is 'hello world' so state will be hello world.
-create(String, 'hello world').state;
-// => 'hello world'
-```
-
-The object returned from the constructor has all of the transitions for the structure.
-
-```js
-import { create } from 'microstates';
-
-let ms = create(Object);
-
-console.log(ms);
-//  {
-//    assign: Function
-//    set: Function
-//  }
-
-ms.assign({ hello: 'world', hi: 'there' }).state;
-// => { hello: 'world', hi: 'there' }
-```
-
-## Composition
-
-Microstates are designed to be composable. You can define custom microstate types and nest them as 
-necessary. Microstates will take care of ensuring that all transitioning composed microstates is
-done immutably.
-
-Defining custom types is done using [ES2016 classes syntax](http://exploringjs.com/es6/ch_classes.html). In JavaScript, classes are functions. So
-any function can work as a type, but we recommend using class syntax.
+You should be able to use to any implementation of Observables that supports `Observer.from` using [symbol-observable](https://github.com/benlesh/symbol-observable). We'll use `RxJS` for our example.
 
 ```js
-class Counter {
-  count = Number;
-}
+import { from } from "rxjs";
+import { create } from "microstates";
 
-create(Counter);
-// => {
-//      merge: Function
-//      set: Function
-//      count: {
-//        increment: Function
-//        decrement: Function
-//        sum: Function
-//        subtract: Function
-//      }
-//    }
+let homer = create(Person, { firstName: "Homer", lastName: "Simpson" });
 
-Microstate.create(Counter).state;
-// => { count: 0 }
-```
-
-We use Class Properties syntax to define the composition of microstates. If you're using Babel, you need the
-[Class Properties transform](https://babeljs.io/docs/plugins/transform-class-properties/) for Class
-Properties to work.
-
-```js
-class Person {
-  name = String;
-  age = Number;
-}
-
-create(Person);
-// => {
-//      name: { concat: Function, set: Function },
-//      age: { increment: Function, decrement: Function, sum: Function, subtract: Function }
-//    }
-
-// state objects maintain their type's class
-create(Person).state instanceof Person;
-// => true
-
-create(Person).state;
-// => { name: '', age: 0 }
-```
-
-You can restore a composed microstate by providing initial value that matches the structure of the
-microstate.
-
-```js
-create(Person, { name: 'Taras', age: 99 }).state;
-// => { name: 'Taras', age: 99 }
-```
-
-You can compose custom types into other custom types.
-
-```js
-class Address {
-  street = String;
-  number = Number;
-  city = String;
-}
-
-class Person {
-  name = String;
-  age = Number;
-  address = Address;
-}
-
-create(Person, { name: 'Taras', address: { city: 'Toronto' } }).state;
-// => {
-//      name: 'Taras',
-//      age: 0,
-//      address: {
-//        street: '',
-//        number: 0,
-//        city: 'Toronto'
-//      }
-//    }
-```
-
-You can access transitions of composed states by using object property notation. Every time that you
-call a transition, you receive a new microstate and you start from the root of the original type.
-
-```js
-create(Person)
-  .age.increment()
-  .address.city.set('San Francisco')
-  .address.street.set('Market St').state;
-// => {
-//      name: 'Taras',
-//      age: 1,
-//      address: {
-//        street: 'Market St',
-//        number: 0,
-//        city: 'San Francisco'
-//      }
-//    }
-```
-
-The objects can be of any complexity and can even support recursion.
-
-```js
-class Person {
-  name = String;
-  father = Person;
-}
-
-create(Person, { name: 'Stewie' })
-  .father.name.set('Peter')
-  .father.father.name.set('Mr Griffin')
-  .father.father.father.name.set('Mr Giffin Senior').state;
-// => { name: 'Stewie',
-//      father: {
-//        name: 'Peter',
-//        father: {
-//          name: 'Mr Griffin,
-//          father: {
-//            name: 'Mr Griffin Senior'
-//          }
-//        }
-//      }
-//    }
-```
-
-We currently do not support composition inside of arrays but we're looking into supporting it in the
-future.
-
-Composed states have two default transitions `set` and `merge`.
-
-`set` will replace the state of the current microstate.
-
-```js
-create(Person).father.father.set({ name: 'Peter' }).state;
-// => { name: '', father: { name: 'Peter' }}
-```
-
-`merge` will recursively merge the object into the current state.
-
-```js
-create(Person, { name: 'Peter' }).merge({ name: 'Taras', father: { name: 'Serge' } }).state;
-// { name: 'Taras', father: { name: 'Serge' }}
-```
-
-## Static values
-
-You can define static values on custom types. Static values are added to state but do not get
-transitions.
-
-```js
-class Ajax {
-  content = null;
-  isLoaded = false;
-}
-
-create(Ajax).state.content;
-// => null;
-
-create(Ajax).content;
-// undefined
-
-create(Ajax).state.isLoaded;
-// => false
-
-create(Ajax).isLoaded.set(false);
-// Error: calling set of undefined
-```
-
-## Computed Properties
-
-Composed states can have computed properties. Computed Properties make it possible define properties
-that derive their values from the state. Use getter syntax to define computed properties on composed
-states.
-
-```js
-class Measure {
-  length = Number;
-  get inInches() {
-    return `${this.height / 2.54} inches`;
-  }
-}
-
-create(Measure, { length: 170 }).state.inInches;
-// => '66.9291 inches'
-
-create(Measure, { length: 170 }).height.set(160).state.inInches;
-// => '62.9921 inches'
-```
-
-## Transitions
-
-You can define transitions on custom types. Inside of transitions, you have access to
-current state and transition local state.
-
-```js
-class Person {
-  home = String;
-  location = String;
-  get isAtHome() {
-    return this.home === this.location;
-  }
-  goHome() {
-    let { home, location, isAtHome } = this.state;
-    if (!isAtHome) {
-      return this.location.set(home);
-    } else {
-      return this.state;
-    }
-  }
-  goSomewhere(newLocation) {
-    return this.location.set(newLocation);
-  }
-}
-
-create(Person, { home: 'Toronto', location: 'San Francisco' }).goHome().state;
-// => { home: 'Toronto', location: 'Toronto', isAtHome: true }
-
-create(Person, { home: 'Toronto', location: 'San Francisco' }).goSomewhere('Bangalore').state;
-// => { home: 'Toronto', location: 'Bangalore', isAtHome: false }
-```
-
-## Batch Transitions
-
-Transitions can be used to perform multiple transformations in sequence. This is useful when
-you have a deeply nested microstate and you're applying several transformations to one branch of the
-microstate. All of the operations we'll perform before the transformation is complete.
-
-```js
-class MyModal {
-  isOpen = Boolean;
-  title = String;
-  content = String;
-
-  show(title, content) {
-    return this
-      .isOpen.set(true),
-      .title.set(title)
-      .content.set(content)
-  }
-}
-
-class MyComponent {
-  modal = MyModal;
-  counter = Number
-}
-
-create(MyComponent).modal.show('Hello World', 'Rise and shine!').state;
-// => { modal: { isOpen: true, title: 'Hello World', content: 'Rise and shine!' }, counter: 0 }
-```
-
-## Changing structure
-
-When modeling state machines, it's often helpful to be able to initialize into a particular
-state based on value. This can be accomplished by adding a static `create` method. This method
-should return the next state that you want the node to initialize into.
-
-```js
-import { create } from 'microstates';
-
-class Session {
-  content = null;
-
-  static create(session) {
-    if (session) {
-      return create(AuthenticatedSession, session);
-    } else {
-      return create(AnonymousSession);
-    }
-  }
-}
-```
-
-Once your state is initialized, you can return new microstates from transition to transition
-time of the node that the transition is attached to.
-
-```js
-class AuthenticatedSession extends Session {
-  isAuthenticated = true;
-  content = Object;
-
-  logout() {
-    return create(AnonymousSession);
-  }
-}
-
-class AnonymousSession extends Session {
-  content = null;
-  isAuthenticated = false;
-  authenticate(user) {
-    return create(AuthenticatedSession, { content: user });
-  }
-}
-
-class MyApp {
-  session = Session;
-}
-
-// without initial state it initializes into AnonymousSession state
-create(MyApp).state;
-// => { session: { content: null, isAuthenticated: false }}
-
-// transition to AuthenticatedSession state with authenticate
-create(MyApp).authenticate({ name: 'Taras' }).state;
-// => { session: { content: { name: 'Taras' }, isAuthenticated: true }};
-
-// restore into AuthenticatedSession state
-create(MyApp, { session: { content: { name: 'Taras' } } }).state;
-// => { session: { content: { name: 'Taras' } }, isAuthenticated: true }
-
-// transition to AnonymousSession state with logout
-create(MyApp, { session: { content: { name: 'Taras' } } }).logout().state;
-// => { session: { content: null, isAuthenticated: false }}
-```
-
-## Parameterized Arrays & Objects
-
-It's often useful to be able to indicate that an array consists of a certain type of items, 
-for example, an array of todo items. Microstates provides a special syntax for this.
-
-```js
-class Todo {
-  title = String
-  isCompleted = Boolean
-}
-
-class TodoApp {
-  todos = [Todo]
-}
-```
-
-This tells Microstates that we're composing an array of Todo items. Microstates will use this information to generate state 
-and transitions for items in the array.
-
-```js
-let today = create(TodoApp, { todos: [{ title: 'Buy milk' }] }).state;
-// => { todos: [ Todo { title: 'Buy milk', isCompleted: false } ] }
-``` 
-
-It will also provide you with transitions array with objects for each data item. You can invoke,
-transitions from this array and they will behave as all other transitions in microstates.
-
-```js
-today.todos[0].title.set('Buy 2% milk').state;
-// => { todos: [ Todo { title: 'Buy 2% milk', isCompleted: false } ] }
-
-today.todos.push({ title: 'Review PRs' }).state
-// => { todos: [ Todo { title: 'Buy 2% milk', isCompleted: false }, Todo { title: 'Review PRs', isCompleted: false } ] }
-```
-
-You can do the same with Objects using `{Type}` syntax. 
-
-```js
-let today = create({Todo}, { t1: { title: 'Buy milk' }, t2: { title: 'Review PRs' } }).state
-// => { t1: Todo { title: 'Buy milk', isComplete: false }, t2: Todo { title: 'Review PRs', isComplete: false } }
-
-today.t2.isComplete.toggle().state
-// => { t1: Todo { title: 'Buy milk', isComplete: false }, t2: Todo { title: 'Review PRs', isComplete: true } }
-```
-
-## Observable interoperability
-
-You can create an observable from any microstate using the `Observable.from` method.
-The resulting Observable will stream the next microstate for every transition.
-When you subscribe to the observable microstate, you'll immediately receive a microstate through the stream.
-This microstate will have transitions that you can call to cause the next microstate to come through the stream.
-
-```js
-import { create } from 'microstates';
-import { Observable } from 'rxjs';
-
-let ms = create(Number, 42);
-let observable = Observable.from(ms);
+let observable = from(homer);
 
 let last;
-
-observable.subscribe(microstate => {
-  last = microstate;
-  console.log(microstate.state);
+let subscription = observable.subscribe(next => {
+  // capture the next microstate coming through the stream
+  last = next;
 });
-// => 42
 
-last.increment().increment().increment();
-// => 43
-// => 44
-// => 45
+last.firstName.set("Homer J");
+
+last.valueOf();
+//> { firstName: 'Homer J', lastName: 'Simpson' }
 ```
 
-## Built-in types
+This mechanism provides the starting point for integration between the Observables ecosystem and Microstates.
 
-Microstates package provides base building blocks for your composing your own types. `Number`, `String`, `Boolean`,
-`Object` and `Array` come with predefined transitions.
+# The Vision of Microstates
 
-### `Boolean`
+What if switching frameworks were easy? What if a company could build domain specific code that worked across frameworks? Imagine what it would be like if you tools stayed with you as you progressed in your career as an engineer. This is the world what we hope to create with Microstates.
 
-`Boolean` type presents a `true` or `false` value. `Boolean` has `toggle` and `set` transitions.
+## Shared Solutions
 
-#### set(value: any) => microstate
+Imagine never having to write another normalized data store again because someone made a normalized data store Microstate that you can compose into your app's Microstate.
 
-Returns a new microstate with boolean value replaced. Value will be coerced with
-`Boolean(value).valueOf()`.
+In the future(not currently implemented), you will be able to write a normalized data store like this,
 
 ```js
-Microstate.create(Boolean).set(true).state;
-// => true
+import Normalized from "future-normalized-microstate";
+
+class MyApp {
+  store = Normalized.of(Product, User, Category);
+}
 ```
 
-#### toggle() => microstate
+The knowledge about building normalized data stores is available in libraries like [Ember Data](https://github.com/emberjs/data), [Orbit.js](https://github.com/orbitjs/orbit), [Apollo](https://www.apollographql.com) and [urql](https://github.com/FormidableLabs/urql), yet many companies end up rolling their own because these tools are coupled to other stacks.
 
-Returns a new microstate with state of boolean value switched to the opposite.
+As time and resources permit, we hope to create a solution that will be flexible enough for use in most applications. If you're interested in helping us with this, please reach out.
+
+## Added Flexibility
+
+Imagine if your favourite Calendar component came with a Microstate that allowed you to customize the logic of the calendar without touching the rendered output. It might looks something like this,
 
 ```js
-Microstate.create(Boolean).state;
-// => false
+import Calendar from "awesome-calendar";
 
-Microstate.create(Boolean).toggle().state;
-// => true;
+class MyCalendar extends Calendar.Model {
+  // make days as events
+  days = Day.of([Event]);
 
-Microstate.create(Boolean, true).toggle().state;
-// => false;
+  // component renders days from this property
+  get visibleDays() {
+    return this.days.filter(day => day.status !== "finished");
+  }
+}
+
+<Calendar.Component model={MyCalendar} />;
 ```
 
-### `Number`
+Currently, this is pseudocode, but Microstates was architected to allow for these kinds of solutions.
 
-`Number` type represents any numeric value. `Number` has `sum`, `subtract`, `increment`, `decrement` and `set` transitions.
+## Framework Agnostic Solutions
 
-#### set(value: any) => microstate
+Competition moves our industry forward but consensus builds ecosystems.
 
-Replaces current state with value. The value will be coerced same as `Number(value).valueOf()`.
+Unfortunately, when it comes to the M(odel) of the MVC pattern, we are seeing neither competition nor consensus. Every framework has its own model layer that is not compatible with others. This makes it difficult to create truly portable solutions that can be used on all frameworks.
 
-```js
-Microstate.create(Number).set(10).state;
-// => 10
-```
+It creates lock-in that is detrimental to the businesses that use these frameworks and to the developers who are forced to make career altering decisions before they fully understand their choices.
 
-#### sum(number: Number [, number: Number]) => microstate
+We don't expect everyone to agree that Microstates is the right solution, but we would like to start the conversation about what a shared primitive for state management in JavaScript might look like. Microstates is our proposal.
 
-Returns a new microstate with the sum of passed in values with the current state.
+In many ways, Microstates is a beginning. We hope you'll join us for the ride and help us create a future where building stateful applications in JavaScript is much easier than it is today.
 
-```js
-Microstate.create(Number).sum(5, 10).state;
-// => 15
-```
+# FAQ
 
-#### subtract(number: Number, [, number: Number]) => microstate
+## What if I can't use class syntax?
 
-Returns a new microstate with the difference between the current state and the passed in values.
-
-```js
-Microstate.create(Number, 42).subtract(2, 10).state;
-// => 30
-```
-
-#### increment(step: Number = 1) => microstate
-
-Returns a new microstate with the current state incremented by the passed in step value (defaults to 1).
-
-```js
-Microstate.create(Number).increment().state;
-// => 1
-
-Microstate.create(Number).increment(5).state;
-// => 5
-
-Microstate.create(Number)
-  .increment(5)
-  .increment().state;
-// => 6
-```
-
-#### decrement(step: Number = 1) => microstate
-
-Returns a new microstate with current state value decreased by passed in step value (defaults to 1).
-
-```js
-Microstate.create(Number).decrement().state;
-// => -1
-
-Microstate.create(Number).decrement(5).state;
-// => -5
-
-Microstate.create(Number)
-  .decrement(5)
-  .decrement().state;
-// => -6
-```
-
-### `String`
-
-`String` represents string values. `String` has `concat` and `set` transitions. You can vote for additional transitions to be included in #27.
-
-#### set(value: any) => microstate
-
-Replaces the current state with the passed in value and returns a new microsate with the new state. The value will be coerced using
-`String(value).valueOf()`.
-
-```js
-Microstate.create(String).set('hello world').state;
-// => 'hello world'
-```
-
-#### concat(str: String [, str1: String]) => microstate
-
-Combines the current state with passed in string and returns a new microstate containing the new state.
-
-```js
-Microstate.create(String, 'hello ').concat('world').state;
-// => 'hello world'
-```
-
-### `Array`
-
-Represents an indexed collection of iterable instances of other types.
-
-#### set(value: any) => microstate
-
-Replaces state with passed in value and returns a new microstate containing the new state. The value will be coerced with
-`Array(value).valueOf()`
-
-```js
-Microstate.create(Array).set('hello world');
-// ['hello world']
-```
-
-#### push(value: any [, value1: any]) => microstate
-
-Pushes value to the end of the array and returns a new microstate with the new array as its state.
-
-```js
-Microstate.create(Array).push(10, 15, 25).state;
-// => [ 10, 15, 25 ]
-
-Microstate.create(Array, ['a', 'b'])
-  .push('c')
-  .push('d').state;
-// => [ 'a', 'b', 'c', 'd' ]
-```
-
-#### filter(fn: value => boolean) => microstate
-
-Applies filter fn to every element in the array and return a new microstate with the result as the state.
-
-```js
-Microstate.create(Array, [10.123, 1, 42, 0.01]).filter(value => Number.isNumber(value)).state;
-// => [ 1, 42 ];
-```
-
-#### map(fn: (value, index) => any) => microstate
-
-Maps every item in the array and returns a new microstate with the new array as the state.
-
-```js
-Microstate.create(Array, ['a', 'b', 'c']).map(v => v.toUpperCase()).state;
-// => ['A', 'B', 'C']
-```
-
-#### replace(item: any, replacement; any) => microstate
-
-Replaces the first occurrence of `item` in the array with `replacement` using exact(`===`) comparison.
-
-```js
-Microstate.create(Array, ['a', 'b', 'c']).replace('b', 'B').state;
-// => [ 'a', 'B', 'c' ]
-```
-
-### `Object`
-
-Represents a collection of values keyed by strings. Object types have `assign` and `set` transitions.
-
-```js
-Microstate.create(Object).state;
-// => {}
-```
-
-#### set(value: any) => microstate
-
-Replaces state with the passed in value and return a new microstate with the new state. The value will be coerced to
-object with `Object(value).valueOf()`.
-
-```js
-Microstate.create(Object).set({ hello: 'world' }).state;
-// => { hello: 'world' }
-```
-
-#### assign(object: Object) => microstate
-
-Creates a new object and copy values from existing state and passed in object. Return a new microstate with the new state.
-
-```js
-Microstate.create(Object, { color: 'red' }).assign({ make: 'Honda' }).state;
-// => { color: 'red', make: 'Honda' }
-```
-
-## FAQ
-
-### What if I can't use class syntax?
-
-Classes are functions in JavaScript, so you should be able to use a function to do most of the same
-things as you would with classes.
+Classes are functions in JavaScript, so you should be able to use a function to do most of the same things as you would with classes.
 
 ```js
 class Person {
@@ -773,7 +891,7 @@ function Person() {
 }
 ```
 
-### What if I can't use Class Properties?
+## What if I can't use Class Properties?
 
 Babel compiles Class Properties into class constructors. If you can't use Class Properties, then you
 can try the following.
@@ -794,7 +912,7 @@ class Employee extends Person {
 }
 ```
 
-## Run Tests
+# Run Tests
 
 ```shell
 $ npm install

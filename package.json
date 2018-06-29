@@ -1,19 +1,21 @@
 {
   "name": "microstates",
   "version": "0.8.0",
-  "description": "Graceful state transitions for data of any shape.",
+  "description": "Composable State Primitives for JavaScript",
   "keywords": [
     "lens",
     "state-machine",
     "immutable",
-    "microstates"
+    "composable",
+    "models",
+    "state"
   ],
   "homepage": "https://github.com/microstates/microstates.js#readme",
   "bugs": {
     "url": "https://github.com/microstates/microstates.js/issues"
   },
   "license": "MIT",
-  "author": "Charles Lowell <charles@frontside.io>, Taras Mankovski <taras@thisdot.co>",
+  "author": "Charles Lowell <charles@frontside.io>, Taras Mankovski <taras@frontside.io>",
   "files": [
     "src",
     "dist",
