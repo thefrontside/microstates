@@ -413,7 +413,7 @@ The primitive types have predefined transitions:
   * `shift(): Microstate` - return a Microstate with element removed from the array.
   * `unshift(value: any): Microstate` - return a Microstate with value added to the beginning of the array.
   * `filter(fn: state => boolean): Microstate` - return a Microstate with filtered array. The predicate function will receive state of each element in the array. If you return a falsy value from the predicate, the item will be excluded from the returned microstate.
-  * `clear(): microstate` - return a microstate with an empty array.
+  * `clear(): Microstate` - return a microstate with an empty array.
 
 Many transitions on primitive type are similar to methods on original classes. The biggest difference is that transitions always return Microstates.
 
@@ -530,7 +530,7 @@ class Vehicle {
   }
 
   tow() {
-    throw new Erorr('not implemented');
+    throw new Error('not implemented');
   }
 }
 
@@ -573,7 +573,7 @@ result.vehicle.state.isTowing
 
 ## Transition scope
 
-Microstate are composable, and they work exactly the same no matter what other microstate they're a part of. For this reason, Microstate transitions only have access to their own transitions and the transitions of the microstates they contain. What they do __not_ have access to their context. This is similar to how components work. The parent component can render a children and pass data to them, but the child components do not have direct access to the parent component. The same principle applies in Microstates, so as a result, it benefits from the same advantages of isolation and composability that make components awesome.
+Microstate are composable, and they work exactly the same no matter what other microstate they're a part of. For this reason, Microstate transitions only have access to their own transitions and the transitions of the microstates they contain. What they do _not_ have access to their context. This is similar to how components work. The parent component can render a children and pass data to them, but the child components do not have direct access to the parent component. The same principle applies in Microstates, so as a result, it benefits from the same advantages of isolation and composability that make components awesome.
 
 # State Machines
 
