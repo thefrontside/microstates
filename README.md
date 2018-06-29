@@ -77,7 +77,7 @@ These factors combined are what make React style components easy to work with an
 
 It's not easy to find the right balance between simplicity and power, but considering the importance of state management in web applications, we believe it's a worthy challenge. Checkout the [Vision of Microstates](#the-vision-of-microstates) section if you're interested in learning more about where we're going.
 
-<!-- 
+<!--
 # Why Microstates?
 
 Our tools affect how we solve problems and collaborate.
@@ -143,7 +143,7 @@ numbers.state
 //> [ 1, 2, 3, 4 ]
 ```
 
-Apart from these basic types, every other type in Microstates is sub out of other types. So for example, to create a Person type you could define a JavaScript class with two properties, name which has type String and age which has type Number.
+Apart from these basic types, every other type in Microstates is built by combining other types. So for example, to create a Person type you could define a JavaScript class with two properties: `name` which has type String and `age` which has type Number.
 
 ```js
 class Person {
@@ -182,11 +182,11 @@ Every microstate created with a type of `Person` will be an object that looks li
 +----------------------+
 ```
 
-For the five built in types, Microstates automatically gives you transitions that you can use to change their value. You don't have to write any code to handle common operations. 
+For the five built in types, Microstates automatically gives you transitions that you can use to change their value. You don't have to write any code to handle common operations.
 
 ## Creating your own microstates
 
-Types can be sub with other types freely and Microstates will take care of handling the transitions for you. This makes it possible to build complex data structures that accurately describe your domain.
+Types can be combined with other types freely and Microstates will take care of handling the transitions for you. This makes it possible to build complex data structures that accurately describe your domain.
 
 Let's define another type that uses the person type.
 
@@ -247,7 +247,7 @@ theHomerCar.name.state;
 //> The Homer
 ```
 
-The state from sub microstates is also available on the parent object. 
+The state from sub microstates is also available on the parent object.
 
 ```js
 theHomerCar.state
@@ -256,7 +256,7 @@ theHomerCar.state
 
 ## Array Microstates
 
-Quite often it is helpful to describe your data as a collection of types. For example, a blog might have an array of posts. To do this, you can use the array of type notation, `[Post]`. This signals that Microstates of this type represent an array whose members are each of the `Post` type.
+Quite often it is helpful to describe your data as a collection of types. For example, a blog might have an array of posts. To do this, you can use the array of type notation `[Post]`. This signals that Microstates of this type represent an array whose members are each of the `Post` type.
 
 ```js
 class Blog {
@@ -332,11 +332,11 @@ blog2.posts["3"].state;
 
 # Transitions
 
-Transitions are the operations that let you derive a new state from an existing state. All transitions return another Microstate. You can use state charts to visualize microstates. For example, the `Boolean` type can be described with the following statechart. 
+Transitions are the operations that let you derive a new state from an existing state. All transitions return another Microstate. You can use state charts to visualize microstates. For example, the `Boolean` type can be described with the following statechart.
 
 <img src="README/boolean-statechart.png" alt="Boolean Statechart" width="500" />
 
-The `Boolean` type has a `toggle` transition which takes no arguments and creates a new microstate with the state that is opposite of the current state. 
+The `Boolean` type has a `toggle` transition which takes no arguments and creates a new microstate with the state that is opposite of the current state.
 
 Here is what this looks like with Microstates.
 
@@ -348,7 +348,7 @@ let bool = create(Boolean, false);
 bool.state;
 //> false
 
-let b2 = bool.toggle();
+let inverse = bool.toggle();
 
 b2.state;
 //> true
@@ -419,7 +419,7 @@ Many transitions on primitive type are similar to methods on original classes. T
 
 ## Type transitions
 
-You can define a transition for your types using a method. Inside of a transition, you can invoke transitions on sub microstates.
+Define the transitions for your types using methods. Inside of a transition, you can invoke any transitions you like on sub microstates.
 
 ```js
 import { create } from "microstates";
@@ -440,7 +440,7 @@ let lisa = homer.changeName('Lisa');
 
 ## Chaining transitions
 
-Transitions can be composed out of any number of subtransitions. This is often referred to as "batch transitions" or "transactions". Let's say that when we authenticate a session, we need to both store the token and indicate that the user is now authenticated. To do this, we can chain transitions. The result of the last operation will be the new microstate.
+Transitions can be composed out of any number of subtransitions. This is often referred to as "batch transitions" or "transactions". Let's say that when we authenticate a session, we need to both store the token and indicate that the user is now authenticated. To do this, we can chain transitions. The result of the last operation will become new microstate.
 
 ```js
 class Session {
@@ -512,7 +512,7 @@ number.valueOf()
 //> 43
 ```
 
-You can also use `set` transition to replace the current Microstate with another Microstate. This is especially useful when building state machines because it allows you to change the type of the current Microstate. By changing the type, you're also changing available transitions and how the state is calculated.
+You can also use then `set` transition to replace the current Microstate with another Microstate. This is especially useful when building state machines because it allows you to change the type of the current Microstate. By changing the type, you're also changing available transitions and how the state is calculated.
 
 ```js
 import { types } from 'microstates';
@@ -569,23 +569,23 @@ result.vehicle.state.isTowing
 //> true
 ```
 
-> *Pro tip*: Microstates will never require you to understand Monads in order to use transitions, but if you're interested in learning about the primitives of functional programming that power Microstates, you may want to checkout [funcadelic.js](https://github.com/cowboyd/funcadelic.js). 
+> *Pro tip*: Microstates will never require you to understand Monads in order to use transitions, but if you're interested in learning about the primitives of functional programming that power Microstates, you may want to checkout [funcadelic.js](https://github.com/cowboyd/funcadelic.js).
 
 ## Transition scope
 
-Microstate are composable, and they work exactly the same no matter what other microstate they're a part of. For this reason, Microstate transitions only have access to their own transitions and the transitions sub microstates. They do not have access to their context. This is similar to how components work. The parent component can render a child component and pass data to them. The children components do not have direct access to the parent component. Same in Microstates.
+Microstate are composable, and they work exactly the same no matter what other microstate they're a part of. For this reason, Microstate transitions only have access to their own transitions and the transitions of the microstates they contain. What they do __not_ have access to their context. This is similar to how components work. The parent component can render a children and pass data to them, but the child components do not have direct access to the parent component. The same principle applies in Microstates, so as a result, it benefits from the same advantages of isolation and composability that make components awesome.
 
 # State Machines
 
 A state machine is a system that has a predefined set of states. At any given point, the state machine can only be in one of these states. Each state has a predefined set of transtions that can be derived from that state. These constraints are beneficial to application architecture because they provide a way to identify application state and suggest how the application state can change.
 
-From its conception, Microstates was created to be the most convinient way to express state machines. The goal was to design an API that would eliminate the barrier of using state machines and allow for them to be composable. The result of 2 years of work is an API that does not look like a traditional state machine.
+From its conception, Microstates was created to be the most convenient way to express state machines. The goal was to design an API that would eliminate the barrier of using state machines and allow for them to be composable. After almost two years of refinement, the result is an API that has evolved significantly beyond what we typically associate with code that expresses state machines.
 
-We will use xstate as an example of a good implementation of a state machine. It's a great library and it addresses real need for state machines and statecharts. We'll use it to illustrate API choices that we made for Microstates.
+[xstate](https://github.com/davidkpiano/xstate) for example, is a great specimen of the classic state machine API. It's a fantastic library and it addresses the very real need for state machines and statecharts in modern applications. For purposes of contrast, we'll use it to illustrate the API choices that went into Microstates.
 
 ## Explicit Transitions
 
-Most state machine libraries focus on finding the next state given configuration. For example, [xstate](https://github.com/davidkpiano/xstate#finite-state-machines) declaration describes what state id to match when in a specific state.
+Most state machine libraries focus on finding the next state given a configuration. For example, this [xstate](https://github.com/davidkpiano/xstate#finite-state-machines) declaration describes what state id to match when in a specific state.
 
 ```js
 import { Machine } from 'xstate';
@@ -629,13 +629,13 @@ class LightMachine {
       case 'yellow': return this.color.set('red');
       case 'red':
       default:
-        return this.color.set('green'); 
+        return this.color.set('green');
     }
   }
 }
 ```
 
-With Microstates, you explicitely describe what happens on transition and define the matching mechanism. 
+With Microstates, you explicitely describe what happens on transition and define the matching mechanism.
 
 ## Transition methods
 
@@ -647,7 +647,7 @@ const nextState = lightMachine.transition('green', 'TIMER').value;
 //> 'yellow'
 ```
 
-Microstates does not have such a method. Instead, it relies on vanilla JavaScript property lookup. The method invocation is equivalent to calling `transitionTo` with name of the transition. 
+Microstates does not have such a method. Instead, it relies on vanilla JavaScript property lookup. The method invocation is equivalent to calling `transitionTo` with name of the transition.
 
 ```js
 import { create } from 'microstates';
@@ -658,7 +658,7 @@ const nextState = lightMachine.timer();
 
 nextState.color.state
 //> 'yellow'
-``` 
+```
 
 ## Immutable Object vs Immutable Data Structure
 
@@ -753,7 +753,7 @@ let numbers = create([Number], [1, 2, 3, 4]);
 
 ## use(middleware, microstate: Microstate): Microstate
 
-The `use` function is used to add middleware to a microstate. This function will return a new microstate with the provided middleware installed. 
+The `use` function is used to add middleware to a microstate. This function will return a new microstate with the provided middleware installed.
 
 ```js
 import { use, from } from "microstates";
@@ -776,17 +776,17 @@ loggedNumber.increment();
 
 # Observable Microstates
 
-By themselves microstates are purely functional. They have no builtin concept of identity, 
-time or sequencing. However, it is precisely because of these properties that they can be 
-used with almost any state management solution that does. In fact, Microstates comes bundled 
-out of the box with the ability to convert any microstate into a stream of transitions using 
+By themselves microstates are purely functional. They have no builtin concept of identity,
+time or sequencing. However, it is precisely because of these properties that they can be
+used with almost any state management solution that does. In fact, Microstates comes bundled
+out of the box with the ability to convert any microstate into a stream of transitions using
 the the Observable API.
 
-Microstates provides an easy way to convert a Microstate which represents a single value into 
-a Observable stream of values. This is done by passing a Microstate to `Observable.from` function. 
-This function will return a Observable object with a `subscribe` method. You can subscribe to the 
-stream by passing an observer to the subscribe function. Once you subscribe, you will syncronously 
-receive a microstate with middleware installed that will cause the result of transitions to be pushed 
+Microstates provides an easy way to convert a Microstate which represents a single value into
+a Observable stream of values. This is done by passing a Microstate to `Observable.from` function.
+This function will return a Observable object with a `subscribe` method. You can subscribe to the
+stream by passing an observer to the subscribe function. Once you subscribe, you will syncronously
+receive a microstate with middleware installed that will cause the result of transitions to be pushed
 through the stream.
 
 You should be able to use to any implementation of Observables that supports `Observer.from` using [symbol-observable](https://github.com/benlesh/symbol-observable). We'll use `RxJS` for our example.
