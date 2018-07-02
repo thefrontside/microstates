@@ -1,4 +1,4 @@
-import { append, flatMap, foldl, foldr, map, stable } from 'funcadelic';
+import { append, flatMap, foldl, foldr, map, stable, chain as $ } from 'funcadelic';
 import getPrototypeDescriptors from 'get-prototype-descriptors';
 import lens from 'ramda/es/lens';
 import lensPath from 'ramda/es/lensPath';
@@ -12,7 +12,6 @@ import keys from './keys';
 import shallowDiffers from './shallow-differs';
 import thunk from './thunk';
 import types, { params, toType } from './types';
-import $ from './utils/chain';
 import { keep, reveal } from './utils/secret';
 import values from './values';
 import invariant from 'invariant';

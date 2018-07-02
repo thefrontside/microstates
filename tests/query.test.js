@@ -363,7 +363,7 @@ describe('todomvc', () => {
           expect(oneCompleted.todos[2].completed.state).toBe(false);
         });
       });
-      describe.only('with middleware', () => {
+      describe('with middleware', () => {
         let oneCompleted;
         let callback;
         beforeEach(() => {
