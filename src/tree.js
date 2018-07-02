@@ -48,12 +48,12 @@ function makeMiddleware(tree) {
   let { middlewares } = foldl((acc, childName) => {
     let tree = acc.tree.children[childName];
     invariant(tree, `Could not find a ${childName} in [${path.join()}]`);
-    let middleware = tree.data.middleware.map(fn => next => fn(next, tree));
+    let middleware = tree.meta.middleware.map(fn => next => fn(next, tree));
     return {
       middlewares: [...acc.middlewares, ...middleware],
       tree
     }
-  }, { tree: root, middlewares: [ ...root.data.middleware ] }, path);
+  }, { tree: root, middlewares: [ ...root.meta.middleware ] }, path);
 
   return middlewares
     .reduce((fn, middleware) => middleware(fn), defaultMiddleware);
@@ -113,7 +113,7 @@ export const transitionsClass = stable(function transitionsClass(Type) {
       let withMiddleware = map(tree => { 
         if (tree.isRoot) {
           return tree.assign({
-            data: {
+            meta: {
               middleware: [middleware]
             }
           })
@@ -260,12 +260,12 @@ export default class Tree {
       TransitionsClass: transitionsClass(Type),
       queries: new CachedValue(this, queriesForTree),
       children: new Children(this, childrenFromTree),
+      middleware: []
     }
 
     this.data = {
       value: new Value(value),
-      state: new State(this, stateFromTree),
-      middleware: []
+      state: new State(this, stateFromTree)
     }
   }
 
@@ -343,7 +343,7 @@ export default class Tree {
     return map(tree => {
       if (tree.isRoot) {
         return tree.assign({
-          data: { middleware: [...tree.data.middleware, middleware] },
+          meta: { middleware: [...tree.meta.middleware, middleware] },
         });
       } else {
         return tree;
@@ -419,13 +419,13 @@ export default class Tree {
    */
   apply(fn) {
     // overload custom middleware to allow context free transitions
-    let root = this.root.assign({ data: { middleware: [] } });
+    let root = this.root.assign({ meta: { middleware: [] } });
     // focus on current tree and apply the function to it
     let nextRoot = over(this.lens, fn, root);
     // put the original middleware into the next root tree so the middleware will
     return map(tree => {
       if (tree.is(nextRoot)) {
-        return nextRoot.assign({ data: { middleware: this.root.data.middleware } });
+        return nextRoot.assign({ meta: { middleware: this.root.meta.middleware } });
       } else {
         return tree;
       }
@@ -582,8 +582,10 @@ export function queriesForTree(tree) {
    */
   let context = map(tree => {
     return tree.assign({
-      meta: { origin: tree },
-      data: { middleware: [] }
+      meta: { 
+        origin: tree,  
+        middleware: [] 
+      }
     })
   }, tree).prune();
 
