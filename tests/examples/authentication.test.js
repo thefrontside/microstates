@@ -3,7 +3,11 @@ import { create, reveal } from 'microstates';
 import logTree from '../../src/utils/log-tree';
 
 class Session {
-  content = null;
+
+  get content() {
+    return null;
+  }
+
   initialize(session) {
     if (session) {
       return create(AuthenticatedSession, session);
@@ -13,7 +17,11 @@ class Session {
 }
 
 class AuthenticatedSession extends Session {
-  isAuthenticated = true;
+  
+  get isAuthenticated() {
+    return true;
+  }
+
   content = Object;
 
   logout() {
@@ -22,8 +30,13 @@ class AuthenticatedSession extends Session {
 }
 
 class AnonymousSession extends Session {
-  content = null;
-  isAuthenticated = false;
+  get content() {
+    return null;
+  }
+
+  get isAuthenticated() {
+    return false;
+  }
 
   authenticate(user) {
     return create(AuthenticatedSession, { content: user });

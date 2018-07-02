@@ -1,6 +1,5 @@
 import "jest";
 import { create, reveal } from "microstates";
-import logTree from "../src/utils/log-tree";
 
 describe("type-shifting", () => {
   class Shape {
@@ -162,82 +161,6 @@ describe("type-shifting", () => {
   });
 });
 
-describe("type-shifting with constant values", () => {
-  class Async {
-    content = null;
-    isLoaded = false;
-    isLoading = false;
-    isError = false;
-
-    loading() {
-      return create(AsyncLoading, {});
-    }
-  }
-
-  class AsyncError extends Async {
-    isError = true;
-    isLoading = false;
-    isLoaded = true;
-  }
-
-  class AsyncLoading extends Async {
-    isLoading = true;
-
-    loaded(content) {
-      return create(
-        class extends AsyncLoaded {
-          content = content;
-        }, {}
-      );
-    }
-
-    error(msg) {
-      return create(
-        class extends AsyncError {
-          error = msg;
-        }, {}
-      );
-    }
-  }
-
-  class AsyncLoaded extends Async {
-    isLoaded = true;
-    isLoading = false;
-    isError = false;
-  }
-  describe("successful loading siquence", () => {
-    let async = create(Async, {});
-    it("can transition to loading", () => {
-      expect(async.loading().state).toMatchObject({
-        content: null,
-        isLoaded: false,
-        isLoading: true,
-        isError: false,
-      });
-    });
-    it("can transition from loading to loaded", () => {
-      expect(async.loading().loaded("GREAT SUCCESS").state).toMatchObject({
-        content: "GREAT SUCCESS",
-        isLoaded: true,
-        isLoading: false,
-        isError: false,
-      });
-    });
-  });
-  describe("error loading sequence", () => {
-    let async = create(Async);
-    it("can transition from loading to error", () => {
-      expect(async.loading().error(":(").state).toMatchObject({
-        content: null,
-        isLoaded: true,
-        isError: true,
-        isLoading: false,
-        error: ":(",
-      });
-    });
-  });
-});
-
 describe("type-shifting into a deeply composed microstate", () => {
   class Node {
     name = String;
@@ -305,7 +228,7 @@ describe("type-shifting in a getter", () => {
     depth = Number;
 
     get next() {
-      return create(Node, { depth: this.depth + 1 }).state;
+      return create(Node, { depth: this.depth + 1 });
     }
   }
 

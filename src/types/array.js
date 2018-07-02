@@ -3,6 +3,8 @@ import transform from '../transform';
 import Tree from '../tree';
 import Any from './any';
 import { parameterized } from './parameters0';
+import invariant from 'invariant';
+
 class ArrayType {
   initialize(value = []) {
     return value;
@@ -87,7 +89,7 @@ class ArrayType {
             }
           })
         }, child);
-      }, children.filter(tree => fn(tree.state)));
+      }, children.filter(tree => fn(tree.microstate)));
     }, this);
   }
 
@@ -120,6 +122,30 @@ class ArrayType {
   clear() {
     return this.set([]);
   }
+
+  /**
+   * The reduce() transition applies a function against an accumulator 
+   * and each element in the array (from left to right) to reduce it to 
+   * a single value.
+   * 
+   * The reducer function will receive a microstate as an accumulator and 
+   * a microstate for each value. The microstate returned from the reducer 
+   * function will be passed to next invocation of the reducer function.
+   * 
+   * @param {*} fn
+   * @param {*|Microstate}
+   * @returns {Microstate}
+   */
+  reduce(fn, initial) {
+    invariant(typeof fn === 'function', `reduce transition expects a reduce function as first argument, got ${fn}`);
+    invariant(typeof initial !== 'undefined', `reduce transition requires initial value as second arguement, got ${initial}`);
+
+    let children = Tree.from(this).children || [];
+
+    return children.reduce((memo, tree, currentIndex) => {
+      return Tree.from(fn(memo, tree.prune().microstate, currentIndex)).microstate;
+    }, Tree.from(initial).microstate);
+   }
 }
 
 export default parameterized(ArrayType, {T: Any});

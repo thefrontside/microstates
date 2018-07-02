@@ -1,7 +1,7 @@
 import 'jest';
 
 import Microstate, { Tree, reveal, types } from 'microstates';
-import { flatMap, map, append } from 'funcadelic';
+import { flatMap, map } from 'funcadelic';
 import view from 'ramda/es/view';
 import set from 'ramda/es/set';
 import over from 'ramda/es/over';
@@ -890,17 +890,18 @@ describe('Microstate', () => {
   describe('middleware', () => {
 
     describe('shallow', () => {
-      let boolean, mapped, beforeTransition, afterTransition;
+      let boolean, mapped, beforeTransition, afterTransition, middleware;
       beforeEach(() => {
         boolean = Microstate.create(Boolean, true);
         beforeTransition = jest.fn();
         afterTransition = jest.fn();
-        mapped = map(tree => tree.use(next => (microstate, transition, args) => {
+        middleware = next => (microstate, transition, args) => {
           beforeTransition(microstate, transition, args);
           let result = next(microstate, transition, args);
           afterTransition(result);
           return result;
-        }), boolean);
+        };
+        mapped = Microstate.use(middleware, boolean);
       });
 
       it('returns a microstate', () => {
@@ -981,12 +982,13 @@ describe('Microstate', () => {
         person = Microstate.create(Person, { name: 'Bart', mother: { name: 'Marge' } });
         beforeTransition = jest.fn();
         afterTransition = jest.fn();
-        mapped = map(tree => tree.use(next => (microstate, transition, args) => {
+        let middleware = next => (microstate, transition, args) => {
           beforeTransition(microstate, transition, args);
           let result = next(microstate, transition, args);
           afterTransition(result);
           return result;
-        }), person);
+        };
+        mapped = Microstate.use(middleware, person);
       });
 
       it('returns a microstate', () => {
@@ -1056,8 +1058,8 @@ describe('Microstate', () => {
           });
         });
       });
-
     });
+
   });
 
   describe('initialization', () => {
