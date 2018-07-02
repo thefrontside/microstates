@@ -1,5 +1,5 @@
 import 'jest';
-import Microstate, { create, map, use } from 'microstates';
+import Microstate, { create, map, use, Tree } from 'microstates';
 
 it('exports create', function() {
   expect(create).toBeInstanceOf(Function);
@@ -105,29 +105,48 @@ describe('transitions', () => {
 });
 
 describe('middleware', () => {
-  class A {
-    counter = Number;
-    outsideTransition() {
-      return this.counter.increment();
+  describe('invocation', () => {
+    class A {
+      counter = Number;
+      outsideTransition() {
+        return this.counter.increment();
+      }
     }
-  }
-  let a, callback, a1;
-  beforeEach(() => {
-    callback = jest.fn();
-    let middleware = next => (microstate, transition, args) => {
-      callback(transition.name);
-      return next(microstate, transition, args);
+    let a, callback, a1;
+    beforeEach(() => {
+      callback = jest.fn();
+      let middleware = next => (microstate, transition, args) => {
+        callback(transition.name);
+        return next(microstate, transition, args);
+      }
+      a = use(middleware, create(A, { counter: 42 }));
+      a1 = a.outsideTransition();
+    });
+    it('called callback once', () => {
+      expect(callback).toHaveBeenCalledTimes(1);
+    });
+    it('got called only for outsideTransition', () => {
+      expect(callback.mock.calls[0][0]).toBe('outsideTransition');
+    });
+    it('was not called second time', () => {
+      expect(callback.mock.calls[1]).toBeUndefined();
+    });
+  });
+  describe('installation in initialize', () => {
+    let middleware;
+    let corvete;
+    class Car {
+      initialize() {
+        return use(middleware, this);
+      }
     }
-    a = use(middleware, create(A, { counter: 42 }));
-    a1 = a.outsideTransition();
-  });
-  it('called callback once', () => {
-    expect(callback).toHaveBeenCalledTimes(1);
-  });
-  it('got called only for outsideTransition', () => {
-    expect(callback.mock.calls[0][0]).toBe('outsideTransition');
-  });
-  it('was not called second time', () => {
-    expect(callback.mock.calls[1]).toBeUndefined();
+
+    beforeEach(() => {
+      middleware = jest.fn(next => (...args) => next());
+      corvete = create(Car);
+    });
+    it('has middleware', () => {
+      expect(Tree.from(corvete).meta.middleware.includes(middleware)).toBe(true);
+    });
   });
 });

@@ -22,23 +22,33 @@ const { assign, defineProperties, defineProperty } = Object;
 /**
  * Apply a transition to a microstate and return the next
  * microstate.
- * @param {Microstate} localMicrostate
+ * @param {Microstate} microstate
  * @param {Function} transition
  * @param {Array<any>} args
  */
-const defaultMiddleware = (localMicrostate, transition, args) => {
-  let tree = reveal(localMicrostate);
+const defaultMiddleware = (microstate, transition, args) => {
+  let target = Tree.from(microstate);
 
-  let { microstate } = tree.apply(focus => {
-    let next = transition.apply(focus.microstate, args);
+  let next = target.over(focus => {
+    let next = transition.apply(focus.microstate, args);    
     if (next instanceof Microstate) {
-      return reveal(next);
+      return Tree.from(next);
     } else {
       return focus.assign({ data: { value: next }});
     }
   });
-
-  return microstate;
+  
+  return map(tree => {
+    if (target.root.meta.middleware.length > 0 && tree === next) {
+      return tree.assign({
+        meta: {
+          middleware: target.root.meta.middleware
+        }
+      });
+    } else {
+      return tree;
+    }
+  }, next).microstate;  
 };
 
 function makeMiddleware(tree) {
@@ -53,7 +63,7 @@ function makeMiddleware(tree) {
       middlewares: [...acc.middlewares, ...middleware],
       tree
     }
-  }, { tree: root, middlewares: [ ...root.meta.middleware ] }, path);
+  }, { tree: root, middlewares: root.meta.middleware }, path);
 
   return middlewares
     .reduce((fn, middleware) => middleware(fn), defaultMiddleware);
@@ -141,8 +151,10 @@ export const transitionsClass = stable(function transitionsClass(Type) {
     enumerable: false,
     configurable: true,
     get() {
-      let middleware = makeMiddleware(reveal(this));
-      let bound = (...args) => middleware(this, transition, args);
+      let tree = Tree.from(this);
+      let applyMiddleware = makeMiddleware(tree);
+
+      let bound = (...args) => applyMiddleware(this, transition, args);
     
       Object.defineProperty(bound, 'name', {
         value: name,
@@ -199,7 +211,7 @@ export class Microstate {
       if (tree.Type.prototype.hasOwnProperty("initialize")) {
         let initialized = tree.microstate.initialize(tree.value);
         if (initialized) {
-          return reveal(initialized);
+          return Tree.from(initialized);
         } else {
           return tree;
         }
@@ -221,15 +233,17 @@ export class Microstate {
     let microstate = this;
     return {
       subscribe(observer) {
-        let next = observer.call ? observer : observer.next.bind(observer);
+        let stream = observer.call ? observer : observer.next.bind(observer);
 
-        let mapped = Microstate.use(middleware => (...args) => {
-          let microstate = middleware(...args);
-          next(microstate);
+        let notifyObserver = next => (...args) => {
+          let microstate = next(...args);
+          stream(microstate);
           return microstate;
-        }, microstate);
+        };
 
-        next(mapped);
+        let installed = Microstate.use(notifyObserver, microstate);
+
+        stream(installed);
       },
       [SymbolObservable]() {
         return this;
@@ -412,24 +426,8 @@ export default class Tree {
     });
   }
 
-  /**
-   * Returns a new root tree with after applying the function argument to the current tree.
-   * Apply will backup the middleware on this tree to ensure that context specific middleware
-   * is not applied when the tree is pruned.
-   */
-  apply(fn) {
-    // overload custom middleware to allow context free transitions
-    let root = this.root.assign({ meta: { middleware: [] } });
-    // focus on current tree and apply the function to it
-    let nextRoot = over(this.lens, fn, root);
-    // put the original middleware into the next root tree so the middleware will
-    return map(tree => {
-      if (tree.is(nextRoot)) {
-        return nextRoot.assign({ meta: { middleware: this.root.meta.middleware } });
-      } else {
-        return tree;
-      }
-    }, nextRoot);
+  over(fn) {
+    return over(this.lens, fn, this.root);
   }
 
   derive(fn) {
@@ -474,7 +472,7 @@ export default class Tree {
        * value of each tree in the path. Does not
        * change the children that are uneffected by this change.
        */
-      return foldr(({ tree, parentPath }, name) => {
+      let top = foldr(({ tree, parentPath }, name) => {
         let parent = root.treeAt(parentPath);
         return {
           parentPath: parentPath.slice(0, -1),
@@ -492,6 +490,8 @@ export default class Tree {
           })
         }
       }, bottom, this.path).tree;
+
+      return top;
     }
 
     return lens(get, set);
@@ -511,7 +511,8 @@ export default class Tree {
   prune() {
     return map(tree => tree.assign({
       meta: {
-        path: tree.path.slice(this.path.length)
+        path: tree.path.slice(this.path.length),
+        middleware: []
       }
     }), this);
   }

@@ -1,24 +1,40 @@
 import "jest";
-import Microstate, { create } from "microstates";
+import Microstate, { create, Tree } from "microstates";
 import SymbolObservable from 'symbol-observable';
 import { from } from 'rxjs';
 
 describe('rxjs interop', function() {
-  let ms, observable, observer, last;
+  let observer, last;
   beforeEach(() => {
-    ms = create(Number, 42);
     observer = jest.fn(next => last = next);
-    observable = from(ms);
-    let subscription = observable.subscribe(observer);
-    last.increment();
-    last.increment();
-    last.increment();
+    from(create(Number, 42)).subscribe(observer);
   });
-  it('sent 4 states to obsever', function() {
-    expect(observer.mock.calls).toHaveLength(4);
+  it('has the middleware in the root', () => {
+    expect(Tree.from(last).root.meta.middleware).toHaveLength(1);
+    expect(Tree.from(last).root.meta.middleware[0].name).toBe('notifyObserver');
   });
-  it('incremented 3 times', function() {
-    expect(last.state).toBe(45);
+  it('called observer once', () => {
+    expect(observer).toHaveBeenCalledTimes(1);
+  });
+  describe('first call', () => {
+    beforeEach(() => last.increment());
+    it('has the middleware in the root', () => {
+      expect(Tree.from(last).root.meta.middleware).toHaveLength(1);
+      expect(Tree.from(last).root.meta.middleware[0].name).toBe('notifyObserver');
+    });
+    it('called observer twice', () => {
+      expect(observer).toHaveBeenCalledTimes(2);
+    });
+    describe('second call', () => {
+      beforeEach(() => last.increment());
+      it('has the middleware in the root', () => {
+        expect(Tree.from(last).root.meta.middleware).toHaveLength(1);
+        expect(Tree.from(last).root.meta.middleware[0].name).toBe('notifyObserver');
+      });
+      it('called observer three times', () => {
+        expect(observer).toHaveBeenCalledTimes(3);
+      });
+    });
   });
 });
 
