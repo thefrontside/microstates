@@ -1,7 +1,49 @@
 import 'jest'
-import { create, Tree, use } from 'microstates';
+import { create, Tree, use, query } from 'microstates';
 
-describe('reading', () => {
+class Todo {
+  title = String;
+  completed = Boolean;
+}
+
+let list;
+
+beforeEach(() => {
+  let todos = create([Todo], [
+    { title: 'Hello World', completed: false },
+    { title: 'Greetings', completed: true },
+    { title: 'Ola', completed: false }
+  ]);
+  list = query(todos);
+});
+
+it('has state', () => {
+  expect(list.state[0].state).toBeInstanceOf(Todo);
+  expect(list.state[1].state).toBeInstanceOf(Todo);
+  expect(list.state[2].state).toBeInstanceOf(Todo);
+});
+
+describe('filter', () => {
+  let completed, active;
+  beforeEach(() => {
+    completed = list.filter(todo => todo.completed.state);
+    active = list.filter(todo => todo.active.state);
+  });
+
+  it('filters active', () => {
+    expect(active.state).toHaveLength(1);
+    expect(active.state[0].title.state).toBe('Greetings');
+  });
+});
+
+// describe('map', () => {
+//   let mapped;
+//   beforeEach(() => {
+//     mapped = list.map()
+//   });
+// });
+
+describe.skip('reading', () => {
   class Person {
     age = Number;
     get _age() {
@@ -32,7 +74,7 @@ describe('reading', () => {
     })
   });
 
-  describe('query on composed microstate', () => {
+  describe.skip('query on composed microstate', () => {
     class Person {
       age = Number;
       get older() {
@@ -70,7 +112,7 @@ describe('reading', () => {
     });
   });
   
-  describe('middleware', () => {
+  describe.skip('middleware', () => {
     let withMiddleware;
     let callback;
     let middleware;
@@ -120,7 +162,7 @@ describe('reading', () => {
   });
 });
 
-describe('returning primitive value', () => {
+describe.skip('returning primitive value', () => {
   class Person {
     firstName = String;
     lastName = String;
@@ -138,7 +180,7 @@ describe('returning primitive value', () => {
   });
 });
 
-describe('multiple queries on same object', () => {
+describe.skip('multiple queries on same object', () => {
   class Calculation {
     numbers = Array;
 
@@ -168,7 +210,7 @@ describe('multiple queries on same object', () => {
 
 });
 
-describe('stability of query results amongst queries', () => {
+describe.skip('stability of query results amongst queries', () => {
   let type = class {
     result = Boolean;
 
@@ -203,7 +245,7 @@ describe('stability of query results amongst queries', () => {
   });
 });
 
-describe('transition of query result inside of a transition', () => {
+describe.skip('transition of query result inside of a transition', () => {
   class CollectionOfNumbers {
     numbers = [Number]
 
@@ -266,7 +308,7 @@ describe('transition of query result inside of a transition', () => {
   });
 });
 
-describe('todomvc', () => {
+describe.skip('todomvc', () => {
   class Todo {
     title = String;
     completed = Boolean;
@@ -388,7 +430,7 @@ describe('todomvc', () => {
   });
 });
 
-describe('validation', () => {
+describe.skip('validation', () => {
   it('throws an exception when query returns a microstate that has a tree without origin', () => {
     class List {
       numbers = [Number]
