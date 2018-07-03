@@ -30,7 +30,7 @@ Functor.instance(Id, {
 Functor.instance(Const, {
   map(fn, constant) {
     return constant;
-    p  }
+  }
 })
 
 export function compose(f, g) {
@@ -51,19 +51,6 @@ export function set(lens, value, context) {
   return over(lens, () => value, context);
 }
 
-export function Prop(name) {
-  let get = context => context != null ? context[name] : undefined;
-  let set = (value, context = {}) => {
-    if (value === context[name]) {
-      return context;
-    } else {
-      return append(context, {[name]: value})
-    }
-  };
-
-  return Lens(get, set);
-}
-
 export function Lens(get, set) {
   return f => context => {
     return map(value => set(value, context), f(get(context)));
@@ -71,31 +58,3 @@ export function Lens(get, set) {
 }
 
 export const transparent = Lens(x => x, y => y);
-
-export function Path(path = []) {
-  return foldl((lens, key) => {
-    return compose(lens, Prop(key))
-  }, transparent, path);
-}
-
-export function Substate(name) {
-  let get = context => context != null ? context[name] : undefined;
-  let set = (substate, picostate) => {
-    if (substate === picostate[name]) {
-      return picostate;
-    } else {
-      return append(picostate, {
-        [name]: substate,
-        state: append(picostate.state || {}, { [name]: substate.state })
-      })
-    }
-  };
-
-  return Lens(get, set);
-}
-
-export function SubstatePath(path = []) {
-  return foldl((lens, key) => {
-    return compose(lens, Substate(key))
-  }, transparent, path);
-}

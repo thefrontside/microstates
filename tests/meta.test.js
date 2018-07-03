@@ -5,15 +5,8 @@ import { create, Any, Meta } from '../src/picostates';
 describe("Meta", () => {
 
   it('is an error to try and get meta of null and undefined', () => {
-    expect(() => Meta.get(null)).to.throw('retrieve metadata');
-    expect(() => Meta.get()).to.throw('retrieve metadata');
-  })
-  it('is an error to try and get meta of a non microstate', () => {
-    expect(() => Meta.get(1)).to.throw('retrieve metadata');
-    expect(() => Meta.get('hello')).to.throw('retrieve metadata');
-    expect(() => Meta.get({})).to.throw('retrieve metadata');
-    expect(() => Meta.get([])).to.throw('retrieve metadata');
-    expect(() => Meta.get(class {})).to.throw('retrieve metadata');
+    expect(() => Meta.get(null)).to.throw('cannot lookup ');
+    expect(() => Meta.get()).to.throw('cannot lookup');
   })
 
   describe('updating metadata', function() {

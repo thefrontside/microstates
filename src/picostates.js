@@ -1,15 +1,15 @@
 import { append, filter, foldl, Semigroup, map, stable } from 'funcadelic';
-import { view, set, over, Lens, SubstatePath } from './lens';
+import { view, set, over, Lens } from './lens';
 
 export function create(Type = Any, value) {
   let PicoType = toPicoType(Type);
-  let instance = map((child, name) => {
-    let initialized = value ? child.set(value[name]) : child;
-    return Meta.map(meta => ({ path: meta.path.concat(name), context: instance }), initialized);
-  }, new PicoType());
-  instance.state = value;
-  let context = Meta.treemap(meta => ({ context }), instance);
-  return context;
+  let instance = new PicoType();
+  instance.state = value
+
+  return foldl((picostate, { key, value: child }) => {
+    let substate = value != null && value[key] != null ? child.set(value[key]) : child;
+    return set(Substate(key), substate, picostate)
+  }, instance, new PicoType());
 }
 
 const toPicoType = stable(function toPicoType(Type) {
@@ -20,9 +20,7 @@ const toPicoType = stable(function toPicoType(Type) {
     static get name() {
       return `Picostate<${Type.name}>`;
     }
-    static get isPicostateType() {
-      return true;
-    }
+    static isPicostateType = true;
 
     set(value) {
       let microstate
@@ -34,13 +32,7 @@ const toPicoType = stable(function toPicoType(Type) {
         microstate = create(this.constructor, value);
       }
       let meta = Meta.get(this);
-      let next = set(meta.lens, microstate, meta.context);
-      if (next === microstate) {
-        return microstate;
-      }
-      //set the root context across the entire tree.
-      let context = Meta.treemap(meta => ({ context }), next);
-      return context;
+      return set(meta.lens, microstate, meta.context);
     }
   }
   let methods = filter(name => name !== 'constructor' && name !== 'set' && typeof Type.prototype[name] === 'function', Object.getOwnPropertyNames(Type.prototype));
@@ -48,8 +40,8 @@ const toPicoType = stable(function toPicoType(Type) {
   Object.assign(PicoType.prototype, foldl((methods, name) =>  {
     methods[name] = function(...args) {
       let method = Type.prototype[name];
-      let local = create(this.constructor, this.state);
-      let result = method.apply(local, args);
+      let meta = Meta.get(this);
+      let result = method.apply(meta.source || this, args);
       return this.set(result);
     }
     return methods;
@@ -73,6 +65,9 @@ export class Meta {
   }
 
   static get(object) {
+    if (object == null) {
+      throw new Error('cannot lookup Meta of null or undefined');
+    }
     return view(Meta.lens, object);
   }
 
@@ -86,9 +81,6 @@ export class Meta {
   }
 
   static lookup(object) {
-    if (!(isPicostate(object))) {
-      throw new Error(`Tried to retrieve metadata from '${object}' which is not a picostate`);
-    }
     return object[Meta.LOOKUP] || new Meta({ context: object });
   }
 
@@ -103,4 +95,42 @@ export class Meta {
       return clone;
     }
   })
+}
+
+export function Substate(name) {
+  let get = context => {
+    if (context == null || context[name] == null) {
+      return undefined;
+    } else {
+      return Meta.get(context[name]).source;
+    }
+  }
+
+  let set = (substate, picostate) => {
+    let current = picostate[name];
+    let { source } = current ? Meta.get(current) : {};
+    if (substate === source) {
+      return picostate;
+    } else {
+      let { path } = Meta.get(picostate);
+      let whole = append(picostate, {
+        [name]: Meta.map(meta => ({ source: substate, path: path.concat(name) }), substate),
+        state: append(picostate.state || {}, { [name]: substate.state })
+      })
+      let next = Meta.treemap(meta => ({
+        get context() { return next; }
+      }),whole);
+      return next;
+    }
+  };
+
+  return Lens(get, set);
+}
+
+import { compose, transparent } from './lens';
+
+export function SubstatePath(path = []) {
+  return foldl((lens, key) => {
+    return compose(lens, Substate(key))
+  }, transparent, path);
 }

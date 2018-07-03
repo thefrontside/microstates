@@ -8,11 +8,20 @@ core of the issue, picostates has been stripped down to the bare metal.
 
 Picostates does not:
 
-- provide any builtin types other than `Any`.
+- provide any builtin types..
 - have any DSL or other syntactic sugar. All classes are expressed as
   the output of whatever DSL we might want to layer on top.
 - Explicitly maintain a tree representing the object graph.
 
+Instead, it is an experiment to cut at the meat of the problems and
+see if there is a simpler way to
+
+- [x] immutable state transitions from any node
+- [x] stable `state` property
+- [x] Lazy evaluation of the consequence of transitions
+- [ ] Array and Object types that allow for generic types (parameterized types)
+- [ ] "middleware" or some way for enclosing states to intercept and alter the meaning of transitions that occur within them.
+- [ ] "queries" or the ability to collect states contained within the current state
 
 ## Tree
 
