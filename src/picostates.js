@@ -6,10 +6,16 @@ export function create(Type = Any, value) {
   let instance = new PicoType();
   instance.state = value
 
-  return foldl((picostate, { key, value: child }) => {
+  var assembled = foldl((picostate, { key, value: child }) => {
     let substate = value != null && value[key] != null ? child.set(value[key]) : child;
     return set(Substate(key), substate, picostate)
   }, instance, new PicoType());
+
+  if (Type.prototype.hasOwnProperty('initialize') && typeof assembled.initialize === 'function') {
+    return assembled.initialize(value);
+  } else {
+    return assembled;
+  }
 }
 
 const toPicoType = stable(function toPicoType(Type) {
@@ -97,6 +103,16 @@ export class Meta {
   })
 }
 
+function setKey(key, value, object) {
+  if (Array.isArray(object)) {
+    let clone = object.slice();
+    clone[Number(key)] = value;
+    return clone;
+  } else {
+    return Semigroup.for(Object).append(object, {[key]: value});
+  }
+}
+
 export function Substate(name) {
   let get = context => {
     if (context == null || context[name] == null) {
@@ -113,13 +129,14 @@ export function Substate(name) {
       return picostate;
     } else {
       let { path } = Meta.get(picostate);
+
+      var contextualized = Meta.map(meta => ({ source: substate }), substate);
+
       let whole = append(picostate, {
-        [name]: Meta.map(meta => ({ source: substate, path: path.concat(name) }), substate),
-        state: append(picostate.state || {}, { [name]: substate.state })
+        [name]: Meta.treemap(meta => ({ path: [name].concat(meta.path) }), contextualized),
+        state: setKey(name, substate.state, picostate.state || {})
       })
-      let next = Meta.treemap(meta => ({
-        get context() { return next; }
-      }),whole);
+      let next = Meta.treemap(meta => ({ context: next }), whole);
       return next;
     }
   };
@@ -133,4 +150,13 @@ export function SubstatePath(path = []) {
   return foldl((lens, key) => {
     return compose(lens, Substate(key))
   }, transparent, path);
+}
+
+
+export function parameterized(fn) {
+  let defaultTypeParameters = new Array(fn.length);
+  defaultTypeParameters.fill(Any);
+  let DefaultType = fn(...defaultTypeParameters);
+  DefaultType.of = (...args) => fn(...args);
+  return DefaultType;
 }
