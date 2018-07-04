@@ -1,20 +1,33 @@
-import { append, filter, foldl, Semigroup, map, stable } from 'funcadelic';
+import { append, filter, foldl, Semigroup, map, stable, type } from 'funcadelic';
 import { view, set, over, Lens } from './lens';
+
+const Picostate = type(class {
+  assemble(Type, picostate, value) {
+    return this(picostate).assemble(Type, picostate, value);
+  }
+})
+
+const { assemble } = Picostate.prototype;
+
+Picostate.instance(Object, {
+  assemble(Type, picostate, value) {
+    return foldl((picostate, { key, value: child }) => {
+      let substate = value != null && value[key] != null ? child.set(value[key]) : child;
+      return set(Substate(key), substate, picostate)
+    }, picostate, new Type());
+  }
+})
 
 export function create(Type = Any, value) {
   let PicoType = toPicoType(Type);
   let instance = new PicoType();
   instance.state = value
+  let picostate = assemble(Type, instance, value);
 
-  var assembled = foldl((picostate, { key, value: child }) => {
-    let substate = value != null && value[key] != null ? child.set(value[key]) : child;
-    return set(Substate(key), substate, picostate)
-  }, instance, new PicoType());
-
-  if (Type.prototype.hasOwnProperty('initialize') && typeof assembled.initialize === 'function') {
-    return assembled.initialize(value);
+  if (Type.prototype.hasOwnProperty('initialize') && typeof picostate.initialize === 'function') {
+    return picostate.initialize(value);
   } else {
-    return assembled;
+    return picostate;
   }
 }
 
