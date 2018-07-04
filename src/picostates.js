@@ -1,7 +1,7 @@
 import { append, filter, foldl, Semigroup, map, stable, type } from 'funcadelic';
 import { view, set, over, Lens } from './lens';
 
-const Picostate = type(class {
+export const Picostate = type(class {
   assemble(Type, picostate, value) {
     return this(picostate).assemble(Type, picostate, value);
   }
@@ -90,6 +90,10 @@ export class Meta {
     return view(Meta.lens, object);
   }
 
+  static source(picostate) {
+    return Meta.get(picostate).source || picostate;
+  }
+
   static map(fn, object) {
     return over(Meta.lens, meta => append(meta, fn(meta)), object);
   }
@@ -167,9 +171,18 @@ export function SubstatePath(path = []) {
 
 
 export function parameterized(fn) {
+
+  function initialize(...args) {
+    let Type = fn(...args);
+    if (Type.initialize) {
+      Type.initialize();
+    }
+    return Type;
+  }
+
   let defaultTypeParameters = new Array(fn.length);
   defaultTypeParameters.fill(Any);
-  let DefaultType = fn(...defaultTypeParameters);
-  DefaultType.of = (...args) => fn(...args);
+  let DefaultType = initialize(...defaultTypeParameters);
+  DefaultType.of = (...args) => initialize(...args);
   return DefaultType;
 }
