@@ -207,7 +207,7 @@ describe("ArrayType", function() {
         });
 
         it('filtered out items', () => {
-          expect(filtered.records.length).to.equal(1);
+          expect(filtered.records.state.length).to.equal(1);
         });
 
         describe('changing remaining item', () => {

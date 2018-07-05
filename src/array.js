@@ -44,7 +44,6 @@ export default parameterized(T => class ArrayType {
         else if (!Array.isArray(value)) {
           picostate.state = [value];
         }
-        picostate.length = picostate.state.length;
         return picostate.state.reduce((picostate, member, index) => {
           let child;
           if (member && member.constructor.isPicostateType) {
