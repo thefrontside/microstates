@@ -1,0 +1,179 @@
+import { expect } from 'chai';
+import { create } from '../src/picostates';
+import ObjectType from '../src/object';
+
+describe('created without value', () => {
+  class Thing {
+  };
+  let object;
+  beforeEach(() => {
+    object = create(ObjectType.of(Thing));
+  });
+
+  it('has empty object as state', () => {
+    expect(object.state).to.deep.equal({});
+  });
+
+  describe('assign once', () => {
+    let assigned;
+    beforeEach(() => {
+      assigned = object.assign({ foo: 'bar' });
+    });
+
+    it('received the assigned value', () => {
+      expect(assigned.state).to.deep.equal({ foo: 'bar' });
+    });
+    it('wraps the assigned values the parameterized type', function() {
+      expect(assigned.foo).to.be.instanceof(Thing)
+      expect(assigned.foo.state).to.deep.equal('bar')
+    });
+
+    describe('assign twice', () => {
+      let assignedAgain;
+      beforeEach(() => {
+        assignedAgain = assigned.assign({ bar: 'baz' });
+      });
+
+      it('received the assigned value', () => {
+        expect(assignedAgain.state).to.deep.equal({ foo: 'bar', bar: 'baz' });
+      });
+      it('maintains stability of the state', function() {
+        expect(assignedAgain.state.foo).to.equal(assigned.state.foo)
+      });
+    });
+  });
+});
+
+describe('created with value', () => {
+  let object;
+  beforeEach(() => {
+    object = create(ObjectType, { foo: 'bar' });
+  });
+
+  it('has empty object as state', () => {
+    expect(object.state).to.deep.equal({ foo: 'bar' });
+  });
+
+  describe('assign once', () => {
+    let assigned;
+    beforeEach(() => {
+      assigned = object.assign({ bar: 'baz' });
+    });
+
+    it('received the assigned value', () => {
+      expect(assigned.state).to.deep.equal({ foo: 'bar', bar: 'baz' });
+    });
+
+    describe('assign twice', () => {
+      let assignedAgain;
+      beforeEach(() => {
+        assignedAgain = assigned.assign({ zoo: 'zar' });
+      });
+
+      it('received the assigned value', () => {
+        expect(assignedAgain.state).to.deep.equal({ foo: 'bar', bar: 'baz', zoo: 'zar' });
+      });
+    });
+  });
+
+  describe('assign microstate', () => {
+    describe('primitive type', () => {
+      let assigned;
+      beforeEach(() => {
+        assigned = object.assign({
+          name: create(class StringType {}, 'Taras')
+        });
+      });
+
+      it('assigned is not a microstate', () => {
+        expect(assigned.name.state).to.equal('Taras');
+      });
+
+      it('microstate value to be part of valueOf', () => {
+        expect(assigned.state).to.deep.equal({ foo: 'bar', name: 'Taras' });
+      });
+    });
+
+    describe('composed type', () => {
+      class Person {
+        name = create(class StringType {});
+      }
+
+      let assigned, value;
+      beforeEach(() => {
+        value = create(Person, { name: 'Taras' });
+        assigned = object.assign({
+          taras: value
+        })
+      });
+
+      it('has new type in the state', () => {
+        expect(assigned.taras).to.be.instanceof(Person);
+      });
+
+      it('is stable', () => {
+        expect(assigned.state.taras).to.equal(value.state);
+      });
+    });
+  });
+});
+
+describe('put and delete', () => {
+  let object;
+  beforeEach(() => {
+    object = create(ObjectType, {a: 'b'});
+  })
+
+  describe('putting a value or two', function() {
+    beforeEach(function() {
+      object = object.put('w', 'x').put('y', 'z');
+    });
+    it('includes those values in the state', function() {
+      expect(object.state).to.deep.equal({a: 'b', w: 'x', y: 'z'});
+    });
+    describe('deleting a value', function() {
+      beforeEach(() => {
+        object = object.delete('w');
+      });
+      it('removes it from the value', function() {
+        expect(object.state).to.deep.equal({a: 'b', y: 'z'})
+      });
+    });
+  });
+
+  describe('putting microstate', () => {
+    describe('primitive value', () => {
+      beforeEach(() => {
+        object = object.put('name', create(class StringType {}, 'Taras'));
+      });
+
+      it('has name string', () => {
+        expect(object.name.state).to.equal('Taras');
+      });
+
+      it('has valueOf', () => {
+        expect(object.state).to.deep.equal({ a: 'b', name: 'Taras' });
+      });
+    })
+
+    describe('composed type', () => {
+      class Person {
+        name = create(class StringType {});
+      }
+
+      let value;
+      beforeEach(() => {
+        value = create(Person, { name: 'Taras' });
+        object = object.put('taras', value);
+      });
+
+      it('has new type in the state', () => {
+        expect(object.taras).to.be.instanceof(Person);
+      });
+
+      it('is stable', () => {
+        expect(object.state.taras).to.equal(value.state);
+      });
+    });
+  });
+})

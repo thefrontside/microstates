@@ -19,7 +19,7 @@ see if there is a simpler way to
 - [x] immutable state transitions from any node
 - [x] stable `state` property
 - [x] Lazy evaluation of the consequence of transitions
-- [ ] Array and Object types that allow for generic types (parameterized types)
+- [x] Array and Object types that allow for generic types (parameterized types)
 - [ ] "middleware" or some way for enclosing states to intercept and alter the meaning of transitions that occur within them.
 - [ ] "queries" or the ability to collect states contained within the current state
 
