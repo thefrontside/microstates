@@ -1,7 +1,7 @@
 import { expect } from 'chai';
 import { compose, view, over, set, Prop, Path, transparent, Lens } from '../src/lens';
 import { append } from 'funcadelic';
-import { create, Substate } from '../src/picostates';
+import { create, SubstateAt } from '../src/picostates';
 
 describe('substate lenses', function() {
   class Parent {}
@@ -10,7 +10,7 @@ describe('substate lenses', function() {
   let parent = new Parent();
   let lens
   beforeEach(function() {
-    lens = Substate('child');
+    lens = SubstateAt('child');
   });
 
   it('set-get: view retrievs what set put in', function() {
@@ -22,8 +22,4 @@ describe('substate lenses', function() {
     let next = set(lens, child, parent);
     expect(set(lens, child, next)).to.equal(next);
   });
-  // it('set-set: Setting the focus twice is the same as setting it once.', function() {
-
-  // });
-
 });

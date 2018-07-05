@@ -13,7 +13,7 @@ Picostate.instance(Object, {
   assemble(Type, picostate, value) {
     return foldl((picostate, { key, value: child }) => {
       let substate = value != null && value[key] != null ? child.set(value[key]) : child;
-      return set(Substate(key), substate, picostate)
+      return set(SubstateAt(key), substate, picostate)
     }, picostate, new Type());
   }
 })
@@ -120,18 +120,25 @@ export class Meta {
   })
 }
 
-function setKey(key, value, object) {
-  if (Array.isArray(object)) {
-    let clone = object.slice();
-    clone[Number(key)] = value;
-    return clone;
-  } else {
-    return Semigroup.for(Object).append(object, {[key]: value});
-  }
+export function ValueAt(property) {
+  let get = context => context != null ? context[property] : undefined;
+  let set = (value, context = {}) => {
+    if (value === context[property]) {
+      return context;
+    } else if (Array.isArray(context)) {
+      let clone = context.slice();
+      clone[Number(property)] = value;
+      return clone;
+    } else {
+      return Semigroup.for(Object).append(context, {[property]: value});
+    }
+  };
+
+  return Lens(get, set);
 }
 
-export function Substate(name) {
-  let get = context => {
+export function SubstateAt(name) {
+  let getter = context => {
     if (context == null || context[name] == null) {
       return undefined;
     } else {
@@ -139,7 +146,7 @@ export function Substate(name) {
     }
   }
 
-  let set = (substate, picostate) => {
+  let setter = (substate, picostate) => {
     let current = picostate[name];
     let { source } = current ? Meta.get(current) : {};
     if (substate === source) {
@@ -151,21 +158,21 @@ export function Substate(name) {
 
       let whole = append(picostate, {
         [name]: Meta.treemap(meta => ({ path: [name].concat(meta.path) }), contextualized),
-        state: setKey(name, substate.state, picostate.state || {})
+        state: set(ValueAt(name), substate.state, picostate.state)
       })
       let next = Meta.treemap(meta => ({ context: next }), whole);
       return next;
     }
   };
 
-  return Lens(get, set);
+  return Lens(getter, setter);
 }
 
 import { compose, transparent } from './lens';
 
 export function SubstatePath(path = []) {
   return foldl((lens, key) => {
-    return compose(lens, Substate(key))
+    return compose(lens, SubstateAt(key))
   }, transparent, path);
 }
 

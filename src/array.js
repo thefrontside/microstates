@@ -1,4 +1,4 @@
-import { create, parameterized, Substate, Picostate, Meta } from "./picostates";
+import { create, parameterized, SubstateAt, Picostate, Meta } from "./picostates";
 import { set } from "./lens";
 
 export default parameterized(T => class ArrayType {
@@ -52,7 +52,7 @@ export default parameterized(T => class ArrayType {
           } else {
             child = create(T, member);
           }
-          return set(Substate(index), child, picostate);
+          return set(SubstateAt(index), child, picostate);
         }, picostate);
       }
     })
