@@ -17,19 +17,14 @@ export default parameterized(T => class ArrayType {
   }
 
   filter(fn) {
-    return create(this.constructor, this.state.reduce((filtered, value, index) => {
-      if (fn(Meta.source(this[index]))) {
-        return filtered.concat(value);
-      } else {
-        return filtered;
-      }
-    }, []));
+    return this.state.reduce((filtered, item, index) => {
+      let substate = Meta.source(this[index]);
+      return fn(substate) ? filtered.concat(substate) : filtered;
+    }, []);
   }
 
   map(fn) {
-    return create(this.constructor, this.state.reduce((mapped, value, index) => {
-      return mapped.concat(fn(Meta.source(this[index])));
-    },[]));
+    return this.state.map((item, index) => fn(Meta.source(this[index])));
   }
 
   clear() {
@@ -46,13 +41,7 @@ export default parameterized(T => class ArrayType {
           picostate.state = [value];
         }
         return picostate.state.reduce((picostate, member, index) => {
-          let child;
-          if (member && member.constructor.isPicostateType) {
-            child = member;
-          } else {
-            child = create(T, member);
-          }
-          return set(SubstateAt(index), child, picostate);
+          return set(SubstateAt(index), create(T).set(member), picostate);
         }, picostate);
       }
     });
