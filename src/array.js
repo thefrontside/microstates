@@ -1,5 +1,6 @@
 import { create, parameterized, SubstateAt, Picostate, Meta } from "./picostates";
 import { set } from "./lens";
+import { Filterable } from 'funcadelic';
 
 export default parameterized(T => class ArrayType {
   push(value) {
@@ -53,6 +54,18 @@ export default parameterized(T => class ArrayType {
           }
           return set(SubstateAt(index), child, picostate);
         }, picostate);
+      }
+    });
+    Filterable.instance(this, {
+      filter(fn, array) {
+        return array.state.reduce((filtered, item, index) => {
+          let subject = array[index];
+          if (fn(subject)) {
+            return filtered.concat(subject);
+          } else {
+            return filtered;
+          }
+        }, []);
       }
     })
   }

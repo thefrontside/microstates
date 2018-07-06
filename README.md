@@ -21,7 +21,7 @@ see if there is a simpler way to
 - [x] Lazy evaluation of the consequence of transitions
 - [x] Array and Object types that allow for generic types (parameterized types)
 - [ ] "middleware" or some way for enclosing states to intercept and alter the meaning of transitions that occur within them.
-- [ ] "queries" or the ability to collect states contained within the current state
+- [x] "queries" or the ability to collect states contained within the current state
 
 ## Tree
 

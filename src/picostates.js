@@ -54,7 +54,15 @@ const toPicoType = stable(function toPicoType(Type) {
       return set(meta.lens, microstate, meta.context);
     }
   }
-  let methods = filter(name => name !== 'constructor' && name !== 'set' && typeof Type.prototype[name] === 'function', Object.getOwnPropertyNames(Type.prototype));
+  let descriptors = Object.getOwnPropertyDescriptors(Type.prototype);
+  let methods = Object.keys(descriptors).reduce((methods, name) => {
+    let desc = descriptors[name];
+    if (name !== 'constructor' && name !== 'set' && typeof name === 'string' && typeof desc.value === 'function') {
+      return methods.concat(name);
+    } else {
+      return methods;
+    }
+  }, []);
 
   Object.assign(PicoType.prototype, foldl((methods, name) =>  {
     methods[name] = function(...args) {
