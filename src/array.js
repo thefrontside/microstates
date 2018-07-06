@@ -3,16 +3,16 @@ import { set } from "./lens";
 
 export default parameterized(T => class ArrayType {
   push(value) {
-    return create(this.constructor, [...this.state, value]);
+    return [...this.state, value];
   }
 
   shift() {
     let [, ...rest] = this.state;
-    return create(this.constructor, rest);
+    return rest;
   }
 
   unshift(value) {
-    return create(this.constructor, [value, ...this.state]);
+    return [value, ...this.state];
   }
 
   filter(fn) {
@@ -32,7 +32,7 @@ export default parameterized(T => class ArrayType {
   }
 
   clear() {
-    return create(this.constructor, []);
+    return [];
   }
 
   static initialize() {
