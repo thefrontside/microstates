@@ -1,7 +1,7 @@
 ## Picostates
 
 An exploration of how far we can lean on raw optics (lenses, et al..)
-to implement most of microstates.
+to implement most of [microstates][1].
 
 In order to remove free variables from the equation and get at the
 core of the issue, picostates has been stripped down to the bare metal.
@@ -71,3 +71,5 @@ Another exciting development is that we can now use our own lenses to
 keep both the microstate graph _and_ the state graph in sync, every
 time, guaranteed. That's because updating the microstate, also updates
 the state. In other words, state is stable for free.
+
+[1]: https://github.com/microstates/microstates.js
