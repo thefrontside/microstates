@@ -401,7 +401,7 @@ The primitive types have predefined transitions:
 * `String`
   * `concat(str: String): Microstate` - return a Microstate with `str` added to the end of the current value
 * `Number`
-  * `increment(step = 1: Number): Microstate` - return a Microstate with number decreased by `step`, default is 1.
+  * `increment(step = 1: Number): Microstate` - return a Microstate with number increased by `step`, default is 1.
   * `decrement(step = 1: Number): Microstate` - return a Microstate with number decreased by `step`, default is 1.
 * `Object`
   * `assign(object): Microstate` - return a Microstate after merging object into current object.
@@ -822,7 +822,7 @@ What if switching frameworks were easy? What if a company could build domain spe
 
 Imagine never having to write another normalized data store again because someone made a normalized data store Microstate that you can compose into your app's Microstate.
 
-In the future(not currently implemented), you will be able to write a normalized data store like this,
+In the future (not currently implemented), you will be able to write a normalized data store like this,
 
 ```js
 import Normalized from "future-normalized-microstate";
