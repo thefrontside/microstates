@@ -3,29 +3,7 @@ import { create } from '../src/picostates';
 import ArrayType from '../src/array';
 import { filter } from 'funcadelic';
 
-class StringType {}
-class BooleanType {}
-
-class Todo {
-  title = create(StringType);
-  completed = create(BooleanType, false);
-
-  toggle() {
-    return this.completed.set(!this.state.completed);
-  }
-}
-
-class TodoMVC {
-  todos = create(ArrayType.of(Todo));
-
-  get completed() {
-    return filter(todo => todo.state.completed, this.todos);
-  }
-
-  get active() {
-    return filter(todo => !todo.state.completed, this.todos);
-  }
-}
+import { TodoMVC } from './todomvc';
 
 describe('A Picostate with queries', function() {
   let todomvc

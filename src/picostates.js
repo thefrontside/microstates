@@ -1,5 +1,5 @@
 import { append, filter, foldl, Semigroup, map, stable, type } from 'funcadelic';
-import { view, set, over, Lens } from './lens';
+import { view, set, over, Lens, ValueAt } from './lens';
 
 export const Picostate = type(class {
   assemble(Type, picostate, value) {
@@ -36,9 +36,8 @@ const toPicoType = stable(function toPicoType(Type) {
     return Type;
   }
   let PicoType = class extends Type {
-    static get name() {
-      return `Picostate<${Type.name}>`;
-    }
+    static name = `Picostate<${Type.name}>`;
+    static base = Type;
     static isPicostateType = true;
 
     set(value) {
@@ -76,7 +75,7 @@ const toPicoType = stable(function toPicoType(Type) {
   return PicoType;
 });
 
-function isPicostate(value) {
+export function isPicostate(value) {
   return value != null && value.constructor.isPicostateType;
 }
 
@@ -126,23 +125,6 @@ export class Meta {
       return clone;
     }
   })
-}
-
-export function ValueAt(property) {
-  let get = context => context != null ? context[property] : undefined;
-  let set = (value, context = {}) => {
-    if (value === context[property]) {
-      return context;
-    } else if (Array.isArray(context)) {
-      let clone = context.slice();
-      clone[Number(property)] = value;
-      return clone;
-    } else {
-      return Semigroup.for(Object).append(context, {[property]: value});
-    }
-  };
-
-  return Lens(get, set);
 }
 
 export function SubstateAt(name) {

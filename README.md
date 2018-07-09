@@ -23,7 +23,7 @@ see if there is a simpler way to
 - [x] "queries" or the ability to collect states contained within the current state
 - [ ] "middleware" or some way for enclosing states to intercept and alter the meaning of transitions that occur within them.
 - [ ] Compatibility with Observable.
-- [ ] Stable proxy for a microstate contained over time.
+- [x] Stable proxy for a microstate contained over time.
 
 ## Tree
 
