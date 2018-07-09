@@ -351,7 +351,7 @@ bool.state;
 
 let inverse = bool.toggle();
 
-b2.state;
+inverse.state;
 //> true
 ```
 
