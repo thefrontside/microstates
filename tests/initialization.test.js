@@ -1,4 +1,4 @@
-import { expect } from 'chai';
+import expect from 'expect';
 
 import { create } from '../src/picostates';
 
@@ -27,11 +27,11 @@ describe('initialization', () => {
       });
 
       it('initilizes into another type', () => {
-        expect(initialized).to.be.instanceof(Anonymous);
+        expect(initialized).toBeInstanceOf(Anonymous);
       });
 
       it('has signin transition', () => {
-        expect(initialized.signin).to.be.instanceof(Function);
+        expect(initialized.signin).toBeInstanceOf(Function);
       });
 
       describe('calling initialize on initialized microstate', () => {
@@ -41,8 +41,8 @@ describe('initialization', () => {
         });
 
         it('initilizes into Authenticated', () => {
-          expect(reinitialized).to.be.instanceof(Authenticated);
-          expect(reinitialized.state).to.deep.equal({ token: 'foo' });
+          expect(reinitialized).toBeInstanceOf(Authenticated);
+          expect(reinitialized.state).toEqual({ token: 'foo' });
         });
       });
     });
@@ -54,12 +54,12 @@ describe('initialization', () => {
       });
 
       it('initilizes into Authenticated', () => {
-        expect(initialized).to.be.instanceof(Authenticated);
-        expect(initialized.state).to.deep.equal({ token: 'SECRET' });
+        expect(initialized).toBeInstanceOf(Authenticated);
+        expect(initialized.state).toEqual({ token: 'SECRET' });
       });
 
       it('has signin transition', () => {
-        expect(initialized.logout).to.be.instanceof(Function);
+        expect(initialized.logout).toBeInstanceOf(Function);
       });
     });
   });
@@ -91,7 +91,7 @@ describe('initialization', () => {
       });
 
       it("has result of create of second node", () => {
-        expect(root.state).to.deep.equal({
+        expect(root.state).toEqual({
           first: {
             second: {
               name: "default",
@@ -109,7 +109,7 @@ describe('initialization', () => {
         });
 
         it("has result after transition valueOf", () => {
-          expect(changed.state).to.deep.equal({
+          expect(changed.state).toEqual({
             first: {
               second: {
                 name: "default!!!",

@@ -1,4 +1,4 @@
-import { expect } from 'chai';
+import expect from 'expect';
 
 import ArrayType from '../src/array';
 import { create } from '../src/picostates';
@@ -19,7 +19,7 @@ describe("ArrayType", function() {
       });
 
       it("has state", () => {
-        expect(pushed.state).to.deep.equal(["a", "b", "c", "d"]);
+        expect(pushed.state).toEqual(["a", "b", "c", "d"]);
       });
 
       describe("again", () => {
@@ -30,7 +30,7 @@ describe("ArrayType", function() {
         });
 
         it("has state", () => {
-          expect(again.state).to.deep.equal(["a", "b", "c", "d", "e"]);
+          expect(again.state).toEqual(["a", "b", "c", "d", "e"]);
         });
       });
     });
@@ -43,7 +43,7 @@ describe("ArrayType", function() {
       });
 
       it("state", () => {
-        expect(filtered.state).to.deep.equal(["b", "c"]);
+        expect(filtered.state).toEqual(["b", "c"]);
       });
     });
 
@@ -55,7 +55,7 @@ describe("ArrayType", function() {
       });
 
       it("state", () => {
-        expect(mapped.state).to.deep.equal(["A", "B", "C"]);
+        expect(mapped.state).toEqual(["A", "B", "C"]);
       });
     });
   });
@@ -85,11 +85,11 @@ describe("ArrayType", function() {
         });
 
         it("has the new record", () => {
-          expect(pushed.records[0]).to.be.instanceof(Record);
+          expect(pushed.records[0]).toBeInstanceOf(Record);
         });
 
         it("has given value", () => {
-          expect(pushed.state.records[0].content).to.equal("Hi!");
+          expect(pushed.state.records[0].content).toBe("Hi!");
         });
 
         describe("changing record", () => {
@@ -99,7 +99,7 @@ describe("ArrayType", function() {
           });
 
           it("has changed value", () => {
-            expect(changed.state.records[0].content).to.equal("Hello!");
+            expect(changed.state.records[0].content).toBe("Hello!");
           });
         });
       });
@@ -122,11 +122,11 @@ describe("ArrayType", function() {
         });
 
         it("has the new record", () => {
-          expect(pushed.records[3]).to.be.instanceof(Record);
+          expect(pushed.records[3]).toBeInstanceOf(Record);
         });
 
         it("has given value", () => {
-          expect(pushed.state.records[3].content).to.equal("Hi!");
+          expect(pushed.state.records[3].content).toBe("Hi!");
         });
 
         describe("changing record", () => {
@@ -136,7 +136,7 @@ describe("ArrayType", function() {
           });
 
           it("has changed value", () => {
-            expect(changed.state.records[3].content).to.equal("Hello!");
+            expect(changed.state.records[3].content).toBe("Hello!");
           });
         });
       });
@@ -148,11 +148,11 @@ describe("ArrayType", function() {
         });
 
         it('removed first element from the array', () => {
-          expect(shifted.records[0].content.state).to.equal('Sweet');
+          expect(shifted.records[0].content.state).toBe('Sweet');
         });
 
         it('changed length', () => {
-          expect(shifted.records.state.length).to.equal(2);
+          expect(shifted.records.state.length).toBe(2);
         });
 
         describe('changing record', () => {
@@ -162,7 +162,7 @@ describe("ArrayType", function() {
           });
 
           it('changed the content', () => {
-            expect(changed.records[1].content.state).to.equal('Woooo!!!');
+            expect(changed.records[1].content.state).toBe('Woooo!!!');
           });
         });
       });
@@ -173,10 +173,10 @@ describe("ArrayType", function() {
           unshifted = dataset.records.unshift({ content: "Hi!" });
         });
         it('pushed record to the beginning of the array', () => {
-          expect(unshifted.records[0].content.state).to.equal('Hi!');
+          expect(unshifted.records[0].content.state).toBe('Hi!');
         });
         it('moved first record to second position', () => {
-          expect(unshifted.records[1].content.state).to.equal('Herro');
+          expect(unshifted.records[1].content.state).toBe('Herro');
         });
 
         describe('change new record', () => {
@@ -185,7 +185,7 @@ describe("ArrayType", function() {
             changed = unshifted.records[0].content.concat('!!!');
           });
           it('changed new record', () => {
-            expect(changed.records[0].content.state).to.equal('Hi!!!!');
+            expect(changed.records[0].content.state).toBe('Hi!!!!');
           });
         });
 
@@ -195,7 +195,7 @@ describe("ArrayType", function() {
             changed = unshifted.records[1].content.concat('!!!');
           });
           it('changed new record', () => {
-            expect(changed.records[1].content.state).to.equal('Herro!!!');
+            expect(changed.records[1].content.state).toBe('Herro!!!');
           });
         });
       });
@@ -207,7 +207,7 @@ describe("ArrayType", function() {
         });
 
         it('filtered out items', () => {
-          expect(filtered.records.state.length).to.equal(1);
+          expect(filtered.records.state.length).toBe(1);
         });
 
         describe('changing remaining item', () => {
@@ -217,7 +217,7 @@ describe("ArrayType", function() {
           });
 
           it('it changed the state', () => {
-            expect(changed.records[0].content.state).to.equal('Sweet!!!');
+            expect(changed.records[0].content.state).toBe('Sweet!!!');
           });
         });
       });
@@ -230,9 +230,9 @@ describe("ArrayType", function() {
           });
 
           it('applied change to every element', () => {
-            expect(mapped.records[0].content.state).to.equal('Herro!!!');
-            expect(mapped.records[1].content.state).to.equal('Sweet!!!');
-            expect(mapped.records[2].content.state).to.equal('Woooo!!!');
+            expect(mapped.records[0].content.state).toBe('Herro!!!');
+            expect(mapped.records[1].content.state).toBe('Sweet!!!');
+            expect(mapped.records[2].content.state).toBe('Woooo!!!');
           });
 
           describe('changing record', () => {
@@ -242,7 +242,7 @@ describe("ArrayType", function() {
             });
 
             it('changed the record content', () => {
-              expect(changed.records[1].content.state).to.equal('SWEET!!!');
+              expect(changed.records[1].content.state).toBe('SWEET!!!');
             });
           });
         });
@@ -261,12 +261,12 @@ describe("ArrayType", function() {
           });
 
           it('changed type of the record', () => {
-            expect(mapped.records[1]).to.be.instanceof(SweetSweetRecord);
+            expect(mapped.records[1]).toBeInstanceOf(SweetSweetRecord);
           });
 
           it('did not change the uneffected item', () => {
-            expect(dataset.records[0].state).to.equal(mapped.records[0].state);
-            expect(dataset.records[2].state).to.equal(mapped.records[2].state);
+            expect(dataset.records[0].state).toBe(mapped.records[0].state);
+            expect(dataset.records[2].state).toBe(mapped.records[2].state);
           });
         });
       });
@@ -278,11 +278,11 @@ describe("ArrayType", function() {
         });
 
         it('makes array empty', () => {
-          expect(cleared.records.state).to.deep.equal([]);
+          expect(cleared.records.state).toEqual([]);
         });
 
         it('has empty value', () => {
-          expect(cleared.state).to.deep.equal({ records: [] });
+          expect(cleared.state).toEqual({ records: [] });
         });
       });
 

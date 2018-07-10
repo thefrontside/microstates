@@ -1,4 +1,4 @@
-import { expect } from 'chai';
+import expect from 'expect';
 import { create } from "../src/picostates";
 import ArrayType from "../src/array";
 import SymbolObservable from 'symbol-observable';
@@ -32,10 +32,10 @@ describe('rxjs interop', function() {
     last.increment();
   });
   it('sent 4 states to obsever', function() {
-    expect(observerCalls).to.equal(4);
+    expect(observerCalls).toBe(4);
   });
   it('incremented 3 times', function() {
-    expect(last.state).to.equal(45);
+    expect(last.state).toBe(45);
   });
 });
 
@@ -47,11 +47,11 @@ describe('interop', function() {
   });
 
   it('observable has subscribe', () => {
-    expect(observable.subscribe).to.be.instanceof(Function);
+    expect(observable.subscribe).toBeInstanceOf(Function);
   });
 
   it('observable has reference to self', () => {
-    expect(observable[SymbolObservable]()).to.equal(observable);
+    expect(observable[SymbolObservable]()).toBe(observable);
   });
 });
 
@@ -63,7 +63,7 @@ describe("initial value", function() {
     observable.subscribe(v => (last = v));
   });
   it("comes from microstate", function() {
-    expect(last.state).to.equal(10);
+    expect(last.state).toBe(10);
   });
 });
 
@@ -76,7 +76,7 @@ describe("single transition", function() {
     last.increment();
   });
   it("gets next value after increment", function() {
-    expect(last.state).to.equal(11);
+    expect(last.state).toBe(11);
   });
 });
 
@@ -92,7 +92,7 @@ describe("many transitions", function() {
       .increment();
   });
   it("gets next value after multiple increments", function() {
-    expect(last.state).to.equal(13);
+    expect(last.state).toBe(13);
   });
 });
 
@@ -113,7 +113,7 @@ describe("complex type", function() {
   });
 
   it("has deeply nested transitions", function() {
-    expect(last.b.c.values.push).to.be.instanceof(Function);
+    expect(last.b.c.values.push).toBeInstanceOf(Function);
   });
 
   describe("invoking deeply nested", function() {
@@ -121,7 +121,7 @@ describe("complex type", function() {
       last.b.c.values.push("!!!");
     });
     it("changed the state", function() {
-      expect(last.state.b.c.values).to.deep.equal(["hello", "world", "!!!"]);
+      expect(last.state.b.c.values).toEqual(["hello", "world", "!!!"]);
     });
   });
 });
@@ -147,8 +147,8 @@ describe('initialized microstate', () => {
       state = next.state
     }
     from(create(Modal)).subscribe(call);
-    expect(calls).to.equal(1);
-    expect(state).to.deep.equal({
+    expect(calls).toBe(1);
+    expect(state).toEqual({
       isOpen: true
     });
   });
@@ -161,8 +161,8 @@ describe('array as root', () => {
   });
 
   it('has array with one element', () => {
-    expect(list.state.length).to.equal(1);
-    expect(list[0].state.hello).not.to.be.undefined;
+    expect(list.state.length).toBe(1);
+    expect(list[0].state.hello).toBeDefined();
   });
 
   describe('created observable', () => {
@@ -176,12 +176,12 @@ describe('array as root', () => {
     });
 
     it('called callback', () => {
-      expect(isCalledCallback).to.equal(true);
+      expect(isCalledCallback).toBe(true);
     });
 
     it('has array with one element', () => {
-      expect(last.state.length).to.equal(1);
-      expect(last[0].state.hello).not.to.be.undefined;
+      expect(last.state.length).toBe(1);
+      expect(last[0].state.hello).toBeDefined();
     });
   });
 

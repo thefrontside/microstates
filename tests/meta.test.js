@@ -1,12 +1,12 @@
-import { expect } from 'chai';
+import expect from 'expect';
 
 import { create, Any, Meta } from '../src/picostates';
 
 describe("Meta", () => {
 
   it('is an error to try and get meta of null and undefined', () => {
-    expect(() => Meta.get(null)).to.throw('cannot lookup ');
-    expect(() => Meta.get()).to.throw('cannot lookup');
+    expect(() => Meta.get(null)).toThrow('cannot lookup ');
+    expect(() => Meta.get()).toThrow('cannot lookup');
   })
 
   describe('updating metadata', function() {
@@ -15,8 +15,8 @@ describe("Meta", () => {
       let x = create(X);
       let meta = Meta.get(x);
       let updated = Meta.map(meta => ({path: meta.path.concat(['nest'])}), x);
-      expect(updated).to.be.instanceof(X);
-      expect(updated).not.to.equal(x);
+      expect(updated).toBeInstanceOf(X);
+      expect(updated).not.toBe(x);
     });
   });
 

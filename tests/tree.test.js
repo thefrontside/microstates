@@ -1,4 +1,4 @@
-import { expect } from 'chai';
+import expect from 'expect';
 import Tree from '../src/tree';
 import { create, Meta } from '../src/picostates';
 import { map } from 'funcadelic';
@@ -17,7 +17,7 @@ describe('tree', function() {
 
   it('maps the tree into an object of similar structure', function() {
 
-    expect(mapped).to.deep.equal({
+    expect(mapped).toEqual({
       path: [],
       todos: {
         path: ['todos'],

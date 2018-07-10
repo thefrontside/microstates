@@ -1,4 +1,4 @@
-import { expect } from 'chai';
+import expect from 'expect';
 
 import Identity from '../src/identity';
 import { create } from '../src/picostates';
@@ -18,14 +18,14 @@ describe('Identity', () => {
   });
 
   it('is derived from its source object', function() {
-    expect(id).to.be.instanceof(TodoMVC);
+    expect(id).toBeInstanceOf(TodoMVC);
   });
 
   it('has the same shape as the initial state.', function() {
-    expect(id.completeAll).to.be.instanceof(Function);
-    expect(id.todos.state.length).to.be.equal(4);
-    expect(id.todos[0]).to.be.instanceof(Todo);
-    expect(id.todos[0].state).to.equal(picostate.todos[0].state)
+    expect(id.completeAll).toBeInstanceOf(Function);
+    expect(id.todos.state.length).toBe(4);
+    expect(id.todos[0]).toBeInstanceOf(Todo);
+    expect(id.todos[0].state).toBe(picostate.todos[0].state)
   });
 
   describe('invoking a transition', function() {
@@ -34,15 +34,15 @@ describe('Identity', () => {
       next = id.todos[2].completed.set(true);
     });
     it('transitions the nodes which did change', function() {
-      expect(next).to.not.equal(id);
-      expect(next.todos).to.not.equal(id.todos);
-      expect(next.todos[2]).to.not.equal(id.todos[2]);
+      expect(next).not.toBe(id);
+      expect(next.todos).not.toBe(id.todos);
+      expect(next.todos[2]).not.toBe(id.todos[2]);
     });
     it('maintains the === identity of the nodes which did not change', function() {
-      expect(next.todos[2].title).to.equal(id.todos[2].title);
-      expect(next.todos[0]).to.equal(id.todos[0]);
-      expect(next.todos[1]).to.equal(id.todos[1]);
-      expect(next.todos[3]).to.equal(id.todos[3]);
+      expect(next.todos[2].title).toBe(id.todos[2].title);
+      expect(next.todos[0]).toBe(id.todos[0]);
+      expect(next.todos[1]).toBe(id.todos[1]);
+      expect(next.todos[3]).toBe(id.todos[3]);
     });
 
   });
