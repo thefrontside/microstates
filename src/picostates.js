@@ -1,5 +1,7 @@
 import { append, filter, foldl, Semigroup, map, stable, type } from 'funcadelic';
 import { view, set, over, Lens, ValueAt } from './lens';
+import Identity from './identity';
+import SymbolObservable from 'symbol-observable';
 
 export const Picostate = type(class {
   assemble(Type, picostate, value) {
@@ -52,6 +54,20 @@ const toPicoType = stable(function toPicoType(Type) {
       let meta = Meta.get(this);
       return set(meta.lens, microstate, meta.context);
     }
+
+    [SymbolObservable]() { return this['@@observable'](); }
+    ['@@observable']() {
+      return {
+        subscribe: (observer) => {
+          let next = observer.call ? observer : observer.next.bind(observer);
+          return Identity(this, next);
+        },
+        [SymbolObservable]() {
+          return this;
+        }
+      };
+    }
+
   }
   let descriptors = Object.getOwnPropertyDescriptors(Type.prototype);
   let methods = Object.keys(descriptors).reduce((methods, name) => {
