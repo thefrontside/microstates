@@ -3,39 +3,26 @@ import { create } from '../../src/picostates';
 
 import { ObjectType, ArrayType, BooleanType, Any } from '../../src/types';
 
-// class Session {
-//   content = create(Any);
-//   initialize(session) {
-//     if (session) {
-//       return create(AuthenticatedSession, session);
-//     }
-//     return create(AnonymousSession, {});
-//   }
-// }
+class AnonymousSession {
+  content = create(Any);
+
+  initialize(session) {
+    if (session) {
+      return this.authenticate(session);
+    }
+    return this;
+  }
+  authenticate(user) {
+    return create(AuthenticatedSession, { content: user });
+  }
+}
 
 class AuthenticatedSession {
   isAuthenticated = create(BooleanType, true);
   content = create(ObjectType, {});
 
-  initialize(session) {
-    return session ? this : create(AnonymousSession);
-  }
-
   logout() {
-    return create(AnonymousSession, {});
-  }
-}
-
-class AnonymousSession {
-  content = create(Any);
-  isAuthenticated = create(BooleanType, false);
-
-  initialize(session) {
-    return session && session.isAuthenticated ? create(AuthenticatedSession, session) : this;
-  }
-
-  authenticate(user) {
-    return create(AuthenticatedSession, { content: user });
+    return create(AnonymousSession);
   }
 }
 

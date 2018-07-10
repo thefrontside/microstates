@@ -54,18 +54,5 @@ export default parameterized(T => class ArrayType {
         }, initial);
       }
     });
-
-    Filterable.instance(this, {
-      filter(fn, array) {
-        return array.state.reduce((filtered, item, index) => {
-          let subject = array[index];
-          if (fn(subject)) {
-            return filtered.concat(subject);
-          } else {
-            return filtered;
-          }
-        }, []);
-      }
-    })
   }
 });

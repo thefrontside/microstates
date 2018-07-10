@@ -9,6 +9,10 @@ export const Reducible = type(class Reducible {
   sum(reducible, getter) {
     return reduce(reducible, (total, member) => total + getter(member), 0);
   }
+
+  filter(reducible, predicate) {
+    return reduce(reducible, (filtered, member) => predicate(member) ? filtered.concat(member) : filtered, []);
+  }
 });
 
-export const { reduce, sum } = Reducible.prototype;
+export const { reduce, sum, filter } = Reducible.prototype;

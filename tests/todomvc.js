@@ -1,6 +1,6 @@
 import ArrayType from '../src/types/array';
 import { create } from '../src/picostates';
-import { filter } from 'funcadelic';
+import { filter } from '../src/query';
 
 export class StringType {}
 export class BooleanType {}
@@ -18,11 +18,11 @@ export class TodoMVC {
   todos = create(ArrayType.of(Todo));
 
   get completed() {
-    return filter(todo => todo.state.completed, this.todos);
+    return filter(this.todos, todo => todo.state.completed);
   }
 
   get active() {
-    return filter(todo => !todo.state.completed, this.todos);
+    return filter(this.todos, todo => !todo.state.completed);
   }
 
   completeAll() {
