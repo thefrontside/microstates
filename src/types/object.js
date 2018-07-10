@@ -1,5 +1,5 @@
-import { Picostate, SubstateAt, parameterized, create } from './picostates';
-import { over } from './lens';
+import { Picostate, SubstateAt, parameterized, create } from '../picostates';
+import { over } from '../lens';
 import { append, filter, foldl } from 'funcadelic';
 
 export default parameterized(T => class ObjectType {

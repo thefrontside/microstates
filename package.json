@@ -2,7 +2,7 @@
   "license": "MIT",
   "private": true,
   "scripts": {
-    "test": "mocha -r tests/babel.register tests/*.test.js"
+    "test": "mocha --recursive -r tests/babel.register tests"
   },
   "devDependencies": {
     "@babel/core": "7.0.0-beta.51",

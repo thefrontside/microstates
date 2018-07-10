@@ -1,7 +1,7 @@
 import expect from 'expect';
 
-import ArrayType from '../src/array';
-import { create } from '../src/picostates';
+import ArrayType from '../../src/types/array';
+import { create } from '../../src/picostates';
 
 describe("ArrayType", function() {
   describe("when unparameterized", function() {

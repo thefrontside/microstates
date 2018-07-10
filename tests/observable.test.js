@@ -1,6 +1,6 @@
 import expect from 'expect';
 import { create } from "../src/picostates";
-import ArrayType from "../src/array";
+import ArrayType from "../src/types/array";
 import SymbolObservable from 'symbol-observable';
 import { from } from 'rxjs';
 

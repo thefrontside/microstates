@@ -1,4 +1,4 @@
-import ArrayType from '../src/array';
+import ArrayType from '../src/types/array';
 import { create } from '../src/picostates';
 import { filter } from 'funcadelic';
 

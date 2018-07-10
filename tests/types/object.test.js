@@ -1,6 +1,6 @@
 import expect from 'expect';
-import { create } from '../src/picostates';
-import ObjectType from '../src/object';
+import { create } from '../../src/picostates';
+import { ObjectType } from '../../src/types';
 
 describe('created without value', () => {
   class Thing {

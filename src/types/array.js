@@ -1,5 +1,6 @@
-import { create, parameterized, SubstateAt, Picostate, Meta } from "./picostates";
-import { set } from "./lens";
+import { create, parameterized, SubstateAt, Picostate, Meta } from "../picostates";
+import { set } from "../lens";
+import { Reducible } from '../../src/query';
 import { Filterable } from 'funcadelic';
 
 export default parameterized(T => class ArrayType {
@@ -45,6 +46,15 @@ export default parameterized(T => class ArrayType {
         }, picostate);
       }
     });
+
+    Reducible.instance(this, {
+      reduce(array, fn, initial) {
+        return array.state.reduce((reduction, value, index) => {
+          return fn(reduction, array[index], index);
+        }, initial);
+      }
+    });
+
     Filterable.instance(this, {
       filter(fn, array) {
         return array.state.reduce((filtered, item, index) => {
