@@ -1,9 +1,6 @@
-import ArrayType from '../src/types/array';
+import { ArrayType, StringType, BooleanType } from '../src/types';
 import { create } from '../src/picostates';
 import { filter } from '../src/query';
-
-export class StringType {}
-export class BooleanType {}
 
 export class Todo {
   title = create(StringType);
