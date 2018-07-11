@@ -11,12 +11,20 @@ export const Picostate = type(class {
 
 const { assemble } = Picostate.prototype;
 
+function desugar(value) {
+  if (isPicostate(value)) {
+    return value;
+  } else {
+    return create(Constant.of(value));
+  }
+}
+
 Picostate.instance(Object, {
   assemble(Type, picostate, value) {
     return foldl((picostate, { key, value: child }) => {
       let substate = value != null && value[key] != null ? child.set(value[key]) : child;
       return set(SubstateAt(key), substate, picostate)
-    }, picostate, new Type());
+    }, picostate, map(desugar, new Type()));
   }
 })
 
@@ -199,3 +207,14 @@ export function parameterized(fn) {
   DefaultType.of = (...args) => initialize(...args);
   return DefaultType;
 }
+
+export const Constant = parameterized(value => class Constant {
+  static initialize() {
+    Picostate.instance(this, {
+      assemble(Type, instance) {
+        instance.state = value;
+        return instance;
+      }
+    })
+  }
+})
