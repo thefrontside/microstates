@@ -1,5 +1,22 @@
-export { default as ObjectType } from './types/object';
-export { default as ArrayType } from './types/array';
-export { default as BooleanType } from './types/boolean';
-export { default as NumberType } from './types/number';
-export { default as StringType } from './types/string';
+import { TypeDelegate } from './type-delegate';
+
+import ObjectType from './types/object';
+import ArrayType from './types/array';
+import BooleanType from './types/boolean';
+import NumberType from './types/number';
+import StringType from './types/string';
+
+export { ObjectType, ArrayType, BooleanType, NumberType, StringType };
+
+
+TypeDelegate.instance(Boolean, {
+  typeDelegateFor: () => BooleanType
+})
+
+TypeDelegate.instance(Number, {
+  typeDelegateFor: () => NumberType
+})
+
+TypeDelegate.instance(String, {
+  typeDelegateFor: () => StringType
+})

@@ -1,6 +1,7 @@
 import { append, filter, foldl, Semigroup, map, stable, type } from 'funcadelic';
 import { view, set, over, Lens, ValueAt } from './lens';
 import Identity from './identity';
+import { typeDelegateFor } from './type-delegate';
 import SymbolObservable from 'symbol-observable';
 
 export const Picostate = type(class {
@@ -28,7 +29,8 @@ Picostate.instance(Object, {
   }
 })
 
-export function create(Type = Any, value) {
+export function create(InputType = Any, value) {
+  let Type = typeDelegateFor(InputType);
   let PicoType = toPicoType(Type);
   let instance = new PicoType();
   instance.state = value
