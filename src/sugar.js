@@ -1,23 +1,10 @@
+import { Assemble } from './assemble';
 import Any from './types/any';
+import parameterized from './parameterized';
 
 export class Sugar {
   constructor() {
-    this.desugarType = (Type) => {
-      if (Type == null) {
-        return Any;
-      } else if (typeof Type !== `function`) {
-        throw new Error(`${Type} is not a valid constructor`);
-      } else {
-        return Type;
-      }
-    }
-    this.desugar = (value) => {
-      if (value != null && value.constructor.isPicostateType) {
-        return value;
-      } else {
-        throw new Error(`${value} cannot be desugared into a Picostate`);
-      }
-    }
+    this.desugarType = value => typeof value === 'function' ? value : Constant.of(value)
   }
 
   mapType(Type, Delegate) {
@@ -28,11 +15,19 @@ export class Sugar {
     let next = this.desugarType;
     this.desugarType = Type => next(transform(Type));
   }
-
-  extend(transform) {
-    let next = this.desugar;
-    this.desugar = value => next(transform(value));
-  }
 }
+
+
+const Constant = parameterized(value => class Constant {
+  static initialize() {
+    Assemble.instance(this, {
+      assemble(Type, instance) {
+        instance.state = value;
+        return instance;
+      }
+    })
+  }
+})
+
 
 export default new Sugar();

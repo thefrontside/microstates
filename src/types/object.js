@@ -5,6 +5,8 @@ import { append, filter, foldl } from 'funcadelic';
 import parameterized from '../parameterized'
 
 export default parameterized(T => class ObjectType {
+  static T = T;
+
   static initialize() {
     Assemble.instance(ObjectType, {
       assemble(Type, picostate, value) {

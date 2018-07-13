@@ -2,16 +2,16 @@ import { append, filter, foldl, Semigroup, map, stable, type } from 'funcadelic'
 import { view, set, over, Lens, ValueAt } from './lens';
 import Identity from './identity';
 import { Assemble, assemble } from './assemble';
-import sugar from './sugar';
 import SymbolObservable from 'symbol-observable';
+import sugar from './sugar';
+import Any from './types/any'
 
 function desugar(value) {
   if (isPicostate(value)) {
     return value;
-  } else if (typeof value == 'function') {
-    return create(sugar.desugarType(value));
   } else {
-    return create(Constant.of(value));
+    let Type = sugar.desugarType(value);
+    return create(Type, value);
   }
 }
 
@@ -24,7 +24,7 @@ Assemble.instance(Object, {
   }
 })
 
-export function create(InputType, value) {
+export function create(InputType = Any, value) {
   let Type = sugar.desugarType(InputType);
   let PicoType = toPicoType(Type);
   let instance = new PicoType();
@@ -184,16 +184,3 @@ export function SubstatePath(path = []) {
     return compose(lens, SubstateAt(key))
   }, transparent, path);
 }
-
-import parameterized from './parameterized';
-
-export const Constant = parameterized(value => class Constant {
-  static initialize() {
-    Assemble.instance(this, {
-      assemble(Type, instance) {
-        instance.state = value;
-        return instance;
-      }
-    })
-  }
-})
