@@ -1,7 +1,7 @@
 import { append, filter, foldl, Semigroup, map, stable, type } from 'funcadelic';
 import { view, set, over, Lens, ValueAt } from './lens';
 import Identity from './identity';
-import { typeDelegateFor } from './type-delegate';
+import sugar from './sugar';
 import SymbolObservable from 'symbol-observable';
 
 export const Picostate = type(class {
@@ -15,6 +15,8 @@ const { assemble } = Picostate.prototype;
 function desugar(value) {
   if (isPicostate(value)) {
     return value;
+  } else if (typeof value == 'function') {
+    return create(sugar.typeFor(value));
   } else {
     return create(Constant.of(value));
   }
@@ -30,7 +32,7 @@ Picostate.instance(Object, {
 })
 
 export function create(InputType = Any, value) {
-  let Type = typeDelegateFor(InputType);
+  let Type = sugar.typeFor(InputType);
   let PicoType = toPicoType(Type);
   let instance = new PicoType();
   instance.state = value

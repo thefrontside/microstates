@@ -1,4 +1,3 @@
-import { TypeDelegate } from './type-delegate';
 
 import ObjectType from './types/object';
 import ArrayType from './types/array';
@@ -8,15 +7,9 @@ import StringType from './types/string';
 
 export { ObjectType, ArrayType, BooleanType, NumberType, StringType };
 
-
-TypeDelegate.instance(Boolean, {
-  typeDelegateFor: () => BooleanType
-})
-
-TypeDelegate.instance(Number, {
-  typeDelegateFor: () => NumberType
-})
-
-TypeDelegate.instance(String, {
-  typeDelegateFor: () => StringType
-})
+import sugar from './sugar';
+sugar.mapType(Object, ObjectType)
+sugar.mapType(Array, ArrayType)
+sugar.mapType(Boolean, BooleanType)
+sugar.mapType(Number, NumberType)
+sugar.mapType(String, StringType)
