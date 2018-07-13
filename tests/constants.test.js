@@ -1,6 +1,6 @@
 import expect from 'expect';
 
-import { Constant, create } from '../src/picostates';
+import { Constant, create } from '../src/microstates';
 import { StringType } from '../src/types';
 
 let o = { hello: 'world' };

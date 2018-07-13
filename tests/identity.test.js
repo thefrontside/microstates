@@ -1,20 +1,20 @@
 import expect from 'expect';
 
 import Identity from '../src/identity';
-import { create } from '../src/picostates';
+import { create } from '../src/microstates';
 
 import { TodoMVC, Todo } from './todomvc';
 
 describe('Identity', () => {
   let id;
-  let picostate;
+  let microstate;
   beforeEach(function() {
-    picostate = create(TodoMVC)
+    microstate = create(TodoMVC)
       .todos.push({title: "Take out The Milk"})
       .todos.push({title: "Convince People Microstates is awesome"})
       .todos.push({title: "Take out the Trash"})
       .todos.push({title: "profit $$"});
-    id = Identity(picostate);
+    id = Identity(microstate);
   });
 
   it('is derived from its source object', function() {
@@ -25,7 +25,7 @@ describe('Identity', () => {
     expect(id.completeAll).toBeInstanceOf(Function);
     expect(id.todos.state.length).toBe(4);
     expect(id.todos[0]).toBeInstanceOf(Todo);
-    expect(id.todos[0].state).toBe(picostate.todos[0].state)
+    expect(id.todos[0].state).toBe(microstate.todos[0].state)
   });
 
   describe('invoking a transition', function() {

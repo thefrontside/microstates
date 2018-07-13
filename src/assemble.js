@@ -1,8 +1,8 @@
 import { type } from 'funcadelic';
 
 export const Assemble = type(class Assemble {
-  assemble(Type, picostate, value) {
-    return this(picostate).assemble(Type, picostate, value);
+  assemble(Type, microstate, value) {
+    return this(microstate).assemble(Type, microstate, value);
   }
 })
 

@@ -1,5 +1,5 @@
 import { Functor, foldl, map } from 'funcadelic';
-import { Meta, isPicostate } from './picostates';
+import { Meta, isMicrostate } from './microstates';
 import { over, set, ValuePath, ValueAt } from './lens';
 
 class Tree {
@@ -15,7 +15,7 @@ Functor.instance(Tree, {
 
     //TODO: worried this fold is not lazy.
     return new Tree(foldl((result, { key, value }) => {
-      if (isPicostate(value)) {
+      if (isMicrostate(value)) {
         let { path } = Meta.get(value);
         return over(ValueAt(key), () => map(fn, new Tree(value)).object, result);
       } else {
@@ -25,4 +25,4 @@ Functor.instance(Tree, {
   }
 })
 
-export default (picostate) => new Tree(picostate);
+export default (microstate) => new Tree(microstate);

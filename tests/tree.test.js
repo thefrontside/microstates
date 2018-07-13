@@ -1,6 +1,6 @@
 import expect from 'expect';
 import Tree from '../src/tree';
-import { create, Meta } from '../src/picostates';
+import { create, Meta } from '../src/microstates';
 import { map } from 'funcadelic';
 
 import { TodoMVC, Todo  } from './todomvc';
@@ -12,7 +12,7 @@ describe('tree', function() {
       .todos.push({title: "Take out The Milk", completed: true })
       .todos.push({title: "Convince People Microstates is awesome"});
 
-    mapped = map(picostate => ({ path: Meta.get(picostate).path }), Tree(app)).object;
+    mapped = map(microstate => ({ path: Meta.get(microstate).path }), Tree(app)).object;
   });
 
   it('maps the tree into an object of similar structure', function() {

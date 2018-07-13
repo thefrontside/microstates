@@ -1,5 +1,5 @@
 import { Assemble } from '../assemble';
-import { SubstateAt, create } from '../picostates';
+import { SubstateAt, create } from '../microstates';
 import { over } from '../lens';
 import { append, filter, foldl } from 'funcadelic';
 import parameterized from '../parameterized'
@@ -9,13 +9,13 @@ export default parameterized(T => class ObjectType {
 
   static initialize() {
     Assemble.instance(ObjectType, {
-      assemble(Type, picostate, value) {
+      assemble(Type, microstate, value) {
         if (value == null) {
-          picostate.state = {};
+          microstate.state = {};
         }
-        return foldl((picostate, entry) => {
-          return over(SubstateAt(entry.key), () => create(T).set(entry.value), picostate );
-        }, picostate, picostate.state);
+        return foldl((microstate, entry) => {
+          return over(SubstateAt(entry.key), () => create(T).set(entry.value), microstate );
+        }, microstate, microstate.state);
       }
     });
   }

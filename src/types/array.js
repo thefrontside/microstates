@@ -1,5 +1,5 @@
 import { Assemble } from '../assemble';
-import { create, SubstateAt, Meta } from "../picostates";
+import { create, SubstateAt, Meta } from "../microstates";
 import { set } from "../lens";
 import { Reducible } from '../../src/query';
 import { Filterable } from 'funcadelic';
@@ -36,16 +36,16 @@ export default parameterized(T => class ArrayType {
 
   static initialize() {
     Assemble.instance(this, {
-      assemble(Type, picostate, value) {
+      assemble(Type, microstate, value) {
         if (value == null) {
-          picostate.state = [];
+          microstate.state = [];
         }
         else if (!Array.isArray(value)) {
-          picostate.state = [value];
+          microstate.state = [value];
         }
-        return picostate.state.reduce((picostate, member, index) => {
-          return set(SubstateAt(index), create(T).set(member), picostate);
-        }, picostate);
+        return microstate.state.reduce((microstate, member, index) => {
+          return set(SubstateAt(index), create(T).set(member), microstate);
+        }, microstate);
       }
     });
 

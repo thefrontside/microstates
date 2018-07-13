@@ -1,5 +1,5 @@
 import { ArrayType, StringType, BooleanType } from '../src/types';
-import { create } from '../src/picostates';
+import { create } from '../src/microstates';
 import { filter } from '../src/query';
 
 export class Todo {

@@ -1,10 +1,10 @@
 import expect from 'expect';
-import { create } from '../src/picostates';
+import { create } from '../src/microstates';
 import ArrayType from '../src/types/array';
 
 import { TodoMVC } from './todomvc';
 
-describe('A Picostate with queries', function() {
+describe('A Microstate with queries', function() {
   let todomvc
   beforeEach(function() {
     todomvc = create(TodoMVC)

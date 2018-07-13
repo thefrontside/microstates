@@ -1,5 +1,5 @@
 import expect from 'expect';
-import { create } from "../src/picostates";
+import { create } from "../src/microstates";
 import ArrayType from "../src/types/array";
 import SymbolObservable from 'symbol-observable';
 import { from } from 'rxjs';

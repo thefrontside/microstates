@@ -1,5 +1,5 @@
 import { map, foldl } from 'funcadelic';
-import { create, Meta } from './picostates';
+import { create, Meta } from './microstates';
 import Tree from './tree';
 import parameterized from './parameterized';
 
@@ -8,26 +8,26 @@ import { compose, view, Path } from './lens';
 
 const info = Symbol('info');
 
-export default function Identity(picostate, observe = x => x) {
+export default function Identity(microstate, observe = x => x) {
   let current;
   let identity;
   let tick = compose(observe, update);
 
-  function update(picostate) {
-    current = picostate;
+  function update(microstate) {
+    current = microstate;
 
-    return identity = map(picostate => {
-      let { path } = Meta.get(picostate);
+    return identity = map(microstate => {
+      let { path } = Meta.get(microstate);
       let proxy = view(Path(path), identity);
-      let Type = picostate.constructor.base;
-      let value = picostate.state;
+      let Type = microstate.constructor.base;
+      let value = microstate.state;
       if (proxy == null || Type !== proxy[info].Type || value !== proxy.state) {
         let IdType = Id.of(Type)
         return new IdType(value, path);
       } else {
         return proxy
       }
-    }, Tree(picostate)).object;
+    }, Tree(microstate)).object;
   }
 
   let Id = parameterized(T => class Id extends T {
@@ -48,8 +48,8 @@ export default function Identity(picostate, observe = x => x) {
       Object.assign(this.prototype, foldl((methods, name) => {
         methods[name] = function(...args) {
           let { path } = this[info];
-          let picostate = view(Path(path), current);
-          let next = picostate[name](...args);
+          let microstate = view(Path(path), current);
+          let next = microstate[name](...args);
           return tick(next);
         }
         return methods;
@@ -64,5 +64,5 @@ export default function Identity(picostate, observe = x => x) {
 
   })
 
-  return tick(picostate);
+  return tick(microstate);
 }

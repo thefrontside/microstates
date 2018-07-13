@@ -1,6 +1,6 @@
 import expect from 'expect';
 
-import { create } from '../../src/picostates';
+import { create } from '../../src/microstates';
 import { ArrayType } from '../../src/types';
 import { reduce, sum } from '../../src/query';
 

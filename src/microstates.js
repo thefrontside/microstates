@@ -11,29 +11,29 @@ export function create(InputType = Any, value) {
   let PicoType = toPicoType(Type);
   let instance = new PicoType();
   instance.state = value
-  let picostate = assemble(Type, instance, value);
+  let microstate = assemble(Type, instance, value);
 
-  if (Type.prototype.hasOwnProperty('initialize') && typeof picostate.initialize === 'function') {
-    return picostate.initialize(value);
+  if (Type.prototype.hasOwnProperty('initialize') && typeof microstate.initialize === 'function') {
+    return microstate.initialize(value);
   } else {
-    return picostate;
+    return microstate;
   }
 }
 
 const toPicoType = stable(function toPicoType(Type) {
-  if (Type.isPicostateType) {
+  if (Type.isMicrostateType) {
     return Type;
   }
   let PicoType = class extends Type {
-    static name = `Picostate<${Type.name}>`;
+    static name = `Microstate<${Type.name}>`;
     static base = Type;
-    static isPicostateType = true;
+    static isMicrostateType = true;
 
     set(value) {
       let microstate
       if (value === this.state) {
         microstate = this;
-      } else if (isPicostate(value)) {
+      } else if (isMicrostate(value)) {
         microstate = value;
       } else {
         microstate = create(this.constructor, value);
@@ -78,8 +78,8 @@ const toPicoType = stable(function toPicoType(Type) {
   return PicoType;
 });
 
-export function isPicostate(value) {
-  return value != null && value.constructor.isPicostateType;
+export function isMicrostate(value) {
+  return value != null && value.constructor.isMicrostateType;
 }
 
 export class Meta {
@@ -98,8 +98,8 @@ export class Meta {
     return view(Meta.lens, object);
   }
 
-  static source(picostate) {
-    return Meta.get(picostate).source || picostate;
+  static source(microstate) {
+    return Meta.get(microstate).source || microstate;
   }
 
   static map(fn, object) {
@@ -107,7 +107,7 @@ export class Meta {
   }
 
   static treemap(fn, object) {
-    let children = map(child => isPicostate(child) ? Meta.treemap(fn, child) : child, object);
+    let children = map(child => isMicrostate(child) ? Meta.treemap(fn, child) : child, object);
     return append(Meta.map(fn, object), children);
   }
 
@@ -137,19 +137,19 @@ export function SubstateAt(name) {
     }
   }
 
-  let setter = (substate, picostate) => {
-    let current = picostate[name];
+  let setter = (substate, microstate) => {
+    let current = microstate[name];
     let { source } = current ? Meta.get(current) : {};
     if (substate === source) {
-      return picostate;
+      return microstate;
     } else {
-      let { path } = Meta.get(picostate);
+      let { path } = Meta.get(microstate);
 
       var contextualized = Meta.map(meta => ({ source: substate }), substate);
 
-      let whole = append(picostate, {
+      let whole = append(microstate, {
         [name]: Meta.treemap(meta => ({ path: [name].concat(meta.path) }), contextualized),
-        state: set(ValueAt(name), substate.state, picostate.state)
+        state: set(ValueAt(name), substate.state, microstate.state)
       })
       let next = Meta.treemap(meta => ({ context: next }), whole);
       return next;
@@ -169,7 +169,7 @@ export function SubstatePath(path = []) {
 
 
 function desugarProperty(value) {
-  if (isPicostate(value)) {
+  if (isMicrostate(value)) {
     return value;
   } else {
     let Type = sugar.desugarType(value);
@@ -178,10 +178,10 @@ function desugarProperty(value) {
 }
 
 Assemble.instance(Object, {
-  assemble(Type, picostate, value) {
-    return foldl((picostate, { key, value: child }) => {
+  assemble(Type, microstate, value) {
+    return foldl((microstate, { key, value: child }) => {
       let substate = value != null && value[key] != null ? child.set(value[key]) : child;
-      return set(SubstateAt(key), substate, picostate)
-    }, picostate, map(desugarProperty, new Type()));
+      return set(SubstateAt(key), substate, microstate)
+    }, microstate, map(desugarProperty, new Type()));
   }
 })

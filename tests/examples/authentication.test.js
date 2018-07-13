@@ -1,5 +1,5 @@
 import expect from 'expect';
-import { create } from '../../src/picostates';
+import { create } from '../../src/microstates';
 
 import { ObjectType, ArrayType, BooleanType, Any } from '../../src/types';
 

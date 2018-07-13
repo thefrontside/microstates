@@ -1,8 +1,8 @@
 import expect from 'expect';
 import Any from '../src/types/any';
-import { create, Meta } from '../src/picostates';
+import { create, Meta } from '../src/microstates';
 
-describe("Picostates", () => {
+describe("Microstates", () => {
   describe("default", () => {
     let def;
     beforeEach(function() {
@@ -77,7 +77,7 @@ describe("Picostates", () => {
     });
   });
 
-  describe('Nested Picostates with Custom transitions', function() {
+  describe('Nested Microstates with Custom transitions', function() {
     class BooleanType extends Any {
       toggle() {
         return this.set(!this.state);

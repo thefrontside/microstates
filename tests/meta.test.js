@@ -1,6 +1,6 @@
 import expect from 'expect';
 
-import { create, Any, Meta } from '../src/picostates';
+import { create, Any, Meta } from '../src/microstates';
 
 describe("Meta", () => {
 

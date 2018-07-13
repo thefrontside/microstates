@@ -1,7 +1,7 @@
 import expect from 'expect';
 import { compose, view, over, set, Prop, Path, transparent, Lens } from '../src/lens';
 import { append } from 'funcadelic';
-import { create, SubstateAt } from '../src/picostates';
+import { create, SubstateAt } from '../src/microstates';
 
 describe('substate lenses', function() {
   class Parent {}

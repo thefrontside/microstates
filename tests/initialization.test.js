@@ -1,6 +1,6 @@
 import expect from 'expect';
 
-import { create } from '../src/picostates';
+import { create } from '../src/microstates';
 
 describe('initialization', () => {
   describe('at root', () => {
@@ -123,4 +123,4 @@ describe('initialization', () => {
   });
 })
 
-import { Meta } from '../src/picostates'
+import { Meta } from '../src/microstates'
