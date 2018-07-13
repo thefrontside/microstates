@@ -1,4 +1,5 @@
-import { create, parameterized, SubstateAt, Picostate, Meta } from "../picostates";
+import { Assemble } from '../assemble';
+import { create, parameterized, SubstateAt, Meta } from "../picostates";
 import { set } from "../lens";
 import { Reducible } from '../../src/query';
 import { Filterable } from 'funcadelic';
@@ -33,7 +34,7 @@ export default parameterized(T => class ArrayType {
   }
 
   static initialize() {
-    Picostate.instance(this, {
+    Assemble.instance(this, {
       assemble(Type, picostate, value) {
         if (value == null) {
           picostate.state = [];

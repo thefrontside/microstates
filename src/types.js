@@ -13,3 +13,16 @@ sugar.mapType(Array, ArrayType)
 sugar.mapType(Boolean, BooleanType)
 sugar.mapType(Number, NumberType)
 sugar.mapType(String, StringType)
+
+sugar.extendTypes(function matchArray(value) {
+  if (Array.isArray(value) && value.length < 2) {
+    if (value.length === 0) {
+      return ArrayType;
+    } else {
+      let [ T ] = value;
+      return ArrayType.of(T);
+    }
+  } else {
+    return value;
+  }
+})

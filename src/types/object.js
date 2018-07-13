@@ -1,10 +1,11 @@
-import { Picostate, SubstateAt, parameterized, create } from '../picostates';
+import { Assemble } from '../assemble';
+import { SubstateAt, parameterized, create } from '../picostates';
 import { over } from '../lens';
 import { append, filter, foldl } from 'funcadelic';
 
 export default parameterized(T => class ObjectType {
   static initialize() {
-    Picostate.instance(ObjectType, {
+    Assemble.instance(ObjectType, {
       assemble(Type, picostate, value) {
         if (value == null) {
           picostate.state = {};
