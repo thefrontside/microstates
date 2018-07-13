@@ -1,6 +1,7 @@
 import { map, foldl } from 'funcadelic';
-import { create, parameterized, Meta } from './picostates';
+import { create, Meta } from './picostates';
 import Tree from './tree';
+import parameterized from './parameterized';
 
 //function composition should probably not be part of lens :)
 import { compose, view, Path } from './lens';

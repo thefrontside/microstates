@@ -1,5 +1,6 @@
 import expect from 'expect';
-import { create, Any, Meta } from '../src/picostates';
+import Any from '../src/types/any';
+import { create, Meta } from '../src/picostates';
 
 describe("Picostates", () => {
   describe("default", () => {
@@ -45,7 +46,7 @@ describe("Picostates", () => {
     });
   });
   describe('Something containing something else', function() {
-    class Something extends Any {
+    class Something {
       any = create(Any, "ohai");
     }
     describe('when created with something else', function() {

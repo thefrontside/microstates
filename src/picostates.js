@@ -24,7 +24,7 @@ Assemble.instance(Object, {
   }
 })
 
-export function create(InputType = Any, value) {
+export function create(InputType, value) {
   let Type = sugar.desugarType(InputType);
   let PicoType = toPicoType(Type);
   let instance = new PicoType();
@@ -99,8 +99,6 @@ const toPicoType = stable(function toPicoType(Type) {
 export function isPicostate(value) {
   return value != null && value.constructor.isPicostateType;
 }
-
-export class Any { }
 
 export class Meta {
   constructor(attrs = {}) {
@@ -187,23 +185,7 @@ export function SubstatePath(path = []) {
   }, transparent, path);
 }
 
-
-export function parameterized(fn) {
-
-  function initialize(...args) {
-    let Type = fn(...args);
-    if (Type.initialize) {
-      Type.initialize();
-    }
-    return Type;
-  }
-
-  let defaultTypeParameters = new Array(fn.length);
-  defaultTypeParameters.fill(Any);
-  let DefaultType = initialize(...defaultTypeParameters);
-  DefaultType.of = (...args) => initialize(...args);
-  return DefaultType;
-}
+import parameterized from './parameterized';
 
 export const Constant = parameterized(value => class Constant {
   static initialize() {

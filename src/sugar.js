@@ -1,7 +1,11 @@
+import Any from './types/any';
+
 export class Sugar {
   constructor() {
     this.desugarType = (Type) => {
-      if (typeof Type !== `function`) {
+      if (Type == null) {
+        return Any;
+      } else if (typeof Type !== `function`) {
         throw new Error(`${Type} is not a valid constructor`);
       } else {
         return Type;

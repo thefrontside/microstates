@@ -1,8 +1,9 @@
 import { Assemble } from '../assemble';
-import { create, parameterized, SubstateAt, Meta } from "../picostates";
+import { create, SubstateAt, Meta } from "../picostates";
 import { set } from "../lens";
 import { Reducible } from '../../src/query';
 import { Filterable } from 'funcadelic';
+import parameterized from '../parameterized';
 
 export default parameterized(T => class ArrayType {
   push(value) {

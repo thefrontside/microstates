@@ -1,7 +1,8 @@
 import { Assemble } from '../assemble';
-import { SubstateAt, parameterized, create } from '../picostates';
+import { SubstateAt, create } from '../picostates';
 import { over } from '../lens';
 import { append, filter, foldl } from 'funcadelic';
+import parameterized from '../parameterized'
 
 export default parameterized(T => class ObjectType {
   static initialize() {
