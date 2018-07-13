@@ -1,7 +1,6 @@
 import expect from 'expect';
 import { create } from '../src/picostates';
 import ArrayType from '../src/types/array';
-import { filter } from 'funcadelic';
 
 import { TodoMVC } from './todomvc';
 
