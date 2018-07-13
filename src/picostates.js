@@ -6,24 +6,6 @@ import SymbolObservable from 'symbol-observable';
 import sugar from './sugar';
 import Any from './types/any'
 
-function desugar(value) {
-  if (isPicostate(value)) {
-    return value;
-  } else {
-    let Type = sugar.desugarType(value);
-    return create(Type, value);
-  }
-}
-
-Assemble.instance(Object, {
-  assemble(Type, picostate, value) {
-    return foldl((picostate, { key, value: child }) => {
-      let substate = value != null && value[key] != null ? child.set(value[key]) : child;
-      return set(SubstateAt(key), substate, picostate)
-    }, picostate, map(desugar, new Type()));
-  }
-})
-
 export function create(InputType = Any, value) {
   let Type = sugar.desugarType(InputType);
   let PicoType = toPicoType(Type);
@@ -184,3 +166,22 @@ export function SubstatePath(path = []) {
     return compose(lens, SubstateAt(key))
   }, transparent, path);
 }
+
+
+function desugarProperty(value) {
+  if (isPicostate(value)) {
+    return value;
+  } else {
+    let Type = sugar.desugarType(value);
+    return create(Type, value);
+  }
+}
+
+Assemble.instance(Object, {
+  assemble(Type, picostate, value) {
+    return foldl((picostate, { key, value: child }) => {
+      let substate = value != null && value[key] != null ? child.set(value[key]) : child;
+      return set(SubstateAt(key), substate, picostate)
+    }, picostate, map(desugarProperty, new Type()));
+  }
+})
