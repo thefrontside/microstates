@@ -22,15 +22,15 @@ export default function Identity(picostate, observe = x => x) {
       let Type = picostate.constructor.base;
       let value = picostate.state;
       if (proxy == null || Type !== proxy[info].Type || value !== proxy.state) {
-        let ProxyType = Proxy.of(Type)
-        return new ProxyType(value, path);
+        let IdType = Id.of(Type)
+        return new IdType(value, path);
       } else {
         return proxy
       }
     }, Tree(picostate)).object;
   }
 
-  let Proxy = parameterized(T => class Proxy extends T {
+  let Id = parameterized(T => class Id extends T {
     static name = `Id<${T.name}>`;
 
     static initialize() {
