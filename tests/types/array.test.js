@@ -1,7 +1,7 @@
-import "jest";
+import expect from 'expect';
 
-import ArrayType from "../../src/types/array";
-import { create } from "microstates";
+import ArrayType from '../../src/types/array';
+import { create } from '../../src/picostates';
 
 describe("ArrayType", function() {
   describe("when unparameterized", function() {
@@ -9,17 +9,13 @@ describe("ArrayType", function() {
     let array = ["a", "b", "c"];
 
     beforeEach(() => {
-      ms = create(Array, array);
+      ms = create(ArrayType, array);
     });
 
     describe("push", () => {
       let pushed;
       beforeEach(() => {
         pushed = ms.push("d");
-      });
-
-      it("has value", () => {
-        expect(pushed.valueOf()).toEqual(["a", "b", "c", "d"]);
       });
 
       it("has state", () => {
@@ -33,10 +29,6 @@ describe("ArrayType", function() {
           again = pushed.push("e");
         });
 
-        it("has value", () => {
-          expect(again.valueOf()).toEqual(["a", "b", "c", "d", "e"]);
-        });
-
         it("has state", () => {
           expect(again.state).toEqual(["a", "b", "c", "d", "e"]);
         });
@@ -47,11 +39,7 @@ describe("ArrayType", function() {
       let filtered;
 
       beforeEach(() => {
-        filtered = ms.filter(v => v !== "a");
-      });
-
-      it("value", () => {
-        expect(filtered.valueOf()).toEqual(["b", "c"]);
+        filtered = ms.filter(v => v.state !== "a");
       });
 
       it("state", () => {
@@ -66,22 +54,22 @@ describe("ArrayType", function() {
         mapped = ms.map(v => v.state.toUpperCase());
       });
 
-      it("value", () => {
-        expect(mapped.valueOf()).toEqual(["A", "B", "C"]);
-      });
-
       it("state", () => {
-        expect(mapped.valueOf()).toEqual(["A", "B", "C"]);
+        expect(mapped.state).toEqual(["A", "B", "C"]);
       });
     });
   });
 
   describe("when parameterized", () => {
     class Record {
-      content = String;
+      content = create(class StringType {
+        concat(value) {
+          return String(this.state) + String(value);
+        }
+      });
     }
     class Dataset {
-      records = [Record];
+      records = create(ArrayType.of(Record), []);
     }
 
     describe('empty data set', () => {
@@ -89,27 +77,27 @@ describe("ArrayType", function() {
       beforeEach(() => {
         dataset = create(Dataset, { records: [] });
       });
-  
+
       describe("pushing a record", () => {
         let pushed;
         beforeEach(() => {
           pushed = dataset.records.push({ content: "Hi!" });
         });
-  
+
         it("has the new record", () => {
-          expect(pushed.state.records[0]).toBeInstanceOf(Record);
+          expect(pushed.records[0]).toBeInstanceOf(Record);
         });
-  
+
         it("has given value", () => {
-          expect(pushed.state.records[0].content).toEqual("Hi!");
+          expect(pushed.state.records[0].content).toBe("Hi!");
         });
-  
+
         describe("changing record", () => {
           let changed;
           beforeEach(() => {
             changed = pushed.records[0].content.set("Hello!");
           });
-  
+
           it("has changed value", () => {
             expect(changed.state.records[0].content).toBe("Hello!");
           });
@@ -126,27 +114,27 @@ describe("ArrayType", function() {
           {content: "Woooo"}
         ]});
       });
-  
+
       describe("push", () => {
         let pushed;
         beforeEach(() => {
           pushed = dataset.records.push({ content: "Hi!" });
         });
-  
+
         it("has the new record", () => {
-          expect(pushed.state.records[3]).toBeInstanceOf(Record);
+          expect(pushed.records[3]).toBeInstanceOf(Record);
         });
-  
+
         it("has given value", () => {
-          expect(pushed.state.records[3].content).toEqual("Hi!");
+          expect(pushed.state.records[3].content).toBe("Hi!");
         });
-  
+
         describe("changing record", () => {
           let changed;
           beforeEach(() => {
             changed = pushed.records[3].content.set("Hello!");
           });
-  
+
           it("has changed value", () => {
             expect(changed.state.records[3].content).toBe("Hello!");
           });
@@ -182,7 +170,7 @@ describe("ArrayType", function() {
       describe('unshift', () => {
         let unshifted;
         beforeEach(() => {
-          unshifted = dataset.records.unshift({ content: "Hi!" }); 
+          unshifted = dataset.records.unshift({ content: "Hi!" });
         });
         it('pushed record to the beginning of the array', () => {
           expect(unshifted.records[0].content.state).toBe('Hi!');
@@ -215,11 +203,11 @@ describe("ArrayType", function() {
       describe('filter', () => {
         let filtered;
         beforeEach(() => {
-          filtered = dataset.records.filter(state => state.content[0] === 'S');
+          filtered = dataset.records.filter(record => record.state.content[0] === 'S');
         });
 
         it('filtered out items', () => {
-          expect(filtered.records.length).toBe(1);
+          expect(filtered.records.state.length).toBe(1);
         });
 
         describe('changing remaining item', () => {
@@ -240,19 +228,19 @@ describe("ArrayType", function() {
           beforeEach(() => {
             mapped = dataset.records.map(record => record.content.concat('!!!'))
           });
-  
+
           it('applied change to every element', () => {
             expect(mapped.records[0].content.state).toBe('Herro!!!');
             expect(mapped.records[1].content.state).toBe('Sweet!!!');
             expect(mapped.records[2].content.state).toBe('Woooo!!!');
           });
-  
+
           describe('changing record', () => {
             let changed;
             beforeEach(() => {
               changed = mapped.records[1].content.set('SWEET!!!');
             });
-  
+
             it('changed the record content', () => {
               expect(changed.records[1].content.state).toBe('SWEET!!!');
             });
@@ -273,7 +261,7 @@ describe("ArrayType", function() {
           });
 
           it('changed type of the record', () => {
-            expect(mapped.records[1].state).toBeInstanceOf(SweetSweetRecord);
+            expect(mapped.records[1]).toBeInstanceOf(SweetSweetRecord);
           });
 
           it('did not change the uneffected item', () => {
@@ -294,12 +282,11 @@ describe("ArrayType", function() {
         });
 
         it('has empty value', () => {
-          expect(cleared.valueOf()).toEqual({ records: [] });
+          expect(cleared.state).toEqual({ records: [] });
         });
       });
 
     });
 
   });
-
 });

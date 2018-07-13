@@ -1,8 +1,9 @@
 export default class StringType {
-  initialize(value = '') {
-    return new String(value).valueOf();
+  initialize(value) {
+    return String(value == null ? '' : value);
   }
-  concat(...args) {
-    return this.set(String.prototype.concat.apply(this.state, args));
+
+  concat(value) {
+    return this.state.concat(value);
   }
 }
