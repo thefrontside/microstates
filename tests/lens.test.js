@@ -81,3 +81,44 @@ describe('lensPath', () => {
       .toEqual({message: { hello: 'planet'}});
   });
 });
+
+describe('Lens laws', () => {
+  describe('Path lens', () => {
+    const message_hello = lensPath(['message', 'hello']);
+    const obj = { message: { hello: 'world' } };
+
+    it('view retrieves what set puts in (set-get)', () => {
+      expect(view(message_hello, set(message_hello, 'world!', obj))).toBe('world!');
+    });
+
+    it('setting the focus to the value it already has does not change the whole (get-set)', () => {
+      expect(set(message_hello, 'world', obj)).toBe(obj);
+    });
+
+    it('setting the focus twice is the same as setting it once (set-set)', () => {
+      const exampleOne = set(message_hello, 'world!', obj);
+      const exampleTwo = set(message_hello, 'world!!!', obj);
+      expect(set(message_hello, 'world!!!', exampleOne))
+        .toEqual(exampleTwo); // TODO: Stretch goal, triple equals
+    });
+  });
+
+  describe('Prop lens', () => {
+    const message = lensKey('message');
+
+    it('view retrieves what set puts in (set-get)', () => {
+      expect(view(message, set(message, 'Hello world!', { message: 'meh.' }))).toBe('Hello world!');
+    });
+
+    it('setting the focus to the value it already has does not change the whole (get-set)', () => {
+      expect(set(message, 'meh.', { message: 'meh.' })).toBe({ message: 'meh.'});
+    });
+
+    it('setting the focus twice is the same as setting it once (set-set)', () => {
+      const exampleOne = set(message, 'Hello world!', { message: 'meh.' });
+      const exampleTwo = set(message, 'Hello world!!!', { message: 'meh.' });
+      expect(set(message, 'Hello world!!!', exampleOne))
+        .toEqual(exampleTwo); // TODO: Stretch goal, triple equals
+    });
+  });
+});
