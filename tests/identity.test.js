@@ -45,6 +45,13 @@ describe('Identity', () => {
       expect(next.todos[3]).toBe(id.todos[3]);
     });
 
+    it.skip('transitions those queries which did not change, but not nodes *within* the query that remained the same change', function() {
+
+    });
+
+    it.skip('maintains the === identity of those queries which did not change', function() {
+
+    });
   });
 
 })
