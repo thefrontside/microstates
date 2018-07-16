@@ -24,7 +24,7 @@
   "module": "index.js",
   "repository": "git+ssh://git@github.com/microstates/microstates.js.git",
   "scripts": {
-    "test": "mocha --recursive -r tests/babel.register tests"
+    "test": "mocha --recursive -r tests/setup tests"
   },
   "devDependencies": {
     "@babel/core": "7.0.0-beta.51",
@@ -34,6 +34,7 @@
     "@babel/register": "^7.0.0-beta.51",
     "expect": "^23.4.0",
     "mocha": "^5.2.0",
+    "object.getownpropertydescriptors": "^2.0.3",
     "rxjs": "^6.2.1",
     "symbol-observable": "^1.2.0"
   },
