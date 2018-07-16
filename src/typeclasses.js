@@ -1,6 +1,5 @@
 import { Functor, Monad, map } from 'funcadelic';
-import lensPath from 'ramda/es/lensPath';
-import lset from 'ramda/es/set';
+import { lensPath, set as lset } from './lens';
 import keys from './keys';
 import Tree, { Microstate, stateFromTree } from './tree';
 import { reveal } from './utils/secret';
