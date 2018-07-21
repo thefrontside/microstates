@@ -1,4 +1,4 @@
-import { append, foldl, Functor, map, Semigroup } from 'funcadelic';
+import { foldl, Functor, map, Semigroup } from 'funcadelic';
 
 class Box {
   static get of() {

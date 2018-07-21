@@ -1,5 +1,4 @@
 import { Assemble } from './assemble';
-import Any from './types/any';
 import parameterized from './parameterized';
 
 export class Sugar {
