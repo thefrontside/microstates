@@ -22,11 +22,7 @@ const babelPlugin = babel({
   ]
 });
 
-const fileSize = filesize({
-  render(opt, size, gzip, bundle) {
-    return `Built: ${bundle.file} ( size: ${size}, gzip: ${gzip})`;
-  }
-});
+const fileSize = filesize();
 
 module.exports = [
   {
