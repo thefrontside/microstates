@@ -20,11 +20,14 @@
     "src",
     "README.md"
   ],
-  "main": "nodule.js",
-  "module": "index.js",
+  "main": "dist/microstates.cjs.js",
+  "module": "dist/microstates.es.js",
   "repository": "git+ssh://git@github.com/microstates/microstates.js.git",
   "scripts": {
-    "test": "mocha --recursive -r tests/setup tests"
+    "test": "mocha --recursive -r tests/setup tests",
+    "build": "rollup -c",
+    "prepare": "npm run build",
+    "prerelease": "npm test && npm run build"
   },
   "devDependencies": {
     "@babel/core": "7.0.0-beta.54",
@@ -34,10 +37,14 @@
     "expect": "^23.4.0",
     "mocha": "^5.2.0",
     "object.getownpropertydescriptors": "^2.0.3",
-    "rxjs": "^6.2.1",
-    "symbol-observable": "^1.2.0"
+    "rollup": "^0.63.4",
+    "rollup-plugin-babel": "4.0.0-beta.7",
+    "rollup-plugin-filesize": "4.0.1",
+    "rollup-plugin-node-resolve": "3.3.0",
+    "rxjs": "^6.2.1"
   },
   "dependencies": {
-    "funcadelic": "^0.5.0"
+    "funcadelic": "^0.5.0",
+    "symbol-observable": "^1.2.0"
   }
 }
