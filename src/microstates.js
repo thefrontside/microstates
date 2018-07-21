@@ -143,15 +143,14 @@ export function SubstateAt(name) {
     if (substate === source) {
       return microstate;
     } else {
-      let { path } = Meta.get(microstate);
-
-      var contextualized = Meta.map(meta => ({ source: substate }), substate);
+      var contextualized = Meta.map(_ => ({ source: substate }), substate);
 
       let whole = append(microstate, {
         [name]: Meta.treemap(meta => ({ path: [name].concat(meta.path) }), contextualized),
         state: set(ValueAt(name), substate.state, microstate.state)
-      })
-      let next = Meta.treemap(meta => ({ context: next }), whole);
+      });
+      
+      let next = Meta.treemap(() => ({ context: next }), whole);
       return next;
     }
   };
