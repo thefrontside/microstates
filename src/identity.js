@@ -1,5 +1,5 @@
 import { map, foldl } from 'funcadelic';
-import { create, Meta } from './microstates';
+import { Meta } from './microstates';
 import Tree from './tree';
 import parameterized from './parameterized';
 

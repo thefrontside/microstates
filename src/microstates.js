@@ -1,4 +1,4 @@
-import { append, filter, foldl, Semigroup, map, stable, type } from 'funcadelic';
+import { append, foldl, Semigroup, map, stable } from 'funcadelic';
 import { view, set, over, Lens, ValueAt } from './lens';
 import Identity from './identity';
 import { Assemble, assemble } from './assemble';
