@@ -522,7 +522,7 @@ class Vehicle {
   weight = Number;
   towing = Vehicle;
 
-  get isTowing {
+  get isTowing() {
     return !!this.towing;
   }
 
