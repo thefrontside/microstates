@@ -740,7 +740,7 @@ from({ hello: [ 'world' ]}).hello[0].concat('!!!').valueOf();
 
 ## map(fn, microstate): Microstate
 
-The `map` function invokes the function for each microstate in an array microstate. It usually used to map over an array of microstate and return an array of components. The mapping function will receive each microstate in the array. You can invoke transitions on each microstate as you would usually.
+The `map` function invokes the function for each microstate in an array microstate. It is usually used to map over an array of microstate and return an array of components. The mapping function will receive each microstate in the array. You can invoke transitions on each microstate as you would usually.
 
 ```js
 let numbers = create([Number], [1, 2, 3, 4]);
