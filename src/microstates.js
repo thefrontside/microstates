@@ -5,6 +5,7 @@ import { Assemble, assemble } from './assemble';
 import SymbolObservable from 'symbol-observable';
 import sugar from './sugar';
 import Any from './types/any'
+import { Tree } from './tree';
 
 export function create(InputType = Any, value) {
   let Type = sugar.desugarType(InputType);
@@ -56,6 +57,11 @@ const toPicoType = stable(function toPicoType(Type) {
     }
 
   }
+
+  Tree.instance(PicoType, {
+    childrenOf(tree) { return tree; }
+  });
+
   let descriptors = Object.getOwnPropertyDescriptors(Type.prototype);
   let methods = Object.keys(descriptors).reduce((methods, name) => {
     let desc = descriptors[name];
@@ -102,13 +108,12 @@ export class Meta {
     return Meta.get(microstate).source || microstate;
   }
 
-  static map(fn, object) {
+  static update(fn, object) {
     return over(Meta.lens, meta => append(meta, fn(meta)), object);
   }
 
   static treemap(fn, object) {
-    let children = map(child => isMicrostate(child) ? Meta.treemap(fn, child) : child, object);
-    return append(Meta.map(fn, object), children);
+    return Tree.map(microstate => this.update(fn, microstate), object);
   }
 
   static lookup(object) {
@@ -143,14 +148,13 @@ export function SubstateAt(name) {
     if (substate === source) {
       return microstate;
     } else {
-      var contextualized = Meta.map(_ => ({ source: substate }), substate);
+      let contextualized = Meta.update(() => ({ source: substate }), substate);
 
       let whole = append(microstate, {
         [name]: Meta.treemap(meta => ({ path: [name].concat(meta.path) }), contextualized),
         state: set(ValueAt(name), substate.state, microstate.state)
       });
-      
-      let next = Meta.treemap(() => ({ context: next }), whole);
+      let next = Meta.treemap(() => ({ get context() { return next; } }), whole);
       return next;
     }
   };

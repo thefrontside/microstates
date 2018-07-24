@@ -1,6 +1,6 @@
 import { map, foldl } from 'funcadelic';
 import { Meta } from './microstates';
-import Tree from './tree';
+import { Tree } from './tree';
 import parameterized from './parameterized';
 
 //function composition should probably not be part of lens :)
@@ -16,7 +16,7 @@ export default function Identity(microstate, observe = x => x) {
   function update(microstate) {
     current = microstate;
 
-    return identity = map(microstate => {
+    return identity = Tree.map(microstate => {
       let { path } = Meta.get(microstate);
       let proxy = view(Path(path), identity);
       let Type = microstate.constructor.base;
@@ -27,7 +27,7 @@ export default function Identity(microstate, observe = x => x) {
       } else {
         return proxy
       }
-    }, Tree(microstate)).object;
+    }, microstate);
   }
 
   let Id = parameterized(T => class Id extends T {

@@ -1,45 +1,77 @@
 import expect from 'expect';
-import Tree from '../src/tree';
-import { create, Meta } from '../src/microstates';
-import { map } from 'funcadelic';
-
-import { TodoMVC, Todo  } from './todomvc';
+import { Tree } from '../src/tree';
 
 describe('tree', function() {
-  let app, mapped;
+
+  let tree, mapped, PlaceHolder;
   beforeEach(function() {
-    app = create(TodoMVC)
-      .todos.push({title: "Take out The Milk", completed: true })
-      .todos.push({title: "Convince People Microstates is awesome"});
+    class MyTree {
+      constructor(attrs) {
+        Object.assign(this, attrs);
+      }
+    }
 
-    mapped = map(microstate => ({ path: Meta.get(microstate).path }), Tree(app)).object;
-  });
+    Tree.instance(MyTree, {
+      childrenOf(tree) { return tree; }
+    })
 
-  it('maps the tree into an object of similar structure', function() {
+    class LoudTree {
+      constructor(attrs) {
+        Object.assign(this, attrs);
+      }
+    }
 
-    expect(mapped).toEqual({
-      path: [],
-      todos: {
-        path: ['todos'],
-        0: {
-          path: ['todos', 0],
-          title: {
-            path: ['todos', 0, 'title']
-          },
-          completed: {
-            path: ['todos', 0, 'completed']
-          }
-        },
-        1: {
-          path: ['todos', 1],
-          title: {
-            path: ['todos', 1, 'title']
-          },
-          completed: {
-            path: ['todos', 1, 'completed']
-          }
-        }
+    Tree.instance(LoudTree, {
+      childrenOf(tree) {
+        return Object.keys(tree).reduce((children, key) => {
+          return Object.assign(children, { [key.toUpperCase()]: tree[key] });
+        }, {});
       }
     });
+    let array = ['me is array']
+    tree = new MyTree({
+      boolean: true,
+      number: 10,
+      object: { the: 'object'},
+      array: ['me = array'],
+      null: null,
+      undefined: undefined,
+      loudly: new LoudTree({
+        number: 42
+      }),
+      other: new MyTree({
+        one: 1,
+        two: 2
+      }),
+      empty: new LoudTree({})
+    });
+
+    PlaceHolder = class PlaceHolder {}
+
+    mapped = Tree.map(object => new PlaceHolder(), tree);
   });
+
+  it('maps the tree', function() {
+      expect(mapped).toEqual({
+        boolean: true,
+        number: 10,
+        object: { the: 'object' },
+        array: ['me = array'],
+        null: null,
+        undefined: undefined,
+        loudly: {
+          NUMBER: 42
+        },
+        other: {
+          one: 1,
+          two: 2
+        },
+        empty: {}
+      });
+    expect(mapped.object).toBe(tree.object);
+    expect(mapped.array).toBe(tree.array);
+    expect(mapped.loudly).toBeInstanceOf(PlaceHolder)
+    expect(mapped.other).toBeInstanceOf(PlaceHolder)
+    expect(mapped.empty).toBeInstanceOf(PlaceHolder)
+    })
 });

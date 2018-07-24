@@ -14,7 +14,7 @@ describe("Meta", () => {
       class X {};
       let x = create(X);
       let meta = Meta.get(x);
-      let updated = Meta.map(meta => ({path: meta.path.concat(['nest'])}), x);
+      let updated = Meta.update(meta => ({path: meta.path.concat(['nest'])}), x);
       expect(updated).toBeInstanceOf(X);
       expect(updated).not.toBe(x);
     });

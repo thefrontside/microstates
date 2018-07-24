@@ -1,27 +1,21 @@
-import { Functor, foldl, map } from 'funcadelic';
-import { Meta, isMicrostate } from './microstates';
+import { foldl, type } from 'funcadelic';
 import { over, ValueAt } from './lens';
 
-class Tree {
-  constructor(object) {
-    this.object = object;
+export const Tree = type(class Tree {
+
+  //TODO: worried this fold is not lazy.
+  static map(fn, object) {
+    if (object != null && object[Tree.symbol]) {
+      return foldl((result, { key, value }) => {
+        return over(ValueAt(key), () => Tree.map(fn, value), result);
+      }, fn(object), childrenOf(object));
+    } else {
+      return object;
+    }
   }
-}
-
-Functor.instance(Tree, {
-  map(fn, tree) {
-    let { object } = tree;
-    let result = fn(object)
-
-    //TODO: worried this fold is not lazy.
-    return new Tree(foldl((result, { key, value }) => {
-      if (isMicrostate(value)) {
-        return over(ValueAt(key), () => map(fn, new Tree(value)).object, result);
-      } else {
-        return result;
-      }
-    }, result, object));
+  childrenOf(tree) {
+    return this(tree).childrenOf(tree);
   }
-})
+});
 
-export default (microstate) => new Tree(microstate);
+const { childrenOf } = Tree.prototype;
