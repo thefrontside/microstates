@@ -310,7 +310,7 @@ class Post {
 
 let blog = create(Blog, {
   posts: {
-    "1": { id: "1", title: "Hello World" },
+    "1": { id: 1, title: "Hello World" },
     "2": { id: 2, title: "Most fascinating blog in the world" }
   }
 });
