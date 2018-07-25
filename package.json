@@ -18,77 +18,33 @@
   "author": "Charles Lowell <charles@frontside.io>, Taras Mankovski <taras@frontside.io>",
   "files": [
     "src",
-    "dist",
     "README.md"
   ],
   "main": "dist/microstates.cjs.js",
   "module": "dist/microstates.es.js",
   "repository": "git+ssh://git@github.com/microstates/microstates.js.git",
   "scripts": {
+    "test": "mocha --recursive -r tests/setup tests",
+    "build": "rollup -c",
     "prepare": "npm run build",
-    "build": "rollup --config",
-    "coverage": "npm test -- --coverage --no-cache",
-    "coverage:watch": "npm run coverage -- --watch",
-    "prerelease": "npm test",
-    "release": "npm pack",
-    "test": "jest",
-    "start": "npm test -- --watch",
-    "lint": "eslint src"
-  },
-  "dependencies": {
-    "funcadelic": "0.5.1",
-    "get-prototype-descriptors": "0.6.0",
-    "invariant": "2.2.4",
-    "ramda": "^0.25.0",
-    "symbol-observable": "1.2.0"
+    "prerelease": "npm test && npm run build"
   },
   "devDependencies": {
-    "@babel/core": "7.0.0-beta.44",
-    "@babel/plugin-proposal-class-properties": "7.0.0-beta.44",
-    "@babel/preset-env": "7.0.0-beta.44",
-    "babel-core": "7.0.0-bridge.0",
-    "babel-eslint": "8.2.3",
-    "babel-jest": "22.4.3",
-    "eslint": "4.19.1",
-    "eslint-plugin-prefer-let": "1.0.1",
-    "husky": "0.14.3",
-    "jest": "22.4.3",
-    "jest-runner-eslint": "0.4.0",
-    "jsonfile": "^4.0.0",
-    "lint-staged": "6.0.0",
-    "object.getownpropertydescriptors": "2.0.3",
-    "prettier": "^1.10.2",
-    "pretty-error": "2.1.1",
-    "pretty-format": "22.1.0",
-    "rollup": "0.60.1",
-    "rollup-plugin-babel": "^4.0.0-beta.0",
-    "rollup-plugin-filesize": "2.0.0",
+    "@babel/core": "7.0.0-beta.54",
+    "@babel/plugin-proposal-class-properties": "7.0.0-beta.54",
+    "@babel/preset-env": "^7.0.0-beta.54",
+    "@babel/register": "^7.0.0-beta.54",
+    "expect": "^23.4.0",
+    "mocha": "^5.2.0",
+    "object.getownpropertydescriptors": "^2.0.3",
+    "rollup": "^0.63.4",
+    "rollup-plugin-babel": "4.0.0-beta.7",
+    "rollup-plugin-filesize": "4.0.1",
     "rollup-plugin-node-resolve": "3.3.0",
-    "rollup-plugin-replace": "2.0.0",
-    "rxjs": "6.2.1",
-    "standard-version": "^4.2.0"
+    "rxjs": "^6.2.1"
   },
-  "jest": {
-    "setupFiles": [
-      "./scripts/shims.js"
-    ],
-    "globalSetup": "./scripts/build.js",
-    "collectCoverageFrom": [
-      "dist/microstates.es.js"
-    ],
-    "testRegex": "(/tests/.*|\\.(test|spec))\\.(js)$",
-    "moduleFileExtensions": [
-      "js",
-      "json"
-    ],
-    "watchPathIgnorePatterns": [
-      "<rootDir>/dist/"
-    ],
-    "moduleNameMapper": {
-      "microstates": "<rootDir>/dist/microstates.es.js"
-    },
-    "transformIgnorePatterns": [
-      "node_modules/(?!(ramda)/)"
-    ]
+  "dependencies": {
+    "funcadelic": "^0.5.0",
+    "symbol-observable": "^1.2.0"
   }
 }

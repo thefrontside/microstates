@@ -1,16 +1,13 @@
-import 'jest';
-
-import { create, from, reveal } from 'microstates';
+import expect from 'expect';
+import { create } from '../../src/microstates';
+import { ObjectType } from '../../src/types';
 
 describe('created without value', () => {
   class Thing {
-    constructor(value) {
-      this.value = value;
-    }
   };
   let object;
   beforeEach(() => {
-    object = create({ Thing });
+    object = create(ObjectType.of(Thing));
   });
 
   it('has empty object as state', () => {
@@ -24,11 +21,11 @@ describe('created without value', () => {
     });
 
     it('received the assigned value', () => {
-      expect(assigned.valueOf()).toEqual({ foo: 'bar' });
+      expect(assigned.state).toEqual({ foo: 'bar' });
     });
     it('wraps the assigned values the parameterized type', function() {
-      expect(assigned.state.foo).toBeInstanceOf(Thing)
-      expect(assigned.state.foo.value).toEqual('bar')
+      expect(assigned.foo).toBeInstanceOf(Thing)
+      expect(assigned.foo.state).toEqual('bar')
     });
 
     describe('assign twice', () => {
@@ -38,7 +35,7 @@ describe('created without value', () => {
       });
 
       it('received the assigned value', () => {
-        expect(assignedAgain.valueOf()).toEqual({ foo: 'bar', bar: 'baz' });
+        expect(assignedAgain.state).toEqual({ foo: 'bar', bar: 'baz' });
       });
       it('maintains stability of the state', function() {
         expect(assignedAgain.state.foo).toBe(assigned.state.foo)
@@ -50,7 +47,7 @@ describe('created without value', () => {
 describe('created with value', () => {
   let object;
   beforeEach(() => {
-    object = create(Object, { foo: 'bar' });
+    object = create(ObjectType, { foo: 'bar' });
   });
 
   it('has empty object as state', () => {
@@ -64,7 +61,7 @@ describe('created with value', () => {
     });
 
     it('received the assigned value', () => {
-      expect(assigned.valueOf()).toEqual({ foo: 'bar', bar: 'baz' });
+      expect(assigned.state).toEqual({ foo: 'bar', bar: 'baz' });
     });
 
     describe('assign twice', () => {
@@ -74,7 +71,7 @@ describe('created with value', () => {
       });
 
       it('received the assigned value', () => {
-        expect(assignedAgain.valueOf()).toEqual({ foo: 'bar', bar: 'baz', zoo: 'zar' });
+        expect(assignedAgain.state).toEqual({ foo: 'bar', bar: 'baz', zoo: 'zar' });
       });
     });
   });
@@ -84,44 +81,39 @@ describe('created with value', () => {
       let assigned;
       beforeEach(() => {
         assigned = object.assign({
-          name: from('Taras')
+          name: create(class StringType {}, 'Taras')
         });
       });
-  
+
       it('assigned is not a microstate', () => {
         expect(assigned.name.state).toBe('Taras');
       });
-  
+
       it('microstate value to be part of valueOf', () => {
-        expect(assigned.valueOf()).toEqual({ foo: 'bar', name: 'Taras' });
+        expect(assigned.state).toEqual({ foo: 'bar', name: 'Taras' });
       });
     });
 
     describe('composed type', () => {
       class Person {
-        name = String;
+        name = create(class StringType {});
       }
 
       let assigned, value;
       beforeEach(() => {
         value = create(Person, { name: 'Taras' });
         assigned = object.assign({
-          taras: value 
+          taras: value
         })
       });
 
       it('has new type in the state', () => {
-        expect(assigned.taras.state).toBeInstanceOf(Person);
-        expect(assigned.state.taras).toBeInstanceOf(Person);
+        expect(assigned.taras).toBeInstanceOf(Person);
       });
 
       it('is stable', () => {
         expect(assigned.state.taras).toBe(value.state);
       });
-
-      it('was grafted into place', () => {
-        expect(reveal(assigned.taras.name).path).toEqual(['taras', 'name']);
-      })
     });
   });
 });
@@ -129,7 +121,7 @@ describe('created with value', () => {
 describe('put and delete', () => {
   let object;
   beforeEach(() => {
-    object = create(Object, {a: 'b'});
+    object = create(ObjectType, {a: 'b'});
   })
 
   describe('putting a value or two', function() {
@@ -137,14 +129,14 @@ describe('put and delete', () => {
       object = object.put('w', 'x').put('y', 'z');
     });
     it('includes those values in the state', function() {
-      expect(object.valueOf()).toMatchObject({a: 'b', w: 'x', y: 'z'});
+      expect(object.state).toEqual({a: 'b', w: 'x', y: 'z'});
     });
     describe('deleting a value', function() {
       beforeEach(() => {
         object = object.delete('w');
       });
       it('removes it from the value', function() {
-        expect(object.valueOf()).toMatchObject({a: 'b', y: 'z'})
+        expect(object.state).toEqual({a: 'b', y: 'z'})
       });
     });
   });
@@ -152,21 +144,21 @@ describe('put and delete', () => {
   describe('putting microstate', () => {
     describe('primitive value', () => {
       beforeEach(() => {
-        object = object.put('name', from('Taras'));
+        object = object.put('name', create(class StringType {}, 'Taras'));
       });
-  
+
       it('has name string', () => {
         expect(object.name.state).toBe('Taras');
       });
-  
+
       it('has valueOf', () => {
-        expect(object.valueOf()).toEqual({ a: 'b', name: 'Taras' });
+        expect(object.state).toEqual({ a: 'b', name: 'Taras' });
       });
     })
 
     describe('composed type', () => {
       class Person {
-        name = String;
+        name = create(class StringType {});
       }
 
       let value;
@@ -176,8 +168,7 @@ describe('put and delete', () => {
       });
 
       it('has new type in the state', () => {
-        expect(object.taras.state).toBeInstanceOf(Person);
-        expect(object.state.taras).toBeInstanceOf(Person);
+        expect(object.taras).toBeInstanceOf(Person);
       });
 
       it('is stable', () => {
@@ -185,5 +176,4 @@ describe('put and delete', () => {
       });
     });
   });
-
 })

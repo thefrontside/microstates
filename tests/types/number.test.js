@@ -1,6 +1,5 @@
-import "jest";
-
-import { create } from 'microstates';
+import expect from 'expect';
+import { create } from '../../index';
 
 describe("number", () => {
   let zero, ten;
@@ -20,10 +19,10 @@ describe("number", () => {
       expect(zero.state).toBe(0);
     });
     it("increment", () => {
-      expect(zero.increment().valueOf()).toBe(1);
+      expect(zero.increment().state).toBe(1);
     });
     it("decrement", () => {
-      expect(zero.decrement().valueOf()).toBe(-1);
+      expect(zero.decrement().state).toBe(-1);
     });
   });
 
@@ -32,10 +31,10 @@ describe("number", () => {
       expect(ten.state).toBe(10);
     });
     it("increment", () => {
-      expect(ten.increment().valueOf()).toBe(11);
+      expect(ten.increment().state).toBe(11);
     });
     it("decrement", () => {
-      expect(ten.decrement().valueOf()).toBe(9);
+      expect(ten.decrement().state).toBe(9);
     });
   });
 });

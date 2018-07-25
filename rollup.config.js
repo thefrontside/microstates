@@ -1,21 +1,11 @@
+const pkg = require("./package.json");
 const babel = require("rollup-plugin-babel");
 const filesize = require("rollup-plugin-filesize");
-const pkg = require("./package.json");
 const resolve = require("rollup-plugin-node-resolve");
-const replace = require("rollup-plugin-replace");
-
-const ramda = [
-  "ramda/es/lensPath",
-  "ramda/es/over",
-  "ramda/es/set",
-  "ramda/es/view"
-]
 
 const external = [
   "funcadelic",
-  "symbol-observable",
-  "get-prototype-descriptors",
-  "invariant"
+  "symbol-observable"
 ];
 
 const babelPlugin = babel({
@@ -32,15 +22,11 @@ const babelPlugin = babel({
   ]
 });
 
-const fileSize = filesize({
-  render(opt, size, gzip, bundle) {
-    return `Built: ${bundle.file} ( size: ${size}, gzip: ${gzip})`;
-  }
-});
+const fileSize = filesize();
 
 module.exports = [
   {
-    input: "src/nodules.js",
+    input: "index.js",
     external,
     output: {
       file: pkg.main,
@@ -48,12 +34,6 @@ module.exports = [
       sourcemap: true
     },
     plugins: [
-      replace({
-        "import lensPath from 'ramda/es/lensPath'": "const {lensPath} from 'ramda/src/lensPath'",
-        "import lset from 'ramda/es/set'": "const {set: lset} from 'ramda/src/set'",
-        "import view from 'ramda/es/view'": "const {view} from 'ramda/src/view'",
-        "import over from 'ramda/es/over'": "const {over} from 'ramda/src/over'"
-      }),
       resolve(),
       babel({
         babelrc: false,
@@ -75,8 +55,8 @@ module.exports = [
     ]
   },
   {
-    input: "src/index.js",
-    external: [...external, ...ramda],
+    input: "index.js",
+    external,
     output: { file: pkg.module, format: "es", sourcemap: true },
     plugins: [
       resolve(),

@@ -1,21 +1,38 @@
-import "jest";
-import Microstate, { create } from "microstates";
+import expect from 'expect';
+import { create } from "../src/microstates";
+import ArrayType from "../src/types/array";
 import SymbolObservable from 'symbol-observable';
 import { from } from 'rxjs';
 
+class NumberType {
+  initialize(value) {
+    return Number(value);
+  }
+  increment() {
+    return this.state + 1;
+  }
+}
+
 describe('rxjs interop', function() {
   let ms, observable, observer, last;
+  let observerCalls;
   beforeEach(() => {
-    ms = create(Number, 42);
-    observer = jest.fn(next => last = next);
+    observerCalls = 0;
+    ms = create(NumberType, 42);
+    observer = next => {
+      observerCalls++;
+      return last = next;
+    };
+
     observable = from(ms);
     let subscription = observable.subscribe(observer);
+
     last.increment();
     last.increment();
     last.increment();
   });
   it('sent 4 states to obsever', function() {
-    expect(observer.mock.calls).toHaveLength(4);
+    expect(observerCalls).toBe(4);
   });
   it('incremented 3 times', function() {
     expect(last.state).toBe(45);
@@ -25,14 +42,12 @@ describe('rxjs interop', function() {
 describe('interop', function() {
   let ms, observable;
   beforeEach(() => {
-    ms = create(Number, 10);
+    ms = create(NumberType, 10);
     observable = ms[SymbolObservable]();
   });
 
   it('observable has subscribe', () => {
-    expect(observable).toMatchObject({
-      subscribe: expect.any(Function)
-    });
+    expect(observable.subscribe).toBeInstanceOf(Function);
   });
 
   it('observable has reference to self', () => {
@@ -43,7 +58,7 @@ describe('interop', function() {
 describe("initial value", function() {
   let observable, last, unsubscribe;
   beforeEach(function() {
-    let ms = create(Number, 10);
+    let ms = create(NumberType, 10);
     observable = ms[SymbolObservable]();
     observable.subscribe(v => (last = v));
   });
@@ -55,7 +70,7 @@ describe("initial value", function() {
 describe("single transition", function() {
   let observable, last, unsubscribe;
   beforeEach(function() {
-    let ms = create(Number, 10);
+    let ms = create(NumberType, 10);
     observable = ms[SymbolObservable]();
     observable.subscribe(v => (last = v));
     last.increment();
@@ -68,7 +83,7 @@ describe("single transition", function() {
 describe("many transitions", function() {
   let observable, last, unsubscribe;
   beforeEach(function() {
-    let ms = create(Number, 10);
+    let ms = create(NumberType, 10);
     observable = ms[SymbolObservable]();
     observable.subscribe(v => (last = v));
     last
@@ -83,11 +98,11 @@ describe("many transitions", function() {
 
 describe("complex type", function() {
   class A {
-    b = class B {
-      c = class C {
-        values = Array;
-      };
-    };
+    b = create(class B {
+      c = create(class C {
+        values = create(ArrayType);
+      });
+    });
   }
 
   let observable, last;
@@ -112,8 +127,9 @@ describe("complex type", function() {
 });
 
 describe('initialized microstate', () => {
+  let call;
   class Modal {
-    isOpen = Boolean;
+    isOpen = create(class BooleanType {});
 
     initialize(value) {
       if (!value) {
@@ -124,10 +140,15 @@ describe('initialized microstate', () => {
   }
 
   it('streams initialized microstate', () => {
-    let fn = jest.fn();
-    from(create(Modal)).subscribe(fn);
-    expect(fn).toHaveBeenCalledTimes(1);
-    expect(fn.mock.calls[0][0].state).toMatchObject({
+    let calls = 0;
+    let state;
+    let call = function call(next) {
+      calls++;
+      state = next.state
+    }
+    from(create(Modal)).subscribe(call);
+    expect(calls).toBe(1);
+    expect(state).toEqual({
       isOpen: true
     });
   });
@@ -136,12 +157,12 @@ describe('initialized microstate', () => {
 describe('array as root', () => {
   let list;
   beforeEach(() => {
-    list = Microstate.from([{ hello: 'world' }]);
+    list = create(ArrayType, [{ hello: 'world' }]);
   });
 
   it('has array with one element', () => {
-    expect(list.length).toBe(1);
-    expect(list[0].hello).toBeDefined();
+    expect(list.state.length).toBe(1);
+    expect(list[0].state.hello).toBeDefined();
   });
 
   describe('created observable', () => {
@@ -159,8 +180,8 @@ describe('array as root', () => {
     });
 
     it('has array with one element', () => {
-      expect(last.length).toBe(1);
-      expect(last[0].hello).toBeDefined();
+      expect(last.state.length).toBe(1);
+      expect(last[0].state.hello).toBeDefined();
     });
   });
 

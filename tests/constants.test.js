@@ -1,5 +1,7 @@
-import 'jest';
-import { create } from 'microstates';
+import expect from 'expect';
+
+import { Constant, create } from '../src/microstates';
+import { StringType } from '../src/types';
 
 let o = { hello: 'world' };
 class Type {
@@ -29,9 +31,6 @@ describe('constants support', () => {
       greeting: '',
     });
   });
-  it('constants are not included in valueOf', () => {
-    expect(ms.valueOf()).toEqual({ greeting: '' });
-  });
   it('next state has constants', () => {
     expect(next.state).toEqual({
       n: 10,
@@ -44,7 +43,7 @@ describe('constants support', () => {
     });
   });
   it('next valueOf excludes constants', () => {
-    expect(next.valueOf()).toEqual({ greeting: 'HI' });
+    expect(next.greeting.state).toEqual('HI');
   });
   it('shares complex objects between multiple instances of microstate', () => {
     expect(ms.state.o).toBe(create(Type, {}).state.o);

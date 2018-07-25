@@ -1,6 +1,5 @@
-import 'jest';
-
-import { create } from 'microstates';
+import expect from 'expect';
+import { create } from '../../index';
 
 describe('string without value', () => {
   let string;
@@ -12,10 +11,6 @@ describe('string without value', () => {
     expect(string.state).toBe('');
   });
 
-  it('has value', () => {
-    expect(string.valueOf()).toBe('');
-  });
-
   describe('concat', () => {
     let concatted;
     beforeEach(() => {
@@ -24,10 +19,6 @@ describe('string without value', () => {
 
     it('has state', () => {
       expect(concatted.state).toBe('hello world');
-    });    
-
-    it('has value', () => {
-      expect(concatted.valueOf()).toBe('hello world');
     });
   });
 });
@@ -42,10 +33,6 @@ describe('string with value', () => {
     expect(string.state).toBe('hello world');
   });
 
-  it('has value', () => {
-    expect(string.valueOf()).toBe('hello world');
-  });
-
   describe('concat', () => {
     let concatted;
     beforeEach(() => {
@@ -54,12 +41,6 @@ describe('string with value', () => {
 
     it('has state', () => {
       expect(concatted.state).toBe('hello world!!!');
-    });    
-
-    it('has value', () => {
-      expect(concatted.valueOf()).toBe('hello world!!!');
     });
   });
-
 });
-

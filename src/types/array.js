@@ -1,125 +1,60 @@
-import { append, map } from 'funcadelic';
-import transform from '../transform';
-import Tree from '../tree';
-import Any from './any';
-import { parameterized } from './parameters0';
-class ArrayType {
-  initialize(value = []) {
-    return value;
-  }
+import { Assemble } from '../assemble';
+import { create, SubstateAt, Meta } from "../microstates";
+import { set } from "../lens";
+import { Reducible } from '../../src/query';
+import { Filterable } from 'funcadelic';
+import parameterized from '../parameterized';
 
-  /**
-   * The push() transition adds one element to the end of the array.
-   * Returns the next microstate.
-   * @param {*} value 
-   * @returns {Microstate}
-   */
+export default parameterized(T => class ArrayType {
   push(value) {
-    return transform((children, T) => {
-      return append(children, Tree.from(value, T).graft([children.length]));
-    }, this);
+    return [...this.state, value];
   }
 
-  /**
-   * The pop() transition removes the last element from an array. 
-   * Returns the next microstate.
-   * @returns {Microstate}
-   */
-  pop() {
-    return transform(children => children.slice(0, -1), this);
-  }
-
-  /**
-   * The shift() transition removes the first element from an array.
-   * Returns the next microstate.
-   * @returns {Microstate}
-   */
   shift() {
-    return transform(children => {
-      return map((shifted, index) => {
-        return map(tree => {
-          let [, ...rest] = tree.path;
-          return tree.assign({
-            meta: {
-              path: [index, ...rest]
-            }
-          })
-        }, shifted);
-      }, children.slice(1));
-    }, this);
+    let [, ...rest] = this.state;
+    return rest;
   }
 
-  /**
-   * The unshift() transition adds one element to the beginning of an array.
-   * Returns the next microstate.
-   * @returns {Microstate}
-   */
   unshift(value) {
-    return transform((children, T) => {
-      return append([Tree.from(value, T).graft([0])], map((child, index) => {
-        return map(tree => {
-          let [, ...rest] = tree.path;
-          return tree.assign({
-            meta: {
-              path: [index + 1, ...rest]
-            }
-          });
-        }, child);
-      }, children))
-    }, this);
+    return [value, ...this.state];
   }
 
-  /**
-   * The filter() transition creates a new array with all elements 
-   * that pass the test implemented by the provided function.
-   * Returns the next microstate.
-   * @param {*} fn 
-   * @returns {Microstate}
-   */
   filter(fn) {
-    return transform(children => {
-      return map((child, index) => {
-        return map(tree => {
-          let [, ...rest] = tree.path;
-          return tree.assign({
-            meta: {
-              path: [index, ...rest]
-            }
-          })
-        }, child);
-      }, children.filter(tree => fn(tree.state)));
-    }, this);
+    return this.state.reduce((filtered, item, index) => {
+      let substate = Meta.source(this[index]);
+      return fn(substate) ? filtered.concat(substate) : filtered;
+    }, []);
   }
 
-  /**
-   * The map() transition creates a new array with the results of calling 
-   * a provided function on every element in the calling array.
-   * Returns the next microstate.
-   * @param {*} fn 
-   * @returns {Microstate}
-   */
   map(fn) {
-    return transform((children, T) => {
-      return map((tree, index) => {
-        let { microstate } = tree.prune();
-        let mapped = Tree.from(fn(microstate, index), T);
-        if (tree.isEqual(mapped)) {
-          return tree;
-        } else {
-          return mapped.graft([index]);
-        }
-      }, children);
-    }, this);
+    return this.state.map((item, index) => fn(Meta.source(this[index])));
   }
 
-  /**
-   * This clear() transition replaces the array with an empty array.
-   * Returns the next microstate.
-   * @returns {Microstate}
-   */
   clear() {
-    return this.set([]);
+    return [];
   }
-}
 
-export default parameterized(ArrayType, {T: Any});
+  static initialize() {
+    Assemble.instance(this, {
+      assemble(Type, microstate, value) {
+        if (value == null) {
+          microstate.state = [];
+        }
+        else if (!Array.isArray(value)) {
+          microstate.state = [value];
+        }
+        return microstate.state.reduce((microstate, member, index) => {
+          return set(SubstateAt(index), create(T).set(member), microstate);
+        }, microstate);
+      }
+    });
+
+    Reducible.instance(this, {
+      reduce(array, fn, initial) {
+        return array.state.reduce((reduction, value, index) => {
+          return fn(reduction, array[index], index);
+        }, initial);
+      }
+    });
+  }
+});

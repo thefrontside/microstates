@@ -1,46 +1,42 @@
-import 'jest';
-import { create, reveal } from 'microstates';
-import logTree from '../../src/utils/log-tree';
+import expect from 'expect';
+import { create } from '../../src/microstates';
 
-class Session {
-  content = null;
+import { ObjectType, ArrayType, BooleanType, Any } from '../../src/types';
+
+class AnonymousSession {
+  content = create(Any);
+
   initialize(session) {
     if (session) {
-      return create(AuthenticatedSession, session);
+      return this.authenticate(session);
     }
-    return create(AnonymousSession, {});
+    return this;
   }
-}
-
-class AuthenticatedSession extends Session {
-  isAuthenticated = true;
-  content = Object;
-
-  logout() {
-    return create(AnonymousSession, {});
-  }
-}
-
-class AnonymousSession extends Session {
-  content = null;
-  isAuthenticated = false;
-
   authenticate(user) {
     return create(AuthenticatedSession, { content: user });
   }
 }
 
+class AuthenticatedSession {
+  isAuthenticated = create(BooleanType, true);
+  content = create(ObjectType, {});
+
+  logout() {
+    return create(AnonymousSession);
+  }
+}
+
 class MyApp {
-  session = Session;
+  session = create(AnonymousSession);
 }
 
 describe('AnonymousSession', () => {
   let ms;
   beforeEach(() => {
-    ms = create(MyApp, {});
+    ms = create(MyApp);
   })
   it('initializes into AnonymousSession without initial state', () => {
-    expect(ms.state.session).toBeInstanceOf(AnonymousSession);
+    expect(ms.session).toBeInstanceOf(AnonymousSession);
   });
   describe('transition', () => {
     let authenticated;
@@ -50,7 +46,7 @@ describe('AnonymousSession', () => {
       });
     });
     it('transitions AnonymousSession to Authenticated with authenticate', () => {
-      expect(authenticated.state.session).toBeInstanceOf(AuthenticatedSession);
+      expect(authenticated.session).toBeInstanceOf(AuthenticatedSession);
       expect(authenticated.state.session).toEqual({
         content: { name: 'Charles' },
         isAuthenticated: true,
@@ -62,13 +58,13 @@ describe('AnonymousSession', () => {
 describe('AuthenticatedSession', () => {
   let ms, anonymous;
   beforeEach(() => {
-    ms = create(MyApp, { session: { name: 'Taras' } })
+    ms = create(MyApp, { session: { name: 'Taras', isAuthenticated: true } })
     anonymous = ms.session.logout();
   });
   it('initializes into AuthenticatedSession state', () => {
-    expect(ms.state.session).toBeInstanceOf(AuthenticatedSession);
+    expect(ms.session).toBeInstanceOf(AuthenticatedSession);
   });
   it('transitions Authenticated session to AnonymousSession with logout', () => {
-    expect(anonymous.state.session).toBeInstanceOf(AnonymousSession);
+    expect(anonymous.session).toBeInstanceOf(AnonymousSession);
   });
 });

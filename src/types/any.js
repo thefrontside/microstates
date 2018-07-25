@@ -1,5 +1,1 @@
-export default class Any {
-  set(value) {
-    return value;
-  }
-}
+export default class Any {};

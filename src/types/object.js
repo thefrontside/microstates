@@ -1,46 +1,34 @@
-import { filter, foldl } from 'funcadelic';
-import transform from '../transform';
-import Tree from '../tree';
-import Any from './any';
-import { parameterized } from './parameters0';
+import { Assemble } from '../assemble';
+import { SubstateAt, create } from '../microstates';
+import { over } from '../lens';
+import { append, filter, foldl } from 'funcadelic';
+import parameterized from '../parameterized'
 
-const { assign, keys } = Object;
+export default parameterized(T => class ObjectType {
+  static T = T;
 
-class ObjectType {
-  initialize(value = {}) {
-    return value;
-  }
-
-  assign(props = {}) {
-    return transform((children, T) => {
-      return foldl((children, key) => {
-        children[key] = Tree.from(props[key], T).graft([key]);
-        return children;
-      }, assign({}, children), keys(props));
-    }, this);
-  }
-
-  put(key, value) {
-    return transform((children, T) => {
-      if (children[key] && children[key].value === value) {
-        return children
-      } else  {
-        return assign({}, children, {
-          [key]: Tree.from(value, T).graft([key])
-        })
+  static initialize() {
+    Assemble.instance(ObjectType, {
+      assemble(Type, microstate, value) {
+        if (value == null) {
+          microstate.state = {};
+        }
+        return foldl((microstate, entry) => {
+          return over(SubstateAt(entry.key), () => create(T).set(entry.value), microstate );
+        }, microstate, microstate.state);
       }
-    }, this);
+    });
   }
 
-  delete(propertyName) {
-    return transform((children) => {
-      if (propertyName in children) {
-        return filter(({ key }) => key !== propertyName, children);
-      } else {
-        return children;
-      }
-    }, this);
+  assign(attrs) {
+    return append(this.state, attrs);
   }
-}
 
-export default parameterized(ObjectType, {T: Any});
+  put(name, value) {
+    return this.assign({[name]: value});
+  }
+
+  delete(name) {
+    return filter(({ key }) => key !== name, this.state);
+  }
+});
