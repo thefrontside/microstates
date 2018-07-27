@@ -4,11 +4,11 @@ import { over, ValueAt } from './lens';
 export const Tree = type(class Tree {
 
   //TODO: worried this fold is not lazy.
-  static map(fn, object) {
+  static map(fn, object, path = []) {
     if (object != null && object[Tree.symbol]) {
       return foldl((result, { key, value }) => {
-        return over(ValueAt(key), () => Tree.map(fn, value), result);
-      }, fn(object), childrenOf(object));
+        return over(ValueAt(key), () => Tree.map(fn, value, path.concat(key)), result);
+      }, fn(object, path), childrenOf(object));
     } else {
       return object;
     }
@@ -18,4 +18,4 @@ export const Tree = type(class Tree {
   }
 });
 
-const { childrenOf } = Tree.prototype;
+export const { childrenOf } = Tree.prototype;

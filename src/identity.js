@@ -16,8 +16,7 @@ export default function Identity(microstate, observe = x => x) {
   function update(microstate) {
     current = microstate;
 
-    return identity = Tree.map(microstate => {
-      let { path } = Meta.get(microstate);
+    return identity = Tree.map((microstate, path) => {
       let proxy = view(Path(path), identity);
       let Type = microstate.constructor.base;
       let value = microstate.state;
