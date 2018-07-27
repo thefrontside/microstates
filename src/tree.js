@@ -1,21 +1,12 @@
-import { foldl, type } from 'funcadelic';
+import { foldl } from 'funcadelic';
 import { over, ValueAt } from './lens';
 
-export const Tree = type(class Tree {
-
-  //TODO: worried this fold is not lazy.
-  static map(fn, object) {
-    if (object != null && object[Tree.symbol]) {
-      return foldl((result, { key, value }) => {
-        return over(ValueAt(key), () => Tree.map(fn, value), result);
-      }, fn(object), childrenOf(object));
-    } else {
-      return object;
-    }
+export function treemap(visit, childrenOf, transform, object, path = []) {
+  if (object != null && visit(object)) {
+    return foldl((result, { key, value }) => {
+      return over(ValueAt(key), () => treemap(visit, childrenOf, transform, value, path.concat(key)), result);
+    }, transform(object, path), childrenOf(object));
+  } else {
+    return object;
   }
-  childrenOf(tree) {
-    return this(tree).childrenOf(tree);
-  }
-});
-
-const { childrenOf } = Tree.prototype;
+}

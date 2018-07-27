@@ -35,8 +35,4 @@ describe('A Microstate with queries', function() {
       expect(next.completed.length).toEqual(3)
     });
   });
-
-  describe('query state', function() {
-    it('contains state for all of the items contained therin');
-  });
 });

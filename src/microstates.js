@@ -1,11 +1,12 @@
 import { append, foldl, Semigroup, map, stable } from 'funcadelic';
 import { view, set, over, Lens, ValueAt } from './lens';
 import Identity from './identity';
+import { Hash } from './hash';
 import { Assemble, assemble } from './assemble';
 import SymbolObservable from 'symbol-observable';
 import sugar from './sugar';
 import Any from './types/any'
-import { Tree } from './tree';
+import { treemap } from './tree';
 
 export function create(InputType = Any, value) {
   let Type = sugar.desugarType(InputType);
@@ -27,7 +28,7 @@ const toPicoType = stable(function toPicoType(Type) {
   }
   let PicoType = class extends Type {
     static name = `Microstate<${Type.name}>`;
-    static base = Type;
+    static Type = Type;
     static isMicrostateType = true;
 
     set(value) {
@@ -58,9 +59,11 @@ const toPicoType = stable(function toPicoType(Type) {
 
   }
 
-  Tree.instance(PicoType, {
-    childrenOf(tree) { return tree; }
-  });
+  Hash.instance(PicoType, {
+    digest(microstate) {
+      return [microstate.state];
+    }
+  })
 
   let descriptors = Object.getOwnPropertyDescriptors(Type.prototype);
   let methods = Object.keys(descriptors).reduce((methods, name) => {
@@ -113,7 +116,7 @@ export class Meta {
   }
 
   static treemap(fn, object) {
-    return Tree.map(microstate => this.update(fn, microstate), object);
+    return treemap(isMicrostate, x => x, microstate => this.update(fn, microstate), object);
   }
 
   static lookup(object) {

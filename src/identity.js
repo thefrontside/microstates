@@ -1,12 +1,13 @@
 import { map, foldl } from 'funcadelic';
 import { Meta } from './microstates';
-import { Tree } from './tree';
+import { treemap } from './tree';
 import parameterized from './parameterized';
+import { Hash, equals } from './hash';
 
 //function composition should probably not be part of lens :)
 import { compose, view, Path } from './lens';
 
-const info = Symbol('info');
+const info = Symbol('path');
 
 export default function Identity(microstate, observe = x => x) {
   let current;
@@ -16,12 +17,11 @@ export default function Identity(microstate, observe = x => x) {
   function update(microstate) {
     current = microstate;
 
-    return identity = Tree.map(microstate => {
-      let { path } = Meta.get(microstate);
+    return identity = treemap(isMicrostate, x => x, (microstate, path) => {
       let proxy = view(Path(path), identity);
-      let Type = microstate.constructor.base;
+      let Type = microstate.constructor.Type;
       let value = microstate.state;
-      if (proxy == null || Type !== proxy[info].Type || value !== proxy.state) {
+      if (proxy == null || !equals(proxy, microstate)) {
         let IdType = Id.of(Type)
         return new IdType(value, path);
       } else {
@@ -31,6 +31,7 @@ export default function Identity(microstate, observe = x => x) {
   }
 
   let Id = parameterized(T => class Id extends T {
+    static Type = T;
     static name = `Id<${T.name}>`;
 
     static initialize() {
@@ -47,22 +48,46 @@ export default function Identity(microstate, observe = x => x) {
 
       Object.assign(this.prototype, foldl((methods, name) => {
         methods[name] = function(...args) {
-          let { path } = this[info];
+          let path = this[info];
           let microstate = view(Path(path), current);
           let next = microstate[name](...args);
           return tick(next);
         }
         return methods;
       }, {}, methods));
+
+
+      Object.keys(descriptors).forEach(propertyName => {
+        let desc = descriptors[propertyName];
+        if (typeof propertyName === 'string' && typeof desc.get === 'function') {
+          Object.defineProperty(this.prototype, propertyName, {
+            get() {
+              let value = desc.get.call(this);
+              Object.defineProperty(this, propertyName, { value });
+              return value;
+            }
+          })
+        }
+      })
+
+      Hash.instance(this, {
+        digest(id) {
+          return [id.state];
+        }
+      })
     }
 
     constructor(value, path) {
       super();
       this.state = value;
-      this[info] = { Type: T, path };
+      this[info] = path;
     }
 
   })
 
   return tick(microstate);
+}
+
+function isMicrostate(object) {
+  return object != null && object.constructor.isMicrostateType;
 }
