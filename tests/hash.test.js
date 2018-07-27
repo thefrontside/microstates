@@ -1,7 +1,7 @@
 import expect from 'expect';
 import { Hash, Dictionary, equals } from '../src/hash';
 
-describe.only('hash dictionary', () => {
+describe('hash dictionary', () => {
   class OneValue {
     constructor(value) {
       this.value = value;
