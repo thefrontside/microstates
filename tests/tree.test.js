@@ -1,11 +1,13 @@
 import expect from 'expect';
-import { Tree } from '../src/tree';
+import { Tree, treemap } from '../src/tree';
 
 describe('tree', function() {
 
   let tree, mapped, PlaceHolder;
   beforeEach(function() {
     class MyTree {
+      static childrenOf = (tree) => tree;
+
       constructor(attrs) {
         Object.assign(this, attrs);
       }
@@ -16,6 +18,11 @@ describe('tree', function() {
     })
 
     class LoudTree {
+      static childrenOf = (tree) => {
+        return Object.keys(tree).reduce((children, key) => {
+          return Object.assign(children, { [key.toUpperCase()]: tree[key] });
+        }, {});
+      }
       constructor(attrs) {
         Object.assign(this, attrs);
       }
@@ -48,7 +55,12 @@ describe('tree', function() {
 
     PlaceHolder = class PlaceHolder {}
 
-    mapped = Tree.map(object => new PlaceHolder(), tree);
+    let visit = object => object instanceof MyTree || object instanceof LoudTree;
+    function childrenOf(object) {
+      return object.constructor.childrenOf(object);
+    }
+
+    mapped = treemap(visit, childrenOf, object => new PlaceHolder(), tree);
   });
 
   it('maps the tree', function() {
