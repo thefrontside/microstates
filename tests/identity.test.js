@@ -10,10 +10,10 @@ describe('Identity', () => {
   let microstate;
   beforeEach(function() {
     microstate = create(TodoMVC)
-      .todos.push({title: "Take out The Milk"})
-      .todos.push({title: "Convince People Microstates is awesome"})
-      .todos.push({title: "Take out the Trash"})
-      .todos.push({title: "profit $$"});
+      .todos.push({ title: "Take out The Milk", completed: true })
+      .todos.push({ title: "Convince People Microstates is awesome" })
+      .todos.push({ title: "Take out the Trash" })
+      .todos.push({ title: "profit $$"});
     id = Identity(microstate);
   });
 
@@ -44,14 +44,37 @@ describe('Identity', () => {
       expect(next.todos[1]).toBe(id.todos[1]);
       expect(next.todos[3]).toBe(id.todos[3]);
     });
-
-    it.skip('transitions those queries which did not change, but not nodes *within* the query that remained the same change', function() {
-
-    });
-
-    it.skip('maintains the === identity of those queries which did not change', function() {
-
-    });
   });
 
+  describe('identity of queries', function() {
+
+    it('traverses queries and includes the microstates within them', function() {
+      expect(id.completed).toBeDefined();
+      expect(id.completed[0]).toBeInstanceOf(Todo);
+    });
+
+    describe('the effect of transitions on query identities', () => {
+      let next;
+      beforeEach(function() {
+        next = id.completed[0].title.set('Take out the milk');
+      });
+
+      it('updates those queries which contain changed objects, but not ids *within* the query that remained the same', () => {
+        expect(next.completed).not.toBe(id.completed);
+        expect(next.completed[0]).not.toBe(id.completed[0]);
+        expect(next.completed[1]).toBe(id.completed[1]);
+      });
+
+      it.skip('maintains the === identity of those queries which did not change', function() {
+        expect(next.active[0]).toBe(id.active[0]);
+        expect(next.active[1]).toBe(id.active[1]);
+        expect(next.active).toBe(id.active)
+      });
+
+      it('maintains the === identity of the same node that appears at different spots in the tree', () => {
+        expect(id.todos[0]).toBe(id.completed[0]);
+        expect(next.todos[0]).toBe(next.completed[0]);
+      })
+    })
+  });
 })

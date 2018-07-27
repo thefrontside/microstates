@@ -2,8 +2,6 @@ import expect from 'expect';
 import { create } from '../src/microstates';
 import ArrayType from '../src/types/array';
 
-import { digest, equals } from '../src/hash';
-
 import { TodoMVC } from './todomvc';
 
 describe('A Microstate with queries', function() {
@@ -35,14 +33,6 @@ describe('A Microstate with queries', function() {
       expect(next.todos[1].completed.state).toEqual(true);
       expect(next.active.length).toEqual(1)
       expect(next.completed.length).toEqual(3)
-    });
-  });
-
-  describe('query hashing', function() {
-    it('can tell which queries are the same', () => {
-      let next = todomvc.todos[0].title.set('Take out the milk');
-      expect(equals(next.active, todomvc.active)).toEqual(true);
-      expect(equals(next.completed, todomvc.completed)).toEqual(false);
     });
   });
 });

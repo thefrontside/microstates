@@ -1,6 +1,6 @@
 import { map, foldl } from 'funcadelic';
 import { Meta } from './microstates';
-import { Tree } from './tree';
+import { treemap } from './tree';
 import parameterized from './parameterized';
 import { Hash, equals } from './hash';
 
@@ -17,7 +17,7 @@ export default function Identity(microstate, observe = x => x) {
   function update(microstate) {
     current = microstate;
 
-    return identity = Tree.map((microstate, path) => {
+    return identity = treemap(isMicrostate, x => x, (microstate, path) => {
       let proxy = view(Path(path), identity);
       let Type = microstate.constructor.Type;
       let value = microstate.state;
@@ -56,6 +56,20 @@ export default function Identity(microstate, observe = x => x) {
         return methods;
       }, {}, methods));
 
+
+      Object.keys(descriptors).forEach(propertyName => {
+        let desc = descriptors[propertyName];
+        if (typeof propertyName === 'string' && typeof desc.get === 'function') {
+          Object.defineProperty(this.prototype, propertyName, {
+            get() {
+              let value = desc.get.call(this);
+              Object.defineProperty(this, propertyName, { value });
+              return value;
+            }
+          })
+        }
+      })
+
       Hash.instance(this, {
         digest(id) {
           return [id.state];
@@ -72,4 +86,8 @@ export default function Identity(microstate, observe = x => x) {
   })
 
   return tick(microstate);
+}
+
+function isMicrostate(object) {
+  return object != null && object.constructor.isMicrostateType;
 }
