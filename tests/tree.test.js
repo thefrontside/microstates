@@ -1,5 +1,5 @@
 import expect from 'expect';
-import { Tree, treemap } from '../src/tree';
+import { treemap } from '../src/tree';
 
 describe('tree', function() {
 
@@ -13,10 +13,6 @@ describe('tree', function() {
       }
     }
 
-    Tree.instance(MyTree, {
-      childrenOf(tree) { return tree; }
-    })
-
     class LoudTree {
       static childrenOf = (tree) => {
         return Object.keys(tree).reduce((children, key) => {
@@ -28,13 +24,6 @@ describe('tree', function() {
       }
     }
 
-    Tree.instance(LoudTree, {
-      childrenOf(tree) {
-        return Object.keys(tree).reduce((children, key) => {
-          return Object.assign(children, { [key.toUpperCase()]: tree[key] });
-        }, {});
-      }
-    });
     let array = ['me is array']
     tree = new MyTree({
       boolean: true,
