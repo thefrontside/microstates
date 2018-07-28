@@ -161,7 +161,8 @@ import { create } from "microstates";
 let person = create(Person, { name: "Homer", age: 39 });
 ```
 
-Every microstate created with a type of `Person` will be an object that looks like this:
+Every microstate created with a type of `Person` will be an object
+extending Person to have a `set()` method:
 
 ```txt
 +----------------------+
@@ -179,7 +180,7 @@ Every microstate created with a type of `Person` will be an object that looks li
 |                      |       +--------------------+
 |                      |
 |                      +-set()->
-|                      +-state: Person { name: 'Homer', age: 39 }
+|                      +-state: { name: 'Homer', age: 39 }
 +----------------------+
 ```
 
@@ -221,7 +222,7 @@ let theHomerCar = create(Car, {
 |                   |           |                      |       +--------------------+
 |                   |           |                      |
 |                   |           |                      +-set()->
-|                   |           |                      +-state: Person<{ name: 'Homer', age: 39 }>
+|                   |           |                      +-state: { name: 'Homer', age: 39 }
 |                   |           +----------------------+
 |                   |
 |                   |           +--------------------+
@@ -231,15 +232,15 @@ let theHomerCar = create(Car, {
 |                   |           +--------------------+
 |                   |
 |                   +-set()->
-|                   +-state: Car<{ designer: Person<{ name: 'Homer', age: 39 }> }, name: 'The Homer' }>
+|                   +-state: { designer: { name: 'Homer', age: 39 }, name: 'The Homer' }
 +-------------------+
 ```
 
 You can use the object dot notation to access sub microstates. Using the same example from above:
 
 ```js
-theHomerCar.designer.state;
-//> Person<{ name: 'Homer', age: 39 }>
+theHomerCar.designer;
+//> Microstate<Person>{ name: Microstate<String>'Homer', age: Microstate<Number>39 }
 
 theHomerCar.designer.age.state;
 //> 39
@@ -248,11 +249,11 @@ theHomerCar.name.state;
 //> The Homer
 ```
 
-The state from sub microstates is also available on the parent object.
+The state from sub microstates is also available on the parent object's state.
 
 ```js
 theHomerCar.state
-//> Car<{ designer: Person<{ name: 'Homer', age: 39 }>, name: 'The Homer' }>
+//> { designer: { name: 'Homer', age: 39 }, name: 'The Homer' }
 ```
 
 ## Array Microstates
@@ -276,11 +277,11 @@ let blog = create(Blog, {
   ]
 });
 
-blog.posts[0].state;
-//> Post<{ id: 1, title: 'Hello World' }>
+blog.posts[0];
+//> Microstate<Post>{ id: 1, title: 'Hello World' }
 
-blog.posts[1].state;
-//> Post<{ id: 2, title: 'Most fascinating blog in the world' }>
+blog.posts[1];
+//> Microstate<Post>{ id: 2, title: 'Most fascinating blog in the world' }
 ```
 
 When you're working with an array microstate, the shape of the Microstate is determined by the value. In this case, `posts` is created with two items which will, in turn, create a Microstate with two items. Each item will be a Microstate of type `Post`. If you push another item onto the `posts` Microstate, it'll be treated as a `Post`.
@@ -288,8 +289,8 @@ When you're working with an array microstate, the shape of the Microstate is det
 ```js
 let blog2 = blog.posts.push({ id: 3, title: "It is only getter better" });
 
-blog2.posts[2].state;
-//> Post<{ id: 3, title: 'It is only getter better' }>
+blog2.posts[2];
+//> Microstate<Post>{ id: 3, title: 'It is only getter better' }
 ```
 
 Notice how we didn't have to do any extra work to define the state transition of adding another post to the list? That's the power of composition!
@@ -315,11 +316,11 @@ let blog = create(Blog, {
   }
 });
 
-blog.posts["0"].state;
-//> Post<{ id: 1, title: 'Hello World' }>
+blog.posts["0"];
+//> Microstate<Post>{ id: 1, title: 'Hello World' }
 
-blog.posts["1"].state;
-//> Post<{ id: 2, title: 'Most fascinating blog in the world' }>
+blog.posts["1"];
+//> Microstate<Post>{ id: 2, title: 'Most fascinating blog in the world' }
 ```
 
 Object type microstates have `Object` transitions, such as `assign`, `put` and `delete`.
@@ -327,8 +328,8 @@ Object type microstates have `Object` transitions, such as `assign`, `put` and `
 ```js
 let blog2 = blog.posts.put("3", { id: 3, title: "It is only getter better" });
 
-blog2.posts["3"].state;
-//> Post<{ id: 3, title: 'It is only getter better' }>
+blog2.posts["3"];
+//> Microstate<Post>{ id: 3, title: 'It is only getter better' }
 ```
 
 # Transitions
@@ -381,7 +382,7 @@ let app = create(App, {
 let opened = app.notification.isOpen.toggle();
 //> Microstate<App>
 
-opened.valueOf();
+opened.state;
 //> {
 // name: 'Welcome to your app',
 // notification: {
@@ -467,7 +468,7 @@ let app = create(App, { authentication: {} });
 
 let authenticated = app.authentication.authenticate('SECRET');
 
-authenticated.valueOf();
+authenticated.state;
 //> { authentication: { session: { token: 'SECRET' }, isAuthenticated: true } }
 ```
 
@@ -509,11 +510,11 @@ import { create } from 'microstates'
 
 let number = create(Number, 42).set(43);
 
-number.valueOf()
+number.state
 //> 43
 ```
 
-You can also use then `set` transition to replace the current Microstate with another Microstate. This is especially useful when building state machines because it allows you to change the type of the current Microstate. By changing the type, you're also changing available transitions and how the state is calculated.
+You can also use the `set` transition to replace the current Microstate with another Microstate. This is especially useful when building state machines because it allows you to change the type of the current Microstate. By changing the type, you're also changing available transitions and how the state is calculated.
 
 ```js
 import { types } from 'microstates';
@@ -731,10 +732,10 @@ from({ hello: "world" });
 `from` is lazy, so you can consume any deeply nested POJO and Microstates will allow you to perform transitions with it. The cost of building the objects inside of Microstates is paid whenever you reach for a Microstate inside. For example, `let o = from({ a: { b: c: 42 }})` doesn't do anything until you start to read the properties with dot notiation like `o.a.b.c`.
 
 ```js
-from({ a: { b: c: 42 }}).a.b.c.increment().valueOf();
+from({ a: { b: c: 42 }}).a.b.c.increment().state;
 // { a: { b: { c: 43 }}}
 
-from({ hello: [ 'world' ]}).hello[0].concat('!!!').valueOf();
+from({ hello: [ 'world' ]}).hello[0].concat('!!!').state
 // { hello: [ 'world!!!' ]}
 ```
 
@@ -750,29 +751,6 @@ let numbers = create([Number], [1, 2, 3, 4]);
     <li onClick={() => number.increment()}>{number.state}</li>
   ), numbers)}
 </ul>
-```
-
-## use(middleware, microstate: Microstate): Microstate
-
-The `use` function is used to add middleware to a microstate. This function will return a new microstate with the provided middleware installed.
-
-```js
-import { use, from } from "microstates";
-
-let number = from(42);
-
-const loggingMiddleware = next => (microstate, transition, args) => {
-  console.log(`before ${transition.name} value is`, microstate.valueOf());
-  let result = next(microstate, transition, args);
-  console.log(`after ${transition.name} value is`, result.valueOf());
-  return result;
-}
-
-let loggedNumber = use(loggingMiddleware, number);
-
-loggedNumber.increment();
-// before increment value is 42
-// after increment value is 43
 ```
 
 # Observable Microstates
@@ -808,7 +786,7 @@ let subscription = observable.subscribe(next => {
 
 last.firstName.set("Homer J");
 
-last.valueOf();
+last.state;
 //> { firstName: 'Homer J', lastName: 'Simpson' }
 ```
 
@@ -842,6 +820,7 @@ Imagine if your favourite Calendar component came with a Microstate that allowed
 
 ```js
 import Calendar from "awesome-calendar";
+import { filter } from "microstates";
 
 class MyCalendar extends Calendar.Model {
   // make days as events
@@ -849,7 +828,7 @@ class MyCalendar extends Calendar.Model {
 
   // component renders days from this property
   get visibleDays() {
-    return this.days.filter(day => day.status !== "finished");
+    return filter(this.days, day => day.state.status !== "finished");
   }
 }
 
