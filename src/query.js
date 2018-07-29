@@ -15,4 +15,10 @@ export const Reducible = type(class Reducible {
   }
 });
 
+Reducible.instance(Array, {
+  reduce(array, fn, initial) {
+    return array.reduce(fn, initial);
+  }
+});
+
 export const { map, filter, reduce } = Reducible.prototype;
