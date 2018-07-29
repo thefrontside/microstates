@@ -289,35 +289,4 @@ describe("ArrayType", function() {
     });
 
   });
-
-  describe('iterable', () => {
-    let array = ["a", "b", "c"];
-    let result;
-
-    beforeEach(() => {
-      result = [...create([String], array)];
-    });
-
-    it('instance of Array', () => {
-      expect(result).toBeInstanceOf(Array);
-    });
-
-    it('contains 3 microstates', () => {
-      expect(result).toMatchObject([
-        { state: "a", concat: expect.any(Function) },
-        { state: "b", concat: expect.any(Function) },
-        { state: "c", concat: expect.any(Function) }
-      ]);
-    });
-
-    describe('transition from result', () => {
-      let transitioned;
-      beforeEach(() => {
-        transitioned = result[1].concat('!!!');
-      });
-      it('has state', () => {
-        expect(transitioned.state).toEqual(['a', 'b!!!', 'c']);
-      });
-    });
-  });
 });
