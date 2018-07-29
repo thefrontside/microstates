@@ -1,12 +1,11 @@
 import expect from 'expect';
-
-const pkg = require('../dist/microstates.es.js');
+import * as exports from '../index';
 
 describe('package', () => {
-  it('exports create', () => expect(pkg.create).toBeDefined());
-  it('exports from', () => expect(pkg.from).toBeDefined());
-  it('exports filter', () => expect(pkg.filter).toBeDefined());
-  it('exports reduce', () => expect(pkg.reduce).toBeDefined());
-  it('exports ArrayType', () => expect(pkg.ArrayType).toBeDefined());
-  it('exports ObjectType', () => expect(pkg.ObjectType).toBeDefined());
+  it('exports create', () => expect(exports.create).toBeDefined());
+  it('exports from', () => expect(exports.from).toBeDefined());
+  it('exports filter', () => expect(exports.filter).toBeDefined());
+  it('exports reduce', () => expect(exports.reduce).toBeDefined());
+  it('exports ArrayType', () => expect(exports.ArrayType).toBeDefined());
+  it('exports ObjectType', () => expect(exports.ObjectType).toBeDefined());
 });
