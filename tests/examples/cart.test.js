@@ -2,7 +2,7 @@ import expect from 'expect';
 
 import { create } from '../../src/microstates';
 import { ArrayType } from '../../src/types';
-import { reduce } from '../../src/query';
+import { reduce, map } from '../../src/query';
 
 describe('cart example', () => {
   class Cart {
@@ -14,6 +14,10 @@ describe('cart example', () => {
 
     get count() {
       return reduce(this.products, (acc, product) => acc + product.state.quantity, 0);
+    }
+
+    get prices() {
+      return map(this.products, product => product.state.price);
     }
   }
   describe('adding products without initial value', () => {
@@ -34,6 +38,9 @@ describe('cart example', () => {
       expect(ms.state).toEqual({
         products: [{ quantity: 1, price: 10 }, { quantity: 2, price: 20 }],
       });
+    });
+    it('maps products', () => {
+      expect(ms.prices).toEqual([10, 20]);
     });
   });
 });

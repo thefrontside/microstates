@@ -1,6 +1,5 @@
 import expect from 'expect';
 import { create } from '../src/microstates';
-import ArrayType from '../src/types/array';
 
 import { TodoMVC } from './todomvc';
 
