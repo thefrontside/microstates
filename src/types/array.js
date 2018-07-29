@@ -56,5 +56,15 @@ export default parameterized(T => class ArrayType {
         }, initial);
       }
     });
+
+    this.prototype[Symbol.iterator] = function arrayTypeIterator() {
+      let cursor = 0;
+      return {
+        next: () => ({
+          value: this[cursor],
+          done: cursor++ >= this.state.length
+        })
+      }
+    }
   }
 });
