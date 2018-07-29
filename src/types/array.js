@@ -1,7 +1,8 @@
 import { Assemble } from '../assemble';
 import { create, SubstateAt, Meta } from "../microstates";
 import { set } from "../lens";
-import { Reducible, Mappable } from '../../src/query';
+import { Reducible } from '../../src/query';
+import { Filterable } from 'funcadelic';
 import parameterized from '../parameterized';
 
 export default parameterized(T => class ArrayType {
@@ -55,11 +56,5 @@ export default parameterized(T => class ArrayType {
         }, initial);
       }
     });
-
-    Mappable.instance(this, {
-      map(array, fn) {
-        return array.state.map((state, index) => fn(array[index], index));
-      }
-    })
   }
 });
