@@ -11,4 +11,12 @@ export const Reducible = type(class Reducible {
   }
 });
 
+export const Mappable = type(class Mappable {
+  map(mappable, fn) {
+    let { map } = this(mappable);
+    return map(mappable, fn);
+  }
+});
+
+export const { map } = Mappable.prototype;
 export const { reduce, filter } = Reducible.prototype;
