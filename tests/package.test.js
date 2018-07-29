@@ -7,7 +7,6 @@ describe('package', () => {
   it('exports from', () => expect(pkg.from).toBeDefined());
   it('exports filter', () => expect(pkg.filter).toBeDefined());
   it('exports reduce', () => expect(pkg.reduce).toBeDefined());
-  it('export map', () => expect(pkg.map).toBeDefined());
   it('exports ArrayType', () => expect(pkg.ArrayType).toBeDefined());
   it('exports ObjectType', () => expect(pkg.ObjectType).toBeDefined());
 });
