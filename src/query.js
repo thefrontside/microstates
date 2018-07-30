@@ -6,9 +6,19 @@ export const Reducible = type(class Reducible {
     return reduce(reducible, fn, initial);
   }
 
+  map(reducible, fn) {    
+    return reduce(reducible, (mapped, member) => mapped.concat(fn(member)), []);
+  }
+
   filter(reducible, predicate) {
     return reduce(reducible, (filtered, member) => predicate(member) ? filtered.concat(member) : filtered, []);
   }
 });
 
-export const { reduce, filter } = Reducible.prototype;
+Reducible.instance(Array, {
+  reduce(array, fn, initial) {
+    return array.reduce(fn, initial);
+  }
+});
+
+export const { map, filter, reduce } = Reducible.prototype;

@@ -1,6 +1,6 @@
 import expect from 'expect';
 import { create } from '../src/microstates';
-import ArrayType from '../src/types/array';
+import { map, filter, reduce } from '..';
 
 import { TodoMVC } from './todomvc';
 
@@ -34,5 +34,18 @@ describe('A Microstate with queries', function() {
       expect(next.active.length).toEqual(1)
       expect(next.completed.length).toEqual(3)
     });
+  });
+});
+
+describe('Query Array', () => {
+  let array = [true, false, true];
+  it('can reduce a regular array', () => {
+    expect(reduce(array, (acc, bool) => bool ? ++acc : acc, 0)).toBe(2);
+  });
+  it('can map a regular array', () => {
+    expect(map(array, bool => !bool)).toEqual([false, true, false]);
+  });
+  it('can filter a regular array', () => {
+    expect(filter(array, Boolean)).toEqual([true, true]);
   });
 });
