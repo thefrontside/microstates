@@ -317,10 +317,10 @@ let blog = create(Blog, {
   }
 });
 
-blog.posts["0"];
+blog.posts["1"];
 //> Microstate<Post>{ id: 1, title: 'Hello World' }
 
-blog.posts["1"];
+blog.posts["2"];
 //> Microstate<Post>{ id: 2, title: 'Most fascinating blog in the world' }
 ```
 
@@ -357,7 +357,7 @@ inverse.state;
 //> true
 ```
 
-> *Pro tip* Remember, Microstate transitions always return a Microstate. This is true both inside and outside the transition function. Using this convention to allow composition to reach crazy levels of complexity.
+> *Pro tip* Remember, Microstate transitions always return a Microstate. This is true both inside and outside the transition function. Using this convention can allow composition to reach crazy levels of complexity.
 
 Let's use a `Boolean` in another type and see what happens.
 
@@ -418,7 +418,7 @@ The primitive types have predefined transitions:
   * `filter(fn: state => boolean): Microstate` - return a Microstate with filtered array. The predicate function will receive state of each element in the array. If you return a falsy value from the predicate, the item will be excluded from the returned microstate.
   * `clear(): Microstate` - return a microstate with an empty array.
 
-Many transitions on primitive type are similar to methods on original classes. The biggest difference is that transitions always return Microstates.
+Many transitions on primitive types are similar to methods on original classes. The biggest difference is that transitions always return Microstates.
 
 ## Type transitions
 
@@ -443,7 +443,7 @@ let lisa = homer.changeName('Lisa');
 
 ## Chaining transitions
 
-Transitions can be composed out of any number of subtransitions. This is often referred to as "batch transitions" or "transactions". Let's say that when we authenticate a session, we need to both store the token and indicate that the user is now authenticated. To do this, we can chain transitions. The result of the last operation will become new microstate.
+Transitions can be composed out of any number of subtransitions. This is often referred to as "batch transitions" or "transactions". Let's say that when we authenticate a session, we need to both store the token and indicate that the user is now authenticated. To do this, we can chain transitions. The result of the last operation will become a new microstate.
 
 ```js
 class Session {
