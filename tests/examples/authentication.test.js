@@ -1,10 +1,8 @@
 import expect from 'expect';
 import { create } from '../../src/microstates';
 
-import { ObjectType, ArrayType, BooleanType, Any } from '../../src/types';
-
 class AnonymousSession {
-  content = create(Any);
+  content = create();
 
   initialize(session) {
     if (session) {
@@ -18,8 +16,8 @@ class AnonymousSession {
 }
 
 class AuthenticatedSession {
-  isAuthenticated = create(BooleanType, true);
-  content = create(ObjectType, {});
+  isAuthenticated = create(Boolean, true);
+  content = create(Object, {});
 
   logout() {
     return create(AnonymousSession);
