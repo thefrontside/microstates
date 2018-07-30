@@ -55,7 +55,6 @@ By combining lazy execution, algebraic data types and structural sharing, we cre
 
 With Microstates added to your project, you get:
 
-* 🔬 Tiny runtime - 5.5KB gzipped 
 * 🍇 Composable type system
 * 🍱 Reusable state atoms
 * 💎 Pure immutable state transitions without writing reducers
@@ -64,6 +63,7 @@ With Microstates added to your project, you get:
 * 🎯 Transpilation free type system
 * 🔭 Optional integration with Observables
 * ⚛ Use in Node.js, browser or React Native
+* 🔬 Only [5.5kB gzipped](https://bundlephobia.com/result?p=microstates) with all dependencies
 
 But, most imporantly, Microstates makes working with state fun.
 
