@@ -62,7 +62,8 @@ With Microstates added to your project, you get:
 * 🦋 Most elegant way to express state machines
 * 🎯 Transpilation free type system
 * 🔭 Optional integration with Observables
-* ⚛ Use in Node.js and browser
+* ⚛ Use in Node.js, browser or React Native
+* 🔬 Only [5.5kB gzipped](https://bundlephobia.com/result?p=microstates) with all dependencies
 
 But, most imporantly, Microstates makes working with state fun.
 
