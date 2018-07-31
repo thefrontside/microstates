@@ -96,7 +96,7 @@ describe("Parameterized Microstates: ", () => {
         description = String;
       };
       TodoList = class TodoList {
-        items = ArrayType.of(Item);
+        items = [Item];
       };
       m = create(TodoList, {
         items: [
@@ -118,7 +118,7 @@ describe("Parameterized Microstates: ", () => {
   describe("with simple parameters", function() {
     let m, value;
     beforeEach(function() {
-      let PriceList = ObjectType.of(ArrayType.of(Number));
+      let PriceList = create({}).constructor.Type.of([Number]);
       value = {
         oranges: [50, 20],
         apples: [1, 2, 45]
