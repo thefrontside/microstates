@@ -6,6 +6,10 @@ import { Filterable } from 'funcadelic';
 import parameterized from '../parameterized';
 
 export default parameterized(T => class ArrayType {
+  static get name() {
+    return `Array<${T.name}>`;
+  }
+
   push(value) {
     return [...this.state, value];
   }

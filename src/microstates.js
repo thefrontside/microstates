@@ -130,7 +130,10 @@ export class Meta {
       return object;
     } else {
       let clone = Semigroup.for(Object).append(object, {});
-      clone[Meta.LOOKUP] = meta;
+      Object.defineProperty(clone, Meta.LOOKUP, {
+        configurable: true,
+        value: meta
+      });
       return clone;
     }
   })

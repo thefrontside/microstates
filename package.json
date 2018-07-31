@@ -24,6 +24,7 @@
   "module": "dist/microstates.es.js",
   "repository": "git+ssh://git@github.com/microstates/microstates.js.git",
   "scripts": {
+    "start": "node repl.js",
     "test": "mocha --recursive -r tests/setup tests",
     "build": "rollup -c",
     "prepare": "npm run build",

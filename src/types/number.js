@@ -1,4 +1,6 @@
 export default class NumberType {
+  static name = "Number";
+
   initialize(value) {
     if (value == null) {
       return 0;
