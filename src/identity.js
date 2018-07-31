@@ -80,7 +80,10 @@ export default function Identity(microstate, observe = x => x) {
     constructor(value, path) {
       super();
       this.state = value;
-      this[info] = path;
+      Object.defineProperty(this, info, {
+        configurable: true,
+        value: path
+      });
     }
 
   })

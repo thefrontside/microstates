@@ -7,6 +7,10 @@ import parameterized from '../parameterized'
 export default parameterized(T => class ObjectType {
   static T = T;
 
+  static get name() {
+    return `Object<${T.name}>`;
+  }
+
   static initialize() {
     Assemble.instance(ObjectType, {
       assemble(Type, microstate, value) {
