@@ -6,6 +6,11 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 
+## [0.9.2] - 2018-07-31
+### Added
+- Export filter & reduce query functions and remove sum from Reducible https://github.com/microstates/microstates.js/pull/169
+- Added map query to Reducible and export it https://github.com/microstates/microstates.js/pull/172
+
 ## [0.9.1] - 2018-07-28
 ### Changed
 - Migrate to the picostates architecture. This introduces many, many
