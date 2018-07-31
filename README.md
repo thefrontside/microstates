@@ -75,7 +75,7 @@ Unlike the view layer, where most frameworks agree on some variation of React's 
 
 React components have a tiny API. They are functional, simple and extremely reusable. The tiny API gives you high productivity for little necessary knowledge. Functional components are predictable and easy to reason about. They are conceptually simple, but simplicity hides an underlying architecture geared for performance. Their simplicity, predictability and isolation makes them composable and reusable.
 
-These factors combined are what make React style components easy to work with and ultimately fun to write. A Tiny API abstracting a sophisticated architecture that delivers performance and is equaly useful on small and big projects is the outcome that we set out to achieve for state management with Microstates.
+These factors combined are what make React style components easy to work with and ultimately fun to write. A Tiny API abstracting a sophisticated architecture that delivers performance and is equally useful on small and big projects is the outcome that we set out to achieve for state management with Microstates.
 
 It's not easy to find the right balance between simplicity and power, but considering the importance of state management in web applications, we believe it's a worthy challenge. Checkout the [Vision of Microstates](#the-vision-of-microstates) section if you're interested in learning more about where we're going.
 
