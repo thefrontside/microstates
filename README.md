@@ -576,7 +576,7 @@ result.vehicle.state.isTowing
 
 ## Transition scope
 
-Microstates are composable, and they work exactly the same no matter what other microstate they're a part of. For this reason, Microstate transitions only have access to their own transitions and the transitions of the microstates they contain. What they do _not_ have is access to their context. This is similar to how components work. The parent component can render a children and pass data to them, but the child components do not have direct access to the parent component. The same principle applies in Microstates, so as a result, it benefits from the same advantages of isolation and composability that make components awesome.
+Microstates are composable, and they work exactly the same no matter what other microstate they're a part of. For this reason, Microstate transitions only have access to their own transitions and the transitions of the microstates they contain. What they do _not_ have is access to their context. This is similar to how components work. The parent component can render children and pass data to them, but the child components do not have direct access to the parent component. The same principle applies in Microstates, so as a result, it benefits from the same advantages of isolation and composability that make components awesome.
 
 # State Machines
 
