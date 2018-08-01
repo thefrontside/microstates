@@ -5,8 +5,15 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+
+## [0.9.3] - 2018-08-01
 ### Added
 - REPL for experimenting with, and demoing microstates.
+
+### Changed
+- [BUGFIX] fix problem where nested microstates being set to the same
+  value were breaking https://github.com/microstates/microstates.js/pull/183
+- Many, many fixes to the README.
 
 ## [0.9.2] - 2018-07-31
 ### Added
