@@ -10,8 +10,8 @@ import { treemap } from './tree';
 
 export function create(InputType = Any, value) {
   let Type = sugar.desugarType(InputType);
-  let PicoType = toPicoType(Type);
-  let instance = new PicoType();
+  let Microstate = toMicrostateType(Type);
+  let instance = new Microstate();
   instance.state = value
   let microstate = assemble(Type, instance, value);
 
@@ -22,11 +22,11 @@ export function create(InputType = Any, value) {
   }
 }
 
-const toPicoType = stable(function toPicoType(Type) {
+const toMicrostateType = stable(function toMicrostateType(Type) {
   if (Type.isMicrostateType) {
     return Type;
   }
-  let PicoType = class extends Type {
+  let Microstate = class extends Type {
     static name = `Microstate<${Type.name}>`;
     static Type = Type;
     static isMicrostateType = true;
@@ -59,7 +59,7 @@ const toPicoType = stable(function toPicoType(Type) {
 
   }
 
-  Hash.instance(PicoType, {
+  Hash.instance(Microstate, {
     digest(microstate) {
       return [microstate.state];
     }
@@ -75,7 +75,7 @@ const toPicoType = stable(function toPicoType(Type) {
     }
   }, []);
 
-  Object.assign(PicoType.prototype, foldl((methods, name) =>  {
+  Object.assign(Microstate.prototype, foldl((methods, name) =>  {
     methods[name] = function(...args) {
       let method = Type.prototype[name];
       let meta = Meta.get(this);
@@ -84,7 +84,7 @@ const toPicoType = stable(function toPicoType(Type) {
     }
     return methods;
   }, {}, methods))
-  return PicoType;
+  return Microstate;
 });
 
 export function isMicrostate(value) {
