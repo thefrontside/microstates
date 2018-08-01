@@ -74,6 +74,35 @@ describe("Microstates", () => {
           expect(next.any.state).toBe('ohai boss');
         });
       });
+
+      describe('setting the nested object to the same value', function() {
+        let next;
+
+        beforeEach(function() {
+          next = something.any.set(5).any.set(5).any.set(5)
+        });
+
+        it('maintains its shape', function() {
+          expect(next.state).toEqual({any: 5});
+        });
+
+        it('preserves its === equivalence', function() {
+          expect(next.any.set(5).any.set(5)).toBe(next);
+        });
+      });
+
+      describe('setting a microstate to another microstate from another tree', function() {
+        let next
+        beforeEach(function() {
+          something = create(Something, {any: "hi"});
+          next = create().set(something.any).set("hi").set("hi");
+        });
+        it('does not get confused', function() {
+          expect(next.state).toEqual("hi")
+        });
+      });
+
+
     });
   });
 
@@ -130,9 +159,4 @@ describe("Microstates", () => {
       });
     });
   });
-
 })
-
-function context(object) {
-  return Meta.get(object).context
-}

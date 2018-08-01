@@ -41,7 +41,7 @@ const toPicoType = stable(function toPicoType(Type) {
         microstate = create(this.constructor, value);
       }
       let meta = Meta.get(this);
-      return set(meta.lens, microstate, meta.context);
+      return set(meta.lens, Meta.source(microstate), meta.context);
     }
 
     [SymbolObservable]() { return this['@@observable'](); }
