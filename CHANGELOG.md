@@ -6,6 +6,12 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 
+## [0.9.4] - 2018-08-02
+### Changed
+- [BUGFIX] - syntactic sugar has problems and our testcases were not
+  catching them. Include a partial
+  workaround. https://github.com/microstates/microstates.js/pull/187
+
 ## [0.9.3] - 2018-08-01
 ### Added
 - REPL for experimenting with, and demoing microstates.
