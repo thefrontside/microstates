@@ -1,10 +1,8 @@
-import { ArrayType, StringType, BooleanType } from '../src/types';
-import { create } from '../src/microstates';
-import { filter } from '../src/query';
+import { create, filter } from '../index';
 
 export class Todo {
-  title = create(StringType);
-  completed = create(BooleanType, false);
+  title = String;
+  completed = create(Boolean, false);
 
   toggle() {
     return this.completed.set(!this.state.completed);
@@ -12,7 +10,7 @@ export class Todo {
 }
 
 export class TodoMVC {
-  todos = create(ArrayType.of(Todo));
+  todos = [Todo];
 
   get completed() {
     return filter(this.todos, todo => todo.state.completed);

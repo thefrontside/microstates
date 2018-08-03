@@ -4,12 +4,12 @@ import Identity from './identity';
 import { Hash } from './hash';
 import { Assemble, assemble } from './assemble';
 import SymbolObservable from 'symbol-observable';
-import sugar from './sugar';
 import Any from './types/any'
+import dsl from './dsl';
 import { treemap } from './tree';
 
 export function create(InputType = Any, value) {
-  let Type = sugar.desugarType(InputType);
+  let { Type } = dsl.expand(InputType);
   let Microstate = toMicrostateType(Type);
   let instance = new Microstate();
   instance.state = value
@@ -177,12 +177,12 @@ export function SubstatePath(path = []) {
 }
 
 
-function desugarProperty(value) {
-  if (isMicrostate(value)) {
-    return value;
+function expandProperty(property) {
+  if (isMicrostate(property)) {
+    return property;
   } else {
-    let Type = sugar.desugarType(value);
-    return create(Type, typeof value === 'function' ? undefined : value);
+    let { Type, value } = dsl.expand(property);
+    return create(Type, value);
   }
 }
 
@@ -191,6 +191,6 @@ Assemble.instance(Object, {
     return foldl((microstate, { key, value: child }) => {
       let substate = value != null && value[key] != null ? child.set(value[key]) : child;
       return set(SubstateAt(key), substate, microstate)
-    }, microstate, map(desugarProperty, new Type()));
+    }, microstate, map(expandProperty, new Type()));
   }
 })
