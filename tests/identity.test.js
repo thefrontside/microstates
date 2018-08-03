@@ -46,6 +46,26 @@ describe('Identity', () => {
     });
   });
 
+  describe('idempotency', function() {
+    let calls;
+    let store;
+    let next;
+    beforeEach(function() {
+      calls = 0;
+      store = Identity(microstate, x => {
+        calls++;
+        return x;
+      });
+      next = store.todos[0].completed.set(true);
+    });
+
+    it('returns the same id in the event that the state is the same', function() {
+      expect(next).toBe(store);
+    });
+    it('does not invoke the idenity function after the initial invocation', function() {
+      expect(calls).toEqual(1);
+    });
+  });
   describe('identity of queries', function() {
 
     it('traverses queries and includes the microstates within them', function() {
