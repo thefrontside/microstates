@@ -46,6 +46,25 @@ describe('Identity', () => {
     });
   });
 
+  describe('implicit method binding', function() {
+    let next;
+    beforeEach(function() {
+      let shift = id.todos.shift;
+      next = shift();
+    });
+    it('still completes the transition', function() {
+      expect(next.state).toEqual({
+        todos: [{
+          title: "Convince People Microstates is awesome", completed: false
+        }, {
+          title: "Take out the Trash", completed: false
+        }, {
+          title: "profit $$", completed: false
+        }]
+      })
+    });
+  });
+
   describe('idempotency', function() {
     let calls;
     let store;

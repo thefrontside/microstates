@@ -3,6 +3,7 @@ import { Meta } from './microstates';
 import { treemap } from './tree';
 import parameterized from './parameterized';
 import { Hash, equals } from './hash';
+import bindMethods from './bind-methods';
 
 //function composition should probably not be part of lens :)
 import { compose, view, Path } from './lens';
@@ -57,6 +58,8 @@ export default function Identity(microstate, observe = x => x) {
         return methods;
       }, {}, methods));
 
+
+      bindMethods(this);
 
       Object.keys(descriptors).forEach(propertyName => {
         let desc = descriptors[propertyName];
