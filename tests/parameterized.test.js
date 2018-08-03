@@ -1,7 +1,6 @@
 import expect from 'expect';
 
-import { create, ArrayType, ObjectType }  from "../index";
-import sugar from '../src/sugar';
+import { create }  from "../index";
 describe("Parameterized Microstates: ", () => {
   describe("sugar", function() {
     class Item {
@@ -21,6 +20,27 @@ describe("Parameterized Microstates: ", () => {
         expect(m.state[0].isCompleted).toBe(true);
       });
     });
+
+    describe('constructing a bare instance with embeded, parameterized arrays', function() {
+      let m;
+      beforeEach(function() {
+        m = create(TodoList);
+      });
+      it('has no items', function() {
+        expect(m.state).toEqual({items: []});
+      });
+    });
+
+    describe('constructing a bare instance with embeded, parameterized objects', function() {
+      let m;
+      beforeEach(function() {
+        m = create(TodoList);
+      });
+      it('has no items', function() {
+        expect(m.state).toEqual({items: []});
+      });
+    });
+
 
     describe("composed [Item] to parameterized(Array)", function() {
       let m;

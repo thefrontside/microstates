@@ -6,6 +6,7 @@ import { Filterable } from 'funcadelic';
 import parameterized from '../parameterized';
 
 export default parameterized(T => class ArrayType {
+  static T = T;
   static get name() {
     return `Array<${T.name}>`;
   }
