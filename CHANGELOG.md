@@ -6,6 +6,12 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 
+## [0.9.5] - 2018-80-03
+### CHanged
+- [BUGFIX] - this resolves completely the issues of syntatic sugar
+  non-determinism without the need for any workarounds
+  https://github.com/microstates/microstates.js/pull/189
+
 ## [0.9.4] - 2018-08-02
 ### Changed
 - [BUGFIX] - syntactic sugar has problems and our testcases were not
