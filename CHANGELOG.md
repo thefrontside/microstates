@@ -6,8 +6,19 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 
-## [0.9.5] - 2018-80-03
-### CHanged
+## [0.9.6] - 2018-08-04
+### Added
+- Implicitly bind methods for microstates inside a store.
+  https://github.com/microstates/microstates.js/pull/193
+- Allow consumers to use the Identity / Store API directly.
+  https://github.com/microstates/microstates.js/pull/194
+  
+### Changed
+- Make redundant transitions fully idemptotent for Identities. 
+  https://github.com/microstates/microstates.js/pull/191
+
+## [0.9.5] - 2018-08-03
+### Changed
 - [BUGFIX] - this resolves completely the issues of syntatic sugar
   non-determinism without the need for any workarounds
   https://github.com/microstates/microstates.js/pull/189
