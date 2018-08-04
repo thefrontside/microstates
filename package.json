@@ -1,6 +1,6 @@
 {
   "name": "microstates",
-  "version": "0.9.5",
+  "version": "0.9.6",
   "description": "Composable State Primitives for JavaScript",
   "keywords": [
     "lens",
