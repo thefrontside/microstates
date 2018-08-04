@@ -6,14 +6,19 @@ import { Hash, equals } from './hash';
 import bindMethods from './bind-methods';
 
 //function composition should probably not be part of lens :)
-import { compose, view, Path } from './lens';
+import { view, Path } from './lens';
 
 const info = Symbol('path');
 
 export default function Identity(microstate, observe = x => x) {
   let current;
   let identity;
-  let tick = compose(observe, update);
+
+  function tick(next) {
+    update(next);
+    observe(identity);
+    return identity;
+  }
 
   function update(microstate) {
     current = microstate;

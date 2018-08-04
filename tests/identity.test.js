@@ -46,6 +46,7 @@ describe('Identity', () => {
     });
   });
 
+
   describe('implicit method binding', function() {
     let next;
     beforeEach(function() {
@@ -62,6 +63,19 @@ describe('Identity', () => {
           title: "profit $$", completed: false
         }]
       })
+    });
+  });
+
+  describe('the identity callback function', function() {
+    let args;
+    let store;
+    beforeEach(function() {
+      store = Identity(microstate, () => undefined);
+    });
+
+    it('ignores the return value of the callback function when determining the value of the store', function() {
+      expect(store).toBeDefined();
+      expect(store).toBeInstanceOf(TodoMVC);
     });
   });
 

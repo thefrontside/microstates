@@ -7,4 +7,5 @@ describe('package', () => {
   it('exports map', () => expect(exports.map).toBeDefined());
   it('exports filter', () => expect(exports.filter).toBeDefined());
   it('exports reduce', () => expect(exports.reduce).toBeDefined());
+  it('exports store', () => expect(exports.Store).toBeInstanceOf(Function))
 });
