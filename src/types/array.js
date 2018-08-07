@@ -15,6 +15,10 @@ export default parameterized(T => class ArrayType {
     return [...this.state, value];
   }
 
+  pop() {
+    return this.state.slice(0, -1);
+  }
+
   shift() {
     let [, ...rest] = this.state;
     return rest;
