@@ -518,8 +518,6 @@ number.state
 You can also use the `set` transition to replace the current Microstate with another Microstate. This is especially useful when building state machines because it allows you to change the type of the current Microstate. By changing the type, you're also changing available transitions and how the state is calculated.
 
 ```js
-import { types } from 'microstates';
-
 class Vehicle {
   weight = Number;
   towing = Vehicle;
