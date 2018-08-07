@@ -893,6 +893,10 @@ class Employee extends Person {
 }
 ```
 
+## Supporting Development
+
+Microstates is the result of 2 years of experimentation and 7 rewrites. So far, we spent over 1000 hours buiding Microstates for our community. We are looking for partner companies to help us evolve Microstates. If you are interested in supporting Microstates development by hiring Frontside, please reach out via [email](mailto:info@frontside.io)
+
 # Run Tests
 
 ```shell
