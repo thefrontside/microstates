@@ -35,6 +35,29 @@ describe("ArrayType", function() {
       });
     });
 
+    describe("pop", () => {
+      let popped;
+      beforeEach(() => {
+        popped = ms.pop();
+      });
+
+      it("has state", () => {
+        expect(popped.state).toEqual(["a", "b"]);
+      });
+
+      describe("again", () => {
+        let again;
+
+        beforeEach(() => {
+          again = popped.pop();
+        });
+
+        it("has state", () => {
+          expect(again.state).toEqual(["a"]);
+        });
+      });
+    });
+
     describe("filter", () => {
       let filtered;
 
@@ -101,6 +124,17 @@ describe("ArrayType", function() {
           it("has changed value", () => {
             expect(changed.state.records[0].content).toBe("Hello!");
           });
+
+          describe("popping a record", () => {
+            let popped;
+            beforeEach(() => {
+              popped = changed.records.pop();
+            });
+
+            it("does not have any records", () => {
+              expect(popped.state.records[0]).toBe(undefined);
+            });
+          });
         });
       });
     });
@@ -137,6 +171,32 @@ describe("ArrayType", function() {
 
           it("has changed value", () => {
             expect(changed.state.records[3].content).toBe("Hello!");
+          });
+        });
+      });
+
+      describe('pop', () => {
+        let popped;
+        beforeEach(() => {
+          popped = dataset.records.pop();
+        });
+
+        it('removed last element from the array', () => {
+          expect(popped.records[2]).toBe(undefined);
+        });
+
+        it('changed length', () => {
+          expect(popped.records.state.length).toBe(2);
+        });
+
+        describe('changing record', () => {
+          let changed;
+          beforeEach(() => {
+            changed = popped.records[1].content.concat('!!!');
+          });
+
+          it('changed the content', () => {
+            expect(changed.records[1].content.state).toBe('Sweet!!!');
           });
         });
       });
