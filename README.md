@@ -793,7 +793,7 @@ This mechanism provides the starting point for integration between the Observabl
 
 # The Vision of Microstates
 
-What if switching frameworks were easy? What if a company could build domain specific code that worked across frameworks? Imagine what it would be like if you tools stayed with you as you progressed in your career as an engineer. This is the world what we hope to create with Microstates.
+What if switching frameworks were easy? What if a company could build domain specific code that worked across frameworks? Imagine what it would be like if your tools stayed with you as you progressed in your career as an engineer. This is the world that we hope to create with Microstates.
 
 ## Shared Solutions
 
