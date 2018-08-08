@@ -66,6 +66,20 @@ describe('Identity', () => {
     });
   });
 
+  describe('transition stability', function() {
+    let next;
+    beforeEach(function() {
+      next = id.todos[0].completed.set(false);
+    });
+    it('uses the same function for each location in the graph, even for different instances', function() {
+      expect(next).not.toBe(id);
+      expect(next.set).toBe(id.set);
+      expect(next.todos[0].push).toBe(id.todos[0].push);
+      expect(next.todos[0].completed.toggle).toBe(id.todos[0].completed.toggle);
+    });
+  });
+
+
   describe('the identity callback function', function() {
     let args;
     let store;
