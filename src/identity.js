@@ -3,12 +3,9 @@ import { Meta } from './microstates';
 import { treemap } from './tree';
 import parameterized from './parameterized';
 import { Hash, equals } from './hash';
-import bindMethods from './bind-methods';
 
 //function composition should probably not be part of lens :)
 import { view, Path } from './lens';
-
-const info = Symbol('path');
 
 export default function Identity(microstate, observe = x => x) {
   let current;
@@ -28,15 +25,20 @@ export default function Identity(microstate, observe = x => x) {
       let Type = microstate.constructor.Type;
       let value = microstate.state;
       if (proxy == null || !equals(proxy, microstate)) {
-        let IdType = Id.of(Type)
-        return new IdType(value, path);
+        let IdType;
+        if (proxy && proxy.constructor.Type === Type) {
+          IdType = proxy.constructor;
+        } else {
+          IdType = Id.of(Type, path);
+        }
+        return new IdType(value);
       } else {
         return proxy
       }
     }, microstate);
   }
 
-  let Id = parameterized(T => class Id extends T {
+  let Id = parameterized((T, P) => class Id extends T {
     static Type = T;
     static name = `Id<${T.name}>`;
 
@@ -54,7 +56,7 @@ export default function Identity(microstate, observe = x => x) {
 
       Object.assign(this.prototype, foldl((methods, name) => {
         methods[name] = function(...args) {
-          let path = this[info];
+          let path = P;
           let microstate = view(Path(path), current);
           let next = microstate[name](...args);
 
@@ -62,9 +64,6 @@ export default function Identity(microstate, observe = x => x) {
         }
         return methods;
       }, {}, methods));
-
-
-      bindMethods(this);
 
       Object.keys(descriptors).forEach(propertyName => {
         let desc = descriptors[propertyName];
@@ -86,15 +85,10 @@ export default function Identity(microstate, observe = x => x) {
       })
     }
 
-    constructor(value, path) {
+    constructor(value) {
       super();
       this.state = value;
-      Object.defineProperty(this, info, {
-        configurable: true,
-        value: path
-      });
     }
-
   })
 
   return tick(microstate);
