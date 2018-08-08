@@ -6,6 +6,14 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 
+## [0.10.0] - 2018-08-08
+
+### Added
+- Implement Array.pop() transition https://github.com/microstates/microstates.js/pull/197
+
+### Changed
+- Make transitions functions stable per location. https://github.com/microstates/microstates.js/pull/200
+
 ## [0.9.6] - 2018-08-04
 ### Added
 - Implicitly bind methods for microstates inside a store.
