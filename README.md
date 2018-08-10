@@ -738,7 +738,7 @@ from({ hello: [ 'world' ]}).hello[0].concat('!!!').state
 // { hello: [ 'world!!!' ]}
 ```
 
-## map(fn, microstate): Microstate
+## map(microstate, fn): Microstate
 
 The `map` function invokes the function for each microstate in an array microstate. It is usually used to map over an array of microstate and return an array of components. The mapping function will receive each microstate in the array. You can invoke transitions on each microstate as you would usually.
 
@@ -746,9 +746,9 @@ The `map` function invokes the function for each microstate in an array microsta
 let numbers = create([Number], [1, 2, 3, 4]);
 
 <ul>
-  {map(number => (
+  {map(numbers, number => (
     <li onClick={() => number.increment()}>{number.state}</li>
-  ), numbers)}
+  ))}
 </ul>
 ```
 
