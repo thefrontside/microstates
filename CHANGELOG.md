@@ -6,6 +6,11 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 
+## [0.10.1] - 2018-08-12
+
+### Fixed
+- Make sure dist is included in the package. https://github.com/microstates/microstates.js/pull/206
+
 ## [0.10.0] - 2018-08-08
 
 ### Added
