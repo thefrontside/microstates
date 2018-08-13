@@ -28,6 +28,7 @@
     "start": "node repl.js",
     "test": "mocha --recursive -r tests/setup tests",
     "build": "rollup -c",
+    "bench": "node -r ./tests/setup benchmarks/index.js",
     "prepare": "npm run build",
     "prerelease": "npm test && npm run build"
   },
@@ -36,6 +37,8 @@
     "@babel/plugin-proposal-class-properties": "7.0.0-beta.54",
     "@babel/preset-env": "^7.0.0-beta.54",
     "@babel/register": "^7.0.0-beta.54",
+    "benchmark": "^2.1.4",
+    "cli-table": "^0.3.1",
     "expect": "^23.4.0",
     "mocha": "^5.2.0",
     "object.getownpropertydescriptors": "^2.0.3",
