@@ -2,6 +2,7 @@ import expect from 'expect';
 
 import ArrayType from '../../src/types/array';
 import { create } from '../../src/microstates';
+import { first, second, third, at } from '../../index';
 
 describe("ArrayType", function() {
   describe("when unparameterized", function() {
@@ -108,17 +109,17 @@ describe("ArrayType", function() {
         });
 
         it("has the new record", () => {
-          expect(pushed.records[0]).toBeInstanceOf(Record);
+          expect(first(pushed.records)).toBeInstanceOf(Record);
         });
 
         it("has given value", () => {
-          expect(pushed.state.records[0].content).toBe("Hi!");
+          expect(first(pushed.state.records).content).toBe("Hi!");
         });
 
         describe("changing record", () => {
           let changed;
           beforeEach(() => {
-            changed = pushed.records[0].content.set("Hello!");
+            changed = first(pushed.records).content.set("Hello!");
           });
 
           it("has changed value", () => {
@@ -156,7 +157,7 @@ describe("ArrayType", function() {
         });
 
         it("has the new record", () => {
-          expect(pushed.records[3]).toBeInstanceOf(Record);
+          expect(at(pushed.records, 3)).toBeInstanceOf(Record);
         });
 
         it("has given value", () => {
@@ -166,7 +167,7 @@ describe("ArrayType", function() {
         describe("changing record", () => {
           let changed;
           beforeEach(() => {
-            changed = pushed.records[3].content.set("Hello!");
+            changed = at(pushed.records, 3).content.set("Hello!");
           });
 
           it("has changed value", () => {
@@ -182,7 +183,7 @@ describe("ArrayType", function() {
         });
 
         it('removed last element from the array', () => {
-          expect(popped.records[2]).toBe(undefined);
+          expect(third(popped.records, 2)).toBe(undefined);
         });
 
         it('changed length', () => {
@@ -192,11 +193,11 @@ describe("ArrayType", function() {
         describe('changing record', () => {
           let changed;
           beforeEach(() => {
-            changed = popped.records[1].content.concat('!!!');
+            changed = second(popped.records).content.concat('!!!');
           });
 
           it('changed the content', () => {
-            expect(changed.records[1].content.state).toBe('Sweet!!!');
+            expect(second(changed.records).content.state).toBe('Sweet!!!');
           });
         });
       });
@@ -208,7 +209,7 @@ describe("ArrayType", function() {
         });
 
         it('removed first element from the array', () => {
-          expect(shifted.records[0].content.state).toBe('Sweet');
+          expect(first(shifted.records).content.state).toBe('Sweet');
         });
 
         it('changed length', () => {
@@ -218,11 +219,11 @@ describe("ArrayType", function() {
         describe('changing record', () => {
           let changed;
           beforeEach(() => {
-            changed = shifted.records[1].content.concat('!!!');
+            changed = second(shifted.records).content.concat('!!!');
           });
 
           it('changed the content', () => {
-            expect(changed.records[1].content.state).toBe('Woooo!!!');
+            expect(second(changed.records).content.state).toBe('Woooo!!!');
           });
         });
       });
@@ -233,29 +234,29 @@ describe("ArrayType", function() {
           unshifted = dataset.records.unshift({ content: "Hi!" });
         });
         it('pushed record to the beginning of the array', () => {
-          expect(unshifted.records[0].content.state).toBe('Hi!');
+          expect(first(unshifted.records).content.state).toBe('Hi!');
         });
         it('moved first record to second position', () => {
-          expect(unshifted.records[1].content.state).toBe('Herro');
+          expect(second(unshifted.records).content.state).toBe('Herro');
         });
 
         describe('change new record', () => {
           let changed;
           beforeEach(() => {
-            changed = unshifted.records[0].content.concat('!!!');
+            changed = first(unshifted.records).content.concat('!!!');
           });
           it('changed new record', () => {
-            expect(changed.records[0].content.state).toBe('Hi!!!!');
+            expect(first(changed.records).content.state).toBe('Hi!!!!');
           });
         });
 
         describe('change existing record', () => {
           let changed;
           beforeEach(() => {
-            changed = unshifted.records[1].content.concat('!!!');
+            changed = second(unshifted.records).content.concat('!!!');
           });
           it('changed new record', () => {
-            expect(changed.records[1].content.state).toBe('Herro!!!');
+            expect(second(changed.records).content.state).toBe('Herro!!!');
           });
         });
       });
@@ -273,11 +274,11 @@ describe("ArrayType", function() {
         describe('changing remaining item', () => {
           let changed;
           beforeEach(() => {
-            changed = filtered.records[0].content.concat('!!!');
+            changed = first(filtered.records).content.concat('!!!');
           });
 
           it('it changed the state', () => {
-            expect(changed.records[0].content.state).toBe('Sweet!!!');
+            expect(first(changed.records).content.state).toBe('Sweet!!!');
           });
         });
       });
@@ -290,19 +291,19 @@ describe("ArrayType", function() {
           });
 
           it('applied change to every element', () => {
-            expect(mapped.records[0].content.state).toBe('Herro!!!');
-            expect(mapped.records[1].content.state).toBe('Sweet!!!');
-            expect(mapped.records[2].content.state).toBe('Woooo!!!');
+            expect(first(mapped.records).content.state).toBe('Herro!!!');
+            expect(second(mapped.records).content.state).toBe('Sweet!!!');
+            expect(third(mapped.records).content.state).toBe('Woooo!!!');
           });
 
           describe('changing record', () => {
             let changed;
             beforeEach(() => {
-              changed = mapped.records[1].content.set('SWEET!!!');
+              changed = second(mapped.records).content.set('SWEET!!!');
             });
 
             it('changed the record content', () => {
-              expect(changed.records[1].content.state).toBe('SWEET!!!');
+              expect(second(changed.records).content.state).toBe('SWEET!!!');
             });
           });
         });
@@ -321,12 +322,12 @@ describe("ArrayType", function() {
           });
 
           it('changed type of the record', () => {
-            expect(mapped.records[1]).toBeInstanceOf(SweetSweetRecord);
+            expect(second(mapped.records)).toBeInstanceOf(SweetSweetRecord);
           });
 
           it('did not change the uneffected item', () => {
-            expect(dataset.records[0].state).toBe(mapped.records[0].state);
-            expect(dataset.records[2].state).toBe(mapped.records[2].state);
+            expect(first(dataset.records).state).toBe(mapped.records[0].state);
+            expect(third(dataset.records).state).toBe(mapped.records[2].state);
           });
         });
       });
@@ -345,8 +346,6 @@ describe("ArrayType", function() {
           expect(cleared.state).toEqual({ records: [] });
         });
       });
-
     });
-
   });
 });

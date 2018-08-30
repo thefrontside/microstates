@@ -6,12 +6,30 @@ export const Reducible = type(class Reducible {
     return reduce(reducible, fn, initial);
   }
 
-  map(reducible, fn) {    
+  map(reducible, fn) {
     return reduce(reducible, (mapped, member) => mapped.concat(fn(member)), []);
   }
 
   filter(reducible, predicate) {
     return reduce(reducible, (filtered, member) => predicate(member) ? filtered.concat(member) : filtered, []);
+  }
+
+  // stubs for array access
+  first(array) {
+    return at(array, 0);
+  }
+
+  second(array) {
+    return at(array, 1);
+  }
+  third(array) {
+    return at(array, 2);
+  }
+  at(array, index) {
+    return array[index];
+  }
+  last(array) {
+    return at(array, array.length - 1);
   }
 });
 
@@ -21,4 +39,4 @@ Reducible.instance(Array, {
   }
 });
 
-export const { map, filter, reduce } = Reducible.prototype;
+export const { map, filter, reduce, first, second, third, at, last } = Reducible.prototype;
