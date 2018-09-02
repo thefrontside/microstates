@@ -159,4 +159,23 @@ describe("Microstates", () => {
       });
     });
   });
+
+  describe('Microstates with nonTransition methods', function() {
+    class Person {
+      firstName = [String]
+      lastName = [String]
+      fullName() {
+        return this.firstName.state + " " + this.lastName.state;
+      }
+    }
+    Person.prototype.fullName.nonTransition = true;
+
+    let person;
+    beforeEach(function() {
+      person = create(Person, { firstName: 'Homer', lastName: 'Simpson' });
+    });
+    it('does now wrap the return as a Microstate', function() {
+      expect(person.fullName()).toEqual("Homer Simpson");
+    });
+  });
 })

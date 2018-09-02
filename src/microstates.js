@@ -68,7 +68,7 @@ const toMicrostateType = stable(function toMicrostateType(Type) {
   let descriptors = Object.getOwnPropertyDescriptors(Type.prototype);
   let methods = Object.keys(descriptors).reduce((methods, name) => {
     let desc = descriptors[name];
-    if (name !== 'constructor' && name !== 'set' && typeof name === 'string' && typeof desc.value === 'function') {
+    if (name !== 'constructor' && name !== 'set' && typeof name === 'string' && typeof desc.value === 'function' && !desc.value.nonTransition) {
       return methods.concat(name);
     } else {
       return methods;
