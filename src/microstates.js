@@ -7,6 +7,7 @@ import SymbolObservable from 'symbol-observable';
 import Any from './types/any'
 import dsl from './dsl';
 import { treemap } from './tree';
+import applyArrayWrapper from './arrayWrapper'
 
 export function create(InputType = Any, value) {
   let { Type } = dsl.expand(InputType);
@@ -64,6 +65,8 @@ const toMicrostateType = stable(function toMicrostateType(Type) {
       return [microstate.state];
     }
   })
+
+  applyArrayWrapper(Microstate.prototype, Type)
 
   let descriptors = Object.getOwnPropertyDescriptors(Type.prototype);
   let methods = Object.keys(descriptors).reduce((methods, name) => {

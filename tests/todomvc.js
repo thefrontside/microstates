@@ -9,15 +9,30 @@ export class Todo {
   }
 }
 
-export class TodoMVC {
-  todos = [Todo];
+export class Todos {
+  static isArray = true
+  __list__ = [Todo]
+
+  someField = String
 
   get completed() {
-    return filter(this.todos, todo => todo.state.completed);
+    return filter(this, todo => todo.state.completed);
   }
 
   get active() {
-    return filter(this.todos, todo => !todo.state.completed);
+    return filter(this, todo => !todo.state.completed);
+  }
+}
+
+export class TodoMVC {
+  todos = Todos;
+
+  get completed() {
+    return this.todos.completed
+  }
+
+  get active() {
+    return this.todos.active
   }
 
   completeAll() {
