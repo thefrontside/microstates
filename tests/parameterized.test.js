@@ -68,7 +68,7 @@ describe("Parameterized Microstates: ", () => {
         transitioned = m.apples[0].increment().oranges[1].increment();
       });
       it("uses the same value for state as the value ", function() {
-        expect(m.state).toEqual(value);
+        expect(m.state).toBe(value);
       });
       it("still respects transitions", function() {
         let value = {
