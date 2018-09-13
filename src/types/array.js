@@ -1,5 +1,5 @@
 import { Assemble } from '../assemble';
-import { create, SubstateAt, Meta } from "../microstates";
+import { create, Meta } from "../microstates";
 import { set } from "../lens";
 import { Reducible } from '../../src/query';
 import { Filterable } from 'funcadelic';
@@ -53,7 +53,7 @@ export default parameterized(T => class ArrayType {
           microstate.state = [value];
         }
         return microstate.state.reduce((microstate, member, index) => {
-          return set(SubstateAt(index), create(T).set(member), microstate);
+          return set(Meta.At(index), create(T).set(member), microstate);
         }, microstate);
       }
     });

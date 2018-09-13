@@ -1,5 +1,5 @@
 import { Assemble } from '../assemble';
-import { SubstateAt, create } from '../microstates';
+import { create, Meta } from '../microstates';
 import { over } from '../lens';
 import { append, filter, foldl } from 'funcadelic';
 import parameterized from '../parameterized'
@@ -18,7 +18,7 @@ export default parameterized(T => class ObjectType {
           microstate.state = {};
         }
         return foldl((microstate, entry) => {
-          return over(SubstateAt(entry.key), () => create(T).set(entry.value), microstate );
+          return over(Meta.At(entry.key), () => create(T).set(entry.value), microstate );
         }, microstate, microstate.state);
       }
     });

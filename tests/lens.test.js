@@ -1,7 +1,7 @@
 import expect from 'expect';
-import { compose, view, over, set, Prop, Path, transparent, Lens } from '../src/lens';
+import { view, set } from '../src/lens';
 import { append } from 'funcadelic';
-import { create, SubstateAt } from '../src/microstates';
+import { create, Meta } from '../src/microstates';
 
 describe('substate lenses', function() {
   class Parent {}
@@ -10,7 +10,7 @@ describe('substate lenses', function() {
   let parent = new Parent();
   let lens
   beforeEach(function() {
-    lens = SubstateAt('child');
+    lens = Meta.At('child');
   });
 
   it('set-get: view retrievs what set put in', function() {

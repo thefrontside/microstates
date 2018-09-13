@@ -1,5 +1,5 @@
 import { append, foldl, Semigroup, map, stable } from 'funcadelic';
-import { view, set, over, Lens, ValueAt } from './lens';
+import { compose, view, set, over, transparent, Lens, ValueAt } from './lens';
 import Identity from './identity';
 import { Hash } from './hash';
 import { Assemble, assemble } from './assemble';
@@ -93,11 +93,9 @@ export function isMicrostate(value) {
 
 export class Meta {
   constructor(attrs = {}) {
-    this.path = attrs.path || [];
-  }
-
-  get lens() {
-    return SubstatePath(this.path);
+    this.path = attrs.hasOwnProperty('path') ? attrs.path : [];
+    this.context = attrs.hasOwnProperty('context') ? attrs.context : undefined;
+    this.lens = attrs.hasOwnProperty('lens') ? attrs.lens : transparent;
   }
 
   static get(object) {
@@ -105,6 +103,49 @@ export class Meta {
       throw new Error('cannot lookup Meta of null or undefined');
     }
     return view(Meta.lens, object);
+  }
+
+  static At(key) {
+    function getter(microstate) {
+      if (microstate == null || microstate[key] == null) {
+        return undefined;
+      } else {
+        return Meta.get(microstate[key]).source;
+      }
+    }
+    function setter(substate, microstate) {
+      let current = microstate[key];
+      let { source } = current ? Meta.get(current) : {};
+      if (substate === source) {
+        return microstate;
+      } else {
+        return append(microstate, {
+          state: set(ValueAt(key), substate.state, microstate.state),
+          get [key]() {
+            return Meta.mount(this, key, substate);
+          }
+        })
+      }
+    }
+    return Lens(getter, setter);
+  }
+
+  static mount(microstate, property, substate) {
+    let parent = Meta.get(microstate);
+    let prefix = compose(parent.lens, Meta.At(property))
+    return Meta.treemap(meta => {
+      return {
+        get context() {
+          return parent.context;
+        },
+        get lens() {
+          return compose(prefix, meta.lens);
+        },
+        get path() {
+          return [property].concat(meta.path);
+        }
+      }
+    }, Meta.update(() => ({ source: substate }), substate));
   }
 
   static source(microstate) {
@@ -139,44 +180,6 @@ export class Meta {
   })
 }
 
-export function SubstateAt(name) {
-  let getter = context => {
-    if (context == null || context[name] == null) {
-      return undefined;
-    } else {
-      return Meta.get(context[name]).source;
-    }
-  }
-
-  let setter = (substate, microstate) => {
-    let current = microstate[name];
-    let { source } = current ? Meta.get(current) : {};
-    if (substate === source) {
-      return microstate;
-    } else {
-      let contextualized = Meta.update(() => ({ source: substate }), substate);
-
-      let whole = append(microstate, {
-        [name]: Meta.treemap(meta => ({ path: [name].concat(meta.path) }), contextualized),
-        state: set(ValueAt(name), substate.state, microstate.state)
-      });
-      let next = Meta.treemap(() => ({ get context() { return next; } }), whole);
-      return next;
-    }
-  };
-
-  return Lens(getter, setter);
-}
-
-import { compose, transparent } from './lens';
-
-export function SubstatePath(path = []) {
-  return foldl((lens, key) => {
-    return compose(lens, SubstateAt(key))
-  }, transparent, path);
-}
-
-
 function expandProperty(property) {
   if (isMicrostate(property)) {
     return property;
@@ -188,9 +191,13 @@ function expandProperty(property) {
 
 Assemble.instance(Object, {
   assemble(Type, microstate, value) {
-    return foldl((microstate, { key, value: child }) => {
-      let substate = value != null && value[key] != null ? child.set(value[key]) : child;
-      return set(SubstateAt(key), substate, microstate)
-    }, microstate, map(expandProperty, new Type()));
+    let slots = map(expandProperty, new Type());
+
+    return foldl((microstate, slot) => {
+      let key = slot.key;
+      let subvalue = value != null ? value[key] : undefined
+      let substate = subvalue != null ? slot.value.set(subvalue) : slot.value;
+      return set(Meta.At(key), substate, microstate);
+    }, microstate, slots);
   }
 })
