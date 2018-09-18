@@ -2,7 +2,6 @@ import { Assemble } from '../assemble';
 import { create, Meta } from "../microstates";
 import { set } from "../lens";
 import { Reducible } from '../../src/query';
-import { Filterable } from 'funcadelic';
 import parameterized from '../parameterized';
 
 export default parameterized(T => class ArrayType {
