@@ -92,10 +92,10 @@ export function isMicrostate(value) {
 }
 
 export class Meta {
-  constructor(attrs = {}) {
-    this.path = attrs.hasOwnProperty('path') ? attrs.path : [];
-    this.context = attrs.hasOwnProperty('context') ? attrs.context : undefined;
-    this.lens = attrs.hasOwnProperty('lens') ? attrs.lens : transparent;
+  constructor(object) {
+    this.context = object;
+    this.path = [];
+    this.lens = transparent;
   }
 
   static get(object) {
@@ -161,7 +161,7 @@ export class Meta {
   }
 
   static lookup(object) {
-    return object[Meta.LOOKUP] || new Meta({ context: object });
+    return object[Meta.LOOKUP] || new Meta(object);
   }
 
   static LOOKUP = Symbol('Meta');
