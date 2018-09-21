@@ -3,6 +3,7 @@ import any from './any.benchmark'
 import number from './number.benchmark';
 import array from './array.benchmark';
 import object from './object.benchmark';
+import todomvc from './todomvc.benchmark';
 
 import Benchmark from 'benchmark';
 import Table from 'cli-table';
@@ -44,5 +45,6 @@ any(suite);
 number(suite);
 array(suite);
 object(suite);
+todomvc(suite);
 
 suite.run({ async: true });
