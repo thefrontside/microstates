@@ -18,7 +18,12 @@ export default parameterized(T => class ObjectType {
           microstate.state = {};
         }
         return foldl((microstate, entry) => {
-          return over(Meta.At(entry.key), () => create(T).set(entry.value), microstate );
+          return Object.defineProperty(microstate, entry.key, {
+            enumerable: true,
+            get() {
+              return Meta.mount(this, entry.key, create(T, entry.value));
+            }
+          })
         }, microstate, microstate.state);
       }
     });

@@ -29,13 +29,20 @@ export default parameterized(T => class ArrayType {
 
   filter(fn) {
     return this.state.reduce((filtered, item, index) => {
-      let substate = Meta.source(this[index]);
-      return fn(substate) ? filtered.concat(substate) : filtered;
+      let substate = this[index];
+      return fn(substate) ? filtered.concat(substate.state) : filtered;
     }, []);
   }
 
   map(fn) {
-    return this.state.map((item, index) => fn(Meta.source(this[index])));
+    return this.state.map((item, index) => {
+      let mapped = fn(create(T, item));
+      if (mapped != null) {
+        return mapped.state != null ? mapped.state : mapped;
+      } else {
+        return mapped;
+      }
+    });
   }
 
   clear() {
@@ -52,7 +59,12 @@ export default parameterized(T => class ArrayType {
           microstate.state = [value];
         }
         return microstate.state.reduce((microstate, member, index) => {
-          return set(Meta.At(index), create(T).set(member), microstate);
+          return Object.defineProperty(microstate, index, {
+            enumerable: true,
+            get() {
+              return Meta.mount(this, index, create(T, member));
+            }
+          });
         }, microstate);
       }
     });

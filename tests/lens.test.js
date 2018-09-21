@@ -5,8 +5,12 @@ import { create, Meta } from '../src/microstates';
 
 describe('substate lenses', function() {
   class Parent {}
-  class Child {}
-  let child = new Child();
+  class Child {
+    constructor(state) {
+      this.state = state;
+    }
+  }
+  let child = new Child('childState');
   let parent = new Parent();
   let lens
   beforeEach(function() {
