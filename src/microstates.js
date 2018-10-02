@@ -1,203 +1,76 @@
-import { append, foldl, Semigroup, map, stable } from 'funcadelic';
-import { compose, view, set, over, transparent, Lens, ValueAt } from './lens';
-import Identity from './identity';
-import { Hash } from './hash';
-import { Assemble, assemble } from './assemble';
-import SymbolObservable from 'symbol-observable';
-import Any from './types/any'
+import { stable, map, type } from 'funcadelic';
+import { set, view } from './lens';
+import { Meta, mount, metaOf, valueOf, sourceOf } from './meta';
+import { methodsOf } from './reflection';
 import dsl from './dsl';
-import { treemap } from './tree';
+import Any from './types/any';
+import CachedProperty from './cached-property';
 
 export function create(InputType = Any, value) {
   let { Type } = dsl.expand(InputType);
-  let Microstate = toMicrostateType(Type);
-  let instance = new Microstate();
-  instance.state = value
-  let microstate = assemble(Type, instance, value);
-
-  if (Type.prototype.hasOwnProperty('initialize') && typeof microstate.initialize === 'function') {
+  let Microstate = MicrostateType(Type);
+  let microstate = new Microstate(value);
+  if (Type.prototype.hasOwnProperty('initialize')) {
     return microstate.initialize(value);
   } else {
     return microstate;
   }
 }
 
-const toMicrostateType = stable(function toMicrostateType(Type) {
-  if (Type.isMicrostateType) {
+const MicrostateType = stable(function MicrostateType(Type) {
+  if (Type.Type) {
     return Type;
   }
   let Microstate = class extends Type {
     static name = `Microstate<${Type.name}>`;
     static Type = Type;
-    static isMicrostateType = true;
 
-    set(value) {
-      let microstate
-      if (value === this.state) {
-        microstate = this;
-      } else if (isMicrostate(value)) {
-        microstate = value;
+    constructor(value) {
+      super(value);
+      Object.defineProperties(this, map((slot, key) => {
+        return CachedProperty(key, self => {
+          let value = valueOf(self);
+          let expanded = expandProperty(slot);
+          let substate = value != null && value[key] != null ? expanded.set(value[key]) : expanded;
+          var mounted = mount(self, substate, key);
+          return mounted;
+        });
+      }, this));
+
+      Object.defineProperty(this, Meta.symbol, { enumerable: false, configurable: true, value: new Meta(this, valueOf(value))})
+    }
+
+    set(object) {
+      let meta = metaOf(this);
+      var previous = valueOf(meta.root);
+      let next = set(meta.lens, valueOf(object), previous);
+      if (meta.path.length === 0 && metaOf(object) != null) {
+        return object;
+      } if (next === previous) {
+        return meta.root;
       } else {
-        microstate = create(this.constructor, value);
+        return create(meta.root.constructor, next);
       }
-      let meta = Meta.get(this);
-      return set(meta.lens, Meta.source(microstate), meta.context);
     }
-
-    [SymbolObservable]() { return this['@@observable'](); }
-    ['@@observable']() {
-      return {
-        subscribe: (observer) => {
-          let next = observer.call ? observer : observer.next.bind(observer);
-          return Identity(this, next);
-        },
-        [SymbolObservable]() {
-          return this;
-        }
-      };
-    }
-
   }
-
-  Hash.instance(Microstate, {
-    digest(microstate) {
-      return [microstate.state];
+  Object.defineProperties(Microstate.prototype, map((descriptor, name) => {
+    return {
+      value(...args) {
+        let result = descriptor.value.apply(sourceOf(this), args);
+        return this.set(result);
+      }
     }
-  })
+  }, methodsOf(Type)))
 
-  let descriptors = Object.getOwnPropertyDescriptors(Type.prototype);
-  let methods = Object.keys(descriptors).reduce((methods, name) => {
-    let desc = descriptors[name];
-    if (name !== 'constructor' && name !== 'set' && typeof name === 'string' && typeof desc.value === 'function') {
-      return methods.concat(name);
-    } else {
-      return methods;
-    }
-  }, []);
-
-  Object.assign(Microstate.prototype, foldl((methods, name) =>  {
-    methods[name] = function(...args) {
-      let method = Type.prototype[name];
-      let meta = Meta.get(this);
-      let result = method.apply(meta.source || this, args);
-      return this.set(result);
-    }
-    return methods;
-  }, {}, methods))
   return Microstate;
-});
-
-export function isMicrostate(value) {
-  return value != null && value.constructor.isMicrostateType;
-}
-
-export class Meta {
-  constructor(object) {
-    this.context = object;
-    this.path = [];
-    this.lens = transparent;
-  }
-
-  static get(object) {
-    if (object == null) {
-      throw new Error('cannot lookup Meta of null or undefined');
-    }
-    return view(Meta.lens, object);
-  }
-
-  static At(key) {
-    function getter(microstate) {
-      if (microstate == null || microstate[key] == null) {
-        return undefined;
-      } else {
-        return Meta.get(microstate[key]).source;
-      }
-    }
-    function setter(substate, microstate) {
-      let current = microstate[key];
-      let { source } = current ? Meta.get(current) : {};
-      if (substate === source) {
-        return microstate;
-      } else {
-        return append(microstate, {
-          state: set(ValueAt(key), substate.state, microstate.state),
-          get [key]() {
-            return Meta.mount(this, key, substate);
-          }
-        })
-      }
-    }
-    return Lens(getter, setter);
-  }
-
-  static mount(microstate, property, substate) {
-    let parent = Meta.get(microstate);
-    let prefix = compose(parent.lens, Meta.At(property))
-    return Meta.treemap(meta => {
-      return {
-        get context() {
-          return parent.context;
-        },
-        get lens() {
-          return compose(prefix, meta.lens);
-        },
-        get path() {
-          return [property].concat(meta.path);
-        }
-      }
-    }, Meta.update(() => ({ source: substate }), substate));
-  }
-
-  static source(microstate) {
-    return Meta.get(microstate).source || microstate;
-  }
-
-  static update(fn, object) {
-    return over(Meta.lens, meta => append(meta, fn(meta)), object);
-  }
-
-  static treemap(fn, object) {
-    return treemap(isMicrostate, x => x, microstate => this.update(fn, microstate), object);
-  }
-
-  static lookup(object) {
-    return object[Meta.LOOKUP] || new Meta(object);
-  }
-
-  static LOOKUP = Symbol('Meta');
-
-  static lens = Lens(Meta.lookup, (meta, object) => {
-    if (meta === object[Meta.LOOKUP]) {
-      return object;
-    } else {
-      let clone = Semigroup.for(Object).append(object, {});
-      Object.defineProperty(clone, Meta.LOOKUP, {
-        configurable: true,
-        value: meta
-      });
-      return clone;
-    }
-  })
-}
+})
 
 function expandProperty(property) {
-  if (isMicrostate(property)) {
+  let meta = metaOf(property);
+  if (meta != null) {
     return property;
   } else {
     let { Type, value } = dsl.expand(property);
     return create(Type, value);
   }
 }
-
-Assemble.instance(Object, {
-  assemble(Type, microstate, value) {
-    let slots = map(expandProperty, new Type());
-
-    return foldl((microstate, slot) => {
-      let key = slot.key;
-      let subvalue = value != null ? value[key] : undefined
-      let substate = subvalue != null ? slot.value.set(subvalue) : slot.value;
-      return set(Meta.At(key), substate, microstate);
-    }, microstate, slots);
-  }
-})

@@ -1,7 +1,7 @@
-import { Assemble } from './assemble';
 import parameterized from './parameterized';
 
 import { Any, ObjectType, ArrayType, BooleanType, NumberType, StringType } from './types';
+import Primitive from './types/primitive';
 
 class DSL {
   constructor(rules = []) {
@@ -74,17 +74,10 @@ export default new DSL()
     }
   })
   .use(function matchConstants(value) {
-    return { Type: Constant.of(value), value };
+    return { Type: Constant(value), value };
   })
 
-const Constant = parameterized(value => class Constant {
+const Constant = (value) => class Constant extends Primitive {
   static isConstant = true;
-  static initialize() {
-    Assemble.instance(this, {
-      assemble(Type, instance) {
-        instance.state = value;
-        return instance;
-      }
-    })
-  }
-})
+
+}

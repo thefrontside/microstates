@@ -1,4 +1,4 @@
-import { foldl, Functor, map, Semigroup } from 'funcadelic';
+import { append, foldl, Functor, map, Semigroup, type } from 'funcadelic';
 
 class Box {
   static get of() {
@@ -81,3 +81,52 @@ export function Path(path = []) {
     return compose(lens, ValueAt(key))
   }, transparent, path);
 }
+
+
+export const Container = type(class Container {
+  At(key, container = {}) {
+    return this(container).At(key, container);
+  }
+})
+
+export const { At } = Container.prototype;
+
+function BuiltinAt(key, defaultValue, embed) {
+  function getter(object) {
+    if (object != null) {
+      return object[key];
+    } else {
+      return undefined;
+    }
+  }
+
+  function setter(child, whole = defaultValue) {
+    let current = whole[key];
+    if (current === child) {
+      return whole;
+    } else {
+      return embed(whole, key, child);
+    }
+  }
+  return Lens(getter, setter);
+}
+
+Container.instance(Object, {
+  At(key) {
+    return BuiltinAt(key, {}, (whole, key, child) => {
+      return append(whole, {
+        [key]: child
+      })
+    })
+  }
+})
+
+Container.instance(Array, {
+  At(key) {
+    return BuiltinAt(key, [], (whole, key, child) => {
+      let next = whole.slice();
+      next[key] = child;
+      return next;
+    })
+  }
+})

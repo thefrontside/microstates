@@ -1,6 +1,7 @@
 import expect from 'expect';
 
 import { create } from '../src/microstates';
+import { valueOf } from '../src/meta';
 
 describe('initialization', () => {
   describe('at root', () => {
@@ -42,7 +43,7 @@ describe('initialization', () => {
 
         it('initilizes into Authenticated', () => {
           expect(reinitialized).toBeInstanceOf(Authenticated);
-          expect(reinitialized.state).toEqual({ token: 'foo' });
+          expect(valueOf(reinitialized)).toEqual({ token: 'foo' });
         });
       });
     });
@@ -55,7 +56,7 @@ describe('initialization', () => {
 
       it('initilizes into Authenticated', () => {
         expect(initialized).toBeInstanceOf(Authenticated);
-        expect(initialized.state).toEqual({ token: 'SECRET' });
+        expect(valueOf(initialized)).toEqual({ token: 'SECRET' });
       });
 
       it('has signin transition', () => {
@@ -92,23 +93,6 @@ describe('initialization', () => {
         root = create(Root, { first: { } });
       });
 
-      it('maintains the === integrity of the state tree', function() {
-        expect(root.state).toBe(root.state);
-        expect(root.first.state).toBe(root.state.first);
-        expect(root.first.second.state).toBe(root.state.first.second);
-        expect(root.first.second.name.state).toBe(root.state.first.second.name);
-      });
-
-      it("has result of create of second node", () => {
-        expect(root.state).toEqual({
-          first: {
-            second: {
-              name: "default",
-            },
-          },
-        });
-      });
-
       describe('transition', () => {
 
         let changed;
@@ -117,18 +101,10 @@ describe('initialization', () => {
         });
 
         it("has result after transition valueOf", () => {
-          expect(changed.state).toEqual({
-            first: {
-              second: {
-                name: "default!!!",
-              },
-            },
-          });
+          expect(changed.first.second.name.state).toEqual("default!!!");
         });
 
       });
     });
   });
 })
-
-import { Meta } from '../src/microstates'

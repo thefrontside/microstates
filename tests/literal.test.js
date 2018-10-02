@@ -1,5 +1,6 @@
 import expect from 'expect';
 import literal from '../src/literal';
+import { valueOf } from '../src/meta'
 
 describe('Literal Syntax', function() {
   it('can create numbers', function() {
@@ -12,20 +13,22 @@ describe('Literal Syntax', function() {
     expect(literal(true).toggle().state).toEqual(false);
   });
   it('can create objects', function() {
-    expect(literal({}).put('hello', 'world').state).toEqual({hello: 'world'});
+    expect(valueOf(literal({}).put('hello', 'world'))).toEqual({hello: 'world'});
   });
   it('can create arrays', function() {
-    expect(literal([]).push('hello').push('world').state).toEqual(['hello', 'world']);
+    expect(valueOf(literal([]).push('hello').push('world'))).toEqual(['hello', 'world']);
   });
   it('understands deeply nested objects and arrays', function() {
-    let ms = literal({array: [5, { bool: true }], string: "hi", object: {object: {}}})
-        .array[0].increment()
-        .array[1].bool.toggle()
+    let blob = literal({array: [5, { bool: true }], string: "hi", object: {object: {}}});
+    let [ first] = blob.array;
+    let [ _, second ] = first.increment().array;
+
+    let ms = second.bool.toggle()
         .string.concat(" mom")
         .object.put('another', 'property')
         .object.object.put('deep', 'state');
 
-    expect(ms.state).toEqual({
+    expect(valueOf(ms)).toEqual({
       array: [6, { bool: false }],
       string: "hi mom",
       object: {

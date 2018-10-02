@@ -5,7 +5,7 @@ export class Todo {
   completed = create(Boolean, false);
 
   toggle() {
-    return this.completed.set(!this.state.completed);
+    return this.completed.set(!this.completed.state);
   }
 }
 
@@ -13,11 +13,11 @@ export class TodoMVC {
   todos = [Todo];
 
   get completed() {
-    return filter(this.todos, todo => todo.state.completed);
+    return filter(this.todos, todo => todo.completed.state);
   }
 
   get active() {
-    return filter(this.todos, todo => !todo.state.completed);
+    return filter(this.todos, todo => !todo.completed.state);
   }
 
   completeAll() {
