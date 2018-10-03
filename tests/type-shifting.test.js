@@ -1,5 +1,5 @@
 import expect from 'expect';
-import { create } from "../index";
+import { create, first, second, third } from "../index";
 
 describe("type-shifting", () => {
   class Shape {
@@ -92,9 +92,9 @@ describe("type-shifting", () => {
         shapes = [Shape];
       }
       let drawing = create(Drawing, { shapes: [{ a: 10 }, { a: 20, b: 30 }, { a: 100, b: 200, c: 300 }] });
-      expect(drawing.shapes[0]).toBeInstanceOf(Line);
-      expect(drawing.shapes[1]).toBeInstanceOf(Angle);
-      expect(drawing.shapes[2]).toBeInstanceOf(Triangle);
+      expect(first(drawing.shapes)).toBeInstanceOf(Line);
+      expect(second(drawing.shapes)).toBeInstanceOf(Angle);
+      expect(third(drawing.shapes)).toBeInstanceOf(Triangle);
     });
 
     describe("can type-shift into a parameterized type", () => {
@@ -110,7 +110,7 @@ describe("type-shifting", () => {
       it("can initialize into a parameterized array", () => {
         let array = Container.create(["a", "b", "c"]);
         expect(array.state).toMatchObject(["a", "b", "c"]);
-        expect(array[0].concat).toBeInstanceOf(Function);
+        expect(first(array).concat).toBeInstanceOf(Function);
       });
       it("can initialize into a parameterized object", () => {
         let object = Container.create({ a: "A", b: "B", c: "C" });
@@ -331,7 +331,7 @@ describe("type-shifting from create to parameterized array", () => {
     expect(group.state).toMatchObject({
       members: [{ name: "Taras" }, { name: "Charles" }, { name: "Siva" }],
     });
-    expect(group.members[0]).toBeInstanceOf(Person);
+    expect(first(group.members)).toBeInstanceOf(Person);
   });
 
   describe("transitioning shifted value", () => {

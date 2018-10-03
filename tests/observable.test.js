@@ -1,5 +1,6 @@
 import expect from 'expect';
 import { create } from "../src/microstates";
+import { first } from '../index';
 import ArrayType from "../src/types/array";
 import SymbolObservable from 'symbol-observable';
 import { from } from 'rxjs';
@@ -162,7 +163,7 @@ describe('array as root', () => {
 
   it('has array with one element', () => {
     expect(list.state.length).toBe(1);
-    expect(list[0].state.hello).toBeDefined();
+    expect(first(list).state.hello).toBeDefined();
   });
 
   describe('created observable', () => {
@@ -181,7 +182,7 @@ describe('array as root', () => {
 
     it('has array with one element', () => {
       expect(last.state.length).toBe(1);
-      expect(last[0].state.hello).toBeDefined();
+      expect(first(last).state.hello).toBeDefined();
     });
   });
 

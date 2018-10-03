@@ -1,6 +1,7 @@
 import expect from 'expect';
 
-import { create }  from "../index";
+import { create, first, second }  from "../index";
+
 describe("Parameterized Microstates: ", () => {
   describe("sugar", function() {
     class Item {
@@ -14,7 +15,7 @@ describe("Parameterized Microstates: ", () => {
     describe("root [Item] to parameterized(Array)", function() {
       let m;
       beforeEach(function() {
-        m = create([Item], [{ isCompleted: false }])[0].isCompleted.toggle();
+        m = first(create([Item], [{ isCompleted: false }])).isCompleted.toggle();
       });
       it("runs transitions on sub items", function() {
         expect(m.state[0].isCompleted).toBe(true);
@@ -45,12 +46,12 @@ describe("Parameterized Microstates: ", () => {
     describe("composed [Item] to parameterized(Array)", function() {
       let m;
       beforeEach(function() {
-        m = create(TodoList, {
+        m = first(create(TodoList, {
           items: [{ isCompleted: false }]
-        }).items[0].isCompleted.toggle();
+        }).items).isCompleted.toggle();
       });
       it("runs transitions on sub items", function() {
-        expect(m.state.items[0].isCompleted).toBe(true);
+        expect(first(m.state.items).isCompleted).toBe(true);
       });
     });
 
@@ -65,7 +66,7 @@ describe("Parameterized Microstates: ", () => {
       let transitioned;
       beforeEach(function() {
         m = create(Counters, value);
-        transitioned = m.apples[0].increment().oranges[1].increment();
+        transitioned = second(first(m.apples).increment().oranges).increment();
       });
       it("uses the same value for state as the value ", function() {
         expect(m.state).toBe(value);
@@ -96,8 +97,8 @@ describe("Parameterized Microstates: ", () => {
       });
       it("still respects transitions", function() {
         expect(
-          m.inventory.apples[0].increment()
-            .inventory.oranges[1].increment().state
+          second(first(m.inventory.apples).increment()
+            .inventory.oranges).increment().state
         ).toEqual({
           inventory: {
             oranges: [50, 21],
@@ -118,19 +119,19 @@ describe("Parameterized Microstates: ", () => {
       TodoList = class TodoList {
         items = [Item];
       };
-      m = create(TodoList, {
+      m = first(create(TodoList, {
         items: [
           { isCompleted: false, description: "Get Milk" },
           { isCompleted: false, description: "Feed Dog" }
         ]
-      }).items[0].isCompleted.toggle();
+      }).items).isCompleted.toggle();
     });
     it("runs transitions on sub items", function() {
       expect(m).toBeInstanceOf(TodoList);
       expect(m.state.items).toBeInstanceOf(Array);
       expect(m.state.items.length).toBe(2);
       expect(m.state.items[0].isCompleted).toBe(true);
-      expect(m.items[0]).toBeInstanceOf(Item);
+      expect(first(m.items)).toBeInstanceOf(Item);
       expect(m.state.items[1].isCompleted).toBe(false);
     });
   });
@@ -150,7 +151,7 @@ describe("Parameterized Microstates: ", () => {
     });
 
     it("still respects transitions", function() {
-      expect(m.apples[0].increment().oranges[1].increment().state).toEqual({
+      expect(second(first(m.apples).increment().oranges).increment().state).toEqual({
         oranges: [50, 21],
         apples: [2, 2, 45]
       });
