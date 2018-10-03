@@ -45,10 +45,10 @@ describe('AnonymousSession', () => {
     });
     it('transitions AnonymousSession to Authenticated with authenticate', () => {
       expect(authenticated.session).toBeInstanceOf(AuthenticatedSession);
-      expect(authenticated.state.session).toEqual({
-        content: { name: 'Charles' },
-        isAuthenticated: true,
+      expect(authenticated.session.state).toEqual({
+        content: { name: 'Charles' }
       });
+      expect(authenticated.session.isAuthenticated.state).toEqual(true);
     });
   });
 });

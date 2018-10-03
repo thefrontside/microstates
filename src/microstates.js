@@ -110,19 +110,23 @@ export class Meta {
       if (microstate == null || microstate[key] == null) {
         return undefined;
       } else {
+        let value = microstate.state != null ? microstate[key] : undefined;
         return Meta.get(microstate[key]).source;
       }
     }
     function setter(substate, microstate) {
       let current = microstate[key];
-      let { source } = current ? Meta.get(current) : {};
-      if (substate === source) {
+      let currentState = current != null ? current.state : undefined;
+      let newState = substate != null ? substate.state : undefined;
+      if (newState === currentState) {
         return microstate;
       } else {
         return append(microstate, {
           state: set(ValueAt(key), substate.state, microstate.state),
           get [key]() {
-            return Meta.mount(this, key, substate);
+            let value = Meta.mount(this, key, substate);
+            Object.defineProperty(this, key, { value })
+            return value;
           }
         })
       }
@@ -157,7 +161,7 @@ export class Meta {
   }
 
   static treemap(fn, object) {
-    return treemap(isMicrostate, x => x, microstate => this.update(fn, microstate), object);
+    return treemap(x => x, microstate => this.update(fn, microstate), object);
   }
 
   static lookup(object) {
@@ -195,9 +199,12 @@ Assemble.instance(Object, {
 
     return foldl((microstate, slot) => {
       let key = slot.key;
-      let subvalue = value != null ? value[key] : undefined
-      let substate = subvalue != null ? slot.value.set(subvalue) : slot.value;
-      return set(Meta.At(key), substate, microstate);
+      return append(microstate, {
+        get [slot.key]() {
+          let substate = value != null && value[key] != null ? slot.value.set(value[key]) : slot.value;
+          return Meta.mount(this, key, substate);
+        }
+      })
     }, microstate, slots);
   }
 })

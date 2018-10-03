@@ -27,7 +27,7 @@ describe("Parameterized Microstates: ", () => {
         m = create(TodoList);
       });
       it('has no items', function() {
-        expect(m.state).toEqual({items: []});
+        expect(m.items.state).toEqual([]);
       });
     });
 
@@ -37,7 +37,7 @@ describe("Parameterized Microstates: ", () => {
         m = create(TodoList);
       });
       it('has no items', function() {
-        expect(m.state).toEqual({items: []});
+        expect(m.items.state).toEqual([]);
       });
     });
 

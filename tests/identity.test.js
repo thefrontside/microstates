@@ -56,11 +56,11 @@ describe('Identity', () => {
     it('still completes the transition', function() {
       expect(next.state).toEqual({
         todos: [{
-          title: "Convince People Microstates is awesome", completed: false
+          title: "Convince People Microstates is awesome"
         }, {
-          title: "Take out the Trash", completed: false
+          title: "Take out the Trash"
         }, {
-          title: "profit $$", completed: false
+          title: "profit $$"
         }]
       })
     });
@@ -108,6 +108,8 @@ describe('Identity', () => {
 
     it('returns the same id in the event that the state is the same', function() {
       expect(next).toBe(store);
+      expect(next.todos[0]).toBe(store.todos[0]);
+      expect(next.todos[0].completed).toBe(store.todos[0].completed);
     });
     it('does not invoke the idenity function after the initial invocation', function() {
       expect(calls).toEqual(1);

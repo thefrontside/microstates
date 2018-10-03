@@ -306,29 +306,6 @@ describe("ArrayType", function() {
             });
           });
         });
-
-        describe('with new microstates', () => {
-          let mapped;
-          class SweetSweetRecord extends Record {}
-          beforeEach(() => {
-            mapped = dataset.records.map(record => {
-              if (record.content.state === 'Sweet') {
-                return create(SweetSweetRecord, record);
-              } else {
-                return record;
-              }
-            });
-          });
-
-          it('changed type of the record', () => {
-            expect(mapped.records[1]).toBeInstanceOf(SweetSweetRecord);
-          });
-
-          it('did not change the uneffected item', () => {
-            expect(dataset.records[0].state).toBe(mapped.records[0].state);
-            expect(dataset.records[2].state).toBe(mapped.records[2].state);
-          });
-        });
       });
 
       describe('clear', () => {

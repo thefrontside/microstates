@@ -95,18 +95,6 @@ describe('initialization', () => {
       it('maintains the === integrity of the state tree', function() {
         expect(root.state).toBe(root.state);
         expect(root.first.state).toBe(root.state.first);
-        expect(root.first.second.state).toBe(root.state.first.second);
-        expect(root.first.second.name.state).toBe(root.state.first.second.name);
-      });
-
-      it("has result of create of second node", () => {
-        expect(root.state).toEqual({
-          first: {
-            second: {
-              name: "default",
-            },
-          },
-        });
       });
 
       describe('transition', () => {

@@ -1,15 +1,64 @@
 import { map, foldl } from 'funcadelic';
 import { Meta } from './microstates';
-import { treemap } from './tree';
 import parameterized from './parameterized';
 import { Hash, equals } from './hash';
 
 //function composition should probably not be part of lens :)
-import { view, Path } from './lens';
+import { over, view, set, Path, ValueAt, compose } from './lens';
+
+class PathMap {
+  constructor() {
+    this.microstate = ValueAt(Symbol('@microstate'));
+    this.id = ValueAt(Symbol('@id'));
+    this.paths = {};
+  }
+
+  getIdAt(path) {
+    return view(compose(Path(path), this.id), this.paths);
+  }
+
+  getMicrostateAt(path) {
+    return view(compose(Path(path), this.microstate), this.paths);
+  }
+
+  setPath(path, id, microstate) {
+    let _path = Path(path);
+
+    this.paths = set(compose(_path, this.id), id, this.paths);
+    this.paths = set(compose(_path, this.microstate), microstate, this.paths);
+  }
+}
+
+function tmap(fn, object, path = []) {
+  if (!isMicrostate(object)) {
+    return object;
+  } else {
+    var next = fn(object, path);
+    if (next === object) {
+      return object;
+    } else {
+      return foldl((result, entry) => {
+        if (entry.key === 'state') {
+          return result;
+        }
+        return Object.defineProperty(result, entry.key, {
+          configurable: true,
+          get() {
+            Object.defineProperty(this, entry.key, {
+              value: tmap(fn, entry.value, path.concat(entry.key))
+            });
+            return this[entry.key];
+          }
+        });
+      }, next, object);
+    }
+  }
+}
 
 export default function Identity(microstate, observe = x => x) {
   let current;
   let identity;
+  let paths = new PathMap();
 
   function tick(next) {
     update(next);
@@ -20,8 +69,8 @@ export default function Identity(microstate, observe = x => x) {
   function update(microstate) {
     current = microstate;
 
-    return identity = treemap(isMicrostate, x => x, (microstate, path) => {
-      let proxy = view(Path(path), identity);
+    identity = tmap((microstate, path) => {
+      let proxy = paths.getIdAt(path);
       let Type = microstate.constructor.Type;
       let value = microstate.state;
       if (proxy == null || !equals(proxy, microstate)) {
@@ -31,10 +80,10 @@ export default function Identity(microstate, observe = x => x) {
         } else {
           IdType = Id.of(Type, path);
         }
-        return new IdType(value);
-      } else {
-        return proxy
+        proxy = new IdType(value);
       }
+      paths.setPath(path, proxy, microstate);
+      return proxy;
     }, microstate);
   }
 
@@ -57,7 +106,7 @@ export default function Identity(microstate, observe = x => x) {
       Object.assign(this.prototype, foldl((methods, name) => {
         methods[name] = function(...args) {
           let path = P;
-          let microstate = view(Path(path), current);
+          let microstate = paths.getMicrostateAt(path);
           let next = microstate[name](...args);
 
           return next === current ? identity : tick(next);

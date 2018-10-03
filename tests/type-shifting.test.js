@@ -202,34 +202,34 @@ describe("type-shifting with constant values", () => {
     isError = false;
   }
   describe("successful loading siquence", () => {
-    let async = create(Async, {});
+    let async;
+    beforeEach(function() {
+      async = create(Async);
+    });
+
     it("can transition to loading", () => {
-      expect(async.loading().state).toMatchObject({
-        content: null,
-        isLoaded: false,
-        isLoading: true,
-        isError: false,
-      });
+      let loading = async.loading();
+      expect(loading.content.state).toEqual(null);
+      expect(loading.isLoaded.state).toEqual(false);
+      expect(loading.isLoading.state).toEqual(true);
+      expect(loading.isError.state).toEqual(false);
     });
     it("can transition from loading to loaded", () => {
-      expect(async.loading().loaded("GREAT SUCCESS").state).toMatchObject({
-        content: "GREAT SUCCESS",
-        isLoaded: true,
-        isLoading: false,
-        isError: false,
-      });
+      let loaded = async.loading().loaded("GREAT SUCCESS");
+      expect(loaded.content.state).toEqual("GREAT SUCCESS");
+      expect(loaded.isLoaded.state).toEqual(true);
+      expect(loaded.isLoading.state).toEqual(false);
+      expect(loaded.isError.state).toEqual(false);
     });
   });
   describe("error loading sequence", () => {
-    let async = create(Async);
     it("can transition from loading to error", () => {
-      expect(async.loading().error(":(").state).toMatchObject({
-        content: null,
-        isLoaded: true,
-        isError: true,
-        isLoading: false,
-        error: ":(",
-      });
+      let errored = create(Async).loading().error(":(");
+      expect(errored.content.state).toEqual(null);
+      expect(errored.isLoaded.state).toEqual(true);
+      expect(errored.isLoading.state).toEqual(false);
+      expect(errored.isError.state).toEqual(true);
+      expect(errored.error.state).toEqual(":(");
     });
   });
 });
