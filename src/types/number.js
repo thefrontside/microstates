@@ -1,4 +1,6 @@
-export default class NumberType {
+import Primitive from './primitive';
+
+export default class NumberType extends Primitive {
   static name = "Number";
 
   initialize(value) {

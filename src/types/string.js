@@ -1,4 +1,6 @@
-export default class StringType {
+import Primitive from './primitive';
+
+export default class StringType extends Primitive {
   static name = "String";
 
   initialize(value) {

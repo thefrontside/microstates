@@ -1,6 +1,7 @@
 import expect from 'expect';
 
 import { create } from '../../src/microstates';
+import { valueOf } from '../../src/meta';
 import { reduce, map } from '../../src/query';
 
 describe('cart example', () => {
@@ -18,6 +19,7 @@ describe('cart example', () => {
     get prices() {
       return map(this.products, product => product.state.price);
     }
+
   }
 
   describe('adding products without initial value', () => {
@@ -30,17 +32,18 @@ describe('cart example', () => {
     it('adds items to the cart', () => {
       expect(ms.price).toEqual(50);
       expect(ms.count).toEqual(3);
-      expect(ms.state).toMatchObject({
+      expect(valueOf(ms)).toMatchObject({
         products: [{ quantity: 1, price: 10 }, { quantity: 2, price: 20 }],
       });
     });
     it('provides state', () => {
-      expect(ms.state).toEqual({
+      expect(valueOf(ms)).toEqual({
         products: [{ quantity: 1, price: 10 }, { quantity: 2, price: 20 }],
       });
     });
     it('maps products', () => {
-      expect(ms.prices).toEqual([10, 20]);
+      let [...prices] = ms.prices;
+      expect(prices).toEqual([10, 20]);
     });
   });
 });

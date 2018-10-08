@@ -2,6 +2,7 @@ import expect from 'expect';
 
 import ArrayType from '../../src/types/array';
 import { create } from '../../src/microstates';
+import { valueOf } from '../../src/meta';
 
 describe("ArrayType", function() {
   describe("when unparameterized", function() {
@@ -19,7 +20,7 @@ describe("ArrayType", function() {
       });
 
       it("has state", () => {
-        expect(pushed.state).toEqual(["a", "b", "c", "d"]);
+        expect(valueOf(pushed)).toEqual(["a", "b", "c", "d"]);
       });
 
       describe("again", () => {
@@ -30,7 +31,7 @@ describe("ArrayType", function() {
         });
 
         it("has state", () => {
-          expect(again.state).toEqual(["a", "b", "c", "d", "e"]);
+          expect(valueOf(again)).toEqual(["a", "b", "c", "d", "e"]);
         });
       });
     });
@@ -42,7 +43,7 @@ describe("ArrayType", function() {
       });
 
       it("has state", () => {
-        expect(popped.state).toEqual(["a", "b"]);
+        expect(valueOf(popped)).toEqual(["a", "b"]);
       });
 
       describe("again", () => {
@@ -53,7 +54,7 @@ describe("ArrayType", function() {
         });
 
         it("has state", () => {
-          expect(again.state).toEqual(["a"]);
+          expect(valueOf(again)).toEqual(["a"]);
         });
       });
     });
@@ -66,7 +67,7 @@ describe("ArrayType", function() {
       });
 
       it("state", () => {
-        expect(filtered.state).toEqual(["b", "c"]);
+        expect(valueOf(filtered)).toEqual(["b", "c"]);
       });
     });
 
@@ -78,18 +79,14 @@ describe("ArrayType", function() {
       });
 
       it("state", () => {
-        expect(mapped.state).toEqual(["A", "B", "C"]);
+        expect(valueOf(mapped)).toEqual(["A", "B", "C"]);
       });
     });
   });
 
   describe("when parameterized", () => {
     class Record {
-      content = create(class StringType {
-        concat(value) {
-          return String(this.state) + String(value);
-        }
-      });
+      content = String
     }
     class Dataset {
       records = create(ArrayType.of(Record), []);
@@ -108,21 +105,25 @@ describe("ArrayType", function() {
         });
 
         it("has the new record", () => {
-          expect(pushed.records[0]).toBeInstanceOf(Record);
+          let [ first ] = pushed.records;
+          expect(first).toBeInstanceOf(Record);
         });
 
         it("has given value", () => {
-          expect(pushed.state.records[0].content).toBe("Hi!");
+          let [ first ] = pushed.records;
+          expect(first.content.state).toBe("Hi!");
         });
 
         describe("changing record", () => {
           let changed;
           beforeEach(() => {
-            changed = pushed.records[0].content.set("Hello!");
+            let [ first ] = pushed.records;
+            changed = first.content.set("Hello!");
           });
 
           it("has changed value", () => {
-            expect(changed.state.records[0].content).toBe("Hello!");
+            let [ first ] = changed.records;
+            expect(first.content.state).toBe("Hello!");
           });
 
           describe("popping a record", () => {
@@ -132,7 +133,8 @@ describe("ArrayType", function() {
             });
 
             it("does not have any records", () => {
-              expect(popped.state.records[0]).toBe(undefined);
+              expect(popped.records.length).toEqual(0);
+              expect(valueOf(popped.records)).toEqual([]);
             });
           });
         });
@@ -150,27 +152,30 @@ describe("ArrayType", function() {
       });
 
       describe("push", () => {
-        let pushed;
+        let pushed, fourth;
         beforeEach(() => {
           pushed = dataset.records.push({ content: "Hi!" });
+          let first, second, third;
+          [first, second, third, fourth] = pushed.records;
         });
 
         it("has the new record", () => {
-          expect(pushed.records[3]).toBeInstanceOf(Record);
+          expect(fourth).toBeInstanceOf(Record);
         });
 
         it("has given value", () => {
-          expect(pushed.state.records[3].content).toBe("Hi!");
+          expect(fourth.content.state).toBe("Hi!");
         });
 
         describe("changing record", () => {
           let changed;
           beforeEach(() => {
-            changed = pushed.records[3].content.set("Hello!");
+            changed = fourth.content.set("Hello!");
           });
 
           it("has changed value", () => {
-            expect(changed.state.records[3].content).toBe("Hello!");
+            let [first, second, third, fourth] = changed.records;
+            expect(fourth.content.state).toBe("Hello!");
           });
         });
       });
@@ -181,22 +186,20 @@ describe("ArrayType", function() {
           popped = dataset.records.pop();
         });
 
-        it('removed last element from the array', () => {
-          expect(popped.records[2]).toBe(undefined);
-        });
-
-        it('changed length', () => {
-          expect(popped.records.state.length).toBe(2);
+        it('removed last element from the array and changed length', () => {
+          expect(popped.records.length).toEqual(2)
         });
 
         describe('changing record', () => {
           let changed;
           beforeEach(() => {
-            changed = popped.records[1].content.concat('!!!');
+            let [ _, second ] = popped.records;
+            changed = second.content.concat('!!!');
           });
 
           it('changed the content', () => {
-            expect(changed.records[1].content.state).toBe('Sweet!!!');
+            let [ _, second ] = changed.records;
+            expect(second.content.state).toBe('Sweet!!!');
           });
         });
       });
@@ -208,21 +211,24 @@ describe("ArrayType", function() {
         });
 
         it('removed first element from the array', () => {
-          expect(shifted.records[0].content.state).toBe('Sweet');
+          let [ first ] = shifted.records;
+          expect(first.content.state).toBe('Sweet');
         });
 
         it('changed length', () => {
-          expect(shifted.records.state.length).toBe(2);
+          expect(shifted.records.length).toBe(2);
         });
 
         describe('changing record', () => {
           let changed;
           beforeEach(() => {
-            changed = shifted.records[1].content.concat('!!!');
+            let [ _, second ] = shifted.records;
+            changed = second.content.concat('!!!');
           });
 
           it('changed the content', () => {
-            expect(changed.records[1].content.state).toBe('Woooo!!!');
+            let [ _, second ] = changed.records;
+            expect(second.content.state).toBe('Woooo!!!');
           });
         });
       });
@@ -233,29 +239,35 @@ describe("ArrayType", function() {
           unshifted = dataset.records.unshift({ content: "Hi!" });
         });
         it('pushed record to the beginning of the array', () => {
-          expect(unshifted.records[0].content.state).toBe('Hi!');
+          let [ first ] = unshifted.records;
+          expect(first.content.state).toBe('Hi!');
         });
         it('moved first record to second position', () => {
-          expect(unshifted.records[1].content.state).toBe('Herro');
+          let [ _, second ] = unshifted.records;
+          expect(second.content.state).toBe('Herro');
         });
 
         describe('change new record', () => {
           let changed;
           beforeEach(() => {
-            changed = unshifted.records[0].content.concat('!!!');
+            let [ first ] = unshifted.records;
+            changed = first.content.concat('!!!');
           });
           it('changed new record', () => {
-            expect(changed.records[0].content.state).toBe('Hi!!!!');
+            let [ first ] = changed.records;
+            expect(first.content.state).toBe('Hi!!!!');
           });
         });
 
         describe('change existing record', () => {
           let changed;
           beforeEach(() => {
-            changed = unshifted.records[1].content.concat('!!!');
+            let [_, second ] = unshifted.records;
+            changed = second.content.concat('!!!');
           });
           it('changed new record', () => {
-            expect(changed.records[1].content.state).toBe('Herro!!!');
+            let [_, second ] = changed.records;
+            expect(second.content.state).toBe('Herro!!!');
           });
         });
       });
@@ -263,21 +275,23 @@ describe("ArrayType", function() {
       describe('filter', () => {
         let filtered;
         beforeEach(() => {
-          filtered = dataset.records.filter(record => record.state.content[0] === 'S');
+          filtered = dataset.records.filter(record => record.content.state[0] === 'S');
         });
 
         it('filtered out items', () => {
-          expect(filtered.records.state.length).toBe(1);
+          expect(filtered.records.length).toBe(1);
         });
 
         describe('changing remaining item', () => {
           let changed;
           beforeEach(() => {
-            changed = filtered.records[0].content.concat('!!!');
+            let [ first ] = filtered.records;
+            changed = first.content.concat('!!!');
           });
 
           it('it changed the state', () => {
-            expect(changed.records[0].content.state).toBe('Sweet!!!');
+            let [ first ] = changed.records;
+            expect(first.content.state).toBe('Sweet!!!');
           });
         });
       });
@@ -290,43 +304,23 @@ describe("ArrayType", function() {
           });
 
           it('applied change to every element', () => {
-            expect(mapped.records[0].content.state).toBe('Herro!!!');
-            expect(mapped.records[1].content.state).toBe('Sweet!!!');
-            expect(mapped.records[2].content.state).toBe('Woooo!!!');
+            let [ first, second, third ] = mapped.records;
+            expect(first.content.state).toBe('Herro!!!');
+            expect(second.content.state).toBe('Sweet!!!');
+            expect(third.content.state).toBe('Woooo!!!');
           });
 
           describe('changing record', () => {
             let changed;
             beforeEach(() => {
-              changed = mapped.records[1].content.set('SWEET!!!');
+              let [_, second ] = mapped.records;
+              changed = second.content.set('SWEET!!!');
             });
 
             it('changed the record content', () => {
-              expect(changed.records[1].content.state).toBe('SWEET!!!');
+              let [_, second ] = changed.records;
+              expect(second.content.state).toBe('SWEET!!!');
             });
-          });
-        });
-
-        describe('with new microstates', () => {
-          let mapped;
-          class SweetSweetRecord extends Record {}
-          beforeEach(() => {
-            mapped = dataset.records.map(record => {
-              if (record.content.state === 'Sweet') {
-                return create(SweetSweetRecord, record);
-              } else {
-                return record;
-              }
-            });
-          });
-
-          it('changed type of the record', () => {
-            expect(mapped.records[1]).toBeInstanceOf(SweetSweetRecord);
-          });
-
-          it('did not change the uneffected item', () => {
-            expect(dataset.records[0].state).toBe(mapped.records[0].state);
-            expect(dataset.records[2].state).toBe(mapped.records[2].state);
           });
         });
       });
@@ -338,15 +332,38 @@ describe("ArrayType", function() {
         });
 
         it('makes array empty', () => {
-          expect(cleared.records.state).toEqual([]);
+          expect(cleared.records.length).toEqual(0);
         });
 
         it('has empty value', () => {
-          expect(cleared.state).toEqual({ records: [] });
+          expect(valueOf(cleared)).toEqual({ records: [] });
         });
       });
 
     });
-
   });
+  describe('iteration', () => {
+    let array, substates;
+
+    beforeEach(() => {
+      array = create([], [{a: "a"}, {b: "b"}, {c: "c"}]);
+      [...substates] = array;
+    });
+
+    it('creates a substate for each element in the array', function() {
+      expect(substates.length).toEqual(3);
+    });
+
+    describe('transitinging one of the substates', function() {
+      let transitioned;
+      beforeEach(() => {
+        transitioned = substates[1].set({b: "bee"});
+      });
+      it('returns an array of the same number of elements', function() {
+        expect(transitioned).toBeInstanceOf(ArrayType)
+        expect(valueOf(transitioned)).toEqual([{a: "a"}, {b: "bee"}, {c: "c"}]);
+      });
+    });
+
+  })
 });

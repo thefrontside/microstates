@@ -1,15 +1,21 @@
 import { map, foldl } from 'funcadelic';
-import { Meta } from './microstates';
-import { treemap } from './tree';
-import parameterized from './parameterized';
-import { Hash, equals } from './hash';
+import { promap, valueOf, pathOf, Meta } from './meta';
+import CachedProperty from './cached-property';
+import { methodsOf } from './reflection';
 
 //function composition should probably not be part of lens :)
-import { view, Path } from './lens';
+import { At, view, Path, compose, set } from './lens';
+
+class Location {
+  static data = At(Symbol('@location'));
+  static id = compose(Location.data, At("id"));
+  static microstate = compose(Location.data, At("microstate"));
+}
 
 export default function Identity(microstate, observe = x => x) {
   let current;
   let identity;
+  let pathmap = {};
 
   function tick(next) {
     update(next);
@@ -19,81 +25,77 @@ export default function Identity(microstate, observe = x => x) {
 
   function update(microstate) {
     current = microstate;
+    return identity = promap(proxify, persist, microstate);
 
-    return identity = treemap(isMicrostate, x => x, (microstate, path) => {
-      let proxy = view(Path(path), identity);
+    function proxify(microstate) {
+      let path = pathOf(microstate);
       let Type = microstate.constructor.Type;
-      let value = microstate.state;
-      if (proxy == null || !equals(proxy, microstate)) {
-        let IdType;
-        if (proxy && proxy.constructor.Type === Type) {
-          IdType = proxy.constructor;
-        } else {
-          IdType = Id.of(Type, path);
-        }
-        return new IdType(value);
+      let value = valueOf(microstate);
+
+      pathmap = set(compose(Path(path), Location.microstate), microstate, pathmap);
+
+      let id = view(compose(Path(path), Location.id), pathmap);
+
+      let Id = id != null && id.constructor.Type === Type ? id.constructor : IdType(Type, path);
+      return new Id(value);
+    }
+
+    function persist(id) {
+      let location = compose(Path(id.constructor.path), Location.id);
+      let existing = view(location, pathmap);
+      if (!equals(id, existing)) {
+        pathmap = set(location, id, pathmap);
+        return id;
       } else {
-        return proxy
+        return existing;
       }
-    }, microstate);
+    }
   }
 
-  let Id = parameterized((T, P) => class Id extends T {
-    static Type = T;
-    static name = `Id<${T.name}>`;
+  function IdType(Type, P) {
+    class Id extends Type {
+      static Type = Type;
+      static path = P;
+      static name = `Id<${Type.name}>`;
 
-    static initialize() {
-      let descriptors = Object.getOwnPropertyDescriptors(T.prototype);
-
-      let methods = Object.keys(descriptors).reduce((methods, name) => {
-        let desc = descriptors[name];
-        if (name !== 'constructor' && typeof name === 'string' && typeof desc.value === 'function') {
-          return methods.concat(name);
-        } else {
-          return methods;
-        }
-      }, ["set"]);
-
-      Object.assign(this.prototype, foldl((methods, name) => {
-        methods[name] = function(...args) {
-          let path = P;
-          let microstate = view(Path(path), current);
-          let next = microstate[name](...args);
-
-          return next === current ? identity : tick(next);
-        }
-        return methods;
-      }, {}, methods));
-
-      Object.keys(descriptors).forEach(propertyName => {
-        let desc = descriptors[propertyName];
-        if (typeof propertyName === 'string' && typeof desc.get === 'function') {
-          Object.defineProperty(this.prototype, propertyName, {
-            get() {
-              let value = desc.get.call(this);
-              Object.defineProperty(this, propertyName, { value });
-              return value;
-            }
-          })
-        }
-      })
-
-      Hash.instance(this, {
-        digest(id) {
-          return [id.state];
-        }
-      })
+      constructor(value) {
+        super(value);
+        Object.defineProperty(this, Meta.symbol, { enumerable: false, configurable: true, value: new Meta(this, valueOf(value))})
+      }
     }
 
-    constructor(value) {
-      super();
-      this.state = value;
-    }
-  })
+    let descriptors = Object.getOwnPropertyDescriptors(Type.prototype);
 
+    let methods = Object.keys(methodsOf(Type)).concat(["set"]);
+
+    Object.assign(Id.prototype, foldl((methods, name) => {
+      methods[name] = function(...args) {
+        let path = P;
+        let microstate = view(compose(Path(path), Location.microstate), pathmap);
+        let next = microstate[name](...args);
+
+        return next === current ? identity : tick(next);
+      }
+      return methods;
+    }, {}, methods));
+
+    Object.keys(descriptors).forEach(propertyName => {
+      let desc = descriptors[propertyName];
+      if (typeof propertyName === 'string' && typeof desc.get === 'function') {
+        let property = new CachedProperty(propertyName, self => desc.get.call(self));
+        Object.defineProperty(Id.prototype, propertyName, property);
+      }
+    })
+
+    return Id;
+  }
   return tick(microstate);
 }
 
-function isMicrostate(object) {
-  return object != null && object.constructor.isMicrostateType;
+function equals(id, other) {
+  if (other == null) {
+    return false;
+  } else {
+    return other.constructor.Type === id.constructor.Type && valueOf(id) === valueOf(other);
+  }
 }

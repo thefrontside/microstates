@@ -1,5 +1,5 @@
 import expect from 'expect';
-import { create } from '../../index';
+import { create } from '../../src/microstates';
 
 describe('boolean', () => {
   let boolean;
