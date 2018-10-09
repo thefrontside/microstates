@@ -6,9 +6,8 @@
 
 # Microstates
 
-Microstates is a functional runtime type system designed to ease state management in component based applications. It allows you to declaratively compose application state from atomic state machines.
-
-By combining lazy execution, algebraic data types and structural sharing, we created a tool that provides a tiny API to describe complex data structures and provide a mechanism to change the value in an immutable way.
+Microstates makes working with pure functions over immutable data
+feel like working with the classic, mutable models we all know and love.
 
 <details>
   <summary><strong>Table of Contents</strong></summary>
