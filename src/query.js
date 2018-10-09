@@ -1,5 +1,3 @@
-import { type } from 'funcadelic';
-
 export function query(iterable) {
   return new Query(iterable);
 }
