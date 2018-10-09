@@ -180,7 +180,7 @@ extending Person to have a `set()` method:
 |                      |       +--------------------+
 |                      |
 |                      +-set()->
-|                      +-state: { name: 'Homer', age: 39 }
+|                      |
 +----------------------+
 ```
 
@@ -222,7 +222,7 @@ let theHomerCar = create(Car, {
 |                   |           |                      |       +--------------------+
 |                   |           |                      |
 |                   |           |                      +-set()->
-|                   |           |                      +-state: { name: 'Homer', age: 39 }
+|                   |           |                      |
 |                   |           +----------------------+
 |                   |
 |                   |           +--------------------+
@@ -232,7 +232,7 @@ let theHomerCar = create(Car, {
 |                   |           +--------------------+
 |                   |
 |                   +-set()->
-|                   +-state: { designer: { name: 'Homer', age: 39 }, name: 'The Homer' }
+|                   |
 +-------------------+
 ```
 
@@ -249,10 +249,13 @@ theHomerCar.name.state;
 //> The Homer
 ```
 
-The state from sub microstates is also available on the parent object's state.
+You can use the `valueOf()` function available from the microstates
+module to retrieve the underlying value represented by a microstate.
 
 ```js
-theHomerCar.state
+import { valueOf } from 'microstates';
+
+valueOf(theHomerCar)
 //> { designer: { name: 'Homer', age: 39 }, name: 'The Homer' }
 ```
 
@@ -277,10 +280,10 @@ let blog = create(Blog, {
   ]
 });
 
-blog.posts[0];
+for (let post of blog.posts) {
+  console.log(post);
+}
 //> Microstate<Post>{ id: 1, title: 'Hello World' }
-
-blog.posts[1];
 //> Microstate<Post>{ id: 2, title: 'Most fascinating blog in the world' }
 ```
 
@@ -289,11 +292,19 @@ When you're working with an array microstate, the shape of the Microstate is det
 ```js
 let blog2 = blog.posts.push({ id: 3, title: "It is only getter better" });
 
-blog2.posts[2];
+for (let post of blog.posts) {
+  console.log(post);
+}
+
+//> Microstate<Post>{ id: 1, title: 'Hello World' }
+//> Microstate<Post>{ id: 2, title: 'Most fascinating blog in the world' }
 //> Microstate<Post>{ id: 3, title: 'It is only getter better' }
 ```
 
-Notice how we didn't have to do any extra work to define the state transition of adding another post to the list? That's the power of composition!
+Notice how we didn't have to do any extra work to define the state
+transition of adding another post to the list? That's the power of
+composition!
+
 
 ## Object Microstates
 
@@ -382,7 +393,7 @@ let app = create(App, {
 let opened = app.notification.isOpen.toggle();
 //> Microstate<App>
 
-opened.state;
+valueOf(opened);
 //> {
 // name: 'Welcome to your app',
 // notification: {
@@ -468,7 +479,7 @@ let app = create(App, { authentication: {} });
 
 let authenticated = app.authentication.authenticate('SECRET');
 
-authenticated.state;
+valueOf(authenticated);
 //> { authentication: { session: { token: 'SECRET' }, isAuthenticated: true } }
 ```
 
@@ -513,6 +524,8 @@ let number = create(Number, 42).set(43);
 number.state
 //> 43
 ```
+
+<!--
 
 You can also use the `set` transition to replace the current Microstate with another Microstate. This is especially useful when building state machines because it allows you to change the type of the current Microstate. By changing the type, you're also changing available transitions and how the state is calculated.
 
@@ -568,6 +581,8 @@ let result = charles.vehicle.tow(prius)
 result.vehicle.state.isTowing
 //> true
 ```
+
+-->
 
 > *Pro tip*: Microstates will never require you to understand Monads in order to use transitions, but if you're interested in learning about the primitives of functional programming that power Microstates, you may want to checkout [funcadelic.js](https://github.com/cowboyd/funcadelic.js).
 
@@ -784,7 +799,7 @@ let subscription = observable.subscribe(next => {
 
 last.firstName.set("Homer J");
 
-last.state;
+vauleOf(last);
 //> { firstName: 'Homer J', lastName: 'Simpson' }
 ```
 
