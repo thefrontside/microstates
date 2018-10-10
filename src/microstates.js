@@ -5,6 +5,7 @@ import { methodsOf } from './reflection';
 import dsl from './dsl';
 import Any from './types/any';
 import CachedProperty from './cached-property';
+import Observable from './observable';
 
 export function create(InputType = Any, value) {
   let { Type } = dsl.expand(InputType);
@@ -21,7 +22,7 @@ const MicrostateType = stable(function MicrostateType(Type) {
   if (Type.Type) {
     return Type;
   }
-  let Microstate = class extends Type {
+  let Microstate = class extends Observable(Type) {
     static name = `Microstate<${Type.name}>`;
     static Type = Type;
 
@@ -61,7 +62,6 @@ const MicrostateType = stable(function MicrostateType(Type) {
       }
     }
   }, methodsOf(Type)))
-
   return Microstate;
 })
 
