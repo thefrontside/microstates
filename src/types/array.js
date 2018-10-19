@@ -42,9 +42,11 @@ export default parameterized(T => class ArrayType {
   }
 
   filter(fn) {
-    return valueOf(this).reduce((filtered, item, index) => {
-      return fn(create(T, item)) ? filtered.concat(item) : filtered;
+    let list = valueOf(this);
+    let result = list.reduce((filtered, member) => {
+      return fn(create(T, member)) ? filtered.concat(member) : filtered;
     }, []);
+    return list.length === result.length ? this : result;
   }
 
   map(fn) {

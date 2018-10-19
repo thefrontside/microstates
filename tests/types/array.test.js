@@ -69,6 +69,10 @@ describe("ArrayType", function() {
       it("state", () => {
         expect(valueOf(filtered)).toEqual(["b", "c"]);
       });
+
+      it("returns the same array microstate if all of the values in the underlying array remains the same", () => {
+        expect(filtered.filter(() => true)).toBe(filtered);
+      });
     });
 
     describe("map", () => {
