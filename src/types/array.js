@@ -43,9 +43,7 @@ export default parameterized(T => class ArrayType {
 
   filter(fn) {
     let list = valueOf(this);
-    let result = list.reduce((filtered, member) => {
-      return fn(create(T, member)) ? filtered.concat(member) : filtered;
-    }, []);
+    let result = list.filter((member) => fn(create(T, member)));
     return list.length === result.length ? this : result;
   }
 
