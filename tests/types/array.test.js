@@ -86,7 +86,7 @@ describe("ArrayType", function() {
         expect(mapped.map(x => x)).toBe(mapped);
       });
 
-      it("returns the same array microstate if all of the values in the underlying array remain the same", () => {
+      it("returns the same array microstate if all of the values in the underlying array remains the same", () => {
         expect(mapped.map(valueOf)).toBe(mapped);
       });
     });
