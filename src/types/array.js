@@ -1,5 +1,5 @@
 import { append } from 'funcadelic';
-import { Container, At } from '../lens';
+import { At, set } from '../lens';
 import { Profunctor, promap, mount, valueOf } from '../meta';
 import { create } from '../microstates';
 import parameterized from '../parameterized';
@@ -48,9 +48,11 @@ export default parameterized(T => class ArrayType {
   }
 
   map(fn) {
-    return valueOf(this).map((item, index) => {
-      return valueOf(fn(create(T, item)));
-    });
+    let list = valueOf(this);
+    return list.reduce((acc, item, index) => {
+      let mapped = valueOf(fn(create(T, item)));
+      return set(At(index, acc), mapped, acc);
+    }, list);
   }
 
   clear() {
