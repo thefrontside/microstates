@@ -799,7 +799,7 @@ let subscription = observable.subscribe(next => {
 
 last.firstName.set("Homer J");
 
-vauleOf(last);
+valueOf(last);
 //> { firstName: 'Homer J', lastName: 'Simpson' }
 ```
 
