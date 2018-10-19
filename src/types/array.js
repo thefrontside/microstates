@@ -49,9 +49,9 @@ export default parameterized(T => class ArrayType {
 
   map(fn) {
     let list = valueOf(this);
-    return list.reduce((acc, item, index) => {
-      let mapped = valueOf(fn(create(T, item)));
-      return set(At(index, acc), mapped, acc);
+    return list.reduce((result, member, index) => {
+      let mapped = valueOf(fn(create(T, member)));
+      return set(At(index, result), mapped, result);
     }, list);
   }
 
