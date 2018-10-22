@@ -59,6 +59,21 @@ describe("ArrayType", function() {
       });
     });
 
+    describe("slice", () => {
+      let sliced;
+      beforeEach(() => {
+        sliced = ms.slice(1);
+      });
+
+      it("has a sliced segment of the original list", () => {
+        expect(valueOf(sliced)).toEqual(["b", "c"]);
+      });
+
+      it("returns the same array microstate if all of the values in the underlying array remains the same", () => {
+        expect(sliced.slice(0)).toBe(sliced);
+      });
+    });
+
     describe("sort", () => {
       let sorted;
 
