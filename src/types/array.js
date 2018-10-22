@@ -41,6 +41,12 @@ export default parameterized(T => class ArrayType {
     return [value, ...valueOf(this)];
   }
 
+  slice(begin, end) {
+    let list = valueOf(this);
+    let result = list.slice(begin, end);
+    return list.length === result.length ? this : result;
+  }
+
   sort(compareFn) {
     let init = valueOf(this);
     let result = [...init].sort(compareFn);
