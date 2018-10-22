@@ -1,4 +1,4 @@
-import { append, foldl, Functor, map, Semigroup, type } from 'funcadelic';
+import { append, Functor, map, Semigroup } from 'funcadelic';
 
 class Box {
   static get of() {
@@ -59,17 +59,18 @@ export function Lens(get, set) {
 
 export const transparent = Lens(x => x, y => y);
 
-export function ValueAt(property) {
+export function At(property, container = {}) {
   let get = context => context != null ? context[property] : undefined;
-  let set = (value, context = {}) => {
-    if (value === context[property]) {
+  let set = (part, whole) => {
+    let context = whole == null ? (Array.isArray(container) ? [] : {}) : whole;
+    if (part === context[property]) {
       return context;
     } else if (Array.isArray(context)) {
       let clone = context.slice();
-      clone[Number(property)] = value;
+      clone[Number(property)] = part;
       return clone;
     } else {
-      return Semigroup.for(Object).append(context, {[property]: value});
+      return Semigroup.for(Object).append(context, {[property]: part});
     }
   };
 
@@ -77,56 +78,5 @@ export function ValueAt(property) {
 }
 
 export function Path(path = []) {
-  return foldl((lens, key) => {
-    return compose(lens, ValueAt(key))
-  }, transparent, path);
+  return path.reduce((lens, key) => compose(lens, At(key)), transparent);
 }
-
-
-export const Container = type(class Container {
-  At(key, container = {}) {
-    return this(container).At(key, container);
-  }
-})
-
-export const { At } = Container.prototype;
-
-function BuiltinAt(key, defaultValue, embed) {
-  function getter(object) {
-    if (object != null) {
-      return object[key];
-    } else {
-      return undefined;
-    }
-  }
-
-  function setter(child, whole = defaultValue) {
-    let current = whole[key];
-    if (current === child) {
-      return whole;
-    } else {
-      return embed(whole, key, child);
-    }
-  }
-  return Lens(getter, setter);
-}
-
-Container.instance(Object, {
-  At(key) {
-    return BuiltinAt(key, {}, (whole, key, child) => {
-      return append(whole, {
-        [key]: child
-      })
-    })
-  }
-})
-
-Container.instance(Array, {
-  At(key) {
-    return BuiltinAt(key, [], (whole, key, child) => {
-      let next = whole.slice();
-      next[key] = child;
-      return next;
-    })
-  }
-})
