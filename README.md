@@ -1,3 +1,4 @@
+[![bundle size (minified + gzip)](https://badgen.net/bundlephobia/minzip/microstates)](https://bundlephobia.com/result?p=microstates)
 [![Build Status](https://travis-ci.org/microstates/microstates.js.svg?branch=master)](https://travis-ci.org/microstates/microstates.js)
 [![Coverage Status](https://coveralls.io/repos/github/microstates/microstates.js/badge.svg?branch=master)](https://coveralls.io/github/microstates/microstates.js?branch=master)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
@@ -62,7 +63,7 @@ With Microstates added to your project, you get:
 * 🎯 Transpilation free type system
 * 🔭 Optional integration with Observables
 * ⚛ Use in Node.js, browser or React Native
-* 🔬 Only [5.8kB gzipped](https://bundlephobia.com/result?p=microstates) with all dependencies
+* 🔬 [It's tiny](https://bundlephobia.com/result?p=microstates)
 
 But, most imporantly, Microstates makes working with state fun.
 
