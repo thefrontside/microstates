@@ -41,6 +41,12 @@ export default parameterized(T => class ArrayType {
     return [value, ...valueOf(this)];
   }
 
+  sort(compareFn) {
+    let init = valueOf(this);
+    let result = [...init].sort(compareFn);
+    return init.every((member, idx) => result[idx] === member) ? this : result;
+  }
+
   filter(fn) {
     let list = valueOf(this);
     let result = list.filter((member) => fn(create(T, member)));

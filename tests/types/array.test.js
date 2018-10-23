@@ -59,6 +59,23 @@ describe("ArrayType", function() {
       });
     });
 
+    describe("sort", () => {
+      let sorted;
+
+      beforeEach(() => {
+        let unsorted = create([String], ["c", "b", "a"]);
+        sorted = unsorted.sort();
+      });
+
+      it("has a value that is the sorted version of the original value", () => {
+        expect(valueOf(sorted)).toEqual(["a", "b", "c"]);
+      });
+
+      it("returns the same array microstate if all of the values in the underlying array remains the same", () => {
+        expect(sorted.sort()).toBe(sorted);
+      });
+    });
+
     describe("filter", () => {
       let filtered;
 
