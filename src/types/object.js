@@ -37,7 +37,7 @@ export default parameterized(T => class ObjectType {
   }
 
   map(fn) {
-    return map((v, key) => fn(sourceOf(this[key]), key), valueOf(this));
+    return map(value => valueOf(fn(create(T, value))), valueOf(this));
   }
 
   filter(fn) {
