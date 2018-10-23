@@ -6,15 +6,9 @@ node_js:
   - "8"
   - "6"
 
-install:
-  - npm install -g npm@latest
-  - npm install -g coveralls
-  - npm install
-
-after_success: npm run coverage
-
-script:
-  - npm test
+after_success:
+  - yarn coverage
+  - yarn coveralls
 
 # Allow Travis tests to run in containers.
 sudo: false

@@ -26,8 +26,9 @@
   "repository": "git+ssh://git@github.com/microstates/microstates.js.git",
   "scripts": {
     "start": "node repl.js",
-    "test": "nyc --reporter=html --reporter=text mocha --recursive -r tests/setup tests",
-    "coverage": "nyc report --reporter=text-lcov | coveralls",
+    "test": "mocha --recursive -r tests/setup tests",
+    "coverage": "nyc --reporter=html --reporter=text npm run test",
+    "coveralls": "nyc report --reporter=text-lcov | coveralls",
     "build": "rollup -c",
     "bench": "node -r ./tests/setup benchmarks/index.js",
     "prepare": "npm run build",
