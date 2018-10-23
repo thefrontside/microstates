@@ -21,7 +21,7 @@ class Query {
     } else if (typeof iterable === 'function') {
       this.generator = iterable;
     } else {
-      throw new Error('Query must be constructed with a generator function or iterable. Received `${iterable}`')
+      throw new Error('Query must be constructed with a generator function or iterable. Received `${iterable}`');
     }
   }
 
@@ -38,10 +38,10 @@ class Query {
           return {
             get done() { return next.done; },
             get value() { return fn(next.value); }
-          }
+          };
         }
-      }
-    })
+      };
+    });
   }
 
   filter(fn) {
@@ -54,6 +54,7 @@ class Query {
             if (result != null) {
               return result;
             } else {
+              // eslint-disable-next-line no-empty
               for (result = source.next(); !result.done && !fn(result.value); result = source.next()) {}
               return result;
             }
@@ -61,10 +62,10 @@ class Query {
           return {
             get done() { return find().done; },
             get value() { return find().value; }
-          }
+          };
         }
-      }
-    })
+      };
+    });
   }
 
   reduce(fn, initial) {

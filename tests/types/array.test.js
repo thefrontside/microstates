@@ -1,3 +1,4 @@
+/* global describe, it, beforeEach */
 import expect from 'expect';
 
 import ArrayType from '../../src/types/array';
@@ -25,7 +26,6 @@ describe("ArrayType", function() {
 
       describe("again", () => {
         let again;
-
         beforeEach(() => {
           again = pushed.push("e");
         });
@@ -48,7 +48,6 @@ describe("ArrayType", function() {
 
       describe("again", () => {
         let again;
-
         beforeEach(() => {
           again = popped.pop();
         });
@@ -93,7 +92,6 @@ describe("ArrayType", function() {
 
     describe("filter", () => {
       let filtered;
-
       beforeEach(() => {
         filtered = ms.filter(v => v.state !== "a");
       });
@@ -109,7 +107,6 @@ describe("ArrayType", function() {
 
     describe("map", () => {
       let mapped;
-
       beforeEach(() => {
         mapped = ms.map(v => v.state.toUpperCase());
       });
@@ -177,7 +174,7 @@ describe("ArrayType", function() {
             });
 
             it("does not have any records", () => {
-              expect(popped.records.length).toEqual(0);
+              expect(popped.records).toHaveLength(0);
               expect(valueOf(popped.records)).toEqual([]);
             });
           });
@@ -199,7 +196,7 @@ describe("ArrayType", function() {
         let pushed, fourth;
         beforeEach(() => {
           pushed = dataset.records.push({ content: "Hi!" });
-          let first, second, third;
+          let first, second, third; // eslint-disable-line no-unused-vars
           [first, second, third, fourth] = pushed.records;
         });
 
@@ -218,7 +215,7 @@ describe("ArrayType", function() {
           });
 
           it("has changed value", () => {
-            let [first, second, third, fourth] = changed.records;
+            let [first, second, third, fourth] = changed.records; // eslint-disable-line no-unused-vars
             expect(fourth.content.state).toBe("Hello!");
           });
         });
@@ -231,18 +228,18 @@ describe("ArrayType", function() {
         });
 
         it('removed last element from the array and changed length', () => {
-          expect(popped.records.length).toEqual(2)
+          expect(popped.records).toHaveLength(2);
         });
 
         describe('changing record', () => {
           let changed;
           beforeEach(() => {
-            let [ _, second ] = popped.records;
+            let [ _, second ] = popped.records; // eslint-disable-line no-unused-vars
             changed = second.content.concat('!!!');
           });
 
           it('changed the content', () => {
-            let [ _, second ] = changed.records;
+            let [ _, second ] = changed.records; // eslint-disable-line no-unused-vars
             expect(second.content.state).toBe('Sweet!!!');
           });
         });
@@ -260,18 +257,18 @@ describe("ArrayType", function() {
         });
 
         it('changed length', () => {
-          expect(shifted.records.length).toBe(2);
+          expect(shifted.records).toHaveLength(2);
         });
 
         describe('changing record', () => {
           let changed;
           beforeEach(() => {
-            let [ _, second ] = shifted.records;
+            let [ _, second ] = shifted.records; // eslint-disable-line no-unused-vars
             changed = second.content.concat('!!!');
           });
 
           it('changed the content', () => {
-            let [ _, second ] = changed.records;
+            let [ _, second ] = changed.records; // eslint-disable-line no-unused-vars
             expect(second.content.state).toBe('Woooo!!!');
           });
         });
@@ -282,12 +279,14 @@ describe("ArrayType", function() {
         beforeEach(() => {
           unshifted = dataset.records.unshift({ content: "Hi!" });
         });
+
         it('pushed record to the beginning of the array', () => {
           let [ first ] = unshifted.records;
           expect(first.content.state).toBe('Hi!');
         });
+
         it('moved first record to second position', () => {
-          let [ _, second ] = unshifted.records;
+          let [ _, second ] = unshifted.records; // eslint-disable-line no-unused-vars
           expect(second.content.state).toBe('Herro');
         });
 
@@ -297,6 +296,7 @@ describe("ArrayType", function() {
             let [ first ] = unshifted.records;
             changed = first.content.concat('!!!');
           });
+
           it('changed new record', () => {
             let [ first ] = changed.records;
             expect(first.content.state).toBe('Hi!!!!');
@@ -306,11 +306,12 @@ describe("ArrayType", function() {
         describe('change existing record', () => {
           let changed;
           beforeEach(() => {
-            let [_, second ] = unshifted.records;
+            let [_, second ] = unshifted.records; // eslint-disable-line no-unused-vars
             changed = second.content.concat('!!!');
           });
+
           it('changed new record', () => {
-            let [_, second ] = changed.records;
+            let [_, second ] = changed.records; // eslint-disable-line no-unused-vars
             expect(second.content.state).toBe('Herro!!!');
           });
         });
@@ -323,7 +324,7 @@ describe("ArrayType", function() {
         });
 
         it('filtered out items', () => {
-          expect(filtered.records.length).toBe(1);
+          expect(filtered.records).toHaveLength(1);
         });
 
         describe('changing remaining item', () => {
@@ -344,7 +345,7 @@ describe("ArrayType", function() {
         describe('with microstate operations', () => {
           let mapped;
           beforeEach(() => {
-            mapped = dataset.records.map(record => record.content.concat('!!!'))
+            mapped = dataset.records.map(record => record.content.concat('!!!'));
           });
 
           it('applied change to every element', () => {
@@ -357,12 +358,12 @@ describe("ArrayType", function() {
           describe('changing record', () => {
             let changed;
             beforeEach(() => {
-              let [_, second ] = mapped.records;
+              let [_, second ] = mapped.records; // eslint-disable-line no-unused-vars
               changed = second.content.set('SWEET!!!');
             });
 
             it('changed the record content', () => {
-              let [_, second ] = changed.records;
+              let [_, second ] = changed.records; // eslint-disable-line no-unused-vars
               expect(second.content.state).toBe('SWEET!!!');
             });
           });
@@ -376,26 +377,25 @@ describe("ArrayType", function() {
         });
 
         it('makes array empty', () => {
-          expect(cleared.records.length).toEqual(0);
+          expect(cleared.records).toHaveLength(0);
         });
 
         it('has empty value', () => {
           expect(valueOf(cleared)).toEqual({ records: [] });
         });
       });
-
     });
   });
+
   describe('iteration', () => {
     let array, substates;
-
     beforeEach(() => {
       array = create([], [{a: "a"}, {b: "b"}, {c: "c"}]);
       [...substates] = array;
     });
 
     it('creates a substate for each element in the array', function() {
-      expect(substates.length).toEqual(3);
+      expect(substates).toHaveLength(3);
     });
 
     describe('transitinging one of the substates', function() {
@@ -403,11 +403,11 @@ describe("ArrayType", function() {
       beforeEach(() => {
         transitioned = substates[1].set({b: "bee"});
       });
+
       it('returns an array of the same number of elements', function() {
-        expect(transitioned).toBeInstanceOf(ArrayType)
+        expect(transitioned).toBeInstanceOf(ArrayType);
         expect(valueOf(transitioned)).toEqual([{a: "a"}, {b: "bee"}, {c: "c"}]);
       });
     });
-
-  })
+  });
 });

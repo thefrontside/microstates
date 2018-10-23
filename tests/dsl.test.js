@@ -1,3 +1,4 @@
+/* global describe, it */
 import expect from 'expect';
 import dsl from '../src/dsl';
 import { ObjectType, ArrayType, NumberType, StringType, BooleanType } from '../src/types';
@@ -8,21 +9,25 @@ describe('DSL', () => {
     expect(expansion.Type).toEqual(ObjectType);
     expect(expansion.value).toEqual({});
   });
+
   it('expands bare Array', function() {
     let expansion = dsl.expand(Array);
     expect(expansion.Type).toBe(ArrayType);
     expect(expansion.value).toEqual([]);
   });
+
   it('expands bare Number', function() {
     let expansion = dsl.expand(Number);
     expect(expansion.Type).toBe(NumberType);
     expect(expansion.value).toEqual(0);
   });
+
   it('expands bare Boolean', function() {
     let expansion = dsl.expand(Boolean);
     expect(expansion.Type).toBe(BooleanType);
     expect(expansion.value).toEqual(false);
   });
+
   it('expands bare String', function() {
     let expansion = dsl.expand(String);
     expect(expansion.Type).toBe(StringType);
@@ -68,9 +73,9 @@ describe('DSL', () => {
   });
 
   it('matches constructors to themselves', function() {
-    class MyType {};
+    class MyType {}
     let { Type, value } = dsl.expand(MyType);
     expect(Type).toBe(MyType);
     expect(value).toBeUndefined();
   });
-})
+});

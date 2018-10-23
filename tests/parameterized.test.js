@@ -1,7 +1,8 @@
+/* global describe, it, beforeEach */
 import expect from 'expect';
 
 import { create }  from "../index";
-import { valueOf, metaOf } from "../src/meta";
+import { valueOf } from "../src/meta";
 
 describe("Parameterized Microstates: ", () => {
   describe("sugar", function() {
@@ -19,8 +20,9 @@ describe("Parameterized Microstates: ", () => {
         let [ first ] = create([Item], [{ isCompleted: false }]);
         m = first.isCompleted.toggle();
       });
+
       it("runs transitions on sub items", function() {
-        let [ first ] = m
+        let [ first ] = m;
         expect(first.isCompleted.state).toBe(true);
       });
     });
@@ -30,8 +32,9 @@ describe("Parameterized Microstates: ", () => {
       beforeEach(function() {
         m = create(TodoList);
       });
+
       it('has no items', function() {
-        expect(m.items.length).toEqual(0);
+        expect(m.items).toHaveLength(0);
       });
     });
 
@@ -40,20 +43,21 @@ describe("Parameterized Microstates: ", () => {
       beforeEach(function() {
         m = create(TodoList);
       });
+
       it('has no items', function() {
-        expect(m.items.length).toEqual(0);
+        expect(m.items).toHaveLength(0);
       });
     });
-
 
     describe("composed [Item] to parameterized(Array)", function() {
       let m;
       beforeEach(function() {
         let [ first ] = create(TodoList, {
           items: [{ isCompleted: false }]
-        }).items
+        }).items;
         m = first.isCompleted.toggle();
       });
+
       it("runs transitions on sub items", function() {
         let [ first ] = m.items;
         expect(first.isCompleted.state).toBe(true);
@@ -72,18 +76,20 @@ describe("Parameterized Microstates: ", () => {
       beforeEach(function() {
         m = create(Counters, value);
         let [ firstApple] = m.apples;
-        let [ _, secondOrange ] = firstApple.increment().oranges;
+        let [ _, secondOrange ] = firstApple.increment().oranges; // eslint-disable-line no-unused-vars
         transitioned = secondOrange.increment();
       });
+
       it("uses the same value for state as the value ", function() {
         expect(valueOf(m)).toBe(value);
       });
+
       it("still respects transitions", function() {
         let value = {
           oranges: [50, 21],
           apples: [2, 2, 45]
         };
-        let [ first ] = transitioned.apples;
+        let [ first ] = transitioned.apples; // eslint-disable-line no-unused-vars
         expect(valueOf(transitioned)).toEqual(value);
       });
     });
@@ -103,9 +109,10 @@ describe("Parameterized Microstates: ", () => {
         };
         m = create(Store, value);
       });
+
       it("still respects transitions", function() {
         let [ firstApple] = m.inventory.apples;
-        let [ _, secondOrange ] = firstApple.increment().inventory.oranges;
+        let [ _, secondOrange ] = firstApple.increment().inventory.oranges; // eslint-disable-line no-unused-vars
         let next = secondOrange.increment();
         expect(valueOf(next)).toEqual({
           inventory: {
@@ -137,7 +144,7 @@ describe("Parameterized Microstates: ", () => {
     });
     it("runs transitions on sub items", function() {
       expect(m).toBeInstanceOf(TodoList);
-      expect(m.items.length).toBe(2);
+      expect(m.items).toHaveLength(2);
       let value = valueOf(m);
       expect(value.items[0].isCompleted).toBe(true);
 
@@ -160,7 +167,7 @@ describe("Parameterized Microstates: ", () => {
 
     it("still respects transitions", function() {
       let [ firstApple] = m.apples;
-      let [ _, secondOrange ] = firstApple.increment().oranges;
+      let [ _, secondOrange ] = firstApple.increment().oranges; // eslint-disable-line no-unused-vars
       let next = secondOrange.increment();
       expect(valueOf(next)).toEqual({
         oranges: [50, 21],

@@ -1,5 +1,5 @@
 
-import any from './any.benchmark'
+import any from './any.benchmark';
 import number from './number.benchmark';
 import array from './array.benchmark';
 import object from './object.benchmark';
@@ -15,7 +15,7 @@ const suite = new Benchmark.Suite({
   onComplete() {
     let table = new Table({
       head: ['Suite', 'Benchmark', 'ops/sec', 'σ', 'sample size']
-    })
+    });
     for (let i = 0; i < this.length; i++) {
       let benchmark = this[i];
       let { stats } = benchmark;
@@ -23,9 +23,9 @@ const suite = new Benchmark.Suite({
         table.push([String(benchmark.suiteName), benchmark.name, ENA, ENA, stats.sample.length ]);
       } else {
         let { hz } = benchmark;
-        let ops = Benchmark.formatNumber(hz.toFixed(hz < 100 ? 2 : 0))
+        let ops = Benchmark.formatNumber(hz.toFixed(hz < 100 ? 2 : 0));
         let sigma = `± ${stats.rme.toFixed(2)} %`;
-        table.push([String(benchmark.suiteName), benchmark.name, ops, sigma, stats.sample.length])
+        table.push([String(benchmark.suiteName), benchmark.name, ops, sigma, stats.sample.length]);
       }
     }
     console.log(String(table));

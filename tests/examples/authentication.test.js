@@ -1,6 +1,6 @@
+/* global describe, it, beforeEach */
 import expect from 'expect';
 import { create } from '../../src/microstates';
-import { valueOf } from '../../src/meta';
 
 class AnonymousSession {
   initialize(session) {
@@ -31,10 +31,12 @@ describe('AnonymousSession', () => {
   let ms;
   beforeEach(() => {
     ms = create(MyApp);
-  })
+  });
+
   it('initializes into AnonymousSession without initial state', () => {
     expect(ms.session).toBeInstanceOf(AnonymousSession);
   });
+
   describe('transition', () => {
     let authenticated;
     beforeEach(() => {
@@ -54,12 +56,14 @@ describe('AnonymousSession', () => {
 describe('AuthenticatedSession', () => {
   let ms, anonymous;
   beforeEach(() => {
-    ms = create(MyApp, { session: { name: 'Taras', isAuthenticated: true } })
+    ms = create(MyApp, { session: { name: 'Taras', isAuthenticated: true } });
     anonymous = ms.session.logout();
   });
+
   it('initializes into AuthenticatedSession state', () => {
     expect(ms.session).toBeInstanceOf(AuthenticatedSession);
   });
+
   it('transitions Authenticated session to AnonymousSession with logout', () => {
     expect(anonymous.session).toBeInstanceOf(AnonymousSession);
   });

@@ -1,8 +1,8 @@
-import { append, Functor, map, Semigroup } from 'funcadelic';
+import { Functor, map, Semigroup } from 'funcadelic';
 
 class Box {
   static get of() {
-    return (...args) => new this(...args)
+    return (...args) => new this(...args);
   }
 
   static unwrap(box) {
@@ -16,13 +16,13 @@ class Box {
 
 const { unwrap } = Box;
 
-class Id extends Box {};
+class Id extends Box {}
 
 class Const extends Box {}
 
 Functor.instance(Id, {
   map(fn, id) {
-    var next = fn(id.value);
+    let next = fn(id.value);
     return next === id.value ? id : Id.of(next);
   }
 });
@@ -31,7 +31,7 @@ Functor.instance(Const, {
   map(fn, constant) {
     return constant;
   }
-})
+});
 
 export function compose(f, g) {
   return (...x) => f(g(...x));
@@ -44,7 +44,7 @@ export function view(lens, context) {
 
 export function over(lens, fn, context) {
   let update = compose(unwrap, lens(compose(Id.of, fn)));
-  return update(context)
+  return update(context);
 }
 
 export function set(lens, value, context) {
@@ -54,7 +54,7 @@ export function set(lens, value, context) {
 export function Lens(get, set) {
   return f => context => {
     return map(value => set(value, context), f(get(context)));
-  }
+  };
 }
 
 export const transparent = Lens(x => x, y => y);

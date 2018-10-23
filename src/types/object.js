@@ -1,5 +1,5 @@
 import { append, filter, map } from 'funcadelic';
-import parameterized from '../parameterized'
+import parameterized from '../parameterized';
 import { mount, valueOf } from '../meta';
 import { create } from '../microstates';
 
@@ -16,8 +16,8 @@ export default parameterized(T => class ObjectType {
         get() {
           return mount(this, create(T, value[key]), key);
         }
-      })
-    })
+      });
+    });
   }
 
   initialize(value) {

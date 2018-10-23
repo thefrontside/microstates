@@ -1,4 +1,7 @@
 {
-  "jest/globals": true,
-  "plugins": ["jest", "prefer-let"]
+  "plugins": ["prefer-let"],
+  "rules": {
+    "no-return-assign": 0,
+    "no-unused-expressions": 0
+  }
 }

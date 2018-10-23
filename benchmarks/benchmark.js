@@ -7,6 +7,6 @@ export default function(name, definition) {
           return operation();
         });
       }
-    })
-  }
+    });
+  };
 }

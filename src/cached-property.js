@@ -9,5 +9,5 @@ export default function CachedProperty(key, reify) {
       Object.defineProperty(this, key, { enumerable, value });
       return value;
     }
-  }
+  };
 }

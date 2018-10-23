@@ -1,3 +1,4 @@
+/* global describe, it, beforeEach */
 import expect from 'expect';
 
 import { create } from '../src/microstates';
@@ -66,15 +67,12 @@ describe('initialization', () => {
   });
 
   describe("deeply nested", () => {
-
     class Root {
       first = First;
     }
-
     class First {
       second = Second;
     }
-
     class Second {
       name = String;
 
@@ -88,13 +86,11 @@ describe('initialization', () => {
 
     describe('initialization', () => {
       let root;
-
       beforeEach(() => {
         root = create(Root, { first: { } });
       });
 
       describe('transition', () => {
-
         let changed;
         beforeEach(() => {
           changed = root.first.second.name.concat("!!!");
@@ -103,8 +99,7 @@ describe('initialization', () => {
         it("has result after transition valueOf", () => {
           expect(changed.first.second.name.state).toEqual("default!!!");
         });
-
       });
     });
   });
-})
+});

@@ -16,9 +16,9 @@ export default parameterized(T => class ArrayType {
 
   initialize(value) {
     if (value == null) {
-      return []
+      return [];
     } else if (Array.isArray(value)) {
-      return value
+      return value;
     } else {
       return [value];
     }
@@ -82,16 +82,16 @@ export default parameterized(T => class ArrayType {
         return {
           get done() { return next.done; },
           get value() { return mount(array, create(T, next.value), index); }
-        }
+        };
       }
-    }
+    };
   }
 
   static initialize() {
     Profunctor.instance(this, {
       promap(input, output, array) {
         let next = input(array);
-        var value = valueOf(array);
+        let value = valueOf(array);
         let length = value.length;
         if (length === 0) {
           return output(next);
@@ -105,11 +105,11 @@ export default parameterized(T => class ArrayType {
                   return {
                     get done() { return next.done; },
                     get value() { return promap(input, output, next.value); }
-                  }
+                  };
                 }
-              }
+              };
             }
-          }))
+          }));
         }
       }
     });

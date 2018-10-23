@@ -4,4 +4,4 @@ export default class Primitive {
   get state() {
     return valueOf(this);
   }
-};
+}

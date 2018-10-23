@@ -1,3 +1,4 @@
+/* global describe, it */
 import expect from 'expect';
 import * as exports from '../index';
 
