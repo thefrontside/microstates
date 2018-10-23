@@ -11,6 +11,8 @@ install:
   - npm install -g coveralls
   - npm install
 
+after_success: npm run coverage
+
 script:
   - npm test
 
