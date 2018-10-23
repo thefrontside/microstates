@@ -2,6 +2,7 @@ import expect from 'expect';
 
 import Identity from '../src/identity';
 import { create } from '../src/microstates';
+import { valueOf } from '../src/meta';
 
 import { TodoMVC, Todo } from './todomvc';
 
@@ -23,26 +24,34 @@ describe('Identity', () => {
 
   it('has the same shape as the initial state.', function() {
     expect(id.completeAll).toBeInstanceOf(Function);
-    expect(id.todos.state.length).toBe(4);
-    expect(id.todos[0]).toBeInstanceOf(Todo);
-    expect(id.todos[0].state).toBe(microstate.todos[0].state)
+    expect(id.todos.length).toBe(4);
+
+    let [ first ] = id.todos;
+    let [ $first ] = microstate.todos;
+    expect(first).toBeInstanceOf(Todo);
+    expect(valueOf(first)).toBe(valueOf($first))
   });
 
   describe('invoking a transition', function() {
-    let next;
+    let next, third;
     beforeEach(function() {
-      next = id.todos[2].completed.set(true);
+      [ ,, third ] = id.todos;
+
+      next = third.completed.set(true);
     });
     it('transitions the nodes which did change', function() {
       expect(next).not.toBe(id);
       expect(next.todos).not.toBe(id.todos);
-      expect(next.todos[2]).not.toBe(id.todos[2]);
+      let [ ,, $third] = next.todos;
+      expect($third).not.toBe(third);
     });
     it('maintains the === identity of the nodes which did not change', function() {
-      expect(next.todos[2].title).toBe(id.todos[2].title);
-      expect(next.todos[0]).toBe(id.todos[0]);
-      expect(next.todos[1]).toBe(id.todos[1]);
-      expect(next.todos[3]).toBe(id.todos[3]);
+      let [first, second, third, fourth] = id.todos;
+      let [$first, $second, $third, $fourth] = next.todos;
+      expect($third.title).toBe(third.title);
+      expect($first).toBe(first);
+      expect($second).toBe(second);
+      expect($fourth).toBe(fourth);
     });
   });
 
@@ -54,17 +63,36 @@ describe('Identity', () => {
       next = shift();
     });
     it('still completes the transition', function() {
-      expect(next.state).toEqual({
+      expect(valueOf(next)).toEqual({
         todos: [{
-          title: "Convince People Microstates is awesome", completed: false
+          title: "Convince People Microstates is awesome"
         }, {
-          title: "Take out the Trash", completed: false
+          title: "Take out the Trash"
         }, {
-          title: "profit $$", completed: false
+          title: "profit $$"
         }]
       })
     });
   });
+
+  describe('transition stability', function() {
+    let next;
+    beforeEach(function() {
+      let [ first ] = id.todos;
+      next = first.completed.set(false);
+    });
+    it('uses the same function for each location in the graph, even for different instances', function() {
+      expect(next).not.toBe(id);
+      expect(next.set).toBe(id.set);
+
+      let [ first ] = id.todos;
+      let [ $first ] = next.todos;
+
+      expect($first.push).toBe(first.push);
+      expect($first.completed.toggle).toBe(first.completed.toggle);
+    });
+  });
+
 
   describe('the identity callback function', function() {
     let args;
@@ -89,7 +117,8 @@ describe('Identity', () => {
         calls++;
         return x;
       });
-      next = store.todos[0].completed.set(true);
+      let [ first ] = store.todos;
+      next = first.completed.set(true);
     });
 
     it('returns the same id in the event that the state is the same', function() {
@@ -103,30 +132,40 @@ describe('Identity', () => {
 
     it('traverses queries and includes the microstates within them', function() {
       expect(id.completed).toBeDefined();
-      expect(id.completed[0]).toBeInstanceOf(Todo);
+      let [ firstCompleted ] = id.completed;
+      expect(firstCompleted).toBeInstanceOf(Todo);
     });
 
     describe('the effect of transitions on query identities', () => {
       let next;
       beforeEach(function() {
-        next = id.completed[0].title.set('Take out the milk');
+        let [ first ] = id.completed;
+        next = first.title.set('Take out the milk');
       });
 
       it('updates those queries which contain changed objects, but not ids *within* the query that remained the same', () => {
+        let [first, second] = id.completed;
+        let [$first, $second] = next.completed;
         expect(next.completed).not.toBe(id.completed);
-        expect(next.completed[0]).not.toBe(id.completed[0]);
-        expect(next.completed[1]).toBe(id.completed[1]);
+        expect($first).not.toBe(first);
+        expect($second).toBe(second);
       });
 
       it.skip('maintains the === identity of those queries which did not change', function() {
-        expect(next.active[0]).toBe(id.active[0]);
-        expect(next.active[1]).toBe(id.active[1]);
+        let [first, second] = id.active;
+        let [$first, $second] = next.active;
+        expect($first).toBe(first);
+        expect($second).toBe(second);
         expect(next.active).toBe(id.active)
       });
 
       it('maintains the === identity of the same node that appears at different spots in the tree', () => {
-        expect(id.todos[0]).toBe(id.completed[0]);
-        expect(next.todos[0]).toBe(next.completed[0]);
+        let [ first ] = id.todos;
+        let [ firstCompleted ] = id.completed;
+        let [ $first ] = next.todos;
+        let [ $firstCompleted ] = next.completed;
+        expect(first).toBe(firstCompleted);
+        expect($first).toBe($firstCompleted);
       })
     })
   });

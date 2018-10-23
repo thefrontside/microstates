@@ -1,5 +1,6 @@
 import expect from 'expect';
 import { create } from '../../src/microstates';
+import { valueOf } from '../../src/meta';
 import { ObjectType } from '../../src/types';
 
 describe('created without value', () => {
@@ -11,7 +12,7 @@ describe('created without value', () => {
   });
 
   it('has empty object as state', () => {
-    expect(object.state).toEqual({});
+    expect(valueOf(object)).toEqual({});
   });
 
   describe('assign once', () => {
@@ -21,11 +22,11 @@ describe('created without value', () => {
     });
 
     it('received the assigned value', () => {
-      expect(assigned.state).toEqual({ foo: 'bar' });
+      expect(valueOf(assigned)).toEqual({ foo: 'bar' });
     });
     it('wraps the assigned values the parameterized type', function() {
       expect(assigned.foo).toBeInstanceOf(Thing)
-      expect(assigned.foo.state).toEqual('bar')
+      expect(valueOf(assigned.foo)).toEqual('bar')
     });
 
     describe('assign twice', () => {
@@ -35,10 +36,10 @@ describe('created without value', () => {
       });
 
       it('received the assigned value', () => {
-        expect(assignedAgain.state).toEqual({ foo: 'bar', bar: 'baz' });
+        expect(valueOf(assignedAgain)).toEqual({ foo: 'bar', bar: 'baz' });
       });
       it('maintains stability of the state', function() {
-        expect(assignedAgain.state.foo).toBe(assigned.state.foo)
+        expect(valueOf(assignedAgain).foo).toBe(valueOf(assigned).foo)
       });
     });
   });
@@ -51,7 +52,7 @@ describe('created with value', () => {
   });
 
   it('has empty object as state', () => {
-    expect(object.state).toEqual({ foo: 'bar' });
+    expect(valueOf(object)).toEqual({ foo: 'bar' });
   });
 
   describe('assign once', () => {
@@ -61,7 +62,7 @@ describe('created with value', () => {
     });
 
     it('received the assigned value', () => {
-      expect(assigned.state).toEqual({ foo: 'bar', bar: 'baz' });
+      expect(valueOf(assigned)).toEqual({ foo: 'bar', bar: 'baz' });
     });
 
     describe('assign twice', () => {
@@ -71,7 +72,7 @@ describe('created with value', () => {
       });
 
       it('received the assigned value', () => {
-        expect(assignedAgain.state).toEqual({ foo: 'bar', bar: 'baz', zoo: 'zar' });
+        expect(valueOf(assignedAgain)).toEqual({ foo: 'bar', bar: 'baz', zoo: 'zar' });
       });
     });
   });
@@ -81,7 +82,7 @@ describe('created with value', () => {
       let assigned;
       beforeEach(() => {
         assigned = object.assign({
-          name: create(class StringType {}, 'Taras')
+          name: create(String, 'Taras')
         });
       });
 
@@ -90,7 +91,7 @@ describe('created with value', () => {
       });
 
       it('microstate value to be part of valueOf', () => {
-        expect(assigned.state).toEqual({ foo: 'bar', name: 'Taras' });
+        expect(valueOf(assigned)).toEqual({ foo: 'bar', name: 'Taras' });
       });
     });
 
@@ -107,12 +108,8 @@ describe('created with value', () => {
         })
       });
 
-      it('has new type in the state', () => {
-        expect(assigned.taras).toBeInstanceOf(Person);
-      });
-
       it('is stable', () => {
-        expect(assigned.state.taras).toBe(value.state);
+        expect(valueOf(assigned).taras).toBe(valueOf(value));
       });
     });
   });
@@ -129,14 +126,14 @@ describe('put and delete', () => {
       object = object.put('w', 'x').put('y', 'z');
     });
     it('includes those values in the state', function() {
-      expect(object.state).toEqual({a: 'b', w: 'x', y: 'z'});
+      expect(valueOf(object)).toEqual({a: 'b', w: 'x', y: 'z'});
     });
     describe('deleting a value', function() {
       beforeEach(() => {
         object = object.delete('w');
       });
       it('removes it from the value', function() {
-        expect(object.state).toEqual({a: 'b', y: 'z'})
+        expect(valueOf(object)).toEqual({a: 'b', y: 'z'})
       });
     });
   });
@@ -152,7 +149,7 @@ describe('put and delete', () => {
       });
 
       it('has valueOf', () => {
-        expect(object.state).toEqual({ a: 'b', name: 'Taras' });
+        expect(valueOf(object)).toEqual({ a: 'b', name: 'Taras' });
       });
     })
 
@@ -167,12 +164,8 @@ describe('put and delete', () => {
         object = object.put('taras', value);
       });
 
-      it('has new type in the state', () => {
-        expect(object.taras).toBeInstanceOf(Person);
-      });
-
       it('is stable', () => {
-        expect(object.state.taras).toBe(value.state);
+        expect(valueOf(object).taras).toBe(valueOf(value));
       });
     });
   });

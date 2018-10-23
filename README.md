@@ -1,3 +1,4 @@
+[![bundle size (minified + gzip)](https://badgen.net/bundlephobia/minzip/microstates)](https://bundlephobia.com/result?p=microstates)
 [![Build Status](https://travis-ci.org/microstates/microstates.js.svg?branch=master)](https://travis-ci.org/microstates/microstates.js)
 [![Coverage Status](https://coveralls.io/repos/github/microstates/microstates.js/badge.svg?branch=master)](https://coveralls.io/github/microstates/microstates.js?branch=master)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
@@ -6,9 +7,8 @@
 
 # Microstates
 
-Microstates is a functional runtime type system designed to ease state management in component based applications. It allows you to declaratively compose application state from atomic state machines.
-
-By combining lazy execution, algebraic data types and structural sharing, we created a tool that provides a tiny API to describe complex data structures and provide a mechanism to change the value in an immutable way.
+Microstates makes working with pure functions over immutable data
+feel like working with the classic, mutable models we all know and love.
 
 <details>
   <summary><strong>Table of Contents</strong></summary>
@@ -63,7 +63,7 @@ With Microstates added to your project, you get:
 * 🎯 Transpilation free type system
 * 🔭 Optional integration with Observables
 * ⚛ Use in Node.js, browser or React Native
-* 🔬 Only [5.8kB gzipped](https://bundlephobia.com/result?p=microstates) with all dependencies
+* 🔬 [It's tiny](https://bundlephobia.com/result?p=microstates)
 
 But, most imporantly, Microstates makes working with state fun.
 
@@ -181,7 +181,7 @@ extending Person to have a `set()` method:
 |                      |       +--------------------+
 |                      |
 |                      +-set()->
-|                      +-state: { name: 'Homer', age: 39 }
+|                      |
 +----------------------+
 ```
 
@@ -223,7 +223,7 @@ let theHomerCar = create(Car, {
 |                   |           |                      |       +--------------------+
 |                   |           |                      |
 |                   |           |                      +-set()->
-|                   |           |                      +-state: { name: 'Homer', age: 39 }
+|                   |           |                      |
 |                   |           +----------------------+
 |                   |
 |                   |           +--------------------+
@@ -233,7 +233,7 @@ let theHomerCar = create(Car, {
 |                   |           +--------------------+
 |                   |
 |                   +-set()->
-|                   +-state: { designer: { name: 'Homer', age: 39 }, name: 'The Homer' }
+|                   |
 +-------------------+
 ```
 
@@ -250,10 +250,13 @@ theHomerCar.name.state;
 //> The Homer
 ```
 
-The state from sub microstates is also available on the parent object's state.
+You can use the `valueOf()` function available from the microstates
+module to retrieve the underlying value represented by a microstate.
 
 ```js
-theHomerCar.state
+import { valueOf } from 'microstates';
+
+valueOf(theHomerCar)
 //> { designer: { name: 'Homer', age: 39 }, name: 'The Homer' }
 ```
 
@@ -278,10 +281,10 @@ let blog = create(Blog, {
   ]
 });
 
-blog.posts[0];
+for (let post of blog.posts) {
+  console.log(post);
+}
 //> Microstate<Post>{ id: 1, title: 'Hello World' }
-
-blog.posts[1];
 //> Microstate<Post>{ id: 2, title: 'Most fascinating blog in the world' }
 ```
 
@@ -290,11 +293,19 @@ When you're working with an array microstate, the shape of the Microstate is det
 ```js
 let blog2 = blog.posts.push({ id: 3, title: "It is only getter better" });
 
-blog2.posts[2];
+for (let post of blog.posts) {
+  console.log(post);
+}
+
+//> Microstate<Post>{ id: 1, title: 'Hello World' }
+//> Microstate<Post>{ id: 2, title: 'Most fascinating blog in the world' }
 //> Microstate<Post>{ id: 3, title: 'It is only getter better' }
 ```
 
-Notice how we didn't have to do any extra work to define the state transition of adding another post to the list? That's the power of composition!
+Notice how we didn't have to do any extra work to define the state
+transition of adding another post to the list? That's the power of
+composition!
+
 
 ## Object Microstates
 
@@ -383,7 +394,7 @@ let app = create(App, {
 let opened = app.notification.isOpen.toggle();
 //> Microstate<App>
 
-opened.state;
+valueOf(opened);
 //> {
 // name: 'Welcome to your app',
 // notification: {
@@ -469,7 +480,7 @@ let app = create(App, { authentication: {} });
 
 let authenticated = app.authentication.authenticate('SECRET');
 
-authenticated.state;
+valueOf(authenticated);
 //> { authentication: { session: { token: 'SECRET' }, isAuthenticated: true } }
 ```
 
@@ -514,6 +525,8 @@ let number = create(Number, 42).set(43);
 number.state
 //> 43
 ```
+
+<!--
 
 You can also use the `set` transition to replace the current Microstate with another Microstate. This is especially useful when building state machines because it allows you to change the type of the current Microstate. By changing the type, you're also changing available transitions and how the state is calculated.
 
@@ -569,6 +582,8 @@ let result = charles.vehicle.tow(prius)
 result.vehicle.state.isTowing
 //> true
 ```
+
+-->
 
 > *Pro tip*: Microstates will never require you to understand Monads in order to use transitions, but if you're interested in learning about the primitives of functional programming that power Microstates, you may want to checkout [funcadelic.js](https://github.com/cowboyd/funcadelic.js).
 
@@ -738,7 +753,7 @@ from({ hello: [ 'world' ]}).hello[0].concat('!!!').state
 // { hello: [ 'world!!!' ]}
 ```
 
-## map(fn, microstate): Microstate
+## map(microstate, fn): Microstate
 
 The `map` function invokes the function for each microstate in an array microstate. It is usually used to map over an array of microstate and return an array of components. The mapping function will receive each microstate in the array. You can invoke transitions on each microstate as you would usually.
 
@@ -746,9 +761,9 @@ The `map` function invokes the function for each microstate in an array microsta
 let numbers = create([Number], [1, 2, 3, 4]);
 
 <ul>
-  {map(number => (
+  {map(numbers, number => (
     <li onClick={() => number.increment()}>{number.state}</li>
-  ), numbers)}
+  ))}
 </ul>
 ```
 
@@ -785,7 +800,7 @@ let subscription = observable.subscribe(next => {
 
 last.firstName.set("Homer J");
 
-last.state;
+valueOf(last);
 //> { firstName: 'Homer J', lastName: 'Simpson' }
 ```
 

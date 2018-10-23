@@ -6,15 +6,53 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 
+## [0.11.0] - 2018-10-11
+
+### Added
+- New benchmarks based on TodoMVC, runnable via `yarn bench`
+- Introduced the "femtostates" architecture. See below for breaking
+  changes. See also
+  https://github.com/microstates/microstates.js/pull/227
+- The opaque type `Any` is now exported from the main microstates
+  module. This is the type of `create(null)`
+- The `Primitive` type which aliases a types `valueOf()` to the
+  `.state` property is now exported frmo the main microstates module.
+- The builtin types that correspond to JavaScript builtins are now, `ArrayType`,
+  `ObjectType`, `BooleanType`, `StringType`, and `NumberType`.
+
+### Changed
+- `.state` property is no longer on every microstate, only on
+  primitive types like `Number`, `String`, `Boolean`, and `Any`. In
+  order to get at the JavaScript value enclosed by a microstate, use
+  the `valueOf()` method exported by the main package.
+- All microstate properties are _completely_ lazily evaluated.
+- Array microstates cannot be accessed by index, but must use the
+  iterable interface.
+- Type-shifting has been restricted to the `initialize` method.
+
+
+## [0.10.1] - 2018-08-12
+
+### Fixed
+- Make sure dist is included in the package. https://github.com/microstates/microstates.js/pull/206
+
+## [0.10.0] - 2018-08-08
+
+### Added
+- Implement Array.pop() transition https://github.com/microstates/microstates.js/pull/197
+
+### Changed
+- Make transitions functions stable per location. https://github.com/microstates/microstates.js/pull/200
+
 ## [0.9.6] - 2018-08-04
 ### Added
 - Implicitly bind methods for microstates inside a store.
   https://github.com/microstates/microstates.js/pull/193
 - Allow consumers to use the Identity / Store API directly.
   https://github.com/microstates/microstates.js/pull/194
-  
+
 ### Changed
-- Make redundant transitions fully idemptotent for Identities. 
+- Make redundant transitions fully idemptotent for Identities.
   https://github.com/microstates/microstates.js/pull/191
 
 ## [0.9.5] - 2018-08-03

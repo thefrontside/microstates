@@ -1,8 +1,7 @@
-import { Assemble } from '../assemble';
-import { create, SubstateAt, Meta } from "../microstates";
-import { set } from "../lens";
-import { Reducible } from '../../src/query';
-import { Filterable } from 'funcadelic';
+import { append } from 'funcadelic';
+import { At, set } from '../lens';
+import { Profunctor, promap, mount, valueOf } from '../meta';
+import { create } from '../microstates';
 import parameterized from '../parameterized';
 
 export default parameterized(T => class ArrayType {
@@ -11,58 +10,95 @@ export default parameterized(T => class ArrayType {
     return `Array<${T.name}>`;
   }
 
+  get length() {
+    return valueOf(this).length;
+  }
+
+  initialize(value) {
+    if (value == null) {
+      return []
+    } else if (Array.isArray(value)) {
+      return value
+    } else {
+      return [value];
+    }
+  }
+
   push(value) {
-    return [...this.state, value];
+    return [...valueOf(this), value];
   }
 
   pop() {
-    return this.state.slice(0, -1);
+    return valueOf(this).slice(0, -1);
   }
 
   shift() {
-    let [, ...rest] = this.state;
+    let [, ...rest] = valueOf(this);
     return rest;
   }
 
   unshift(value) {
-    return [value, ...this.state];
+    return [value, ...valueOf(this)];
   }
 
   filter(fn) {
-    return this.state.reduce((filtered, item, index) => {
-      let substate = Meta.source(this[index]);
-      return fn(substate) ? filtered.concat(substate) : filtered;
-    }, []);
+    let list = valueOf(this);
+    let result = list.filter((member) => fn(create(T, member)));
+    return list.length === result.length ? this : result;
   }
 
   map(fn) {
-    return this.state.map((item, index) => fn(Meta.source(this[index])));
+    let list = valueOf(this);
+    return list.reduce((result, member, index) => {
+      let mapped = valueOf(fn(create(T, member)));
+      return set(At(index, result), mapped, result);
+    }, list);
   }
 
   clear() {
     return [];
   }
 
-  static initialize() {
-    Assemble.instance(this, {
-      assemble(Type, microstate, value) {
-        if (value == null) {
-          microstate.state = [];
+  [Symbol.iterator]() {
+    let array = this;
+    let iterator = valueOf(this)[Symbol.iterator]();
+    let i = 0;
+    return {
+      next() {
+        let next = iterator.next();
+        let index = i++;
+        return {
+          get done() { return next.done; },
+          get value() { return mount(array, create(T, next.value), index); }
         }
-        else if (!Array.isArray(value)) {
-          microstate.state = [value];
-        }
-        return microstate.state.reduce((microstate, member, index) => {
-          return set(SubstateAt(index), create(T).set(member), microstate);
-        }, microstate);
       }
-    });
+    }
+  }
 
-    Reducible.instance(this, {
-      reduce(array, fn, initial) {
-        return array.state.reduce((reduction, value, index) => {
-          return fn(reduction, array[index], index);
-        }, initial);
+  static initialize() {
+    Profunctor.instance(this, {
+      promap(input, output, array) {
+        let next = input(array);
+        var value = valueOf(array);
+        let length = value.length;
+        if (length === 0) {
+          return output(next);
+        } else {
+          return output(append(next, {
+            [Symbol.iterator]() {
+              let iterator = array[Symbol.iterator]();
+              return {
+                next() {
+                  let next = iterator.next();
+                  return {
+                    get done() { return next.done; },
+                    get value() { return promap(input, output, next.value); }
+                  }
+                }
+              }
+            }
+          }))
+        }
       }
     });
   }

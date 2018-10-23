@@ -1,6 +1,8 @@
 import expect from 'expect';
 
 import { create }  from "../index";
+import { valueOf, metaOf } from "../src/meta";
+
 describe("Parameterized Microstates: ", () => {
   describe("sugar", function() {
     class Item {
@@ -14,10 +16,12 @@ describe("Parameterized Microstates: ", () => {
     describe("root [Item] to parameterized(Array)", function() {
       let m;
       beforeEach(function() {
-        m = create([Item], [{ isCompleted: false }])[0].isCompleted.toggle();
+        let [ first ] = create([Item], [{ isCompleted: false }]);
+        m = first.isCompleted.toggle();
       });
       it("runs transitions on sub items", function() {
-        expect(m.state[0].isCompleted).toBe(true);
+        let [ first ] = m
+        expect(first.isCompleted.state).toBe(true);
       });
     });
 
@@ -27,7 +31,7 @@ describe("Parameterized Microstates: ", () => {
         m = create(TodoList);
       });
       it('has no items', function() {
-        expect(m.state).toEqual({items: []});
+        expect(m.items.length).toEqual(0);
       });
     });
 
@@ -37,7 +41,7 @@ describe("Parameterized Microstates: ", () => {
         m = create(TodoList);
       });
       it('has no items', function() {
-        expect(m.state).toEqual({items: []});
+        expect(m.items.length).toEqual(0);
       });
     });
 
@@ -45,12 +49,14 @@ describe("Parameterized Microstates: ", () => {
     describe("composed [Item] to parameterized(Array)", function() {
       let m;
       beforeEach(function() {
-        m = create(TodoList, {
+        let [ first ] = create(TodoList, {
           items: [{ isCompleted: false }]
-        }).items[0].isCompleted.toggle();
+        }).items
+        m = first.isCompleted.toggle();
       });
       it("runs transitions on sub items", function() {
-        expect(m.state.items[0].isCompleted).toBe(true);
+        let [ first ] = m.items;
+        expect(first.isCompleted.state).toBe(true);
       });
     });
 
@@ -65,17 +71,20 @@ describe("Parameterized Microstates: ", () => {
       let transitioned;
       beforeEach(function() {
         m = create(Counters, value);
-        transitioned = m.apples[0].increment().oranges[1].increment();
+        let [ firstApple] = m.apples;
+        let [ _, secondOrange ] = firstApple.increment().oranges;
+        transitioned = secondOrange.increment();
       });
       it("uses the same value for state as the value ", function() {
-        expect(m.state).toEqual(value);
+        expect(valueOf(m)).toBe(value);
       });
       it("still respects transitions", function() {
         let value = {
           oranges: [50, 21],
           apples: [2, 2, 45]
         };
-        expect(transitioned.state).toEqual(value);
+        let [ first ] = transitioned.apples;
+        expect(valueOf(transitioned)).toEqual(value);
       });
     });
 
@@ -95,10 +104,10 @@ describe("Parameterized Microstates: ", () => {
         m = create(Store, value);
       });
       it("still respects transitions", function() {
-        expect(
-          m.inventory.apples[0].increment()
-            .inventory.oranges[1].increment().state
-        ).toEqual({
+        let [ firstApple] = m.inventory.apples;
+        let [ _, secondOrange ] = firstApple.increment().inventory.oranges;
+        let next = secondOrange.increment();
+        expect(valueOf(next)).toEqual({
           inventory: {
             oranges: [50, 21],
             apples: [2, 2, 45]
@@ -118,20 +127,23 @@ describe("Parameterized Microstates: ", () => {
       TodoList = class TodoList {
         items = [Item];
       };
-      m = create(TodoList, {
+      let [ first ] = create(TodoList, {
         items: [
           { isCompleted: false, description: "Get Milk" },
           { isCompleted: false, description: "Feed Dog" }
         ]
-      }).items[0].isCompleted.toggle();
+      }).items;
+      m = first.isCompleted.toggle();
     });
     it("runs transitions on sub items", function() {
       expect(m).toBeInstanceOf(TodoList);
-      expect(m.state.items).toBeInstanceOf(Array);
-      expect(m.state.items.length).toBe(2);
-      expect(m.state.items[0].isCompleted).toBe(true);
-      expect(m.items[0]).toBeInstanceOf(Item);
-      expect(m.state.items[1].isCompleted).toBe(false);
+      expect(m.items.length).toBe(2);
+      let value = valueOf(m);
+      expect(value.items[0].isCompleted).toBe(true);
+
+      let [ first, second ] = m.items;
+      expect(first).toBeInstanceOf(Item);
+      expect(second.isCompleted.state).toBe(false);
     });
   });
 
@@ -145,12 +157,12 @@ describe("Parameterized Microstates: ", () => {
       };
       m = create(PriceList, value);
     });
-    it("uses the same value for state as the value ", function() {
-      expect(m.state).toEqual(value);
-    });
 
     it("still respects transitions", function() {
-      expect(m.apples[0].increment().oranges[1].increment().state).toEqual({
+      let [ firstApple] = m.apples;
+      let [ _, secondOrange ] = firstApple.increment().oranges;
+      let next = secondOrange.increment();
+      expect(valueOf(next)).toEqual({
         oranges: [50, 21],
         apples: [2, 2, 45]
       });

@@ -1,4 +1,4 @@
-import { foldl, Functor, map, Semigroup } from 'funcadelic';
+import { append, Functor, map, Semigroup } from 'funcadelic';
 
 class Box {
   static get of() {
@@ -59,17 +59,18 @@ export function Lens(get, set) {
 
 export const transparent = Lens(x => x, y => y);
 
-export function ValueAt(property) {
+export function At(property, container = {}) {
   let get = context => context != null ? context[property] : undefined;
-  let set = (value, context = {}) => {
-    if (value === context[property]) {
+  let set = (part, whole) => {
+    let context = whole == null ? (Array.isArray(container) ? [] : {}) : whole;
+    if (part === context[property]) {
       return context;
     } else if (Array.isArray(context)) {
       let clone = context.slice();
-      clone[Number(property)] = value;
+      clone[Number(property)] = part;
       return clone;
     } else {
-      return Semigroup.for(Object).append(context, {[property]: value});
+      return Semigroup.for(Object).append(context, {[property]: part});
     }
   };
 
@@ -77,7 +78,5 @@ export function ValueAt(property) {
 }
 
 export function Path(path = []) {
-  return foldl((lens, key) => {
-    return compose(lens, ValueAt(key))
-  }, transparent, path);
+  return path.reduce((lens, key) => compose(lens, At(key)), transparent);
 }

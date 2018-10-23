@@ -1,6 +1,8 @@
 import expect from 'expect';
+import { create } from '../src/microstates';
+import { valueOf, pathOf, metaOf } from '../src/meta';
+
 import Any from '../src/types/any';
-import { create, Meta } from '../src/microstates';
 
 describe("Microstates", () => {
   describe("default", () => {
@@ -68,7 +70,7 @@ describe("Microstates", () => {
           expect(next).toBeInstanceOf(Something);
         });
         it('contains a fully realized state with the update', function() {
-          expect(next.state).toEqual({any: "ohai boss"});
+          expect(next.any.state).toEqual("ohai boss");
         });
         it('updates the state of the nested object', function() {
           expect(next.any.state).toBe('ohai boss');
@@ -79,42 +81,24 @@ describe("Microstates", () => {
         let next;
 
         beforeEach(function() {
-          next = something.any.set(5).any.set(5).any.set(5)
+          next = something.any.set(5).any.set(5);
         });
 
         it('maintains its shape', function() {
-          expect(next.state).toEqual({any: 5});
+          expect(next.any.state).toEqual(5);
         });
 
         it('preserves its === equivalence', function() {
           expect(next.any.set(5).any.set(5)).toBe(next);
         });
       });
-
-      describe('setting a microstate to another microstate from another tree', function() {
-        let next
-        beforeEach(function() {
-          something = create(Something, {any: "hi"});
-          next = create().set(something.any).set("hi").set("hi");
-        });
-        it('does not get confused', function() {
-          expect(next.state).toEqual("hi")
-        });
-      });
-
-
     });
   });
 
   describe('Nested Microstates with Custom transitions', function() {
-    class BooleanType extends Any {
-      toggle() {
-        return this.set(!this.state);
-      }
-    }
 
-    class Modal extends Any {
-      isOpen = create(BooleanType, false);
+    class Modal {
+      isOpen = create(Boolean, false);
 
       show() {
         return this.isOpen.set(true);
@@ -143,7 +127,7 @@ describe("Microstates", () => {
     it('can transition', function() {
       let next = modal.show();
       expect(next).toBeInstanceOf(Modal);
-      expect(next.state).toEqual({ isOpen: true });
+      expect(next.isOpen.state).toEqual(true);
     });
 
     describe('nested within nested transitions', function() {
@@ -155,7 +139,7 @@ describe("Microstates", () => {
         expect(app).toBeInstanceOf(App);
       });
       it('has the right state', function() {
-        expect(app.state).toEqual({ error: { isOpen: true }, warning: { isOpen: true }});
+        expect(valueOf(app)).toEqual({ error: { isOpen: true }, warning: { isOpen: true }});
       });
     });
   });

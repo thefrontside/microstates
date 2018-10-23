@@ -1,6 +1,7 @@
 import expect from 'expect';
 
 import { create } from '../src/microstates';
+import { valueOf } from '../src/meta';
 
 describe('initialization', () => {
   describe('at root', () => {
@@ -42,7 +43,7 @@ describe('initialization', () => {
 
         it('initilizes into Authenticated', () => {
           expect(reinitialized).toBeInstanceOf(Authenticated);
-          expect(reinitialized.state).toEqual({ token: 'foo' });
+          expect(valueOf(reinitialized)).toEqual({ token: 'foo' });
         });
       });
     });
@@ -55,7 +56,7 @@ describe('initialization', () => {
 
       it('initilizes into Authenticated', () => {
         expect(initialized).toBeInstanceOf(Authenticated);
-        expect(initialized.state).toEqual({ token: 'SECRET' });
+        expect(valueOf(initialized)).toEqual({ token: 'SECRET' });
       });
 
       it('has signin transition', () => {
@@ -65,22 +66,24 @@ describe('initialization', () => {
   });
 
   describe("deeply nested", () => {
+
     class Root {
-      first = create(class First {
-        second = create(class Second {
-          name = create(class StringType {
-            concat(value) {
-              return String(this.state).concat(String(value));
-            }
-          });
-          initialize(props) {
-            if (!props) {
-              return create(Second, { name: "default" });
-            }
-            return this;
-          }
-        });
-      });
+      first = First;
+    }
+
+    class First {
+      second = Second;
+    }
+
+    class Second {
+      name = String;
+
+      initialize(props) {
+        if (!props) {
+          return create(Second, { name: "default" });
+        }
+        return this;
+      }
     }
 
     describe('initialization', () => {
@@ -90,37 +93,18 @@ describe('initialization', () => {
         root = create(Root, { first: { } });
       });
 
-      it("has result of create of second node", () => {
-        expect(root.state).toEqual({
-          first: {
-            second: {
-              name: "default",
-            },
-          },
-        });
-      });
-
       describe('transition', () => {
 
         let changed;
         beforeEach(() => {
-
           changed = root.first.second.name.concat("!!!");
         });
 
         it("has result after transition valueOf", () => {
-          expect(changed.state).toEqual({
-            first: {
-              second: {
-                name: "default!!!",
-              },
-            },
-          });
+          expect(changed.first.second.name.state).toEqual("default!!!");
         });
 
       });
     });
   });
 })
-
-import { Meta } from '../src/microstates'

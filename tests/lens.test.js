@@ -1,25 +1,23 @@
 import expect from 'expect';
-import { compose, view, over, set, Prop, Path, transparent, Lens } from '../src/lens';
-import { append } from 'funcadelic';
-import { create, SubstateAt } from '../src/microstates';
+import { compose, view, set, At } from '../src/lens';
 
-describe('substate lenses', function() {
-  class Parent {}
-  class Child {}
-  let child = new Child();
-  let parent = new Parent();
-  let lens
+describe('At', function() {
+  let lens, object
   beforeEach(function() {
-    lens = SubstateAt('child');
+    lens = compose(At(0, []), At("hello"));
+  });
+
+  it('instantiates objects of the correct type at each path', function() {
+    expect(set(lens, "world", undefined)).toEqual([{hello: 'world'}])
   });
 
   it('set-get: view retrievs what set put in', function() {
-    let next = set(lens, child, parent);
-    expect(next.child).toBeInstanceOf(Child);
-    expect(view(lens, next)).toBe(child);
+    let cookie = {}
+    let object = set(lens, cookie, undefined);
+    expect(view(lens, object)).toBe(cookie);
   });
   it('get-set: If you set focus to the same value it has, the whole does not change', function() {
-    let next = set(lens, child, parent);
-    expect(set(lens, child, next)).toBe(next);
+    let object = set(lens, "world", undefined);
+    expect(set(lens, "world", object)).toBe(object);
   });
 });

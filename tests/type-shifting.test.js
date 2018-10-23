@@ -1,8 +1,14 @@
 import expect from 'expect';
 import { create } from "../index";
+import { valueOf } from "../src/meta";
 
 describe("type-shifting", () => {
   class Shape {
+
+    get state() {
+      return valueOf(this);
+    }
+
     initialize({ a, b, c } = {}) {
       if (a && b && c) {
         return create(Triangle, { a, b, c });
@@ -78,12 +84,10 @@ describe("type-shifting", () => {
     it("is used to initialize composed object", function() {
       let composed = create(Glass, { shape: { a: 10, b: 20, c: 30 } });
       expect(composed.shape).toBeInstanceOf(Triangle);
-      expect(composed.state).toMatchObject({
-        shape: {
-          a: 10,
-          b: 20,
-          c: 30,
-        },
+      expect(composed.shape.state).toMatchObject({
+        a: 10,
+        b: 20,
+        c: 30,
       });
     });
 
@@ -92,9 +96,10 @@ describe("type-shifting", () => {
         shapes = [Shape];
       }
       let drawing = create(Drawing, { shapes: [{ a: 10 }, { a: 20, b: 30 }, { a: 100, b: 200, c: 300 }] });
-      expect(drawing.shapes[0]).toBeInstanceOf(Line);
-      expect(drawing.shapes[1]).toBeInstanceOf(Angle);
-      expect(drawing.shapes[2]).toBeInstanceOf(Triangle);
+      let [ first, second, third ] = drawing.shapes;
+      expect(first).toBeInstanceOf(Line);
+      expect(second).toBeInstanceOf(Angle);
+      expect(third).toBeInstanceOf(Triangle);
     });
 
     describe("can type-shift into a parameterized type", () => {
@@ -109,12 +114,13 @@ describe("type-shifting", () => {
       }
       it("can initialize into a parameterized array", () => {
         let array = Container.create(["a", "b", "c"]);
-        expect(array.state).toMatchObject(["a", "b", "c"]);
-        expect(array[0].concat).toBeInstanceOf(Function);
+        expect(valueOf(array)).toMatchObject(["a", "b", "c"]);
+        let [ first ] = array;
+        expect(first.concat).toBeInstanceOf(Function);
       });
       it("can initialize into a parameterized object", () => {
         let object = Container.create({ a: "A", b: "B", c: "C" });
-        expect(object.state).toMatchObject({ a: "A", b: "B", c: "C" });
+        expect(valueOf(object)).toMatchObject({ a: "A", b: "B", c: "C" });
         expect(object.a.concat).toBeInstanceOf(Function);
       });
     });
@@ -149,12 +155,6 @@ describe("type-shifting", () => {
         c: 30,
       });
     });
-    it("can be done down tree", () => {
-      let string = create(String, "100");
-      let cString = triangle.c.set(string);
-      expect(cString.state.c).toBe("100");
-      expect(cString.c.concat).toBeDefined();
-    });
   });
 });
 
@@ -164,6 +164,16 @@ describe("type-shifting with constant values", () => {
     isLoaded = false;
     isLoading = false;
     isError = false;
+
+    get state() {
+      return {
+        content: this.content.state,
+        error: this.error ? this.error.state : undefined,
+        isLoaded: this.isLoaded.state,
+        isLoading: this.isLoading.state,
+        isError: this.isError.state
+      }
+    }
 
     loading() {
       return create(AsyncLoading, {});
@@ -204,12 +214,11 @@ describe("type-shifting with constant values", () => {
   describe("successful loading siquence", () => {
     let async = create(Async, {});
     it("can transition to loading", () => {
-      expect(async.loading().state).toMatchObject({
-        content: null,
-        isLoaded: false,
-        isLoading: true,
-        isError: false,
-      });
+      let loading = async.loading();
+      expect(loading.content.state).toEqual(null);
+      expect(loading.isLoaded.state).toEqual(false);
+      expect(loading.isLoading.state).toEqual(true);
+      expect(loading.isError.state).toEqual(false);
     });
     it("can transition from loading to loaded", () => {
       expect(async.loading().loaded("GREAT SUCCESS").state).toMatchObject({
@@ -234,7 +243,7 @@ describe("type-shifting with constant values", () => {
   });
 });
 
-describe.skip("type-shifting into a deeply composed microstate", () => {
+describe("type-shifting into a deeply composed microstate", () => {
   class Node {
     name = String;
     node = Node;
@@ -252,14 +261,7 @@ describe.skip("type-shifting into a deeply composed microstate", () => {
     });
 
     it("preserves type shifting value", () => {
-      expect(shiftedRoot.state).toMatchObject({
-        name: "n1",
-        node: { name: "n2", node: { name: "n3" } },
-      });
-    });
-
-    it("preserves valueOf", () => {
-      expect(shiftedRoot.valueOf()).toEqual({
+      expect(valueOf(shiftedRoot)).toMatchObject({
         name: "n1",
         node: { name: "n2", node: { name: "n3" } },
       });
@@ -273,24 +275,15 @@ describe.skip("type-shifting into a deeply composed microstate", () => {
     });
 
     it("preserves type shifting value", () => {
-      expect(shiftedDeeply.state).toMatchObject({
-        name: "",
+      expect(valueOf(shiftedDeeply)).toMatchObject({
         node: {
-          name: "",
           node: {
-            name: "",
             node: {
               name: "soooo deep",
               node: { name: "one more" }
             },
           },
         },
-      });
-    });
-
-    it("preserves valueOf", () => {
-      expect(shiftedDeeply.valueOf()).toEqual({
-        node: { node: { node: { name: "soooo deep", node: { name: "one more" } } } },
       });
     });
   });
@@ -313,52 +306,36 @@ describe("type-shifting from create to parameterized array", () => {
   }
 
   let group;
-  let state;
 
   beforeEach(() => {
     group = create(Group, {});
-    state = group.state;
   });
 
   it("initializes to value", () => {
-    expect(state).toMatchObject({
+    expect(valueOf(group)).toMatchObject({
       members: [{ name: "Taras" }, { name: "Charles" }, { name: "Siva" }],
     });
   });
 
   it("provides data to parameterized array", () => {
-    expect(group.state.members).toHaveLength(3);
-    expect(group.state).toMatchObject({
-      members: [{ name: "Taras" }, { name: "Charles" }, { name: "Siva" }],
-    });
-    expect(group.members[0]).toBeInstanceOf(Person);
+    expect(group.members.length).toEqual(3);
+
+    let [ first ] = group.members;
+    expect(first).toBeInstanceOf(Person);
   });
 
   describe("transitioning shifted value", () => {
     let acclaimed;
-    let state;
 
     beforeEach(() => {
-      acclaimed = group.members[1].name.set("!!Charles!!");
-      state = acclaimed.state;
+      let [ _, second ] = group.members;
+      acclaimed = second.name.set("!!Charles!!");
     });
 
     it("has the transitioned state", () => {
-      expect(acclaimed.state).toMatchObject({
+      expect(valueOf(acclaimed)).toMatchObject({
         members: [{ name: "Taras" }, { name: "!!Charles!!" }, { name: "Siva" }],
       });
-    });
-
-    it("carries the value of", () => {
-      expect(state).toEqual({
-        members: [{ name: "Taras" }, { name: "!!Charles!!" }, { name: "Siva" }],
-      });
-    });
-
-    it("has a POJO as value", () => {
-      let descriptor = Object.getOwnPropertyDescriptor(state, "members");
-      expect(descriptor).toHaveProperty("value", [{ name: "Taras" }, { name: "!!Charles!!" }, { name: "Siva" }]);
-      expect(descriptor.get).toBeUndefined();
     });
   });
 });
@@ -394,7 +371,7 @@ describe("type-shifting from create to parameterized object", () => {
 
   it("has name with initial values", () => {
     expect(person.parents.father).toBeInstanceOf(Parent);
-    expect(person.state).toMatchObject({
+    expect(valueOf(person)).toMatchObject({
       parents: {
         father: {
           name: "John Doe",

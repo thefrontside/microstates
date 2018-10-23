@@ -1,8 +1,7 @@
-import { Assemble } from '../assemble';
-import { SubstateAt, create } from '../microstates';
-import { over } from '../lens';
-import { append, filter, foldl } from 'funcadelic';
+import { append, filter, map } from 'funcadelic';
 import parameterized from '../parameterized'
+import { mount, valueOf } from '../meta';
+import { create } from '../microstates';
 
 export default parameterized(T => class ObjectType {
   static T = T;
@@ -11,21 +10,22 @@ export default parameterized(T => class ObjectType {
     return `Object<${T.name}>`;
   }
 
-  static initialize() {
-    Assemble.instance(ObjectType, {
-      assemble(Type, microstate, value) {
-        if (value == null) {
-          microstate.state = {};
+  constructor(value) {
+    Object.keys(value || {}).forEach(key => {
+      Object.defineProperty(this, key, {
+        get() {
+          return mount(this, create(T, value[key]), key);
         }
-        return foldl((microstate, entry) => {
-          return over(SubstateAt(entry.key), () => create(T).set(entry.value), microstate );
-        }, microstate, microstate.state);
-      }
-    });
+      })
+    })
+  }
+
+  initialize(value) {
+    return value == null ? {} : this;
   }
 
   assign(attrs) {
-    return append(this.state, attrs);
+    return append(valueOf(this), map(valueOf, attrs));
   }
 
   put(name, value) {
@@ -33,6 +33,6 @@ export default parameterized(T => class ObjectType {
   }
 
   delete(name) {
-    return filter(({ key }) => key !== name, this.state);
+    return filter(({ key }) => key !== name, valueOf(this));
   }
 });

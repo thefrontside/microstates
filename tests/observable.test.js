@@ -1,24 +1,16 @@
 import expect from 'expect';
 import { create } from "../src/microstates";
+import { valueOf } from "../src/meta";
 import ArrayType from "../src/types/array";
 import SymbolObservable from 'symbol-observable';
 import { from } from 'rxjs';
-
-class NumberType {
-  initialize(value) {
-    return Number(value);
-  }
-  increment() {
-    return this.state + 1;
-  }
-}
 
 describe('rxjs interop', function() {
   let ms, observable, observer, last;
   let observerCalls;
   beforeEach(() => {
     observerCalls = 0;
-    ms = create(NumberType, 42);
+    ms = create(Number, 42);
     observer = next => {
       observerCalls++;
       return last = next;
@@ -35,14 +27,14 @@ describe('rxjs interop', function() {
     expect(observerCalls).toBe(4);
   });
   it('incremented 3 times', function() {
-    expect(last.state).toBe(45);
+    expect(valueOf(last)).toBe(45);
   });
 });
 
 describe('interop', function() {
   let ms, observable;
   beforeEach(() => {
-    ms = create(NumberType, 10);
+    ms = create(Number, 10);
     observable = ms[SymbolObservable]();
   });
 
@@ -58,7 +50,7 @@ describe('interop', function() {
 describe("initial value", function() {
   let observable, last, unsubscribe;
   beforeEach(function() {
-    let ms = create(NumberType, 10);
+    let ms = create(Number, 10);
     observable = ms[SymbolObservable]();
     observable.subscribe(v => (last = v));
   });
@@ -70,7 +62,7 @@ describe("initial value", function() {
 describe("single transition", function() {
   let observable, last, unsubscribe;
   beforeEach(function() {
-    let ms = create(NumberType, 10);
+    let ms = create(Number, 10);
     observable = ms[SymbolObservable]();
     observable.subscribe(v => (last = v));
     last.increment();
@@ -83,7 +75,7 @@ describe("single transition", function() {
 describe("many transitions", function() {
   let observable, last, unsubscribe;
   beforeEach(function() {
-    let ms = create(NumberType, 10);
+    let ms = create(Number, 10);
     observable = ms[SymbolObservable]();
     observable.subscribe(v => (last = v));
     last
@@ -121,7 +113,7 @@ describe("complex type", function() {
       last.b.c.values.push("!!!");
     });
     it("changed the state", function() {
-      expect(last.state.b.c.values).toEqual(["hello", "world", "!!!"]);
+      expect(valueOf(last.b.c.values)).toEqual(["hello", "world", "!!!"]);
     });
   });
 });
@@ -144,7 +136,7 @@ describe('initialized microstate', () => {
     let state;
     let call = function call(next) {
       calls++;
-      state = next.state
+      state = valueOf(next);
     }
     from(create(Modal)).subscribe(call);
     expect(calls).toBe(1);
@@ -161,8 +153,8 @@ describe('array as root', () => {
   });
 
   it('has array with one element', () => {
-    expect(list.state.length).toBe(1);
-    expect(list[0].state.hello).toBeDefined();
+    expect(list.length).toBe(1);
+    expect([...list][0].state.hello).toBeDefined();
   });
 
   describe('created observable', () => {
@@ -180,8 +172,8 @@ describe('array as root', () => {
     });
 
     it('has array with one element', () => {
-      expect(last.state.length).toBe(1);
-      expect(last[0].state.hello).toBeDefined();
+      expect(last.length).toBe(1);
+      expect([...last][0].state.hello).toBeDefined();
     });
   });
 
