@@ -5,6 +5,8 @@
 [![Gitter](https://badges.gitter.im/microstates/microstates.js.svg)](https://gitter.im/microstates/microstates.js?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge)
 [![Created by The Frontside](https://img.shields.io/badge/created%20by-frontside.io-blue.svg)](https://frontside.io)
 
+[Microstates.js is built and maintained by Frontside, contact us for expert React.js & JavaScript consulting.](https://frontside.io/services/)
+
 # Microstates
 
 Microstates makes working with pure functions over immutable data
@@ -16,6 +18,9 @@ feel like working with the classic, mutable models we all know and love.
 
 - [Microstates](#microstates)
 - [Features](#features)
+- [Why Microstates?](#why-microstates)
+  - [M in MVC](#m-in-mvc)
+  - [Functional Models](#functional-models)
 - [What is a Microstate?](#what-is-a-microstate)
 - [Types and Type Composition](#types-and-type-composition)
   - [Creating your own microstates](#creating-your-own-microstates)
@@ -34,10 +39,10 @@ feel like working with the classic, mutable models we all know and love.
   - [Immutable Object vs Immutable Data Structure](#immutable-object-vs-immutable-data-structure)
 - [Framework Integrations](#framework-integrations)
 - [`microstates` npm package](#microstates-npm-package)
+- [or](#or)
   - [create(Type, value): Microstate](#createtype-value-microstate)
   - [from(any): Microstate](#fromany-microstate)
-  - [map(fn, microstate): Microstate](#mapfn-microstate-microstate)
-  - [use(middleware, microstate: Microstate): Microstate](#usemiddleware-microstate-microstate-microstate)
+  - [map(microstate, fn): Microstate](#mapmicrostate-fn-microstate)
 - [Observable Microstates](#observable-microstates)
 - [The Vision of Microstates](#the-vision-of-microstates)
   - [Shared Solutions](#shared-solutions)
@@ -905,10 +910,6 @@ class Employee extends Person {
   }
 }
 ```
-
-## Supporting Development
-
-We are looking for partner companies to help us evolve Microstates. If you are interested in supporting Microstates development by hiring Frontside, please reach out via [email](mailto:info@frontside.io)
 
 # Run Tests
 
