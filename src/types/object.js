@@ -1,6 +1,6 @@
 import { append, filter, map } from 'funcadelic';
 import parameterized from '../parameterized'
-import { mount, valueOf, sourceOf } from '../meta';
+import { mount, valueOf } from '../meta';
 import { create } from '../microstates';
 
 export default parameterized(T => class ObjectType {
@@ -41,6 +41,6 @@ export default parameterized(T => class ObjectType {
   }
 
   filter(fn) {
-    return filter(({ key }) => fn(sourceOf(this[key]), key), valueOf(this));
+    return filter(({ key, value }) => valueOf(fn(create(T, value), key)), valueOf(this));
   }
 });
