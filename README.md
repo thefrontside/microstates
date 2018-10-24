@@ -6,7 +6,7 @@
 [![Gitter](https://badges.gitter.im/microstates/microstates.js.svg)](https://gitter.im/microstates/microstates.js?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge)
 [![Created by The Frontside](https://img.shields.io/badge/created%20by-frontside.io-blue.svg)](https://frontside.io)
 
-[*Microstates.js is built and maintained by Frontside, contact us for expert React.js & JavaScript consulting.*](https://frontside.io/services/)
+[**Microstates.js is built and maintained by Frontside. Contact us for expert JavaScript consulting and training.**](https://frontside.io/services/)
 
 # Microstates
 
