@@ -170,3 +170,56 @@ describe('put and delete', () => {
     });
   });
 })
+
+describe("map/filter/reduce", () => {
+  class Todo {
+    id = create(String);
+    completed = create(Boolean, false);
+  }
+
+  const todosById = create(
+    { Todo },
+    {
+      a: {
+        id: "a",
+        completed: false
+      },
+      b: {
+        id: "b",
+        completed: true
+      },
+      c: {
+        id: "c",
+        completed: false
+      }
+    }
+  );
+
+  describe("map", () => {
+    let mapped;
+
+    beforeEach(() => {
+      mapped = todosById.map(todo => todo.completed.set(true));
+    });
+
+    it("completes each todo", () => {
+      expect(mapped["a"].completed.state).toEqual(true);
+      expect(mapped["b"].completed.state).toEqual(true);
+      expect(mapped["c"].completed.state).toEqual(true);
+    });
+  });
+
+  describe("filter", () => {
+    let filtered;
+
+    beforeEach(() => {
+      filtered = todosById.filter(todo => !todo.completed.state);
+    });
+
+    it("removes completed todos", () => {
+      expect(filtered["a"]).toBeDefined();
+      expect(filtered["b"]).not.toBeDefined();
+      expect(filtered["c"]).toBeDefined();
+    });
+  });
+});

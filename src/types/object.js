@@ -35,4 +35,12 @@ export default parameterized(T => class ObjectType {
   delete(name) {
     return filter(({ key }) => key !== name, valueOf(this));
   }
+
+  map(fn) {
+    return map(value => valueOf(fn(create(T, value))), valueOf(this));
+  }
+
+  filter(fn) {
+    return filter(({ key, value }) => valueOf(fn(create(T, value), key)), valueOf(this));
+  }
 });
