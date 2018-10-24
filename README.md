@@ -1,3 +1,4 @@
+[![npm](https://img.shields.io/npm/v/microstates.svg)](https://www.npmjs.com/package/microstates)
 [![bundle size (minified + gzip)](https://badgen.net/bundlephobia/minzip/microstates)](https://bundlephobia.com/result?p=microstates)
 [![Build Status](https://travis-ci.org/microstates/microstates.js.svg?branch=master)](https://travis-ci.org/microstates/microstates.js)
 [![Coverage Status](https://coveralls.io/repos/github/microstates/microstates.js/badge.svg?branch=master)](https://coveralls.io/github/microstates/microstates.js?branch=master)
