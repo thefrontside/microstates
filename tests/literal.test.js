@@ -20,6 +20,10 @@ describe('Literal Syntax', function() {
     expect(valueOf(literal({}).put('hello', 'world'))).toEqual({hello: 'world'});
   });
 
+  it('can create nulls', function() {
+    expect(valueOf(literal(null))).toEqual(null);
+  });
+
   it('can create arrays', function() {
     expect(valueOf(literal([]).push('hello').push('world'))).toEqual(['hello', 'world']);
   });
