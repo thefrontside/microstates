@@ -1,3 +1,3 @@
 import Primitive from './primitive';
 
-export default class Any extends Primitive {};
+export default class Any extends Primitive {}

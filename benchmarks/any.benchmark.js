@@ -10,7 +10,7 @@ export default benchmark('Any', function AnyBenchmarks(suite) {
   });
   suite.add('create(Any).set(5)', () => {
     create().set(5);
-  })
+  });
   suite.add('Store(create(Any))', () => {
     Store(create());
   });
@@ -19,5 +19,5 @@ export default benchmark('Any', function AnyBenchmarks(suite) {
   });
   suite.add('Store(create().set(5))', () => {
     Store(create().set(5));
-  })
+  });
 });

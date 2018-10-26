@@ -58,7 +58,7 @@ export function mount(microstate, substate, key) {
       get source() {
         return meta.source;
       }
-    }), object)
+    }), object);
   }, substate);
 }
 
@@ -86,7 +86,7 @@ Profunctor.instance(Object, {
           get [key]() {
             return promap(input, output, object[key]);
           }
-        })
+        });
       }, {})));
     }
   }

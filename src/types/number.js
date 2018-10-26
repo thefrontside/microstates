@@ -7,7 +7,7 @@ export default class NumberType extends Primitive {
     if (value == null) {
       return 0;
     } else if (isNaN(value)) {
-      return this
+      return this;
     } else {
       return Number(value);
     }

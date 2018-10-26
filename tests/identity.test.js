@@ -1,3 +1,4 @@
+/* global describe, it, beforeEach */
 import expect from 'expect';
 
 import Identity from '../src/identity';
@@ -24,12 +25,12 @@ describe('Identity', () => {
 
   it('has the same shape as the initial state.', function() {
     expect(id.completeAll).toBeInstanceOf(Function);
-    expect(id.todos.length).toBe(4);
+    expect(id.todos).toHaveLength(4);
 
     let [ first ] = id.todos;
     let [ $first ] = microstate.todos;
     expect(first).toBeInstanceOf(Todo);
-    expect(valueOf(first)).toBe(valueOf($first))
+    expect(valueOf(first)).toBe(valueOf($first));
   });
 
   describe('invoking a transition', function() {
@@ -39,12 +40,14 @@ describe('Identity', () => {
 
       next = third.completed.set(true);
     });
+
     it('transitions the nodes which did change', function() {
       expect(next).not.toBe(id);
       expect(next.todos).not.toBe(id.todos);
       let [ ,, $third] = next.todos;
       expect($third).not.toBe(third);
     });
+
     it('maintains the === identity of the nodes which did not change', function() {
       let [first, second, third, fourth] = id.todos;
       let [$first, $second, $third, $fourth] = next.todos;
@@ -62,6 +65,7 @@ describe('Identity', () => {
       let shift = id.todos.shift;
       next = shift();
     });
+
     it('still completes the transition', function() {
       expect(valueOf(next)).toEqual({
         todos: [{
@@ -71,7 +75,7 @@ describe('Identity', () => {
         }, {
           title: "profit $$"
         }]
-      })
+      });
     });
   });
 
@@ -81,6 +85,7 @@ describe('Identity', () => {
       let [ first ] = id.todos;
       next = first.completed.set(false);
     });
+
     it('uses the same function for each location in the graph, even for different instances', function() {
       expect(next).not.toBe(id);
       expect(next.set).toBe(id.set);
@@ -95,7 +100,6 @@ describe('Identity', () => {
 
 
   describe('the identity callback function', function() {
-    let args;
     let store;
     beforeEach(function() {
       store = Identity(microstate, () => undefined);
@@ -124,12 +128,13 @@ describe('Identity', () => {
     it('returns the same id in the event that the state is the same', function() {
       expect(next).toBe(store);
     });
+
     it('does not invoke the idenity function after the initial invocation', function() {
       expect(calls).toEqual(1);
     });
   });
-  describe('identity of queries', function() {
 
+  describe('identity of queries', function() {
     it('traverses queries and includes the microstates within them', function() {
       expect(id.completed).toBeDefined();
       let [ firstCompleted ] = id.completed;
@@ -156,7 +161,7 @@ describe('Identity', () => {
         let [$first, $second] = next.active;
         expect($first).toBe(first);
         expect($second).toBe(second);
-        expect(next.active).toBe(id.active)
+        expect(next.active).toBe(id.active);
       });
 
       it('maintains the === identity of the same node that appears at different spots in the tree', () => {
@@ -166,7 +171,7 @@ describe('Identity', () => {
         let [ $firstCompleted ] = next.completed;
         expect(first).toBe(firstCompleted);
         expect($first).toBe($firstCompleted);
-      })
-    })
+      });
+    });
   });
-})
+});

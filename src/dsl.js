@@ -1,5 +1,3 @@
-import parameterized from './parameterized';
-
 import { Any, ObjectType, ArrayType, BooleanType, NumberType, StringType } from './types';
 import Primitive from './types/primitive';
 
@@ -28,14 +26,14 @@ class DSL {
 export default new DSL()
   .use(function matchBuiltins(value) {
     switch(value) {
-    case Object:
-      return { Type: ObjectType, value: {} };
-    case Array:
-      return { Type: ArrayType, value: [] };
-    case Boolean:
-      return { Type: BooleanType, value: false };
-    case Number:
-      return { Type: NumberType, value: 0 };
+      case Object:
+        return { Type: ObjectType, value: {} };
+      case Array:
+        return { Type: ArrayType, value: [] };
+      case Boolean:
+        return { Type: BooleanType, value: false };
+      case Number:
+        return { Type: NumberType, value: 0 };
     }
     // TIL switch doesn't work on String ¯\_(ツ)_/¯
     if (value === String) {
@@ -46,9 +44,6 @@ export default new DSL()
   .use(function matchArrays(value) {
     if (Array.isArray(value) && value.length < 2) {
       let [ T ] = value;
-      if (T != null) {
-        let { Type } = this.expand(T);
-      }
       let Type = T != null ? ArrayType.of(this.expand(T).Type) : ArrayType;
       return { Type, value: [] };
     }
@@ -59,7 +54,7 @@ export default new DSL()
       if (key == null) {
         return { Type: ObjectType, value: {} };
       } else {
-        let { Type: childType, value: childValue } = this.expand(value[key]);
+        let { Type: childType } = this.expand(value[key]);
         if (childType.isConstant) {
           return undefined;
         } else {
@@ -75,9 +70,9 @@ export default new DSL()
   })
   .use(function matchConstants(value) {
     return { Type: Constant(value), value };
-  })
+  });
 
-const Constant = (value) => class Constant extends Primitive {
+const Constant = () => class Constant extends Primitive {
   static isConstant = true;
 
-}
+};

@@ -1,4 +1,4 @@
-import { map, foldl } from 'funcadelic';
+import { foldl } from 'funcadelic';
 import { promap, valueOf, pathOf, Meta } from './meta';
 import CachedProperty from './cached-property';
 import { methodsOf } from './reflection';
@@ -60,7 +60,7 @@ export default function Identity(microstate, observe = x => x) {
 
       constructor(value) {
         super(value);
-        Object.defineProperty(this, Meta.symbol, { enumerable: false, configurable: true, value: new Meta(this, valueOf(value))})
+        Object.defineProperty(this, Meta.symbol, { enumerable: false, configurable: true, value: new Meta(this, valueOf(value))});
       }
     }
 
@@ -75,7 +75,7 @@ export default function Identity(microstate, observe = x => x) {
         let next = microstate[name](...args);
 
         return next === current ? identity : tick(next);
-      }
+      };
       return methods;
     }, {}, methods));
 
@@ -85,7 +85,7 @@ export default function Identity(microstate, observe = x => x) {
         let property = new CachedProperty(propertyName, self => desc.get.call(self));
         Object.defineProperty(Id.prototype, propertyName, property);
       }
-    })
+    });
 
     return Id;
   }

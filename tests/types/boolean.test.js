@@ -1,3 +1,4 @@
+/* global describe, it, beforeEach */
 import expect from 'expect';
 import { create } from '../../src/microstates';
 
@@ -23,10 +24,10 @@ describe('boolean', () => {
   });
 
   it('converts falsy values into false', function() {
-    expect(boolean.set(null).state).toBe(false)
-    expect(boolean.set('').state).toBe(false)
-    expect(boolean.set(undefined).state).toBe(false)
-    expect(boolean.set(0).state).toBe(false)
+    expect(boolean.set(null).state).toBe(false);
+    expect(boolean.set('').state).toBe(false);
+    expect(boolean.set(undefined).state).toBe(false);
+    expect(boolean.set(0).state).toBe(false);
   });
 
   it('converts truthy values into true', function() {

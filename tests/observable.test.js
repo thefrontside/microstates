@@ -1,3 +1,4 @@
+/* global describe, it, beforeEach */
 import expect from 'expect';
 import { create } from "../src/microstates";
 import { valueOf } from "../src/meta";
@@ -6,26 +7,25 @@ import SymbolObservable from 'symbol-observable';
 import { from } from 'rxjs';
 
 describe('rxjs interop', function() {
-  let ms, observable, observer, last;
+  let ms, last;
   let observerCalls;
   beforeEach(() => {
     observerCalls = 0;
     ms = create(Number, 42);
-    observer = next => {
+    from(ms).subscribe(next => {
       observerCalls++;
       return last = next;
-    };
-
-    observable = from(ms);
-    let subscription = observable.subscribe(observer);
+    });
 
     last.increment();
     last.increment();
     last.increment();
   });
+
   it('sent 4 states to obsever', function() {
     expect(observerCalls).toBe(4);
   });
+
   it('incremented 3 times', function() {
     expect(valueOf(last)).toBe(45);
   });
@@ -48,32 +48,34 @@ describe('interop', function() {
 });
 
 describe("initial value", function() {
-  let observable, last, unsubscribe;
+  let observable, last;
   beforeEach(function() {
     let ms = create(Number, 10);
     observable = ms[SymbolObservable]();
     observable.subscribe(v => (last = v));
   });
+
   it("comes from microstate", function() {
     expect(last.state).toBe(10);
   });
 });
 
 describe("single transition", function() {
-  let observable, last, unsubscribe;
+  let observable, last;
   beforeEach(function() {
     let ms = create(Number, 10);
     observable = ms[SymbolObservable]();
     observable.subscribe(v => (last = v));
     last.increment();
   });
+
   it("gets next value after increment", function() {
     expect(last.state).toBe(11);
   });
 });
 
 describe("many transitions", function() {
-  let observable, last, unsubscribe;
+  let observable, last;
   beforeEach(function() {
     let ms = create(Number, 10);
     observable = ms[SymbolObservable]();
@@ -83,6 +85,7 @@ describe("many transitions", function() {
       .increment()
       .increment();
   });
+
   it("gets next value after multiple increments", function() {
     expect(last.state).toBe(13);
   });
@@ -119,7 +122,6 @@ describe("complex type", function() {
 });
 
 describe('initialized microstate', () => {
-  let call;
   class Modal {
     isOpen = create(class BooleanType {});
 
@@ -137,7 +139,7 @@ describe('initialized microstate', () => {
     let call = function call(next) {
       calls++;
       state = valueOf(next);
-    }
+    };
     from(create(Modal)).subscribe(call);
     expect(calls).toBe(1);
     expect(state).toEqual({
@@ -153,7 +155,7 @@ describe('array as root', () => {
   });
 
   it('has array with one element', () => {
-    expect(list.length).toBe(1);
+    expect(list).toHaveLength(1);
     expect([...list][0].state.hello).toBeDefined();
   });
 
@@ -172,7 +174,7 @@ describe('array as root', () => {
     });
 
     it('has array with one element', () => {
-      expect(last.length).toBe(1);
+      expect(last).toHaveLength(1);
       expect([...last][0].state.hello).toBeDefined();
     });
   });

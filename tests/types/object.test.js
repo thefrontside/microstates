@@ -1,11 +1,11 @@
+/* global describe, it, beforeEach */
 import expect from 'expect';
 import { create } from '../../src/microstates';
 import { valueOf } from '../../src/meta';
 import { ObjectType } from '../../src/types';
 
 describe('created without value', () => {
-  class Thing {
-  };
+  class Thing {}
   let object;
   beforeEach(() => {
     object = create(ObjectType.of(Thing));
@@ -24,9 +24,10 @@ describe('created without value', () => {
     it('received the assigned value', () => {
       expect(valueOf(assigned)).toEqual({ foo: 'bar' });
     });
+
     it('wraps the assigned values the parameterized type', function() {
-      expect(assigned.foo).toBeInstanceOf(Thing)
-      expect(valueOf(assigned.foo)).toEqual('bar')
+      expect(assigned.foo).toBeInstanceOf(Thing);
+      expect(valueOf(assigned.foo)).toEqual('bar');
     });
 
     describe('assign twice', () => {
@@ -38,8 +39,9 @@ describe('created without value', () => {
       it('received the assigned value', () => {
         expect(valueOf(assignedAgain)).toEqual({ foo: 'bar', bar: 'baz' });
       });
+
       it('maintains stability of the state', function() {
-        expect(valueOf(assignedAgain).foo).toBe(valueOf(assigned).foo)
+        expect(valueOf(assignedAgain).foo).toBe(valueOf(assigned).foo);
       });
     });
   });
@@ -105,7 +107,7 @@ describe('created with value', () => {
         value = create(Person, { name: 'Taras' });
         assigned = object.assign({
           taras: value
-        })
+        });
       });
 
       it('is stable', () => {
@@ -119,21 +121,24 @@ describe('put and delete', () => {
   let object;
   beforeEach(() => {
     object = create(ObjectType, {a: 'b'});
-  })
+  });
 
   describe('putting a value or two', function() {
     beforeEach(function() {
       object = object.put('w', 'x').put('y', 'z');
     });
+
     it('includes those values in the state', function() {
       expect(valueOf(object)).toEqual({a: 'b', w: 'x', y: 'z'});
     });
+
     describe('deleting a value', function() {
       beforeEach(() => {
         object = object.delete('w');
       });
+
       it('removes it from the value', function() {
-        expect(valueOf(object)).toEqual({a: 'b', y: 'z'})
+        expect(valueOf(object)).toEqual({a: 'b', y: 'z'});
       });
     });
   });
@@ -151,7 +156,7 @@ describe('put and delete', () => {
       it('has valueOf', () => {
         expect(valueOf(object)).toEqual({ a: 'b', name: 'Taras' });
       });
-    })
+    });
 
     describe('composed type', () => {
       class Person {
@@ -169,7 +174,7 @@ describe('put and delete', () => {
       });
     });
   });
-})
+});
 
 describe("map/filter/reduce", () => {
   class Todo {
@@ -177,7 +182,7 @@ describe("map/filter/reduce", () => {
     completed = create(Boolean, false);
   }
 
-  const todosById = create(
+  let todosById = create(
     { Todo },
     {
       a: {
@@ -197,7 +202,6 @@ describe("map/filter/reduce", () => {
 
   describe("map", () => {
     let mapped;
-
     beforeEach(() => {
       mapped = todosById.map(todo => todo.completed.set(true));
     });
@@ -211,7 +215,6 @@ describe("map/filter/reduce", () => {
 
   describe("filter", () => {
     let filtered;
-
     beforeEach(() => {
       filtered = todosById.filter(todo => !todo.completed.state);
     });

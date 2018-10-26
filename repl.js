@@ -1,5 +1,6 @@
+/* global vm */
 let babel = require('@babel/core');
-let repl = require('repl')
+let repl = require('repl');
 
 require('./tests/setup');
 
@@ -39,7 +40,7 @@ function replEval(code, context, filename, callback) {
 }
 
 // put all of the microstate functions into the global scope
-Object.assign(global, require('./index'))
+Object.assign(global, require('./index'));
 
 //start the repl using the @babel/node
 repl.start({

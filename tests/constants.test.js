@@ -1,8 +1,6 @@
+/* global describe, it, beforeEach */
 import expect from 'expect';
-
-import { Constant, create } from '../src/microstates';
-import { StringType } from '../src/types';
-import { valueOf } from '../src/meta';
+import { create } from '../src/microstates';
 
 let o = { hello: 'world' };
 class Type {
@@ -21,6 +19,7 @@ describe('constants support', () => {
     ms = create(Type, {});
     next = ms.greeting.set('HI');
   });
+
   it('includes constants in state tree', () => {
     expect(ms.n.state).toEqual(10);
     expect(ms.b.state).toEqual(true);
@@ -30,6 +29,7 @@ describe('constants support', () => {
     expect(ms.null.state).toEqual(null);
     expect(ms.greeting.state).toEqual('');
   });
+
   it('next state has constants', () => {
     expect(next.n.state).toEqual(10);
     expect(next.b.state).toEqual(true);
@@ -39,9 +39,11 @@ describe('constants support', () => {
     expect(next.null.state).toEqual(null);
     expect(next.greeting.state).toEqual('HI');
   });
+
   it('next valueOf excludes constants', () => {
     expect(next.greeting.state).toEqual('HI');
   });
+
   it('shares complex objects between multiple instances of microstate', () => {
     expect(ms.o.state).toBe(create(Type, {}).o.state);
   });

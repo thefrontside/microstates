@@ -7,6 +7,7 @@ node_js:
   - "6"
 
 after_success:
+  - yarn lint
   - yarn coverage
   - yarn coveralls
 

@@ -1,3 +1,4 @@
+/* global describe, it, beforeEach */
 import expect from 'expect';
 
 import { Any } from '../src/types';
@@ -14,7 +15,7 @@ describe('recursive microstates', () => {
   let cons;
   beforeEach(function() {
     cons = create(Cons, { car: 5});
-  })
+  });
 
   it('doesnt blow up', function() {
     expect(cons).toBeDefined();
@@ -24,4 +25,4 @@ describe('recursive microstates', () => {
   it('can handle recursive things', function() {
     expect(cons.cdr.cdr.cdr).toBeDefined();
   });
-})
+});

@@ -1,3 +1,4 @@
+/* global describe, it, beforeEach */
 import expect from 'expect';
 import { create } from "../index";
 import { valueOf } from "../src/meta";
@@ -134,12 +135,14 @@ describe("type-shifting", () => {
       corner = line.add(20);
       triangle = corner.add(30);
     });
+
     it("constructs a line", () => {
       expect(line).toBeInstanceOf(Line);
       expect(line.state).toMatchObject({
         a: 10,
       });
     });
+
     it("constructs a Corner", () => {
       expect(corner).toBeInstanceOf(Angle);
       expect(corner.state).toMatchObject({
@@ -147,6 +150,7 @@ describe("type-shifting", () => {
         b: 20,
       });
     });
+
     it("constructs a Triangle", () => {
       expect(triangle).toBeInstanceOf(Triangle);
       expect(triangle.state).toMatchObject({
@@ -172,7 +176,7 @@ describe("type-shifting with constant values", () => {
         isLoaded: this.isLoaded.state,
         isLoading: this.isLoading.state,
         isError: this.isError.state
-      }
+      };
     }
 
     loading() {
@@ -211,8 +215,10 @@ describe("type-shifting with constant values", () => {
     isLoading = false;
     isError = false;
   }
+
   describe("successful loading siquence", () => {
     let async = create(Async, {});
+
     it("can transition to loading", () => {
       let loading = async.loading();
       expect(loading.content.state).toEqual(null);
@@ -220,6 +226,7 @@ describe("type-shifting with constant values", () => {
       expect(loading.isLoading.state).toEqual(true);
       expect(loading.isError.state).toEqual(false);
     });
+
     it("can transition from loading to loaded", () => {
       expect(async.loading().loaded("GREAT SUCCESS").state).toMatchObject({
         content: "GREAT SUCCESS",
@@ -229,8 +236,10 @@ describe("type-shifting with constant values", () => {
       });
     });
   });
+
   describe("error loading sequence", () => {
     let async = create(Async);
+
     it("can transition from loading to error", () => {
       expect(async.loading().error(":(").state).toMatchObject({
         content: null,
@@ -318,7 +327,7 @@ describe("type-shifting from create to parameterized array", () => {
   });
 
   it("provides data to parameterized array", () => {
-    expect(group.members.length).toEqual(3);
+    expect(group.members).toHaveLength(3);
 
     let [ first ] = group.members;
     expect(first).toBeInstanceOf(Person);
@@ -328,7 +337,7 @@ describe("type-shifting from create to parameterized array", () => {
     let acclaimed;
 
     beforeEach(() => {
-      let [ _, second ] = group.members;
+      let [ _, second ] = group.members; // eslint-disable-line no-unused-vars
       acclaimed = second.name.set("!!Charles!!");
     });
 

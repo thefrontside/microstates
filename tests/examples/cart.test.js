@@ -1,3 +1,4 @@
+/* global describe, it, beforeEach */
 import expect from 'expect';
 
 import { create } from '../../src/microstates';
@@ -29,6 +30,7 @@ describe('cart example', () => {
         .products.push({ quantity: 1, price: 10 })
         .products.push({ quantity: 2, price: 20 });
     });
+
     it('adds items to the cart', () => {
       expect(ms.price).toEqual(50);
       expect(ms.count).toEqual(3);
@@ -36,11 +38,13 @@ describe('cart example', () => {
         products: [{ quantity: 1, price: 10 }, { quantity: 2, price: 20 }],
       });
     });
+
     it('provides state', () => {
       expect(valueOf(ms)).toEqual({
         products: [{ quantity: 1, price: 10 }, { quantity: 2, price: 20 }],
       });
     });
+
     it('maps products', () => {
       let [...prices] = ms.prices;
       expect(prices).toEqual([10, 20]);

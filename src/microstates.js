@@ -1,5 +1,5 @@
-import { stable, map, type } from 'funcadelic';
-import { set, view } from './lens';
+import { stable, map } from 'funcadelic';
+import { set } from './lens';
 import { Meta, mount, metaOf, valueOf, sourceOf } from './meta';
 import { methodsOf } from './reflection';
 import dsl from './dsl';
@@ -33,17 +33,17 @@ const MicrostateType = stable(function MicrostateType(Type) {
           let value = valueOf(self);
           let expanded = expandProperty(slot);
           let substate = value != null && value[key] != null ? expanded.set(value[key]) : expanded;
-          var mounted = mount(self, substate, key);
+          let mounted = mount(self, substate, key);
           return mounted;
         });
       }, this));
 
-      Object.defineProperty(this, Meta.symbol, { enumerable: false, configurable: true, value: new Meta(this, valueOf(value))})
+      Object.defineProperty(this, Meta.symbol, { enumerable: false, configurable: true, value: new Meta(this, valueOf(value))});
     }
 
     set(object) {
       let meta = metaOf(this);
-      var previous = valueOf(meta.root);
+      let previous = valueOf(meta.root);
       let next = set(meta.lens, valueOf(object), previous);
       if (meta.path.length === 0 && metaOf(object) != null) {
         return object;
@@ -53,17 +53,17 @@ const MicrostateType = stable(function MicrostateType(Type) {
         return create(meta.root.constructor, next);
       }
     }
-  }
-  Object.defineProperties(Microstate.prototype, map((descriptor, name) => {
+  };
+  Object.defineProperties(Microstate.prototype, map((descriptor) => {
     return {
       value(...args) {
         let result = descriptor.value.apply(sourceOf(this), args);
         return this.set(result);
       }
-    }
-  }, methodsOf(Type)))
+    };
+  }, methodsOf(Type)));
   return Microstate;
-})
+});
 
 function expandProperty(property) {
   let meta = metaOf(property);
