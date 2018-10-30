@@ -125,12 +125,8 @@ describe('Identity', () => {
       next = first.completed.set(true);
     });
 
-    it('returns the same id in the event that the state is the same', function() {
-      expect(next).toBe(store);
-    });
-
-    it('does not invoke the idenity function after the initial invocation', function() {
-      expect(calls).toEqual(1);
+    it('does not invoke the idenity function on initial invocation', function() {
+      expect(calls).toEqual(0);
     });
   });
 

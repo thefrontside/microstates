@@ -8,7 +8,9 @@ export default function Observable(Microstate) {
       return {
         subscribe: (observer) => {
           let next = observer.call ? observer : observer.next.bind(observer);
-          return Identity(this, next);
+          let identity = Identity(this, next);
+          next(identity);
+          return identity;
         },
         [SymbolObservable]() {
           return this;
