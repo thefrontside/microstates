@@ -89,7 +89,8 @@ export default function Identity(microstate, observe = x => x) {
 
     return Id;
   }
-  return tick(microstate);
+  update(microstate);
+  return identity;
 }
 
 function equals(id, other) {
