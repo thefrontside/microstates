@@ -121,7 +121,7 @@ describe('Identity', () => {
         return x;
       });
       let [ first ] = store.todos;
-      next = first.completed.set(true);
+      first.completed.set(true);
     });
 
     it('does not invoke the idenity function on initial invocation', function() {
