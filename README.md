@@ -299,7 +299,7 @@ When you're working with an array microstate, the shape of the Microstate is det
 ```js
 let blog2 = blog.posts.push({ id: 3, title: "It is only getter better" });
 
-for (let post of blog.posts) {
+for (let post of blog2.posts) {
   console.log(post);
 }
 
