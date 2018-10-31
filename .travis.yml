@@ -8,8 +8,9 @@ node_js:
 
 script: echo "Running tests against $(node -v) ..."
 
-include:
-    - stage: coveralls
+jobs:
+  include:
+    - stage: Coverage Report
       node_js: "10"
       script: yarn lint && yarn coverage && yarn coveralls
 
