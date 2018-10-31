@@ -315,7 +315,7 @@ composition!
 
 ## Object Microstates
 
-You can also create an object microstate with `{Post}`. The difference is that the collection is treated as an object. This can be helpful when create normalized data stores.
+You can also create an object microstate with `{Post}`. The difference is that the collection is treated as an object. This can be helpful when creating normalized data stores.
 
 ```js
 class Blog {
@@ -657,7 +657,7 @@ class LightMachine {
 }
 ```
 
-With Microstates, you explicitely describe what happens on transition and define the matching mechanism.
+With Microstates, you explicitly describe what happens on transition and define the matching mechanism.
 
 ## Transition methods
 
@@ -717,7 +717,7 @@ import Microstate, { create, from, map } from "microstates";
 
 ## create(Type, value): Microstate
 
-The `create` function is conceptually similar to `Object.create`. It creates a Microstate object from type class and a value. This function is lazy, so it should be safe in most high performant operations even with complex and deeply nested data structures.
+The `create` function is conceptually similar to `Object.create`. It creates a Microstate object from a type class and a value. This function is lazy, so it should be safe in most high performant operations even with complex and deeply nested data structures.
 
 ```js
 import { create } from "microstates";
@@ -749,10 +749,10 @@ from({ hello: "world" });
 //> Microstate<Object>
 ```
 
-`from` is lazy, so you can consume any deeply nested POJO and Microstates will allow you to perform transitions with it. The cost of building the objects inside of Microstates is paid whenever you reach for a Microstate inside. For example, `let o = from({ a: { b: c: 42 }})` doesn't do anything until you start to read the properties with dot notiation like `o.a.b.c`.
+`from` is lazy, so you can consume any deeply nested POJO and Microstates will allow you to perform transitions with it. The cost of building the objects inside of Microstates is paid whenever you reach for a Microstate inside. For example, `let o = from({ a: { b: { c: 42 }}})` doesn't do anything until you start to read the properties with dot notiation like `o.a.b.c`.
 
 ```js
-from({ a: { b: c: 42 }}).a.b.c.increment().state;
+from({ a: { b: { c: 42 }}}).a.b.c.increment().state;
 // { a: { b: { c: 43 }}}
 
 from({ hello: [ 'world' ]}).hello[0].concat('!!!').state
@@ -761,7 +761,7 @@ from({ hello: [ 'world' ]}).hello[0].concat('!!!').state
 
 ## map(microstate, fn): Microstate
 
-The `map` function invokes the function for each microstate in an array microstate. It is usually used to map over an array of microstate and return an array of components. The mapping function will receive each microstate in the array. You can invoke transitions on each microstate as you would usually.
+The `map` function invokes the function for each microstate in an array microstate. It is usually used to map over an array of microstates and return an array of components. The mapping function will receive each microstate in the array. You can invoke transitions on each microstate as you would usually.
 
 ```js
 let numbers = create([Number], [1, 2, 3, 4]);
