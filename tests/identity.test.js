@@ -170,4 +170,31 @@ describe('Identity', () => {
       });
     });
   });
+
+  describe('identity support of type reuse', () => {
+    class Person {
+      name = String;
+      father = Person;
+      mother = Person;
+    }
+
+    it('it keeps both branches', () => {
+      let s = Identity(create(Person), next => (s = next));
+      let { name, father, mother } = s;
+
+      name.set('Bart');
+      father.name.set('Homer');
+      mother.name.set('Marge');
+
+      expect({
+        name: s.name.state,
+        father: { name: s.father.name.state },
+        mother: { name: s.mother.name.state }
+      }).toEqual({
+        name: 'Bart',
+        father: { name: 'Homer' },
+        mother: { name: 'Marge' }
+      });
+    });
+  });
 });
