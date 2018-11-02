@@ -43,6 +43,7 @@
     "babel-eslint": "^10.0.1",
     "benchmark": "^2.1.4",
     "cli-table": "^0.3.1",
+    "coveralls": "3.0.2",
     "eslint": "^5.7.0",
     "eslint-plugin-prefer-let": "^1.0.1",
     "expect": "^23.4.0",
@@ -52,12 +53,11 @@
     "rollup-plugin-babel": "4.0.0-beta.7",
     "rollup-plugin-filesize": "4.0.1",
     "rollup-plugin-node-resolve": "3.3.0",
+    "nyc": "13.1.0",
     "rxjs": "^6.2.1"
   },
   "dependencies": {
-    "coveralls": "3.0.2",
     "funcadelic": "^0.5.0",
-    "nyc": "13.1.0",
     "symbol-observable": "^1.2.0"
   },
   "nyc": {
