@@ -72,8 +72,7 @@ export default function Identity(microstate, observe = x => x) {
         let microstate = path.reduce((microstate, key) => {
           if (isArrayType(microstate)) {
             let value = valueOf(microstate)[key];
-            var mounted = mount(microstate, create(microstate.constructor.T, value), key);
-            return mounted
+            return mount(microstate, create(microstate.constructor.T, value), key);
           } else {
             return microstate[key];
           }
