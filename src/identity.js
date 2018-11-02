@@ -1,15 +1,15 @@
 import { foldl } from 'funcadelic';
-import { promap, valueOf, pathOf, Meta } from './meta';
+import { promap, valueOf, pathOf, Meta, mount } from './meta';
 import CachedProperty from './cached-property';
 import { methodsOf } from './reflection';
+import { isArrayType } from './types/array';
+import { create } from './microstates';
 
 //function composition should probably not be part of lens :)
 import { At, view, Path, compose, set } from './lens';
 
 class Location {
-  static data = At(Symbol('@location'));
-  static id = compose(Location.data, At("id"));
-  static microstate = compose(Location.data, At("microstate"));
+  static id = At(Symbol('@id'));
 }
 
 export default function Identity(microstate, observe = x => x) {
@@ -31,8 +31,6 @@ export default function Identity(microstate, observe = x => x) {
       let path = pathOf(microstate);
       let Type = microstate.constructor.Type;
       let value = valueOf(microstate);
-
-      pathmap = set(compose(Path(path), Location.microstate), microstate, pathmap);
 
       let id = view(compose(Path(path), Location.id), pathmap);
 
@@ -71,7 +69,15 @@ export default function Identity(microstate, observe = x => x) {
     Object.assign(Id.prototype, foldl((methods, name) => {
       methods[name] = function(...args) {
         let path = P;
-        let microstate = view(compose(Path(path), Location.microstate), pathmap);
+        let microstate = path.reduce((microstate, key) => {
+          if (isArrayType(microstate)) {
+            let value = valueOf(microstate)[key];
+            var mounted = mount(microstate, create(microstate.constructor.T, value), key);
+            return mounted
+          } else {
+            return microstate[key];
+          }
+        }, current);
         let next = microstate[name](...args);
 
         return next === current ? identity : tick(next);
