@@ -52,12 +52,11 @@
     "rollup-plugin-babel": "4.0.0-beta.7",
     "rollup-plugin-filesize": "4.0.1",
     "rollup-plugin-node-resolve": "3.3.0",
+    "nyc": "13.1.0",
     "rxjs": "^6.2.1"
   },
   "dependencies": {
-    "coveralls": "3.0.2",
     "funcadelic": "^0.5.0",
-    "nyc": "13.1.0",
     "symbol-observable": "^1.2.0"
   },
   "nyc": {
