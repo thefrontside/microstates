@@ -6,10 +6,13 @@ node_js:
   - "8"
   - "6"
 
-after_success:
-  - yarn lint
-  - yarn coverage
-  - yarn coveralls
+script: echo "Running tests against $(node -v) ..."
+
+jobs:
+  include:
+    - stage: Coverage Report
+      node_js: "10"
+      script: yarn lint && yarn coverage && yarn coveralls
 
 # Allow Travis tests to run in containers.
 sudo: false
