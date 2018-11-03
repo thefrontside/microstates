@@ -8,6 +8,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [0.12.0] - 2018-10-31
 
+### Fixed
+
+- Store should allow destructuring microstates https://github.com/microstates/microstates.js/pull/263
+
 ### Added
 
 - Added ObjectType#map and #ObjectType#filter transitions https://github.com/microstates/microstates.js/pull/225
