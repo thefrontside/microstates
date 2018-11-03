@@ -4,8 +4,17 @@ import { Profunctor, promap, mount, valueOf } from '../meta';
 import { create } from '../microstates';
 import parameterized from '../parameterized';
 
+
+const ARRAY_TYPE = Symbol('ArrayType');
+
+export function isArrayType(microstate) {
+  return microstate.constructor && microstate.constructor[ARRAY_TYPE];
+}
+
 export default parameterized(T => class ArrayType {
   static T = T;
+  static get [ARRAY_TYPE]()  { return true; }
+
   static get name() {
     return `Array<${T.name}>`;
   }
