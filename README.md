@@ -128,26 +128,27 @@ A Microstate is just an object that is created from a value and a type. The valu
 Microstates comes out of the box with 5 primitive types: `Boolean`, `Number`, `String`, `Object` and `Array`.
 
 ```js
-import { create } from 'microstates';
+import { create, valueOf } from "microstates";
 
 let meaningOfLifeAndEverything = create(Number, 42);
-meaningOfLifeAndEverything.state
+console.log(meaningOfLifeAndEverything.state);
 //> 42
 
-let greeting = create(String, 'Hello World');
-greeting.state
+let greeting = create(String, "Hello World");
+console.log(greeting.state);
 //> Hello World
 
 let isOpen = create(Boolean, true);
-isOpen.state
+console.log(isOpen.state);
 //> true
 
-let foo = create(Object, { foo: 'bar' });
-foo.state
+// For Object and Array use microstates valueOf method
+let foo = create(Object, { foo: "bar" });
+console.log(valueOf(foo));
 //> { foo: 'bar' }
 
-let numbers = create(Array, [ 1, 2, 3, 4 ]);
-numbers.state
+let numbers = create(Array, [1, 2, 3, 4]);
+console.log(valueOf(numbers));
 //> [ 1, 2, 3, 4 ]
 ```
 
