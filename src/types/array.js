@@ -76,6 +76,10 @@ export default parameterized(T => class ArrayType {
     }, list);
   }
 
+  remove(item) {
+    return this.filter(s => valueOf(s) !== valueOf(item));
+  }
+
   clear() {
     return [];
   }
