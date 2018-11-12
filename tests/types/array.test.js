@@ -410,4 +410,24 @@ describe("ArrayType", function() {
       });
     });
   });
+
+  describe('remove', () => {
+    let array;
+    beforeEach(() => {
+      array = create([], ['a', 'b', 'c']);
+    });
+
+    it('allows to remove an element', () => {
+      let [a, b, c] = array;
+      let removed = array.remove(b);
+      let [a2, c2] = removed;
+      expect(removed.length).toBe(2);
+      expect(valueOf(a)).toBe(valueOf(a2));
+      expect(valueOf(c)).toBe(valueOf(c2));
+    });
+
+    it('returns same array when item is not found', () => {
+      expect(array.remove(null)).toBe(array);
+    });
+  });
 });
