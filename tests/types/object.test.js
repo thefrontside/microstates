@@ -3,6 +3,7 @@ import expect from 'expect';
 import { create } from '../../src/microstates';
 import { valueOf } from '../../src/meta';
 import { ObjectType } from '../../src/types';
+import { map } from '../../src/query';
 
 describe('created without value', () => {
   class Thing {}
@@ -223,6 +224,35 @@ describe("map/filter/reduce", () => {
       expect(filtered["a"]).toBeDefined();
       expect(filtered["b"]).not.toBeDefined();
       expect(filtered["c"]).toBeDefined();
+    });
+  });
+
+  describe('iterable', () => {
+    let obj, calls;
+    beforeEach(() => {
+      obj = create(Object, { a: 'A', b: 'B', c: 'C'});
+      calls = [];
+    });
+
+    it('supports for of', () => {
+      for (let o of obj) {
+        calls.push(o);
+      }
+
+      expect(calls.length).toBe(3);
+      expect(valueOf(calls[0])).toBe('A');
+      expect(valueOf(calls[1])).toBe('B');
+      expect(valueOf(calls[2])).toBe('C');
+    });
+
+    it('allows to map object', () => {
+      for (let o of map(obj, o => `${o.state}!!!`)) {
+        calls.push(o);
+      }
+      expect(calls.length).toBe(3);
+      expect(valueOf(calls[0])).toBe('A!!!');
+      expect(valueOf(calls[1])).toBe('B!!!');
+      expect(valueOf(calls[2])).toBe('C!!!');
     });
   });
 });
