@@ -5,8 +5,8 @@ import { valueOf } from '../src/meta';
 
 import Any from '../src/types/any';
 
-describe("Microstates", () => {
-  describe("default", () => {
+describe('Microstates', () => {
+  describe('default', () => {
     let def;
     beforeEach(function() {
       def = create();
@@ -60,23 +60,23 @@ describe("Microstates", () => {
 
   describe('Something containing something else', function() {
     class Something {
-      any = create(Any, "ohai");
+      any = create(Any, 'ohai');
     }
 
     describe('when created with something else', function() {
       let something;
       beforeEach(function() {
-        something = create(Something, { any: "ohai there" });
+        something = create(Something, { any: 'ohai there' });
       });
 
       it('properly initializes substates', function() {
-        expect(something.any.state).toBe("ohai there");
+        expect(something.any.state).toBe('ohai there');
       });
 
       describe('setting the nested object', function() {
         let next;
         beforeEach(function() {
-          next = something.any.set("ohai boss");
+          next = something.any.set('ohai boss');
         });
 
         it('returns a new instance of the something', function() {
@@ -84,7 +84,7 @@ describe("Microstates", () => {
         });
 
         it('contains a fully realized state with the update', function() {
-          expect(next.any.state).toEqual("ohai boss");
+          expect(next.any.state).toEqual('ohai boss');
         });
 
         it('updates the state of the nested object', function() {
@@ -123,13 +123,11 @@ describe("Microstates", () => {
     }
 
     class App {
-      error = create(Modal, { isOpen: false })
-      warning = create(Modal, { isOpen: false})
+      error = create(Modal, { isOpen: false });
+      warning = create(Modal, { isOpen: false });
 
       openAll() {
-        return this
-          .error.show()
-          .warning.show();
+        return this.error.show().warning.show();
       }
     }
 
@@ -155,8 +153,27 @@ describe("Microstates", () => {
       });
 
       it('has the right state', function() {
-        expect(valueOf(app)).toEqual({ error: { isOpen: true }, warning: { isOpen: true }});
+        expect(valueOf(app)).toEqual({
+          error: { isOpen: true },
+          warning: { isOpen: true }
+        });
       });
     });
+  });
+});
+
+describe('Beep boop beep. Toggling and Properties.', () => {
+  class Basic {
+    bool = Boolean;
+    count = Number;
+  }
+  class Test {
+    basic = create(Basic, { bool: false, count: 5 });
+  }
+  let t = create(Test);
+  it('toggles boolean and retains the value of other properties', () => {
+    let toggled = t.basic.bool.toggle();
+    expect(toggled.basic.bool.state).toBe(true);
+    expect(toggled.basic.count.state).toBe(5);
   });
 });
