@@ -14,6 +14,17 @@ export function reduce(iterable, fn, initial) {
   return query(iterable).reduce(fn, initial);
 }
 
+export class Entry {
+  constructor(key, value) {
+    this.key = key;
+    this.value = value;
+  }
+
+  [Symbol.iterator]() {
+    return [this.value, this.key][Symbol.iterator]();
+  }
+}
+
 class Query {
   constructor(iterable) {
     if (typeof iterable[Symbol.iterator] === 'function') {

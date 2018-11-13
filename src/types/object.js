@@ -2,6 +2,7 @@ import { append, filter, map } from 'funcadelic';
 import parameterized from '../parameterized';
 import { mount, valueOf } from '../meta';
 import { create } from '../microstates';
+import { Entry } from '../query';
 
 export default parameterized(T => class ObjectType {
   static T = T;
@@ -52,7 +53,7 @@ export default parameterized(T => class ObjectType {
         let next = iterator.next();
         return {
           get done() { return next.done; },
-          get value() { return object[next.value]; }
+          get value() { return new Entry(next.value, object[next.value]) }
         };
       }
     };

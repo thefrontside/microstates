@@ -234,25 +234,36 @@ describe("map/filter/reduce", () => {
       calls = [];
     });
 
-    it('supports for of', () => {
-      for (let o of obj) {
-        calls.push(o);
+    it('supports for of and destructure as object', () => {
+      for (let { value, key } of obj) {
+        calls.push({ key, value: value.state });
       }
 
       expect(calls.length).toBe(3);
-      expect(valueOf(calls[0])).toBe('A');
-      expect(valueOf(calls[1])).toBe('B');
-      expect(valueOf(calls[2])).toBe('C');
+      expect(valueOf(calls[0])).toEqual({key: 'a', value: 'A'});
+      expect(valueOf(calls[1])).toEqual({key: 'b', value: 'B'});
+      expect(valueOf(calls[2])).toEqual({key: 'c', value: 'C'});
+    });
+
+    it('supports for of and destructure as array', () => {
+      for (let [ value, key ] of obj) {
+        calls.push({ key, value: value.state });
+      }
+
+      expect(calls.length).toBe(3);
+      expect(valueOf(calls[0])).toEqual({key: 'a', value: 'A'});
+      expect(valueOf(calls[1])).toEqual({key: 'b', value: 'B'});
+      expect(valueOf(calls[2])).toEqual({key: 'c', value: 'C'});
     });
 
     it('allows to map object', () => {
-      for (let o of map(obj, o => `${o.state}!!!`)) {
+      for (let o of map(obj, ({ key, value }) => ({ key, value: value.state }))) {
         calls.push(o);
       }
       expect(calls.length).toBe(3);
-      expect(valueOf(calls[0])).toBe('A!!!');
-      expect(valueOf(calls[1])).toBe('B!!!');
-      expect(valueOf(calls[2])).toBe('C!!!');
+      expect(valueOf(calls[0])).toMatchObject({key: 'a', value: 'A'});
+      expect(valueOf(calls[1])).toMatchObject({key: 'b', value: 'B'});
+      expect(valueOf(calls[2])).toMatchObject({key: 'c', value: 'C'});
     });
   });
 });
