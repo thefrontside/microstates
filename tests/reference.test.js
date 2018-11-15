@@ -10,7 +10,7 @@ function reference(Type, fn) {
   return class extends Type {}
 }
 
-describe.only('References', () => {
+describe('References', () => {
   class Person {}
 
   class PersonTable {

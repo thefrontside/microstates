@@ -1,5 +1,5 @@
 import expect from 'expect';
-import { create } from '..';
+import { create, valueOf } from '..';
 
 describe.only('Create with References', () => {
   class Post {
@@ -10,10 +10,16 @@ describe.only('Create with References', () => {
     name = String;
   }
 
+  let bro = { name: 'Ernest Hemingbro' };
   let author, post;
 
   beforeEach(function() {
-    author = create(Author, { name: 'Ernest Hemingbro' });
+    author = create(Author, bro);
     post = create(Post, undefined, { author });
+  });
+
+  it('value of post.author is same as reference objects value', () => {
+    console.log(valueOf(post.author));
+    expect(valueOf(post.author)).toBe(bro);
   });
 });

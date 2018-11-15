@@ -7,10 +7,11 @@ import Any from './types/any';
 import CachedProperty from './cached-property';
 import Observable from './observable';
 
-export function create(InputType = Any, value) {
+export function create(InputType = Any, value, references = {}) {
+  console.log('references in create', references);
   let { Type } = dsl.expand(InputType);
   let Microstate = MicrostateType(Type);
-  let microstate = new Microstate(value);
+  let microstate = new Microstate(value, references);
   if (Type.prototype.hasOwnProperty('initialize')) {
     return microstate.initialize(value);
   } else {
@@ -26,15 +27,21 @@ const MicrostateType = stable(function MicrostateType(Type) {
     static name = `Microstate<${Type.name}>`;
     static Type = Type;
 
-    constructor(value) {
+    constructor(value, references) {
+      console.log('references in constructo', references)
       super(value);
       Object.defineProperties(this, map((slot, key) => {
         return CachedProperty(key, self => {
-          let value = valueOf(self);
-          let expanded = expandProperty(slot);
-          let substate = value != null && value[key] != null ? expanded.set(value[key]) : expanded;
-          let mounted = mount(self, substate, key);
-          return mounted;
+          console.log('references=', references)
+          if (references[key]) {
+            return references[key];
+          } else {
+            let value = valueOf(self);
+            let expanded = expandProperty(slot);
+            let substate = value != null && value[key] != null ? expanded.set(value[key]) : expanded;
+            let mounted = mount(self, substate, key);
+            return mounted;
+          }
         });
       }, this));
 
