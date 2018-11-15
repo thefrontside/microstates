@@ -47,12 +47,9 @@ describe.only('References', () => {
 
   class Db {
     people = PersonTable;
-    // cars = create(CarTable, {}, { db: this });
 
     get cars() {
-      if ('cars' in references) {
-        return value;
-      }
+      return create(CarTable, valueOf(this).cars, { db: this });
     }
   }
 
