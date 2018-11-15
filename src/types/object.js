@@ -2,7 +2,6 @@ import { append, filter, map } from 'funcadelic';
 import parameterized from '../parameterized';
 import { mount, valueOf } from '../meta';
 import { create } from '../microstates';
-import { Entry } from '../query';
 
 export default parameterized(T => class ObjectType {
   static T = T;
@@ -59,3 +58,14 @@ export default parameterized(T => class ObjectType {
     };
   }
 });
+
+class Entry {
+  constructor(key, value) {
+    this.key = key;
+    this.value = value;
+  }
+
+  [Symbol.iterator]() {
+    return [this.value, this.key][Symbol.iterator]();
+  }
+}
