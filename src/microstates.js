@@ -1,5 +1,5 @@
 import { stable, map } from 'funcadelic';
-import { set } from './lens';
+import { set, over } from './lens';
 import { Meta, mount, metaOf, valueOf, sourceOf } from './meta';
 import { methodsOf } from './reflection';
 import dsl from './dsl';
@@ -18,6 +18,23 @@ export function create(InputType = Any, value, references = {}) {
   }
 }
 
+function Reference(microstate, reference) {
+  let { Type } = reference.constructor;
+  let Ref = class extends Type {};
+
+  Object.defineProperties(Ref.prototype, map((descriptor, transitionName) => {
+    return {
+      value(...args) {
+        // let updatedReference = descriptor.value.apply(sourceOf(this), args);
+        // return this.set(result);
+        // return microstateWithNewReference;
+      }
+    };
+  }, methodsOf(Type)));
+
+  return new Ref(valueOf(reference));
+}
+
 const MicrostateType = stable(function MicrostateType(Type) {
   if (Type.Type) {
     return Type;
@@ -31,7 +48,7 @@ const MicrostateType = stable(function MicrostateType(Type) {
       Object.defineProperties(this, map((slot, key) => {
         return CachedProperty(key, self => {
           if (references[key]) {
-            return references[key];
+            return Reference(this, references[key]);
           } else {
             let value = valueOf(self);
             let expanded = expandProperty(slot);

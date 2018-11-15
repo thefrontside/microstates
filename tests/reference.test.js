@@ -39,6 +39,7 @@ describe('References', () => {
       let id = this.nextId.state;
       let personId = this.db.people.nextId.state;
       let intermediate = this.db.people.createRecord();
+
       console.log("intermediate = ", intermediate);
 
       return intermediate
