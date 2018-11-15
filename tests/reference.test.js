@@ -14,6 +14,7 @@ describe.only('References', () => {
   class Person {}
 
   class PersonTable {
+    db = Db;
     nextId = Number;
     records = { Person };
     createRecord(attrs = {}) {
@@ -30,11 +31,12 @@ describe.only('References', () => {
   }
 
   class CarTable {
+    db = Db;
     nextId = Number;
     records = { Car };
     createRecord(attrs = {}) {
       let id = this.nextId.state;
-      let personId = intermediate.db.people.nextId.state;
+      let personId = this.db.people.nextId.state;
       let intermediate = this.db.people.createRecord();
 
       return intermediate
@@ -45,7 +47,13 @@ describe.only('References', () => {
 
   class Db {
     people = PersonTable;
-    cars = reference(CarTable, db => ({ db }));
+    // cars = create(CarTable, {}, { db: this });
+
+    get cars() {
+      if ('cars' in references) {
+        return value;
+      }
+    }
   }
 
   let db;
