@@ -8,7 +8,6 @@ import CachedProperty from './cached-property';
 import Observable from './observable';
 
 export function create(InputType = Any, value, references = {}) {
-  console.log('references in create', references);
   let { Type } = dsl.expand(InputType);
   let Microstate = MicrostateType(Type);
   let microstate = new Microstate(value, references);
@@ -28,11 +27,9 @@ const MicrostateType = stable(function MicrostateType(Type) {
     static Type = Type;
 
     constructor(value, references) {
-      console.log('references in constructo', references)
       super(value);
       Object.defineProperties(this, map((slot, key) => {
         return CachedProperty(key, self => {
-          console.log('references=', references)
           if (references[key]) {
             return references[key];
           } else {

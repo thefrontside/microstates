@@ -1,5 +1,6 @@
 import expect from 'expect';
-import { create } from '..';
+import { create } from '../src/microstates';
+import { valueOf } from '../src/meta';
 
 const {
   getOwnPropertyNames
@@ -38,6 +39,7 @@ describe('References', () => {
       let id = this.nextId.state;
       let personId = this.db.people.nextId.state;
       let intermediate = this.db.people.createRecord();
+      console.log("intermediate = ", intermediate);
 
       return intermediate
         .nextId.increment()
@@ -49,7 +51,8 @@ describe('References', () => {
     people = PersonTable;
 
     get cars() {
-      return create(CarTable, valueOf(this).cars, { db: this });
+      let value = valueOf(this) == null ? {} : valueOf(this);
+      return create(CarTable, value, { db: this });
     }
   }
 

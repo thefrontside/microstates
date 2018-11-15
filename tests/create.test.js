@@ -1,7 +1,8 @@
 import expect from 'expect';
-import { create, valueOf } from '..';
+import { create } from '../src/microstates';
+import { valueOf } from '../src/meta';
 
-describe.only('Create with References', () => {
+describe('Create with References', () => {
   class Post {
     author = Author;
   }
@@ -19,7 +20,6 @@ describe.only('Create with References', () => {
   });
 
   it('value of post.author is same as reference objects value', () => {
-    console.log(valueOf(post.author));
     expect(valueOf(post.author)).toBe(bro);
   });
 });
