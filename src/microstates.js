@@ -1,4 +1,4 @@
-import { stable, map } from 'funcadelic';
+import { append, stable, map } from 'funcadelic';
 import { set } from './lens';
 import { Meta, mount, metaOf, valueOf, sourceOf } from './meta';
 import { methodsOf } from './reflection';
@@ -40,28 +40,25 @@ const MicrostateType = stable(function MicrostateType(Type) {
 
       Object.defineProperty(this, Meta.symbol, { enumerable: false, configurable: true, value: new Meta(this, valueOf(value))});
     }
-
-    set(object) {
-      let meta = metaOf(this);
-      let previous = valueOf(meta.root);
-      let next = set(meta.lens, valueOf(object), previous);
-      if (meta.path.length === 0 && metaOf(object) != null) {
-        return object;
-      } if (next === previous) {
-        return meta.root;
-      } else {
-        return create(meta.root.constructor, next);
-      }
-    }
   };
+
   Object.defineProperties(Microstate.prototype, map((descriptor) => {
     return {
       value(...args) {
         let result = descriptor.value.apply(sourceOf(this), args);
-        return this.set(result);
+        let meta = metaOf(this);
+        let previous = valueOf(meta.root);
+        let next = set(meta.lens, valueOf(result), previous);
+        if (meta.path.length === 0 && metaOf(result) != null) {
+          return result;
+        } if (next === previous) {
+          return meta.root;
+        } else {
+          return create(meta.root.constructor, next);
+        }
       }
     };
-  }, methodsOf(Type)));
+  }, append({ set: { value: x => x } }, methodsOf(Type))));
   return Microstate;
 });
 
