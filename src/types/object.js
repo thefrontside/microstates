@@ -43,4 +43,29 @@ export default parameterized(T => class ObjectType {
   filter(fn) {
     return filter(({ key, value }) => valueOf(fn(create(T, value), key)), valueOf(this));
   }
+
+  [Symbol.iterator]() {
+    let object = this;
+    let iterator = Object.keys(valueOf(this))[Symbol.iterator]();
+    return {
+      next() {
+        let next = iterator.next();
+        return {
+          get done() { return next.done; },
+          get value() { return new Entry(next.value, object[next.value]); }
+        };
+      }
+    };
+  }
 });
+
+class Entry {
+  constructor(key, value) {
+    this.key = key;
+    this.value = value;
+  }
+
+  [Symbol.iterator]() {
+    return [this.value, this.key][Symbol.iterator]();
+  }
+}

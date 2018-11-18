@@ -3,6 +3,7 @@ import expect from 'expect';
 import { create } from '../../src/microstates';
 import { valueOf } from '../../src/meta';
 import { ObjectType } from '../../src/types';
+import { map } from '../../src/query';
 
 describe('created without value', () => {
   class Thing {}
@@ -223,6 +224,46 @@ describe("map/filter/reduce", () => {
       expect(filtered["a"]).toBeDefined();
       expect(filtered["b"]).not.toBeDefined();
       expect(filtered["c"]).toBeDefined();
+    });
+  });
+
+  describe('iterable', () => {
+    let obj, calls;
+    beforeEach(() => {
+      obj = create(Object, { a: 'A', b: 'B', c: 'C'});
+      calls = [];
+    });
+
+    it('supports for of and destructure as object', () => {
+      for (let { value, key } of obj) {
+        calls.push({ key, value: value.state });
+      }
+
+      expect(calls.length).toBe(3);
+      expect(valueOf(calls[0])).toEqual({key: 'a', value: 'A'});
+      expect(valueOf(calls[1])).toEqual({key: 'b', value: 'B'});
+      expect(valueOf(calls[2])).toEqual({key: 'c', value: 'C'});
+    });
+
+    it('supports for of and destructure as array', () => {
+      for (let [ value, key ] of obj) {
+        calls.push({ key, value: value.state });
+      }
+
+      expect(calls.length).toBe(3);
+      expect(valueOf(calls[0])).toEqual({key: 'a', value: 'A'});
+      expect(valueOf(calls[1])).toEqual({key: 'b', value: 'B'});
+      expect(valueOf(calls[2])).toEqual({key: 'c', value: 'C'});
+    });
+
+    it('allows to map object', () => {
+      for (let o of map(obj, ({ key, value }) => ({ key, value: value.state }))) {
+        calls.push(o);
+      }
+      expect(calls.length).toBe(3);
+      expect(valueOf(calls[0])).toMatchObject({key: 'a', value: 'A'});
+      expect(valueOf(calls[1])).toMatchObject({key: 'b', value: 'B'});
+      expect(valueOf(calls[2])).toMatchObject({key: 'c', value: 'C'});
     });
   });
 });
