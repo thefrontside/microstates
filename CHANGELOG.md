@@ -6,6 +6,17 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 
+## [0.12.1] - 2018-11-18
+
+### Added
+
+- Added ArrayType#remove transition https://github.com/microstates/microstates.js/pull/275
+- Added ObjectType#Symbol.iterator to allow iterating objects in queries https://github.com/microstates/microstates.js/pull/276
+
+### Changed
+
+- No special case for the `set` transition https://github.com/microstates/microstates.js/pull/279
+
 ## [0.12.0] - 2018-10-31
 
 ### Fixed
