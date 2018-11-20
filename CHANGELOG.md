@@ -10,8 +10,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ### Added
 
-- Added ArrayType#remove transition https://github.com/microstates/microstates.js/pull/275
-- Added ObjectType#Symbol.iterator to allow iterating objects in queries https://github.com/microstates/microstates.js/pull/276
+- ArrayType#remove transition https://github.com/microstates/microstates.js/pull/275
+- ObjectType#Symbol.iterator to allow iterating objects in queries https://github.com/microstates/microstates.js/pull/276
 
 ### Changed
 
