@@ -4,6 +4,7 @@ import expect from 'expect';
 import Identity from '../src/identity';
 import { create } from '../src/microstates';
 import { valueOf } from '../src/meta';
+import from from '../src/literal';
 
 import { TodoMVC, Todo } from './todomvc';
 
@@ -194,6 +195,17 @@ describe('Identity', () => {
         father: { name: 'Homer' },
         mother: { name: 'Marge' }
       });
+    });
+  });
+
+  describe('identity support for microstates created with from(object)', () => {
+    let i;
+    beforeEach(() => {
+      i = Identity(from({ name: 'Taras' }), next => i = next);
+      i.name.concat('!!!');
+    });
+    it('allows to transition value of a property', () => {
+      expect(i.name.state).toBe('Taras!!!');
     });
   });
 });
