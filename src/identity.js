@@ -64,6 +64,8 @@ export default function Identity(microstate, observe = x => x) {
 
     let descriptors = Object.getOwnPropertyDescriptors(Type.prototype);
 
+    console.log(descriptors)
+
     let methods = Object.keys(methodsOf(Type)).concat(["set"]);
 
     Object.assign(Id.prototype, foldl((methods, name) => {
