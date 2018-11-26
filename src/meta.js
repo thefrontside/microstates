@@ -77,7 +77,7 @@ export const { promap } = Profunctor.prototype;
 Profunctor.instance(Object, {
   promap(input, output, object) {
     let next = input(object);
-    let keys = Object.getOwnPropertyNames(object);
+    let keys = Object.keys(object);
     if (next === object || keys.length === 0) {
       return output(next);
     } else {
