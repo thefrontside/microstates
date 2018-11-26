@@ -13,8 +13,10 @@ export default parameterized(T => class ObjectType {
   constructor(value) {
     Object.keys(value || {}).forEach(key => {
       Object.defineProperty(this, key, {
+        enumerable: true,
+        configurable: true,
         get() {
-          return mount(this, create(T, value[key]), key);
+          return create(T, value[key]);
         }
       });
     });
