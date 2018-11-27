@@ -6,6 +6,12 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 
+## [0.12.2] - 2018-11-26
+
+### Fixed
+
+- Ensure Identity maps non-enumerable properties https://github.com/microstates/microstates.js/pull/284
+
 ## [0.12.1] - 2018-11-18
 
 ### Added
