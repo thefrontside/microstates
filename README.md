@@ -692,7 +692,7 @@ Microstates treats value as part of the state machine. It allows you to colocate
 # Framework Integrations
 
 * [React.js](https://github.com/microstates/react)
-* [Ember.js](https://github.com/cowboyd/ember-microstates)
+* [Ember.js](https://github.com/microstates/ember)
 * Create a PR if you created an integration that you'd like to add to this list.
 * Create an issue if you'd like help integrating Microstates with a framework
 
