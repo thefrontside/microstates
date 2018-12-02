@@ -1,4 +1,5 @@
 node_modules
+.cache
 .esm-cache
 /dist
 .nyc_output/

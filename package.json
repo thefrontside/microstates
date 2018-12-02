@@ -31,6 +31,7 @@
     "coverage": "nyc --reporter=html --reporter=text npm run test",
     "coveralls": "nyc report --reporter=text-lcov | coveralls",
     "build": "rollup -c",
+    "build:test": "parcel tests-browser/index.html",
     "bench": "node -r ./tests/setup benchmarks/index.js",
     "prepare": "npm run build",
     "prerelease": "npm test && npm run build"
@@ -48,12 +49,13 @@
     "eslint-plugin-prefer-let": "^1.0.1",
     "expect": "^23.4.0",
     "mocha": "^5.2.0",
+    "nyc": "13.1.0",
     "object.getownpropertydescriptors": "^2.0.3",
+    "parcel": "1.10.3",
     "rollup": "^0.63.4",
     "rollup-plugin-babel": "4.0.0-beta.7",
     "rollup-plugin-filesize": "4.0.1",
     "rollup-plugin-node-resolve": "3.3.0",
-    "nyc": "13.1.0",
     "rxjs": "^6.2.1"
   },
   "dependencies": {
