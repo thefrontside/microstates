@@ -71,7 +71,7 @@ With Microstates added to your project, you get:
 * ⚛ Use in Node.js, browser or React Native
 * 🔬 [It's tiny](https://bundlephobia.com/result?p=microstates)
 
-But, most imporantly, Microstates makes working with state fun.
+But, most importantly, Microstates makes working with state fun.
 
 **When was the last time you had fun working with state?**
 
