@@ -209,4 +209,25 @@ describe('Identity', () => {
       expect(i.name.state).toBe('Taras!!!');
     });
   });
+
+  describe('supports destructuring inherited transitions', () => {
+    class Parent {
+      a = String;
+      setA(str) {
+        return this.a.set(str);
+      }
+    }
+    class Child extends Parent {}
+
+    let i, setA;
+    beforeEach(() => {
+      i = Identity(create(Child), next => i = next);
+      setA = i.setA;
+    });
+
+    it('allows invoking a transition', () => {
+      setA('taras');
+      expect(i.a.state).toEqual('taras');
+    });
+  });
 });
