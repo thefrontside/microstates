@@ -36,8 +36,8 @@
     "prerelease": "npm test && npm run build"
   },
   "devDependencies": {
-    "@babel/core": "7.0.0",
-    "@babel/plugin-proposal-class-properties": "7.0.0",
+    "@babel/core": "7.1.6",
+    "@babel/plugin-proposal-class-properties": "7.1.0",
     "@babel/preset-env": "^7.0.0",
     "@babel/register": "^7.0.0",
     "babel-eslint": "^10.0.1",
@@ -49,10 +49,10 @@
     "expect": "^23.4.0",
     "mocha": "^5.2.0",
     "object.getownpropertydescriptors": "^2.0.3",
-    "rollup": "^0.63.4",
-    "rollup-plugin-babel": "4.0.0-beta.7",
-    "rollup-plugin-filesize": "4.0.1",
-    "rollup-plugin-node-resolve": "3.3.0",
+    "rollup": "^0.67.4",
+    "rollup-plugin-babel": "4.0.3",
+    "rollup-plugin-filesize": "5.0.1",
+    "rollup-plugin-node-resolve": "3.4.0",
     "nyc": "13.1.0",
     "rxjs": "^6.2.1"
   },
