@@ -4,7 +4,7 @@
 [![Coverage Status](https://coveralls.io/repos/github/microstates/microstates.js/badge.svg?branch=master)](https://coveralls.io/github/microstates/microstates.js?branch=master)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Gitter](https://badges.gitter.im/microstates/microstates.js.svg)](https://gitter.im/microstates/microstates.js?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge)
-[![Created by The Frontside](https://img.shields.io/badge/created%20by-frontside.io-blue.svg)](https://frontside.io)
+[![Created by The Frontside](https://img.shields.io/badge/created%20by-frontside.io-blue.svg)](https://frontside.io) [![Greenkeeper badge](https://badges.greenkeeper.io/microstates/microstates.js.svg)](https://greenkeeper.io/)
 
 [**Microstates.js is built and maintained by Frontside. Contact us for expert JavaScript consulting and training.**](https://frontside.io/services/)
 
