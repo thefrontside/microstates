@@ -26,12 +26,12 @@
   "repository": "git+ssh://git@github.com/microstates/microstates.js.git",
   "scripts": {
     "start": "node repl.js",
+    "start:test": "parcel tests-browser/index.html",
     "lint": "eslint ./",
     "test": "mocha --recursive -r tests/setup tests",
     "coverage": "nyc --reporter=html --reporter=text npm run test",
     "coveralls": "nyc report --reporter=text-lcov | coveralls",
     "build": "rollup -c",
-    "build:test": "parcel tests-browser/index.html",
     "bench": "node -r ./tests/setup benchmarks/index.js",
     "prepare": "npm run build",
     "prerelease": "npm test && npm run build"
@@ -60,7 +60,8 @@
   },
   "dependencies": {
     "funcadelic": "^0.5.0",
-    "symbol-observable": "^1.2.0"
+    "symbol-observable": "^1.2.0",
+    "get-prototype-descriptors": "0.6.0"
   },
   "nyc": {
     "exclude": [
