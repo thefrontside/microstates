@@ -67,38 +67,90 @@ describe('initialization', () => {
   });
 
   describe("deeply nested", () => {
-    class Root {
-      first = First;
-    }
-    class First {
-      second = Second;
-    }
-    class Second {
-      name = String;
-
-      initialize(props) {
-        if (!props) {
-          return create(Second, { name: "default" });
-        }
-        return this;
+    describe("type shifting at leaf node", () => {
+      class Root {
+        first = First;
       }
-    }
+      class First {
+        second = Second;
+      }
+      class Second {
+        name = String;
+  
+        initialize(props) {
+          if (!props) {
+            return create(Second, { name: "default" });
+          }
+          return this;
+        }
+      }
+  
+      describe('initialization', () => {
+        let root;
+        beforeEach(() => {
+          root = create(Root, { first: { } });
+        });
+  
+        it('maintains correct type at each location', () => {
+          expect(root).toBeInstanceOf(Root);
+          expect(root.first).toBeInstanceOf(First);
+          expect(root.first.second).toBeInstanceOf(Second);
+        });
+  
+        describe('transition', () => {
+          let changed;
+          beforeEach(() => {
+            changed = root.first.second.name.concat("!!!");
+          });
+  
+          it("has result after transition valueOf", () => {
+            expect(changed.first.second.name.state).toEqual("default!!!");
+          });
+        });
+      });
+    });
 
-    describe('initialization', () => {
+    describe('setting value of a leaf node', () => {
+      class Pagination {
+        page = Number;
+        itemsPerPage = Number;
+      
+        initialize() {
+          let pagination = this;
+      
+          if (!pagination.page.state) {
+            pagination = this.page.set(1);
+          }
+      
+          if (!pagination.itemsPerPage.state) {
+            pagination = this.itemsPerPage.set(25);
+          }
+      
+          return pagination;
+        }
+      }
+
+      class Table {
+        pagination = Pagination;
+      }
+
       let root;
       beforeEach(() => {
-        root = create(Root, { first: { } });
+        root = create(Table);
       });
 
-      describe('transition', () => {
-        let changed;
-        beforeEach(() => {
-          changed = root.first.second.name.concat("!!!");
-        });
+      it('set the initial value', () => {
+        expect(root.pagination.page.state).toBe(1);
+        expect(root.pagination.itemsPerPage.state).toBe(25);
+      });
 
-        it("has result after transition valueOf", () => {
-          expect(changed.first.second.name.state).toEqual("default!!!");
-        });
+      it('maintains correct type at each location', () => {
+        expect(root).toBeInstanceOf(Table);
+        expect(root.pagination).toBeInstanceOf(Pagination);
+      });
+
+      it('returns correct root after transition', () => {
+        expect(root.pagination.page.set(5)).toBeInstanceOf(Table);
       });
     });
   });
