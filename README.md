@@ -9,7 +9,7 @@
 [**Microstates.js is built and maintained by Frontside. Contact us for expert JavaScript consulting and training.**](https://frontside.io/services/)
 
 <h1>
-  <img src="README/microstates-logo.svg" alt="Microstates Logo" width="200" /> Microstates
+  <img src="README/microstates-logo.svg" alt="Microstates Logo" width="200" /><br>Microstates
 </h1>
 
 Microstates makes working with pure functions over immutable data
