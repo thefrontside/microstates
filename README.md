@@ -8,6 +8,8 @@
 
 [**Microstates.js is built and maintained by Frontside. Contact us for expert JavaScript consulting and training.**](https://frontside.io/services/)
 
+![Microstates Logo](https://avatars0.githubusercontent.com/u/32446710?s=200&v=4)
+
 # Microstates
 
 Microstates makes working with pure functions over immutable data
