@@ -8,7 +8,7 @@
 
 [**Microstates.js is built and maintained by Frontside. Contact us for expert JavaScript consulting and training.**](https://frontside.io/services/)
 
-![Microstates Logo](https://avatars0.githubusercontent.com/u/32446710?s=200&v=4)
+![Microstates Logo](README/microstates-logo.svg)
 
 # Microstates
 
@@ -42,7 +42,6 @@ feel like working with the classic, mutable models we all know and love.
   - [Immutable Object vs Immutable Data Structure](#immutable-object-vs-immutable-data-structure)
 - [Framework Integrations](#framework-integrations)
 - [`microstates` npm package](#microstates-npm-package)
-- [or](#or)
   - [create(Type, value): Microstate](#createtype-value-microstate)
   - [from(any): Microstate](#fromany-microstate)
   - [map(microstate, fn): Microstate](#mapmicrostate-fn-microstate)
