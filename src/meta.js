@@ -62,7 +62,9 @@ export function mount(microstate, substate, key) {
   }, substate);
 }
 
-export const Profunctor = type(class Profunctor {
+export const Profunctor = type(class {
+  static name = 'Profunctor';
+
   promap(input, output, object) {
     if (metaOf(object) == null) {
       return object;
