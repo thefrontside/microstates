@@ -860,12 +860,12 @@ Microstates provides an easy way to convert a Microstate which represents a sing
 You should be able to use to any implementation of Observables that supports Observer.from using symbol-observable. We'll use RxJS for our example.
 
 ```js
-import { from } from 'rxjs';
+import { from as observableFrom } from 'rxjs';
 import { create } from 'microstates';
 
 let homer = create(Person, { firstName: 'Homer', lastName: 'Simpson' });
 
-let observable = from(homer);
+let observable = observableFrom(homer);
 
 let last;
 let subscription = observable.subscribe(next => {
