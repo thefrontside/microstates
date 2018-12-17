@@ -791,7 +791,19 @@ Microstates are immutable which makes it safe for us to memoize computations tha
 
 ## Debounce no-op transitions
 
-Identities automatically prevent unnecessary re-renders by debouncing transitions that do not change the value. This eliminates the need for `shouldComponentUpdate` hooks for pure components because it is safe to assume that a component that is re-rendering is re-rendering as a result of a transition that changed the value.
+Identities automatically prevent unnecessary re-renders by debouncing transitions that do not change the value. This eliminates the need for `shouldComponentUpdate` hooks for pure components because it is safe to assume that a component that is re-rendering is re-rendering as a result of a transition that changed the value. In other words, if the current state and the state being transitioned to are the same, then a "new state" that would be the same is not emitted.
+
+```js
+let id = Store(from({ name: 'Charles' }), next => {
+  console.count('changed');
+  id = next;
+});
+
+id.name.set('Charles');
+id.name.set('Charles');
+```
+
+The above transitions would be debounced because they do not change the value. The update callback would not be called, even though set operation is called twice.
 
 ## Identity Constructors
 
