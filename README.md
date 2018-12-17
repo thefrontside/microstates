@@ -779,7 +779,7 @@ let numbers = create([Number], [1, 2, 3, 4]);
 
 # Streaming State
 
-A microstate represents a single immutable value and provides transitions to derive the next value. Microstates provides a mechanism called Identity that allows to emit stream of Microstates. When you create an Identity from a Microstate, you get an object that has the same shape the original microstate. Every composed microstate becomes an identity and every transition gets wrapped in side effect emitting behaviour specific to the identity's constructor. Identity wrapped Microstate offer the following benefits over raw Microstates.
+A microstate represents a single immutable value with transitions to derive the next value. Microstates provides a mechanism called Identity that allows to emit stream of Microstates. When you create an Identity from a Microstate, you get an object that has the same shape the original microstate. Every composed microstate becomes an identity and every transition gets wrapped in side effect emitting behaviour specific to the identity's constructor. Identity wrapped Microstate offer the following benefits over raw Microstates.
 
 ## Structural Sharing
 
