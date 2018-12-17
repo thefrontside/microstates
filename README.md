@@ -779,11 +779,7 @@ let numbers = create([Number], [1, 2, 3, 4]);
 
 # Streaming State
 
-A microstate represents a single immutable value and provides transitions to derive the next value. Microstates may be considered pure function of type and value. In addition, Microstate transitions are pure, meaning they have no side-effects or, in other words, they do not affect anything outside of themselves. These are powerful constraints that provide us with guarantees that we can leverage to build efficient reactive systems.
-
-To bring a reactive system to life, we need to capture the latest state in a sequence of states. In component driven reactive engines like React, Vue, Ember & Angular the state needs to emerge at the root of the component tree. When a new state is emitted, we need to apply the state to the root component and allow the state to cascade down the component tree.
-
-Microstates has a mechanism to working with Microtates in reactive environments. It is called Identity. When you create an Identity from a Microstate, you get an object that has the same shape the original microstate. Every composed microstate becomes an identity and every transition gets wrapped in side effect emitting behaviour specific to that identity constructor. Let’s look at the features of the Identity and how they benefit reactive environments.
+A microstate represents a single immutable value and provides transitions to derive the next value. Microstates provides a mechanism called Identity that allows to emit stream of Microstates. When you create an Identity from a Microstate, you get an object that has the same shape the original microstate. Every composed microstate becomes an identity and every transition gets wrapped in side effect emitting behaviour specific to the identity's constructor. Identity wrapped Microstate offer the following benefits over raw Microstates.
 
 ## Structural Sharing
 
@@ -799,7 +795,7 @@ Identities automatically prevent unnecessary re-renders by debouncing transition
 
 ## Identity Constructors
 
-Microstates comes with two Identity constructors: _Store_ and _Observable_. Observable will create a stream of identities. Next identity will be sent to the observer when an transition on an identity is called.
+Microstates comes with two Identity constructors: _Store_ and _Observable_. Store will send next identity to a callback. Observable will create a stream of identities and send next identity through the stream.
 
 ### Store(microstate, callback)
 
