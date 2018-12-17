@@ -6,6 +6,16 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 
+## [0.12.4] - 2018-12-12
+
+### Fixed
+
+- Add explicit Profunctor class name to prevent the class name from being stripped by Uglifyjs https://github.com/microstates/microstates.js/pull/303
+
+### Fixed
+
+- Gather all transitions from the prototype chain https://github.com/microstates/microstates.js/pull/290
+
 ## [0.12.3] - 2018-12-12
 
 ### Fixed
