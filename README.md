@@ -771,22 +771,79 @@ let numbers = create([Number], [1, 2, 3, 4]);
 </ul>;
 ```
 
-# Observable Microstates
+# Streaming State
 
-By themselves microstates are purely functional. They have no builtin concept of identity,
-time or sequencing. However, it is precisely because of these properties that they can be
-used with almost any state management solution that does. In fact, Microstates comes bundled
-out of the box with the ability to convert any microstate into a stream of transitions using
-the the Observable API.
+A microstate represents a single immutable value and provides transitions to derive the next value. Microstates may be considered pure function of type and value. In addition, Microstate transitions are pure, meaning they have no side-effects or, in other words, they do not affect anything outside of themselves. These are powerful constraints that provide us with guarantees that we can leverage to build efficient reactive systems. 
 
-Microstates provides an easy way to convert a Microstate which represents a single value into
-a Observable stream of values. This is done by passing a Microstate to `Observable.from` function.
-This function will return a Observable object with a `subscribe` method. You can subscribe to the
-stream by passing an observer to the subscribe function. Once you subscribe, you will synchronously
-receive a microstate with middleware installed that will cause the result of transitions to be pushed
-through the stream.
+To bring a reactive system to life, we need to capture the latest state in a sequence of states. In component driven reactive engines like React, Vue, Ember & Angular the state needs to emerge at the root of the component tree. When a new state is emitted, we need to apply the state to the root component and allow the state to cascade down the component tree.
 
-You should be able to use to any implementation of Observables that supports `Observer.from` using [symbol-observable](https://github.com/benlesh/symbol-observable). We'll use `RxJS` for our example.
+Microstates has a mechanism to working with Microtates in reactive environments. It is called Identity. When you create an Identity from a Microstate, you get an object that has the same shape the original microstate. Every composed microstate becomes an identity and every transition gets wrapped in side effect emitting behaviour specific to that identity constructor. Let’s look at the features of the Identity and how they benefit reactive environments.
+
+## Structural Sharing
+
+A common performance optimization used by all reactive engines is to prevent re-renders for components who’s props have not changed. The most efficient way to determine if a value has not changed it to perform an exact equality check, for example: `prevValue === currentValue`. If the reference is the same, then consider the value unchanged. The Identity makes this possible with Microstates by internally managing how the Identity is constructed as a result of a transition. It will automatically determine which branches of microstates are unchanged and reuse previous identities for those branches. 
+
+## Memoized Getters
+
+Microstates are immutable which makes it safe for us to memoize computations that are derived off their state. Identies will automatically memoize getters and return previously computed value when the microstate backing the identity has not changed. When a transition is invoked on the identity, the part of the identity tree that are changed will be re-created effectively invalidating the cache for the changed parts of the identity. The getters will be recomputed for state that is changed.
+
+## Debounce no-op transitions
+
+Identities automatically prevent unnecessary re-renders by debouncing transitions that do not change the value. This eliminates the need for `shouldComponentUpdate` hooks for pure components because it is safe to assume that a component that is re-rendering is re-rendering as a result of a transition that changed the value.
+
+## Identity Constructors
+
+Microstates comes with two Identity constructors: *Store* and *Observable*. Observable will create a stream of identities. Next identity will be sent to the observer when an transition on an identity is called.
+
+### Store(microstate, callback)
+
+Store identity constructor takes two arguments: microstate and a callback. It returns an identity. When a transition is invoked on the identity, the callback will receive the next identity. 
+
+```js
+import { Store, from, valueOf } from 'microstates';
+
+let initial = create(Number, 42);
+
+let last;
+
+last = Store(initial, next => last = next);
+
+last.increment(); 
+//> undefined
+// callback will be invoked syncronously on transition
+
+// last here will reference the last 
+last.increment();
+//> undefined
+
+valueOf(last);
+//> 44
+```
+
+The same mechanism can be used with React or any other reactive environment. 
+
+```js
+import React from 'react';
+import { Store, create } from 'microstates';
+
+class Counter extends React.Component {
+  state = {
+    last: Store(create(Number, 42), next => this.setState({ last: next }))
+  }
+  render() {
+    let { last } = this.state;
+    return (
+      <button onClick={() => last.increment()}>Increment {last.state}</button>
+    )
+  }
+}
+```
+
+### Observable.from(microstate)
+
+Microstates provides an easy way to convert a Microstate which represents a single value into a Observable stream of values. This is done by passing a Microstate to Observable.from function. This function will return a Observable object with a subscribe method. You can subscribe to the stream by passing an observer to the subscribe function. Once you subscribe, you will synchronously receive a microstate with middleware installed that will cause the result of transitions to be pushed through the stream.
+
+You should be able to use to any implementation of Observables that supports Observer.from using symbol-observable. We'll use RxJS for our example.
 
 ```js
 import { from } from "rxjs";
@@ -807,8 +864,6 @@ last.firstName.set("Homer J");
 valueOf(last);
 //> { firstName: 'Homer J', lastName: 'Simpson' }
 ```
-
-This mechanism provides the starting point for integration between the Observables ecosystem and Microstates.
 
 # The Vision of Microstates
 
