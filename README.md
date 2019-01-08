@@ -645,7 +645,7 @@ Microstates does not do any special state resolution. You explicitly declare wha
 class LightMachine {
   color = String;
 
-  initialize({ color: 'green' } = {}) {
+  initialize({ color = 'green' } = {}) {
     return this.color.set(color);
   }
 
