@@ -34,6 +34,18 @@ describe("ArrayType", function() {
           expect(valueOf(again)).toEqual(["a", "b", "c", "d", "e"]);
         });
       });
+
+      describe('another microstate', function() {
+        let again;
+        beforeEach(function() {
+          again = pushed.push(create(String, "e"));
+        });
+
+        it('uses the value of the microstate, not the microstate itself', function() {
+          expect(valueOf(again)).toEqual(["a", "b", "c", "d", "e"]);
+        });
+      });
+
     });
 
     describe("pop", () => {
@@ -315,6 +327,19 @@ describe("ArrayType", function() {
             expect(second.content.state).toBe('Herro!!!');
           });
         });
+
+        describe('a microstate', () => {
+          beforeEach(()=> {
+            unshifted = dataset.records.unshift(create(null, { content: "Hello World!" }));
+          });
+
+
+          it('uses the value of the microstate and not the microstate itself.', function() {
+            let [ first ] = valueOf(unshifted.records);
+            expect(first).toEqual({ content: 'Hello World!'});
+          });
+        });
+
       });
 
       describe('filter', () => {
