@@ -9,7 +9,7 @@ describe('string without value', () => {
   });
 
   it('has state', () => {
-    expect(string.state).toBe('');
+    expect(string.state).toEqual('');
   });
 
   describe('concat', () => {

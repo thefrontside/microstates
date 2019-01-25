@@ -23,7 +23,7 @@ export default parameterized(T => class ObjectType {
   }
 
   initialize(value) {
-    return value == null ? {} : this;
+    return value.valueOf() == null ? {} : this;
   }
 
   assign(attrs) {
@@ -43,7 +43,7 @@ export default parameterized(T => class ObjectType {
   }
 
   filter(fn) {
-    return filter(({ key, value }) => valueOf(fn(create(T, value), key)), valueOf(this));
+    return filter(({ key, value }) => fn(create(T, value), key), valueOf(this));
   }
 
   [Symbol.iterator]() {

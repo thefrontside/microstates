@@ -4,12 +4,12 @@ export default class NumberType extends Primitive {
   static name = "Number";
 
   initialize(value) {
-    if (value == null) {
-      return 0;
-    } else if (isNaN(value)) {
-      return this;
+    if (value instanceof Number) {
+      return value;
+    } else if (value.valueOf() === undefined) {
+      return new Number(0);
     } else {
-      return Number(value);
+      return new Number(Number(value.valueOf()));
     }
   }
   increment(step = 1) {

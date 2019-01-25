@@ -7,7 +7,8 @@ import Any from './types/any';
 import CachedProperty from './cached-property';
 import Observable from './observable';
 
-export function create(InputType = Any, value) {
+export function create(InputType = Any, initial) {
+  let value = valueOf(initial);
   let { Type } = dsl.expand(InputType);
   let Microstate = MicrostateType(Type);
   let microstate = new Microstate(value);
@@ -58,9 +59,17 @@ const MicrostateType = stable(function MicrostateType(Type) {
         }
       }
     };
-  }, append({ set: { value: x => x } }, methodsOf(Type))));
+  }, append({ set: { value: setValue } }, methodsOf(Type))));
   return Microstate;
 });
+
+function setValue(value) {
+  if (valueOf(value).valueOf() === valueOf(this).valueOf()) {
+    return this;
+  } else {
+    return valueOf(value);
+  }
+}
 
 function expandProperty(property) {
   let meta = metaOf(property);

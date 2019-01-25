@@ -20,6 +20,14 @@ export class TodoMVC {
     return filter(this.todos, todo => !todo.completed.state);
   }
 
+  initialize(value) {
+    if (value.valueOf() == null) {
+      return {};
+    } else {
+      return this;
+    }
+  }
+
   completeAll() {
     return this.todos.map(todo => todo.completed.set(true));
   }

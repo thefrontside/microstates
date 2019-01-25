@@ -102,6 +102,6 @@ function equals(id, other) {
   if (other == null) {
     return false;
   } else {
-    return other.constructor.Type === id.constructor.Type && valueOf(id) === valueOf(other);
+    return other.constructor.Type === id.constructor.Type && valueOf(id).valueOf() === valueOf(other).valueOf();
   }
 }

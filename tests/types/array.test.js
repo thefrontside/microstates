@@ -422,8 +422,8 @@ describe("ArrayType", function() {
       let removed = array.remove(b);
       let [a2, c2] = removed;
       expect(removed.length).toBe(2);
-      expect(valueOf(a)).toBe(valueOf(a2));
-      expect(valueOf(c)).toBe(valueOf(c2));
+      expect(valueOf(a).valueOf()).toBe(valueOf(a2).valueOf());
+      expect(valueOf(c).valueOf()).toBe(valueOf(c2).valueOf());
     });
 
     it('returns same array when item is not found', () => {

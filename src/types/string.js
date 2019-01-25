@@ -4,7 +4,11 @@ export default class StringType extends Primitive {
   static name = "String";
 
   initialize(value) {
-    return String(value == null ? '' : value);
+    if (value instanceof String) {
+      return value;
+    } else {
+      return new String(value);
+    }
   }
 
   concat(value) {

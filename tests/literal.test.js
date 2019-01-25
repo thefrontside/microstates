@@ -21,7 +21,7 @@ describe('Literal Syntax', function() {
   });
 
   it('can create nulls', function() {
-    expect(valueOf(literal(null))).toEqual(null);
+    expect(valueOf(literal(null)).valueOf()).toEqual(null);
   });
 
   it('can create arrays', function() {

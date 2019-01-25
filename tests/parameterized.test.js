@@ -146,7 +146,7 @@ describe("Parameterized Microstates: ", () => {
       expect(m).toBeInstanceOf(TodoList);
       expect(m.items).toHaveLength(2);
       let value = valueOf(m);
-      expect(value.items[0].isCompleted).toBe(true);
+      expect(value.items[0].isCompleted).toEqual(true);
 
       let [ first, second ] = m.items;
       expect(first).toBeInstanceOf(Item);

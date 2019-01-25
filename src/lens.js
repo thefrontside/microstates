@@ -63,7 +63,7 @@ export function At(property, container = {}) {
   let get = context => context != null ? context[property] : undefined;
   let set = (part, whole) => {
     let context = whole == null ? (Array.isArray(container) ? [] : {}) : whole;
-    if (part === context[property]) {
+    if (primitiveOf(part) === primitiveOf(context[property])) {
       return context;
     } else if (Array.isArray(context)) {
       let clone = context.slice();
@@ -79,4 +79,9 @@ export function At(property, container = {}) {
 
 export function Path(path = []) {
   return path.reduce((lens, key) => compose(lens, At(key)), transparent);
+}
+
+
+function primitiveOf(object) {
+  return object == null ? object : object.valueOf();
 }

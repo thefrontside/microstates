@@ -179,27 +179,31 @@ describe('put and delete', () => {
 
 describe("map/filter/reduce", () => {
   class Todo {
-    id = create(String);
-    completed = create(Boolean, false);
+    id = String;
+    completed = Boolean;
   }
 
-  let todosById = create(
-    { Todo },
-    {
-      a: {
-        id: "a",
-        completed: false
-      },
-      b: {
-        id: "b",
-        completed: true
-      },
-      c: {
-        id: "c",
-        completed: false
+  let todosById;
+
+  beforeEach(()=> {
+    todosById = create(
+      { Todo },
+      {
+        a: {
+          id: "a",
+          completed: false
+        },
+        b: {
+          id: "b",
+          completed: true
+        },
+        c: {
+          id: "c",
+          completed: false
+        }
       }
-    }
-  );
+    );
+  });
 
   describe("map", () => {
     let mapped;

@@ -2,10 +2,10 @@ import { create } from './microstates';
 
 class Literal {
   initialize(value) {
+    value = value.valueOf();
     if (value == null) {
       return this;
     }
-    value = value.valueOf();
     switch (typeof value) {
       case "number":
         return create(Number, value);

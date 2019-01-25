@@ -27,7 +27,7 @@ describe('rxjs interop', function() {
   });
 
   it('incremented 3 times', function() {
-    expect(valueOf(last)).toBe(45);
+    expect(valueOf(last)).toEqual(45);
   });
 });
 
@@ -126,7 +126,7 @@ describe('initialized microstate', () => {
     isOpen = create(class BooleanType {});
 
     initialize(value) {
-      if (!value) {
+      if (!value.valueOf()) {
         return create(Modal, { isOpen: true });
       }
       return this;

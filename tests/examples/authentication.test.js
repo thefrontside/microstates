@@ -4,7 +4,7 @@ import { create } from '../../src/microstates';
 
 class AnonymousSession {
   initialize(session) {
-    if (session) {
+    if (session.valueOf()) {
       return this.authenticate(session);
     }
     return this;

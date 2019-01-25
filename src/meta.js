@@ -1,4 +1,5 @@
 import { type, append } from 'funcadelic';
+import objectOf from './object-of';
 import { At, compose, transparent, over, view } from './lens';
 
 export class Meta {
@@ -26,7 +27,7 @@ export function metaOf(object) {
 
 export function valueOf(object) {
   let meta = metaOf(object);
-  return meta != null ? meta.value : object;
+  return objectOf(meta != null ? meta.value : object);
 }
 
 export function pathOf(object) {

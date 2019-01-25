@@ -56,7 +56,7 @@ describe("number", () => {
 
   describe("with a NaN value", () => {
     it("has state", () => {
-      expect(str.state).toBe('hello');
+      expect(str.state).toBe(NaN);
     });
   });
 });

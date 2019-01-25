@@ -24,7 +24,7 @@ export default parameterized(T => class ArrayType {
   }
 
   initialize(value) {
-    if (value == null) {
+    if (value.valueOf() === undefined) {
       return [];
     } else if (Array.isArray(value)) {
       return value;
@@ -77,7 +77,7 @@ export default parameterized(T => class ArrayType {
   }
 
   remove(item) {
-    return this.filter(s => valueOf(s) !== valueOf(item));
+    return this.filter(s => valueOf(s).valueOf() !== valueOf(item).valueOf());
   }
 
   clear() {

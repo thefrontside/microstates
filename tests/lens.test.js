@@ -22,4 +22,9 @@ describe('At', function() {
     let object = set(lens, "world", undefined);
     expect(set(lens, "world", object)).toBe(object);
   });
+
+  it('uses primitive values to compare if two things are equal', ()=> {
+    let initial = [{ hello: 'world' }];
+    expect(set(lens, new String('world'), initial)).toBe(initial);
+  });
 });

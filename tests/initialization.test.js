@@ -77,7 +77,7 @@ describe('initialization', () => {
       name = String;
 
       initialize(props) {
-        if (!props) {
+        if (!props.valueOf()) {
           return create(Second, { name: "default" });
         }
         return this;
