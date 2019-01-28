@@ -34,7 +34,7 @@ export default parameterized(T => class ArrayType {
   }
 
   push(value) {
-    return [...valueOf(this), value];
+    return [...valueOf(this), valueOf(value)];
   }
 
   pop() {
@@ -47,7 +47,7 @@ export default parameterized(T => class ArrayType {
   }
 
   unshift(value) {
-    return [value, ...valueOf(this)];
+    return [valueOf(value), ...valueOf(this)];
   }
 
   slice(begin, end) {
