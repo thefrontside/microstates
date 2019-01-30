@@ -62,6 +62,18 @@ export function mount(microstate, substate, key) {
   }, substate);
 }
 
+export const ChildAt = type(class {
+  childAt(key, parent) {
+    if (parent[ChildAt.symbol]) {
+      return this(parent).childAt(key, parent);
+    } else {
+      return parent[key];
+    }
+  }
+});
+
+export const { childAt } = ChildAt.prototype;
+
 export const Profunctor = type(class {
   static name = 'Profunctor';
 

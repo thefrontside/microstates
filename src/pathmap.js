@@ -1,7 +1,7 @@
 import { methodsOf } from './reflection';
 import { create } from './microstates';
 import { compose, view, At, Path } from './lens';
-import { valueOf, Meta } from './meta';
+import { valueOf, Meta, childAt } from './meta';
 import { stable } from 'funcadelic';
 
 // TODO: explore compacting non-existent locations (from removed arrays and objects).
@@ -39,12 +39,8 @@ export default function Pathmap(Root, ref) {
         return create(Root, this.currentValue);
       } else {
         let [ key ] = this.path.slice(-1);
-        // polymorphism on how to mount here. Arrays will mount differently.
-        // Specifically, we have the key, but what we don't have is the type.
-        // so we want to say something like accessAt('key', this.parent.microstate)
-        // and it accesses the mounted version.
-        // below is the default version.
-        return this.parent.microstate[key];
+        let { microstate } = this.parent;
+        return childAt(key, microstate);
       }
     }
 

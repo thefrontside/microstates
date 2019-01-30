@@ -1,5 +1,5 @@
 import { foldl } from 'funcadelic';
-import { promap, valueOf, pathOf, Meta, mount } from './meta';
+import { promap, valueOf, pathOf, Meta, mount, childAt } from './meta';
 import { methodsOf } from './reflection';
 import { isArrayType } from './types/array';
 import { create } from './microstates';
@@ -67,12 +67,7 @@ export default function Identity(microstate, observe = x => x) {
       methods[name] = function(...args) {
         let path = P;
         let microstate = path.reduce((microstate, key) => {
-          if (isArrayType(microstate)) {
-            let value = valueOf(microstate)[key];
-            return mount(microstate, create(microstate.constructor.T, value), key);
-          } else {
-            return microstate[key];
-          }
+          return childAt(key, microstate);
         }, current);
         let next = microstate[name](...args);
 
