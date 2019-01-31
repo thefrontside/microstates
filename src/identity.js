@@ -1,8 +1,6 @@
 import { foldl } from 'funcadelic';
-import { promap, valueOf, pathOf, Meta, mount } from './meta';
+import { promap, valueOf, pathOf, Meta } from './meta';
 import { methodsOf } from './reflection';
-import { isArrayType } from './types/array';
-import { create } from './microstates';
 
 //function composition should probably not be part of lens :)
 import { At, view, Path, compose, set } from './lens';
@@ -65,22 +63,15 @@ export default function Identity(microstate, observe = x => x) {
 
     Object.assign(Id.prototype, foldl((methods, name) => {
       methods[name] = function(...args) {
-        let path = P;
-        let microstate = path.reduce((microstate, key) => {
-          if (isArrayType(microstate)) {
-            let value = valueOf(microstate)[key];
-            return mount(microstate, create(microstate.constructor.T, value), key);
-          } else {
-            return microstate[key];
-          }
-        }, current);
+        let microstate = view(Path(Id.path), current);
+
         let next = microstate[name](...args);
 
         if (next !== current) {
           tick(next);
           return this;
         } else {
-          return view(Path(path), pathmap);
+          return view(Path(Id.path), pathmap);
         }
       };
       return methods;

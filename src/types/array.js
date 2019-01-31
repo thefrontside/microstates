@@ -3,17 +3,10 @@ import { At, set } from '../lens';
 import { Profunctor, promap, mount, valueOf } from '../meta';
 import { create } from '../microstates';
 import parameterized from '../parameterized';
-
-
-const ARRAY_TYPE = Symbol('ArrayType');
-
-export function isArrayType(microstate) {
-  return microstate.constructor && microstate.constructor[ARRAY_TYPE];
-}
+import { Tree, childAt } from '../tree';
 
 export default parameterized(T => class ArrayType {
   static T = T;
-  static get [ARRAY_TYPE]()  { return true; }
 
   static get name() {
     return `Array<${T.name}>`;
@@ -94,13 +87,25 @@ export default parameterized(T => class ArrayType {
         let index = i++;
         return {
           get done() { return next.done; },
-          get value() { return mount(array, create(T, next.value), index); }
+          get value() { return childAt(index, array); }
         };
       }
     };
   }
 
   static initialize() {
+
+    Tree.instance(this, {
+      childAt(key, array) {
+        if (typeof key === 'number') {
+          let value = valueOf(array)[key];
+          return mount(array, create(T, value), key);
+        } else {
+          return array[key];
+        }
+      }
+    });
+
     Profunctor.instance(this, {
       promap(input, output, array) {
         let next = input(array);
