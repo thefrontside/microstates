@@ -1,5 +1,6 @@
 import { type, append } from 'funcadelic';
 import { At, compose, transparent, over, view } from './lens';
+import CachedProperty from './cached-property';
 
 export class Meta {
   static symbol = Symbol('Meta');
@@ -73,6 +74,20 @@ export const ChildAt = type(class {
 });
 
 export const { childAt } = ChildAt.prototype;
+
+export const Parent = type(class {
+  defineChildren(fn, parent) {
+    if (parent[Parent.symbol]) {
+      return this(parent).defineChildren(fn, parent);
+    } else {
+      for (let property of Object.keys(parent)) {
+        Object.defineProperty(parent, property, CachedProperty(property, () => fn(property, parent)));
+      }
+    }
+  }
+});
+
+export const { defineChildren } = Parent.prototype;
 
 export const Profunctor = type(class {
   static name = 'Profunctor';

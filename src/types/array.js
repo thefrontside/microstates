@@ -1,6 +1,6 @@
 import { append } from 'funcadelic';
 import { At, set } from '../lens';
-import { ChildAt, Profunctor, promap, mount, valueOf, childAt } from '../meta';
+import { Parent, ChildAt, Profunctor, promap, mount, valueOf, childAt } from '../meta';
 import { create } from '../microstates';
 import parameterized from '../parameterized';
 
@@ -101,6 +101,30 @@ export default parameterized(T => class ArrayType {
   }
 
   static initialize() {
+
+    Parent.instance(this, {
+      defineChildren(fn, array) {
+        let value = valueOf(array)
+        let generate = array[Symbol.iterator];
+        return Object.defineProperty(array, Symbol.iterator, {
+          enumerable: false,
+          value() {
+            let iterator = generate.call(array);
+            let i = 0;
+            return {
+              next() {
+                let next = iterator.next();
+                let index = i++;
+                return {
+                  get done() { return next.done; },
+                  get value() { return fn(index, array); }
+                };
+              }
+            };
+          }
+        });
+      }
+    });
 
     ChildAt.instance(this, {
       childAt(index, array) {

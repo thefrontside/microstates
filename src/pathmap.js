@@ -1,7 +1,7 @@
 import { methodsOf } from './reflection';
 import { create } from './microstates';
 import { compose, view, At, Path } from './lens';
-import { valueOf, Meta, childAt } from './meta';
+import { valueOf, Meta, childAt, defineChildren } from './meta';
 import { stable } from 'funcadelic';
 
 // TODO: explore compacting non-existent locations (from removed arrays and objects).
@@ -25,8 +25,16 @@ export default function Pathmap(Root, ref) {
       return view(this.lens, ref.get());
     }
 
+    // TODO: this is only to support a deprecated API
+    get root() {
+      if (this.parent == null) {
+        return this.delegate;
+      } else {
+        return this.parent.root;
+      }
+    }
+
     get delegate() {
-      // TODO: check to see if type has changed.
       if (!this.currentDelegate || (this.currentValue !== this.previousValue)) {
         return this.currentDelegate = this.createDelegate();
       } else {
@@ -60,15 +68,9 @@ export default function Pathmap(Root, ref) {
 
           constructor(value) {
             super(value);
-            for (let property of Object.keys(this)) {
-              Object.defineProperty(this, property, {
-                get() {
-                  return view(LocationLens, location.get({}, property));
-                }
-              });
-            }
+            console.log("value = ", value);
+            defineChildren(key => idOf(location.get({}, key)), this);
             Object.defineProperty(this, Meta.symbol, { enumerable: false, configurable: true, value: new Meta(this, valueOf(value))});
-            // TODO: map symbol iterator.
           }
         }
 
@@ -77,7 +79,9 @@ export default function Pathmap(Root, ref) {
             let microstate = location.microstate;
             let next = microstate[methodName](...args);
             ref.set(valueOf(next));
-            return location.delegate;
+            // TODO: this is what we actually want.
+            // return location.delegate;
+            return location.root;
           };
         }
 
