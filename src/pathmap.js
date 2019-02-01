@@ -4,13 +4,14 @@ import { compose, view, At, Path } from './lens';
 import { valueOf, Meta, childAt, defineChildren } from './meta';
 import { stable } from 'funcadelic';
 
+import Storage from './storage';
 // TODO: explore compacting non-existent locations (from removed arrays and objects).
 
 const SymbolLocation = Symbol('Location');
-const LocationLens = compose(At(SymbolLocation), At('delegate'));
+const LocationLens = compose(At(SymbolLocation), At('reference'));
 
-export function current(delegate) {
-  return delegate.constructor.location.delegate;
+export function current(reference) {
+  return reference.constructor.location.reference;
 }
 
 export function idOf(pathmap) {
@@ -18,8 +19,20 @@ export function idOf(pathmap) {
 }
 
 export default function Pathmap(Root, ref) {
+  let paths = new Storage();
 
   class Location {
+
+    static allocate(path, parent) {
+      let existing = paths.getPath(path.concat(SymbolLocation));
+      if (existing) {
+        return existing;
+      } else {
+        let location = new Location(path, parent);
+        paths.setPath(path, { [SymbolLocation]: location });
+        return location;
+      }
+    }
 
     get currentValue() {
       return view(this.lens, ref.get());
@@ -28,17 +41,17 @@ export default function Pathmap(Root, ref) {
     // TODO: this is only to support a deprecated API
     get root() {
       if (this.parent == null) {
-        return this.delegate;
+        return this.reference;
       } else {
         return this.parent.root;
       }
     }
 
-    get delegate() {
-      if (!this.currentDelegate || (this.currentValue !== this.previousValue)) {
-        return this.currentDelegate = this.createDelegate();
+    get reference() {
+      if (!this.currentReference || (this.currentValue !== this.previousValue)) {
+        return this.currentReference = this.createReference();
       } else {
-        return this.currentDelegate;
+        return this.currentReference;
       }
     }
 
@@ -57,60 +70,44 @@ export default function Pathmap(Root, ref) {
       this.parent = parent;
       this.lens = Path(path);
       this.previousValue = this.currentValue;
-      this.children = {};
-      this.createDelegateType = stable(Type => {
+      this.createReferenceType = stable(Type => {
         let location = this;
         let typeName = Type.name ? Type.name: 'Unknown';
 
-        class Delegate extends Type {
-          static name = `Id<${typeName}>`;
+        class Reference extends Type {
+          static name = `Ref<${typeName}>`;
           static location = location;
 
           constructor(value) {
             super(value);
-            console.log("value = ", value);
-            defineChildren(key => idOf(location.get({}, key)), this);
+            defineChildren(key => Location.allocate(path.concat(key), location).reference, this);
             Object.defineProperty(this, Meta.symbol, { enumerable: false, configurable: true, value: new Meta(this, valueOf(value))});
           }
         }
 
         for (let methodName of Object.keys(methodsOf(Type)).concat("set")) {
-          Delegate.prototype[methodName] = (...args) => {
+          Reference.prototype[methodName] = (...args) => {
             let microstate = location.microstate;
             let next = microstate[methodName](...args);
             ref.set(valueOf(next));
             // TODO: this is what we actually want.
-            // return location.delegate;
+            // return location.reference;
             return location.root;
           };
         }
 
-        return Delegate;
+        return Reference;
       });
     }
 
-    createDelegate() {
+    createReference() {
       this.previousValue = this.currentValue;
       // TODO: polymorphically fetch typeOf()
       let { Type } = this.microstate.constructor;
-      let Delegate = this.createDelegateType(Type);
-      return new Delegate(this.currentValue);
+      let Reference = this.createReferenceType(Type);
+      return new Reference(this.currentValue);
     }
-
-    get(target, prop) {
-      if (prop === SymbolLocation) {
-        return this;
-      } else {
-        let { children, path } = this;
-        let child = children[prop];
-        if (child) {
-          return child;
-        }
-        return children[prop] = new Proxy({}, new Location(path.concat(prop), this));
-      }
-    }
-
   }
-
-  return new Proxy({}, new Location([], null));
+  Location.allocate([], null);
+  return paths.get();
 }

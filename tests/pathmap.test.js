@@ -76,11 +76,11 @@ describe('pathmap', ()=> {
     it('creates a proxy object for all of its children', ()=> {
       let [ one, two, three ] = id;
       expect(one).toBeInstanceOf(NumberType);
-      expect(one.constructor.name).toBe('Id<Number>');
+      expect(one.constructor.name).toBe('Ref<Number>');
       expect(two).toBeInstanceOf(NumberType);
-      expect(two.constructor.name).toBe('Id<Number>');
+      expect(two.constructor.name).toBe('Ref<Number>');
       expect(three).toBeInstanceOf(NumberType);
-      expect(three.constructor.name).toBe('Id<Number>');
+      expect(three.constructor.name).toBe('Ref<Number>');
     });
 
     describe('transitioning one of the contents', ()=> {

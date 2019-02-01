@@ -104,7 +104,6 @@ export default parameterized(T => class ArrayType {
 
     Parent.instance(this, {
       defineChildren(fn, array) {
-        let value = valueOf(array)
         let generate = array[Symbol.iterator];
         return Object.defineProperty(array, Symbol.iterator, {
           enumerable: false,
