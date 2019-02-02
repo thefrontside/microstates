@@ -2,7 +2,7 @@
 
 import expect from 'expect';
 
-import Pathmap, { idOf, current } from '../src/pathmap';
+import Pathmap from '../src/pathmap';
 import { valueOf, BooleanType, ArrayType, NumberType } from '../index';
 
 describe('pathmap', ()=> {
@@ -14,6 +14,7 @@ describe('pathmap', ()=> {
   let hall;
   let closet;
 
+  let current;
   beforeEach(()=> {
     ref = Ref({});
     LightSwitch = class LightSwitch {
@@ -21,9 +22,11 @@ describe('pathmap', ()=> {
       closet = Boolean;
     };
     pathmap = Pathmap(LightSwitch, ref);
-    id = idOf(pathmap);
+    id = pathmap.get();
     hall = id.hall;
     closet = id.closet;
+
+    current = pathmap.get;
   });
 
   it('exists', () => {
@@ -49,10 +52,10 @@ describe('pathmap', ()=> {
       });
     });
     it('changes the object representing the reference to the toggled switch', ()=> {
-      expect(current(id).hall).not.toBe(hall);
+      expect(pathmap.get(id).hall).not.toBe(hall);
     });
     it('changes the root reference if you fetch it again from the pathmap', ()=> {
-      expect(idOf(pathmap)).not.toBe(id);
+      expect(pathmap.get()).not.toBe(id);
     });
     it('leaves the object representing the un-touched switch to be the same', ()=> {
       expect(id.closet).toBe(closet);
@@ -60,7 +63,7 @@ describe('pathmap', ()=> {
 
     it('can fetch the current value based off of the old one.', ()=> {
       expect(current(hall)).toBe(current(id).hall);
-      expect(current(id)).toBe(idOf(pathmap));
+      expect(current(id)).toBe(pathmap.get());
     });
 
     it('keeps all the methods stable at each location.', ()=> {
@@ -71,7 +74,7 @@ describe('pathmap', ()=> {
   describe('working with arrays', ()=> {
     beforeEach(()=> {
       pathmap = Pathmap(ArrayType.of(Number), Ref([1, 2, 3]));
-      id = idOf(pathmap);
+      id = pathmap.get();
     });
     it('creates a proxy object for all of its children', ()=> {
       let [ one, two, three ] = id;

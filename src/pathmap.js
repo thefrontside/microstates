@@ -1,35 +1,26 @@
 import { methodsOf } from './reflection';
 import { create } from './microstates';
-import { compose, view, At, Path } from './lens';
+import { view, Path } from './lens';
 import { valueOf, Meta, childAt, defineChildren } from './meta';
 import { stable } from 'funcadelic';
 
 import Storage from './storage';
 // TODO: explore compacting non-existent locations (from removed arrays and objects).
 
-const SymbolLocation = Symbol('Location');
-const LocationLens = compose(At(SymbolLocation), At('reference'));
-
-export function current(reference) {
-  return reference.constructor.location.reference;
-}
-
-export function idOf(pathmap) {
-  return view(LocationLens, pathmap);
-}
-
 export default function Pathmap(Root, ref) {
   let paths = new Storage();
 
   class Location {
 
+    static symbol = Symbol('Location');
+
     static allocate(path, parent) {
-      let existing = paths.getPath(path.concat(SymbolLocation));
+      let existing = paths.getPath(path.concat(Location.symbol));
       if (existing) {
         return existing;
       } else {
         let location = new Location(path, parent);
-        paths.setPath(path, { [SymbolLocation]: location });
+        paths.setPath(path, { [Location.symbol]: location });
         return location;
       }
     }
@@ -108,6 +99,12 @@ export default function Pathmap(Root, ref) {
       return new Reference(this.currentValue);
     }
   }
+
   Location.allocate([], null);
-  return paths.get();
+
+  return {
+    get(reference = paths.getPath([Location.symbol, 'reference'])) {
+      return reference.constructor.location.reference;
+    }
+  };
 }
