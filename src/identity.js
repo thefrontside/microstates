@@ -1,6 +1,5 @@
 import { foldl } from 'funcadelic';
 import { promap, valueOf, pathOf, Meta, mount } from './meta';
-import CachedProperty from './cached-property';
 import { methodsOf } from './reflection';
 import { isArrayType } from './types/array';
 import { create } from './microstates';
@@ -62,8 +61,6 @@ export default function Identity(microstate, observe = x => x) {
       }
     }
 
-    let descriptors = Object.getOwnPropertyDescriptors(Type.prototype);
-
     let methods = Object.keys(methodsOf(Type)).concat(["set"]);
 
     Object.assign(Id.prototype, foldl((methods, name) => {
@@ -83,14 +80,6 @@ export default function Identity(microstate, observe = x => x) {
       };
       return methods;
     }, {}, methods));
-
-    Object.keys(descriptors).forEach(propertyName => {
-      let desc = descriptors[propertyName];
-      if (typeof propertyName === 'string' && typeof desc.get === 'function') {
-        let property = new CachedProperty(propertyName, self => desc.get.call(self));
-        Object.defineProperty(Id.prototype, propertyName, property);
-      }
-    });
 
     return Id;
   }
