@@ -29,15 +29,6 @@ export default function Pathmap(Root, ref) {
       return view(this.lens, ref.get());
     }
 
-    // TODO: this is only to support a deprecated API
-    get root() {
-      if (this.parent == null) {
-        return this.reference;
-      } else {
-        return this.parent.root;
-      }
-    }
-
     get reference() {
       if (!this.currentReference || (this.currentValue !== this.previousValue)) {
         return this.currentReference = this.createReference();
@@ -83,7 +74,7 @@ export default function Pathmap(Root, ref) {
             ref.set(valueOf(next));
             // TODO: this is what we actually want.
             // return location.reference;
-            return location.root;
+            return location.reference;
           };
         }
 
