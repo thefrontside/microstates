@@ -76,7 +76,12 @@ export default function Identity(microstate, observe = x => x) {
         }, current);
         let next = microstate[name](...args);
 
-        return next === current ? identity : tick(next);
+        if (next !== current) {
+          tick(next);
+          return this;
+        } else {
+          return view(Path(path), pathmap);
+        }
       };
       return methods;
     }, {}, methods));
