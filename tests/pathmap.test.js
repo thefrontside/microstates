@@ -37,7 +37,7 @@ describe('pathmap', ()=> {
     expect(valueOf(id)).toBe(ref.get());
   });
 
-  it('has children corresponding to the shit to the substates', ()=> {
+  it('has children corresponding to the substates', ()=> {
     expect(id.hall).toBeInstanceOf(BooleanType);
     expect(id.closet).toBeInstanceOf(BooleanType);
   });
