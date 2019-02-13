@@ -62,8 +62,8 @@ export default function Pathmap(Root, ref) {
 
           constructor(value) {
             super(value);
-            defineChildren(key => Location.allocate(path.concat(key), location).reference, this);
             Object.defineProperty(this, Meta.symbol, { enumerable: false, configurable: true, value: new Meta(this, valueOf(value))});
+            defineChildren(key => Location.allocate(path.concat(key), location).reference, this);
           }
         }
 
@@ -72,8 +72,6 @@ export default function Pathmap(Root, ref) {
             let microstate = location.microstate;
             let next = microstate[methodName](...args);
             ref.set(valueOf(next));
-            // TODO: this is what we actually want.
-            // return location.reference;
             return location.reference;
           };
         }
@@ -87,7 +85,10 @@ export default function Pathmap(Root, ref) {
       // TODO: polymorphically fetch typeOf()
       let { Type } = this.microstate.constructor;
       let Reference = this.createReferenceType(Type);
+      let { path } = this;
+
       return new Reference(this.currentValue);
+      return treemap(key => Location.allocate(path.concat(key), this).reference, new Reference(this.currentValue));
     }
   }
 

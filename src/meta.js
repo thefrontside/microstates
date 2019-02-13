@@ -41,26 +41,23 @@ export function sourceOf(object) {
 export function mount(microstate, substate, key) {
   let parent = view(Meta.data, microstate);
   let prefix = compose(parent.lens, At(key, parent.value));
-
-  return promap(x => x, object => {
-    return over(Meta.data, meta => ({
-      get root() {
-        return parent.root;
-      },
-      get lens() {
-        return compose(prefix, meta.lens);
-      },
-      get path() {
-        return parent.path.concat([key]).concat(meta.path);
-      },
-      get value() {
-        return meta.value;
-      },
-      get source() {
-        return meta.source;
-      }
-    }), object);
-  }, substate);
+  return over(Meta.data, meta => ({
+    get root() {
+      return parent.root;
+    },
+    get lens() {
+      return compose(prefix, meta.lens);
+    },
+    get path() {
+      return parent.path.concat([key]).concat(meta.path);
+    },
+    get value() {
+      return meta.value;
+    },
+    get source() {
+      return meta.source;
+    }
+  }), substate);
 }
 
 export const ChildAt = type(class {
@@ -85,38 +82,10 @@ export const Parent = type(class {
       }
     }
   }
+
+  // treemap(fn, parent) {
+
+  // }
 });
 
 export const { defineChildren } = Parent.prototype;
-
-export const Profunctor = type(class {
-  static name = 'Profunctor';
-
-  promap(input, output, object) {
-    if (metaOf(object) == null) {
-      return object;
-    } else {
-      return this(object).promap(input, output, object);
-    }
-  }
-});
-
-export const { promap } = Profunctor.prototype;
-
-Profunctor.instance(Object, {
-  promap(input, output, object) {
-    let next = input(object);
-    let keys = Object.keys(object);
-    if (next === object || keys.length === 0) {
-      return output(next);
-    } else {
-      return output(append(next, keys.reduce((properties, key) => {
-        return append(properties, {
-          get [key]() {
-            return promap(input, output, object[key]);
-          }
-        });
-      }, {})));
-    }
-  }
-});

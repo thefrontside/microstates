@@ -1,6 +1,6 @@
 import { append } from 'funcadelic';
 import { At, set } from '../lens';
-import { Parent, ChildAt, Profunctor, promap, mount, valueOf, childAt } from '../meta';
+import { Parent, ChildAt, mount, valueOf, childAt } from '../meta';
 import { create } from '../microstates';
 import parameterized from '../parameterized';
 
@@ -129,32 +129,6 @@ export default parameterized(T => class ArrayType {
       childAt(index, array) {
         let value = valueOf(array)[index];
         return mount(array, create(T, value), index);
-      }
-    });
-
-    Profunctor.instance(this, {
-      promap(input, output, array) {
-        let next = input(array);
-        let value = valueOf(array);
-        let length = value.length;
-        if (length === 0) {
-          return output(next);
-        } else {
-          return output(append(next, {
-            [Symbol.iterator]() {
-              let iterator = array[Symbol.iterator]();
-              return {
-                next() {
-                  let next = iterator.next();
-                  return {
-                    get done() { return next.done; },
-                    get value() { return promap(input, output, next.value); }
-                  };
-                }
-              };
-            }
-          }));
-        }
       }
     });
   }
