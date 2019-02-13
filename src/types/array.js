@@ -116,7 +116,7 @@ export default parameterized(T => class ArrayType {
                 let index = i++;
                 return {
                   get done() { return next.done; },
-                  get value() { return fn(index, array); }
+                  get value() { return fn(index, next.value, array); }
                 };
               }
             };

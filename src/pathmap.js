@@ -47,6 +47,10 @@ export default function Pathmap(Root, ref) {
       }
     }
 
+    get(reference = paths.getPath([Location.symbol, 'reference'])) {
+      return reference.constructor.location.reference;
+    }
+
     constructor(path = [], parent = null) {
       this.path = path;
       this.parent = parent;
@@ -82,21 +86,13 @@ export default function Pathmap(Root, ref) {
 
     createReference() {
       this.previousValue = this.currentValue;
-      // TODO: polymorphically fetch typeOf()
       let { Type } = this.microstate.constructor;
       let Reference = this.createReferenceType(Type);
       let { path } = this;
 
       return new Reference(this.currentValue);
-      return treemap(key => Location.allocate(path.concat(key), this).reference, new Reference(this.currentValue));
     }
   }
 
-  Location.allocate([], null);
-
-  return {
-    get(reference = paths.getPath([Location.symbol, 'reference'])) {
-      return reference.constructor.location.reference;
-    }
-  };
+  return Location.allocate([], null);
 }

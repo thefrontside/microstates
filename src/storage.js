@@ -1,4 +1,4 @@
-import { over, view, set, Path } from './lens';
+import { view, set, Path } from './lens';
 
 export default class Storage {
   constructor(value, observe = x => x) {
@@ -24,9 +24,5 @@ export default class Storage {
 
   setPath(path, value) {
     return this.set(set(Path(path), value, this.value));
-  }
-
-  overPath(path, fn) {
-    return this.set(over(Path(path), fn, this.value));
   }
 }

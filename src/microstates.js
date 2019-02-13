@@ -33,8 +33,7 @@ const MicrostateType = stable(function MicrostateType(Type) {
           let value = valueOf(self);
           let expanded = expandProperty(slot);
           let substate = value != null && value[key] != null ? expanded.set(value[key]) : expanded;
-          let mounted = mount(self, substate, key);
-          return mounted;
+          return mount(self, substate, key);
         });
       }, this));
 
