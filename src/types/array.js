@@ -103,6 +103,27 @@ export default parameterized(T => class ArrayType {
         } else {
           return array[key];
         }
+      },
+
+      defineChildren(fn, array) {
+        let generate = array[Symbol.iterator];
+        return Object.defineProperty(array, Symbol.iterator, {
+          enumerable: false,
+          value() {
+            let iterator = generate.call(array);
+            let i = 0;
+            return {
+              next() {
+                let next = iterator.next();
+                let index = i++;
+                return {
+                  get done() { return next.done; },
+                  get value() { return fn(index, next.value, array); }
+                };
+              }
+            };
+          }
+        });
       }
     });
 

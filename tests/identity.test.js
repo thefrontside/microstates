@@ -137,13 +137,13 @@ describe('Identity', () => {
       });
 
       describe('the effect of transitions on query identities', () => {
+        let first, second;
         beforeEach(function() {
-          let [ first ] = id.completed;
+          [ first, second ] = id.completed;
           first.title.set('Take out the milk');
         });
 
         it('updates those queries which contain changed objects, but not ids *within* the query that remained the same', () => {
-          let [first, second] = id.completed;
           let [$first, $second] = latest.completed;
           expect(latest.completed).not.toBe(id.completed);
           expect($first).not.toBe(first);
