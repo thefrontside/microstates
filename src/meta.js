@@ -41,25 +41,23 @@ export function mount(microstate, substate, key) {
   let parent = view(Meta.data, microstate);
   let prefix = compose(parent.lens, At(key, parent.value));
 
-  return promap(x => x, object => {
-    return over(Meta.data, meta => ({
-      get root() {
-        return parent.root;
-      },
-      get lens() {
-        return compose(prefix, meta.lens);
-      },
-      get path() {
-        return parent.path.concat([key]).concat(meta.path);
-      },
-      get value() {
-        return meta.value;
-      },
-      get source() {
-        return meta.source;
-      }
-    }), object);
-  }, substate);
+  return over(Meta.data, meta => ({
+    get root() {
+      return parent.root;
+    },
+    get lens() {
+      return compose(prefix, meta.lens);
+    },
+    get path() {
+      return parent.path.concat([key]).concat(meta.path);
+    },
+    get value() {
+      return meta.value;
+    },
+    get source() {
+      return meta.source;
+    }
+  }), substate);
 }
 
 export const Profunctor = type(class {
