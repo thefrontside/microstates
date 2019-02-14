@@ -42,7 +42,7 @@ export default function Pathmap(Root, ref) {
       return view(this.lens, create(Root, ref.get()));
     }
 
-    constructor(path = []) {
+    constructor(path) {
       this.path = path;
       this.lens = Path(path);
       this.createReferenceType = stable(Type => {
