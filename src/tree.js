@@ -3,6 +3,8 @@ import { type } from 'funcadelic';
 import CachedProperty from './cached-property';
 
 export const Tree = type(class {
+  static name = 'Tree';
+
   childAt(key, parent) {
     if (parent[Tree.symbol]) {
       return this(parent).childAt(key, parent);
