@@ -6,6 +6,18 @@ import { create } from '../../src/microstates';
 import { valueOf } from '../../src/meta';
 
 describe("ArrayType", function() {
+
+  describe("created with a scalar value", () => {
+    let ms;
+    beforeEach(()=> {
+      ms = create(ArrayType.of(Number), 1);
+    });
+
+    it('wraps the scalar value in an array', ()=> {
+      expect(valueOf(ms)).toEqual([1]);
+    });
+  });
+
   describe("when unparameterized", function() {
     let ms;
     let array = ["a", "b", "c"];
