@@ -6,19 +6,40 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 
+## [0.13.0] - 2019-02-14
+
+### Changed
+
+- BREAKING: Transitions initiated from a microstate reference in the
+  store, now return the new reference to the *same
+  microstate*. Before, they always returned the root of the microstate
+  tree, which made modelling side-effects difficult on deep microstate trees.
+- Upgraded Rollup and associated plugins to latest version (via
+  greenkeeper) #306, #307, #309, #310
+- Fix up typos in README #308 (thanks @leonardodino)
+- Improved code coverage in unit tests#320
+- Remove several pieces of dead code that weren't serving any purpose
+  #314, #318
+
+### Fixed
+
+- Passing a microstate to `Array#push` and `Array#unshift` allowed
+  that microstate to become part of `valueOf`. Now, array unwraps all
+  arguments before performing any operations.
+
 ## [0.12.4] - 2018-12-12
 
 ### Fixed
 
 - Add explicit Profunctor class name to prevent the class name from being stripped by Uglifyjs https://github.com/microstates/microstates.js/pull/303
 
-### Fixed
+### Changed
 
 - Gather all transitions from the prototype chain https://github.com/microstates/microstates.js/pull/290
 
 ## [0.12.3] - 2018-12-12
 
-### Fixed
+### Changed
 
 - Gather all transitions from the prototype chain https://github.com/microstates/microstates.js/pull/290
 
