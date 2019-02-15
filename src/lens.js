@@ -1,5 +1,7 @@
 import { Functor, map, Semigroup } from 'funcadelic';
 
+import { childAt } from './tree';
+
 class Box {
   static get of() {
     return (...args) => new this(...args);
@@ -22,8 +24,7 @@ class Const extends Box {}
 
 Functor.instance(Id, {
   map(fn, id) {
-    let next = fn(id.value);
-    return next === id.value ? id : Id.of(next);
+    return Id.of(fn(id.value));
   }
 });
 
@@ -59,8 +60,8 @@ export function Lens(get, set) {
 
 export const transparent = Lens(x => x, y => y);
 
-export function At(property, container = {}) {
-  let get = context => context != null ? context[property] : undefined;
+export function At(property, container) {
+  let get = context => context != null ? childAt(property, context) : undefined;
   let set = (part, whole) => {
     let context = whole == null ? (Array.isArray(container) ? [] : {}) : whole;
     if (part === context[property]) {
@@ -77,6 +78,6 @@ export function At(property, container = {}) {
   return Lens(get, set);
 }
 
-export function Path(path = []) {
+export function Path(path) {
   return path.reduce((lens, key) => compose(lens, At(key)), transparent);
 }
