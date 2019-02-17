@@ -435,6 +435,16 @@ describe("ArrayType", function() {
       expect(substates).toHaveLength(3);
     });
 
+    it('has undefined as the value of a done iteration', function() {
+      let iterator = array[Symbol.iterator]();
+      iterator.next();
+      iterator.next();
+      iterator.next();
+      let last = iterator.next();
+      expect(last.done).toBe(true);
+      expect(last.value).toBe(undefined);
+    });
+
     describe('transitinging one of the substates', function() {
       let transitioned;
       beforeEach(() => {
