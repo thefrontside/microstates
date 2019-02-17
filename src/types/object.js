@@ -54,7 +54,7 @@ export default parameterized(T => class ObjectType {
         let next = iterator.next();
         return {
           get done() { return next.done; },
-          get value() { return new Entry(next.value, object[next.value]); }
+          get value() { return !next.done ? new Entry(next.value, object[next.value]) : undefined; }
         };
       }
     };
