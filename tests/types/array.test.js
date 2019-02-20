@@ -4,6 +4,7 @@ import expect from 'expect';
 import ArrayType from '../../src/types/array';
 import { create } from '../../src/microstates';
 import { valueOf } from '../../src/meta';
+import { Store } from '../../index';
 
 describe("ArrayType", function() {
 
@@ -435,6 +436,16 @@ describe("ArrayType", function() {
       expect(substates).toHaveLength(3);
     });
 
+    it('has undefined as the value of a done iteration', function() {
+      let iterator = array[Symbol.iterator]();
+      iterator.next();
+      iterator.next();
+      iterator.next();
+      let last = iterator.next();
+      expect(last.done).toBe(true);
+      expect(last.value).toBe(undefined);
+    });
+
     describe('transitinging one of the substates', function() {
       let transitioned;
       beforeEach(() => {
@@ -467,4 +478,15 @@ describe("ArrayType", function() {
       expect(array.remove(null)).toBe(array);
     });
   });
+
+  describe('within a Store', ()=> {
+    it('return undefined at the end of an iteration', ()=> {
+      let array = Store(create([Number], [1,2]));
+      let iterator = array[Symbol.iterator]();
+      iterator.next();
+      iterator.next();
+      expect(iterator.next().value).toBe(undefined);
+    });
+  });
+
 });

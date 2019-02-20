@@ -86,7 +86,13 @@ export default parameterized(T => class ArrayType {
         let index = i++;
         return {
           get done() { return next.done; },
-          get value() { return childAt(index, array); }
+          get value() {
+            if (!next.done) {
+              return childAt(index, array);
+            } else {
+              return undefined;
+            }
+          }
         };
       }
     };
@@ -117,7 +123,13 @@ export default parameterized(T => class ArrayType {
                 let index = i++;
                 return {
                   get done() { return next.done; },
-                  get value() { return fn(index, next.value, array); }
+                  get value() {
+                    if (!next.done) {
+                      return fn(index, next.value, array);
+                    } else {
+                      return undefined;
+                    }
+                  }
                 };
               }
             };

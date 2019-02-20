@@ -265,5 +265,15 @@ describe("map/filter/reduce", () => {
       expect(valueOf(calls[1])).toMatchObject({key: 'b', value: 'B'});
       expect(valueOf(calls[2])).toMatchObject({key: 'c', value: 'C'});
     });
+
+    it('is undefined at the end of iteration', function() {
+      let iterator = obj[Symbol.iterator]();
+      iterator.next();
+      iterator.next();
+      iterator.next();
+      let last = iterator.next();
+      expect(last.done).toBe(true);
+      expect(last.value).toBe(undefined);
+    });
   });
 });
