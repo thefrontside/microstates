@@ -11,11 +11,9 @@ describe("number", () => {
   });
 
   it("has transitions", () => {
-    expect(zero).toMatchObject({
-      set: expect.any(Function),
-      increment: expect.any(Function),
-      decrement: expect.any(Function)
-    });
+    expect(typeof zero.set).toBe("function");
+    expect(typeof zero.increment).toBe("function");
+    expect(typeof zero.decrement).toBe("function");
   });
 
   describe("without value", () => {
