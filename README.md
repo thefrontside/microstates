@@ -63,6 +63,16 @@ feel like working with the classic, mutable models we all know and love.
 <!-- tocstop -->
 </details>
 
+<details>
+  <summary>Videos</summary>
+
+  - [Building a shopping cart with Microstates.js](https://www.youtube.com/watch?v=g0-nf7m1Muo&t=1s) - The Frontside YouTube - Taras Mankovski & Alex Regan
+  - [State of Enjoyment](https://www.youtube.com/watch?v=zWEg4-bGot0) at Framework Summit 2018 - Charles Lowell
+  - [Microstates: The Ember component of state management](https://www.youtube.com/watch?v=kt5aRmhaE2M&t=7s) at EmberATX 
+  - [Composable State Primitives for JavaScript with Charles Lowell & Taras Mankovski](https://www.youtube.com/watch?v=4dmcZrUdKx4) - Devchat.tv
+  -  [Composable State Management with Microstates.js](https://www.youtube.com/watch?v=g0-nf7m1Muo&t=1s) at Toronto.js - Taras Mankovski
+</details>
+
 # Features
 
 With Microstates added to your project, you get:
