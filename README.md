@@ -3,7 +3,7 @@
 [![Build Status](https://travis-ci.org/microstates/microstates.js.svg?branch=master)](https://travis-ci.org/microstates/microstates.js)
 [![Coverage Status](https://coveralls.io/repos/github/microstates/microstates.js/badge.svg?branch=master)](https://coveralls.io/github/microstates/microstates.js?branch=master)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![Gitter](https://badges.gitter.im/microstates/microstates.js.svg)](https://gitter.im/microstates/microstates.js?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge)
+[![Chat on Discord](https://img.shields.io/discord/556202291586269214.svg)](http://bit.ly/microstates-discord)
 [![Created by The Frontside](https://img.shields.io/badge/created%20by-frontside.io-blue.svg)](https://frontside.io) [![Greenkeeper badge](https://badges.greenkeeper.io/microstates/microstates.js.svg)](https://greenkeeper.io/)
 
 [**Microstates.js is built and maintained by Frontside. Contact us for expert JavaScript consulting and training.**](https://frontside.io/services/)
@@ -64,13 +64,20 @@ feel like working with the classic, mutable models we all know and love.
 </details>
 
 <details>
-  <summary><strong>🎬 Videos</strong></summary>
+  <summary>🎬 <strong>Videos</strong></summary>
 
   - [Building a shopping cart with Microstates.js](https://www.youtube.com/watch?v=N9iu8h0CzNY) - The Frontside YouTube - Taras Mankovski & Alex Regan
   - [State of Enjoyment](https://www.youtube.com/watch?v=zWEg4-bGot0) at Framework Summit 2018 - Charles Lowell
   - [Microstates: The Ember component of state management](https://www.youtube.com/watch?v=kt5aRmhaE2M&t=7s) at EmberATX 
   - [Composable State Primitives for JavaScript with Charles Lowell & Taras Mankovski](https://www.youtube.com/watch?v=4dmcZrUdKx4) - Devchat.tv
   -  [Composable State Management with Microstates.js](https://www.youtube.com/watch?v=g0-nf7m1Muo&t=1s) at Toronto.js - Taras Mankovski
+</details>
+
+<details>
+  <summary>💬 <strong>Chat</strong></summary>
+
+  [Join our community on Discord](http://bit.ly/microstates-discord). Everyone is welcome. We even have a beginner channel.
+
 </details>
 
 # Features
