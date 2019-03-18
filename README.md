@@ -76,7 +76,7 @@ feel like working with the classic, mutable models we all know and love.
 <details>
   <summary>💬 <strong>Chat</strong></summary>
 
-  [Join our community on Discord](http://bit.ly/microstates-discord). Everyone is welcome. We even have a beginner channel.
+  [Join our community on Discord](http://bit.ly/microstates-discord). Everyone is welcome. If you're a new to programming join our #beginner channel where extra care is taken to support those who're just getting started. 
 
 </details>
 
