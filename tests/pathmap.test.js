@@ -3,7 +3,7 @@
 import expect from 'expect';
 
 import Pathmap from '../src/pathmap';
-import { valueOf, BooleanType, ArrayType, NumberType } from '../index';
+import { create, valueOf, BooleanType, ArrayType, NumberType } from '../index';
 
 describe('pathmap', ()=> {
 
@@ -107,6 +107,15 @@ describe('pathmap', ()=> {
       });
     });
 
+  });
+  describe('default values of references in the pathmap', function() {
+    beforeEach(function() {
+      pathmap = Pathmap(class { number = create(Number, 42) }, Ref(undefined));
+      id = pathmap.get();
+    });
+    it('maintains the default value of the number', function() {
+      expect(id.number.state).toBe(42);
+    });
   });
 
 });
