@@ -27,7 +27,7 @@ export default function Pathmap(Root, ref) {
     }
 
     get currentValue() {
-      return view(this.lens, ref.get());
+      return valueOf(this.microstate);
     }
 
     get reference() {
