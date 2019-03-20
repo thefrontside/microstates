@@ -201,10 +201,10 @@ describe('Identity', () => {
     let i;
     beforeEach(() => {
       i = Identity(from({ name: 'Taras' }), latest => i = latest);
-      i.name.concat('!!!');
+      i.entries.name.concat('!!!');
     });
     it('allows to transition value of a property', () => {
-      expect(i.name.state).toBe('Taras!!!');
+      expect(i.entries.name.state).toBe('Taras!!!');
     });
   });
 

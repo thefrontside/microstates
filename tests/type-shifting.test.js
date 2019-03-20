@@ -122,7 +122,7 @@ describe("type-shifting", () => {
       it("can initialize into a parameterized object", () => {
         let object = Container.create({ a: "A", b: "B", c: "C" });
         expect(valueOf(object)).toMatchObject({ a: "A", b: "B", c: "C" });
-        expect(object.a.concat).toBeInstanceOf(Function);
+        expect(object.entries.a.concat).toBeInstanceOf(Function);
       });
     });
   });
@@ -379,7 +379,7 @@ describe("type-shifting from create to parameterized object", () => {
   });
 
   it("has name with initial values", () => {
-    expect(person.parents.father).toBeInstanceOf(Parent);
+    expect(person.parents.entries.father).toBeInstanceOf(Parent);
     expect(valueOf(person)).toMatchObject({
       parents: {
         father: {

@@ -27,8 +27,8 @@ describe('created without value', () => {
     });
 
     it('wraps the assigned values the parameterized type', function() {
-      expect(assigned.foo).toBeInstanceOf(Thing);
-      expect(valueOf(assigned.foo)).toEqual('bar');
+      expect(assigned.entries.foo).toBeInstanceOf(Thing);
+      expect(valueOf(assigned.entries.foo)).toEqual('bar');
     });
 
     describe('assign twice', () => {
@@ -90,7 +90,7 @@ describe('created with value', () => {
       });
 
       it('assigned is not a microstate', () => {
-        expect(assigned.name.state).toBe('Taras');
+        expect(assigned.entries.name.state).toBe('Taras');
       });
 
       it('microstate value to be part of valueOf', () => {
@@ -151,7 +151,7 @@ describe('put and delete', () => {
       });
 
       it('has name string', () => {
-        expect(object.name.state).toBe('Taras');
+        expect(object.entries.name.state).toBe('Taras');
       });
 
       it('has valueOf', () => {
@@ -208,9 +208,9 @@ describe("map/filter/reduce", () => {
     });
 
     it("completes each todo", () => {
-      expect(mapped["a"].completed.state).toEqual(true);
-      expect(mapped["b"].completed.state).toEqual(true);
-      expect(mapped["c"].completed.state).toEqual(true);
+      expect(mapped.entries["a"].completed.state).toEqual(true);
+      expect(mapped.entries["b"].completed.state).toEqual(true);
+      expect(mapped.entries["c"].completed.state).toEqual(true);
     });
   });
 
@@ -221,9 +221,9 @@ describe("map/filter/reduce", () => {
     });
 
     it("removes completed todos", () => {
-      expect(filtered["a"]).toBeDefined();
-      expect(filtered["b"]).not.toBeDefined();
-      expect(filtered["c"]).toBeDefined();
+      expect(filtered.entries["a"]).toBeDefined();
+      expect(filtered.entries["b"]).not.toBeDefined();
+      expect(filtered.entries["c"]).toBeDefined();
     });
   });
 
