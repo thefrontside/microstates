@@ -18,7 +18,7 @@ export default parameterized(T => class ArrayType {
   initialize(value) {
     if (value == null) {
       return [];
-    } else if (Array.isArray(value)) {
+    } else if (Array.isArray(value) || value[Symbol.iterator]) {
       return value;
     } else {
       return [value];
