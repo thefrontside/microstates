@@ -75,8 +75,8 @@ describe("Parameterized Microstates: ", () => {
       let transitioned;
       beforeEach(function() {
         m = create(Counters, value);
-        let [ firstApple] = m.apples;
-        let [ _, secondOrange ] = firstApple.increment().oranges; // eslint-disable-line no-unused-vars
+        let [ firstApple] = m.entries.apples;
+        let [ _, secondOrange ] = firstApple.increment().entries.oranges; // eslint-disable-line no-unused-vars
         transitioned = secondOrange.increment();
       });
 
@@ -89,7 +89,7 @@ describe("Parameterized Microstates: ", () => {
           oranges: [50, 21],
           apples: [2, 2, 45]
         };
-        let [ first ] = transitioned.apples; // eslint-disable-line no-unused-vars
+        let [ first ] = transitioned.entries.apples; // eslint-disable-line no-unused-vars
         expect(valueOf(transitioned)).toEqual(value);
       });
     });
@@ -111,8 +111,8 @@ describe("Parameterized Microstates: ", () => {
       });
 
       it("still respects transitions", function() {
-        let [ firstApple] = m.inventory.apples;
-        let [ _, secondOrange ] = firstApple.increment().inventory.oranges; // eslint-disable-line no-unused-vars
+        let [ firstApple] = m.inventory.entries.apples;
+        let [ _, secondOrange ] = firstApple.increment().inventory.entries.oranges; // eslint-disable-line no-unused-vars
         let next = secondOrange.increment();
         expect(valueOf(next)).toEqual({
           inventory: {
@@ -166,8 +166,8 @@ describe("Parameterized Microstates: ", () => {
     });
 
     it("still respects transitions", function() {
-      let [ firstApple] = m.apples;
-      let [ _, secondOrange ] = firstApple.increment().oranges; // eslint-disable-line no-unused-vars
+      let [ firstApple] = m.entries.apples;
+      let [ _, secondOrange ] = firstApple.increment().entries.oranges; // eslint-disable-line no-unused-vars
       let next = secondOrange.increment();
       expect(valueOf(next)).toEqual({
         oranges: [50, 21],

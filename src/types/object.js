@@ -1,25 +1,20 @@
 import { append, filter, map } from 'funcadelic';
+import { reduce } from '../query';
 import parameterized from '../parameterized';
-import { valueOf } from '../meta';
+import { valueOf, mount } from '../meta';
 import { create } from '../microstates';
+import { Tree, childAt } from '../tree';
+
 
 export default parameterized(T => class ObjectType {
   static T = T;
 
-  static get name() {
-    return `Object<${T.name}>`;
-  }
+  static name = `Object<${T.name}>`
 
-  constructor(value) {
-    Object.keys(value || {}).forEach(key => {
-      Object.defineProperty(this, key, {
-        enumerable: true,
-        configurable: true,
-        get() {
-          return create(T, value[key]);
-        }
-      });
-    });
+  get entries() {
+    return reduce(this, (entries, entry) => Object.assign(entries, {
+      [entry.key]: entry.value
+    }), {});
   }
 
   initialize(value) {
@@ -56,7 +51,7 @@ export default parameterized(T => class ObjectType {
           get done() { return next.done; },
           get value() {
             if (!next.done) {
-              return new Entry(next.value, object[next.value]);
+              return new Entry(next.value, childAt(next.value, object));
             } else {
               return undefined;
             }
@@ -64,6 +59,44 @@ export default parameterized(T => class ObjectType {
         };
       }
     };
+  }
+
+  static initialize() {
+    Tree.instance(this, {
+      childAt(key, object) {
+        if (typeof key !== 'string') {
+          return object[key];
+        } else {
+          let value = valueOf(object)[key];
+          return mount(object, create(T, value), key);
+        }
+      },
+      defineChildren(fn, object) {
+        let generate = object[Symbol.iterator];
+        return Object.defineProperty(object, Symbol.iterator, {
+          enumerable: false,
+          value() {
+            let iterator = generate.call(object);
+            return {
+              next() {
+                let next = iterator.next();
+                return {
+                  get done() { return next.done; },
+                  get value() {
+                    if (!next.done) {
+                      let { key } = next.value;
+                      return new Entry(key, fn(key));
+                    } else {
+                      return undefined;
+                    }
+                  }
+                };
+              }
+            };
+          }
+        });
+      }
+    });
   }
 });
 
