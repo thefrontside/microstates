@@ -30,13 +30,13 @@ describe('Literal Syntax', function() {
 
   it('understands deeply nested objects and arrays', function() {
     let blob = literal({array: [5, { bool: true }], string: "hi", object: {object: {}}});
-    let [ first] = blob.array;
-    let [ _, second ] = first.increment().array; // eslint-disable-line no-unused-vars
+    let [ first] = blob.entries.array;
+    let [ _, second ] = first.increment().entries.array; // eslint-disable-line no-unused-vars
 
-    let ms = second.bool.toggle()
-      .string.concat(" mom")
-      .object.put('another', 'property')
-      .object.object.put('deep', 'state');
+    let ms = second.entries.bool.toggle()
+      .entries.string.concat(" mom")
+      .entries.object.put('another', 'property')
+      .entries.object.entries.object.put('deep', 'state');
 
     expect(valueOf(ms)).toEqual({
       array: [6, { bool: false }],

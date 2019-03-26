@@ -19,6 +19,27 @@ describe("ArrayType", function() {
     });
   });
 
+  describe("created with an iterator value", () => {
+    let ms;
+    beforeEach(()=> {
+      let iterator = {
+        0: 1,
+        [Symbol.iterator]() {
+          return [1][Symbol.iterator]();
+        }
+      };
+      ms = create(ArrayType.of(Number), iterator);
+    });
+
+    it('does not wrap iterator in an array', ()=> {
+      expect([...valueOf(ms)]).toEqual([1]);
+    });
+
+    it('result of pushing an item into the array', () => {
+      expect([...valueOf(ms.push(10))]).toEqual([1, 10]);
+    });
+  });
+
   describe("when unparameterized", function() {
     let ms;
     let array = ["a", "b", "c"];
