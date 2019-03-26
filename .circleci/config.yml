@@ -42,6 +42,30 @@ jobs:
       - yarn
       - run: yarn coverage
       - run: yarn coveralls
+  
+  publish-to-npm:
+    executor: node
+    steps:
+      - checkout
+      - yarn
+      - run:
+          name: Publish to NPM
+          command: |
+            echo "//registry.npmjs.org/:_authToken=$BOOPBOT_NPM_TOKEN" >> ~/.npmrc
+            VERSION=`yarn info . version --silent`-`git rev-parse --short HEAD`-`date +'%m-%d-%Y'`
+            yarn version --new-version=${VERSION}
+            if [ -z $CIRCLE_PR_NUMBER ]; then
+              TAG=pull-request-${PR_NUMBER}
+              yarn publish --tag=${TAG}
+              echo $TAG > NPM_TAG
+            else
+              [[ -v $CIRCLE_BRANCH == "master" ]]; yarn publish --tag=head
+            fi
+      - persist_to_workspace:
+          root: .
+          paths:
+            - NPM_TAG
+
 
 workflows:
   version: 2.1
@@ -50,5 +74,8 @@ workflows:
       - test
       - lint
       - coverage
+      - publish-to-npm:
+          requires:
+            - test
 
 
