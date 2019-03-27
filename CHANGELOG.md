@@ -6,6 +6,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 
+### Fixed
+
+- Upgrading dependencies to upgrade version of [Funcadelic which fixed errors caused by Uglify removing names from typeclasses](https://github.com/cowboyd/funcadelic.js/pull/68) https://github.com/microstates/microstates.js/pull/343
+
 ## [0.13.0] - 2019-02-14
 
 ### Changed
