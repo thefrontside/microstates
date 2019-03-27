@@ -6,9 +6,21 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 
+## [0.14.0] - 2019-03-27
+
+### Breaking
+
+- Don't store keys on the object type. Moved Object's properties to entries https://github.com/microstates/microstates.js/pull/338
+
+### Changed
+
+- Iterator objects should not be wrapped in arrays https://github.com/microstates/microstates.js/pull/339
+- Don't try to reify a value if the iteration is finished. https://github.com/microstates/microstates.js/pull/323
+
 ### Fixed
 
 - Upgrading dependencies to upgrade version of [Funcadelic which fixed errors caused by Uglify removing names from typeclasses](https://github.com/cowboyd/funcadelic.js/pull/68) https://github.com/microstates/microstates.js/pull/343
+- Always derive store location value from its microstate value. https://github.com/microstates/microstates.js/pull/334
 
 ## [0.13.0] - 2019-02-14
 
