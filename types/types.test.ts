@@ -117,4 +117,24 @@ describe('ArrayType', () => {
       a.filter((item) => (item.state + '!!!') === 'hello!!!')
     )
   });
+  it('has map transition that returns ArrayType', () => {
+    expectType<ArrayType<StringType>>(
+      a.map(item => item.concat('!!!'))
+    )
+  });
+  it('has remove transition that returns ArrayType', () => {
+    expectType<ArrayType<StringType>>(
+      a.remove('hello')
+    )
+  });
+  it('has clear transition that returns ArrayType', () => {
+    expectType<ArrayType<StringType>>(
+      a.clear()
+    )
+  });
+  it('has initialize transition taht returns ArrayType', () => {
+    expectType<ArrayType<StringType>>(
+      a.initialize('foo')
+    )
+  });
 });

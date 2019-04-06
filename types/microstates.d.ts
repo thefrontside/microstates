@@ -56,6 +56,10 @@ declare module "microstates" {
     slice(start?: number, end?: number): ArrayType<T>
     sort(fn: (a: any, b: any) => number): ArrayType<T>
     filter(fn: (member: T) => boolean): ArrayType<T>
+    map(fn: (member: T) => T): ArrayType<T>
+    remove(item: any): ArrayType<T>
+    clear(): ArrayType<T>
+    initialize(value: any): ArrayType<T>
   }
 
   interface ArrayTypeConstructor {
