@@ -15,6 +15,7 @@ declare module "microstates" {
   export interface BooleanType {
     set(value: boolean): BooleanType
     toggle(): BooleanType
+    initialize(value: any): BooleanType
     state: boolean
   }
 
@@ -22,7 +23,17 @@ declare module "microstates" {
   export interface StringType {
     concat(str: string): StringType
     set(value: string): StringType
+    initialize(value: any): StringType
     state: string
+  }
+
+  export const NumberType: Constructor<NumberType>;
+  export interface NumberType {
+    increment(step?: number): NumberType
+    decrement(step?: number): NumberType
+    set(value: number): NumberType
+    initialize(value: any): NumberType
+    state: number
   }
 
   export const ObjectType: ObjectTypeConstructor & Constructor<ObjectType<Any>>;

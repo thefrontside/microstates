@@ -7,7 +7,9 @@
       "noImplicitAny": true,
       "noImplicitThis": true,
       "strictNullChecks": true,
-      "types": [],
+      "types": [
+          "@types/mocha"
+      ],
       "noEmit": true,
       "forceConsistentCasingInFileNames": true,
       "typeRoots": [
