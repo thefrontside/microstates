@@ -6,7 +6,8 @@ import {
   Any,
   NumberType,
   ArrayType,
-  ObjectType
+  ObjectType,
+  from
 } from 'microstates';
 
 describe('Any', () => {
@@ -157,5 +158,22 @@ describe('ObjectType', () => {
   });
   it('has initialize transition that returns an ArrayType', () => {
     expectType<ObjectType<NumberType>>(o.initialize({ hello: 'world'}))
+  });
+});
+
+describe('from', () => {
+  it('returns a NumberType when passed a number', () => {
+    expectType<NumberType>(from(42))
+  });
+  it('returns a StringType when passed a string', () => {
+    expectType<StringType>(from(""))
+  });
+  it('returns a BooleanType when passed a boolean', () => {
+    expectType<BooleanType>(from(true))
+    expectType<BooleanType>(from(false))
+  });
+  it('returns an Any when passed undefined', () => {
+    expectType<Any>(from(undefined))
+    expectType<Any>(from())
   });
 });
