@@ -54,7 +54,7 @@ declare module "microstates" {
     shift(): ArrayType<T>
     unshift(value: any): ArrayType<T>
     slice(start?: number, end?: number): ArrayType<T>
-    sort(fn: (a: T, b: T) => number): ArrayType<T>
+    sort(fn: (a: any, b: any) => number): ArrayType<T>
     filter(fn: (member: T) => boolean): ArrayType<T>
   }
 

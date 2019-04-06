@@ -109,7 +109,7 @@ describe('ArrayType', () => {
   });
   it('has sort transition that returns ArrayType', () => {
     expectType<ArrayType<StringType>>(
-      a.sort((a, b) => (a.state.length > b.state.length ? 1 : 0))
+      a.sort((a, b) => (a > b ? 1 : 0))
     );
   });
   it('has filter transition that returns ArrayType', () => {
