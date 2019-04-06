@@ -60,6 +60,7 @@ declare module "microstates" {
     remove(item: any): ArrayType<T>
     clear(): ArrayType<T>
     initialize(value: any): ArrayType<T>
+    set(value: any): ArrayType<T>
   }
 
   interface ArrayTypeConstructor {

@@ -132,9 +132,14 @@ describe('ArrayType', () => {
       a.clear()
     )
   });
-  it('has initialize transition taht returns ArrayType', () => {
+  it('has initialize transition that returns ArrayType', () => {
     expectType<ArrayType<StringType>>(
       a.initialize('foo')
+    )
+  });
+  it('has set transition that returns ArrayType', () => {
+    expectType<ArrayType<StringType>>(
+      a.set(['bye', 'world'])
     )
   });
 });
