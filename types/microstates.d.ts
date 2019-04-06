@@ -76,13 +76,27 @@ declare module 'microstates' {
     value: T;
   }
 
-  type DSL<T> = T extends Number
+  type PrimitiveDSL<T> = T extends Number
     ? NumberType
     : T extends String
     ? StringType
     : T extends Boolean
     ? BooleanType
+    : Any;
+
+  type ArrayDSL<T> = T extends (infer U)[] ? ArrayType<PrimitiveDSL<U>> : void;
+
+  type ObjectDSL<T> = T extends { [key: string]: infer U }
+    ? U extends (infer V)[]
+      ? ObjectType<ArrayType<PrimitiveDSL<V>>>
+      : ObjectType<PrimitiveDSL<U>>
     : void;
+
+  type DSL<T> = T extends any[]
+    ? ArrayDSL<T>
+    : T extends { [key: string]: infer U }
+    ? ObjectDSL<T>
+    : PrimitiveDSL<T>;
 
   export function from<T>(value?: T): DSL<T> & Any;
 

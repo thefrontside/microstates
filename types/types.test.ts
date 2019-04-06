@@ -176,4 +176,84 @@ describe('from', () => {
     expectType<Any>(from(undefined))
     expectType<Any>(from())
   });
+  it('returns an ArrayType when passed an empty array', () => {
+    let a = from([]);
+    expectType<ArrayType<Any>>(a)
+  });
+  it('returns an ArrayType<NumberType> when passed an array with numbers', () => {
+    let a = from([1, 2, 3]);
+    expectType<ArrayType<NumberType>>(a);
+  });
+  it('returns an ArrayType<StringType> when passed an array with strings', () => {
+    let a = from(['hello', 'world']);
+    expectType<ArrayType<StringType>>(a);
+  });
+  it('returns an ArrayType<BooleanType> when passed an array with objects', () => {
+    let a = from([true, false]);
+    expectType<ArrayType<BooleanType>>(a);
+  });
+  it('returns an ArrayType<Any> when passed an array with mixed types', () => {
+    let a = from([true, 41, "hello"]);
+    expectType<ArrayType<NumberType | StringType | BooleanType>>(a);
+  });
+  it('returns an ObjectType<Any> when passed an object', () => {
+    let o = from({});
+    expectType<ObjectType<Any>>(o);
+  });
+  it('returns an ObjectType<NumberType> when passed an object with numbers', () => {
+    let o = from({ a: 42, b: 2 });
+    expectType<ObjectType<NumberType>>(o);
+  });
+  it('returns an ObjectType<StringType> when passed an object with strings', () => {
+    let o = from({ a: 'hello', b: 'world' });
+    expectType<ObjectType<StringType>>(o);
+  });
+  it('returns an ObjectType<BooleanType> when passed an object with booleans', () => {
+    let o = from({ a: true, b: false });
+    expectType<ObjectType<BooleanType>>(o);
+  });
+  it('return an ObjectType<NumberType | StringType | BooleanType> when passed an object with mixed types', () => {
+    let o = from({ a: true, b: 42, c: 'hello world'});
+    expectType<ObjectType<NumberType | StringType | BooleanType>>(o);
+  });
+  it('returns an ObjectType<ArrayType<NumberType>> when passed an object with arrays of numbers as values', () => {
+    let o = from({
+      a: [42],
+      b: [2]
+    })
+    expectType<ObjectType<ArrayType<NumberType>>>(o)
+  });
+  it('returns an ObjectType<ArrayType<StringType>> when passed an object with arrays of strings as values', () => {
+    let o = from({
+      a: ['hello'],
+      b: ['world']
+    });
+    expectType<ObjectType<ArrayType<StringType>>>(o);
+  });
+  it('returns an ObjecType<ArrayType<BooleanType>> when passed an object with arrays of booleans as values', () => {
+    let o = from({
+      a: [true],
+      b: [false]
+    });
+    expectType<ObjectType<ArrayType<BooleanType>>>(o);
+  });
+  it('returns an ObjecType<ArrayType<BooleanType | StringType | NumberType>> when passed an array of mixed values', () => {
+    let o = from({
+      a: [true, 'hello world', 42],
+      b: [42, false, 'foo']
+    });
+    expectType<ObjectType<ArrayType<BooleanType | StringType | NumberType>>>(o);
+  });
+  // NOTE: this is not possible because TypeScript doesn't support recursive types
+  // it('returns an ObjectType<ObjectType<Number>> when passed an object containing numbers', () => {
+  //   let o = from({
+  //     a: {
+  //       b: 42
+  //     },
+  //     c: {
+  //       d: 2
+  //     }
+  //   });
+  //   expectType<ObjectType<ObjectType<Number>>>(o);
+  // });
 });
