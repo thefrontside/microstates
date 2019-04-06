@@ -40,6 +40,8 @@ jobs:
     steps:
       - checkout
       - yarn
+      - run: yarn link
+      - run: yarn link microstates
       - run: yarn test-types
 
   coverage:

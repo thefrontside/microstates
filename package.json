@@ -37,7 +37,6 @@
     "bench": "node -r ./tests/setup benchmarks/index.js",
     "prepare": "npm run build",
     "prerelease": "npm test && npm run build",
-    "pretest-types": "yarn link & yarn link microstates",
     "test-types": "mocha -r ts-node/register types/*.test.ts"
   },
   "devDependencies": {
