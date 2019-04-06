@@ -25,6 +25,7 @@
   "module": "dist/microstates.es.js",
   "unpkg": "dist/microstates.umd.js",
   "browser": "dist/microstates.umd.js",
+  "types": "./types/microstates.d.ts",
   "repository": "git+ssh://git@github.com/microstates/microstates.js.git",
   "scripts": {
     "start": "node repl.js",
@@ -35,7 +36,8 @@
     "build": "rollup -c",
     "bench": "node -r ./tests/setup benchmarks/index.js",
     "prepare": "npm run build",
-    "prerelease": "npm test && npm run build"
+    "prerelease": "npm test && npm run build",
+    "check-types": "tsc --noEmit"
   },
   "devDependencies": {
     "@babel/core": "^7.1.6",
@@ -58,7 +60,9 @@
     "rollup-plugin-filesize": "^6.0.0",
     "rollup-plugin-node-resolve": "^4.0.0",
     "rollup-plugin-replace": "^2.1.0",
-    "rxjs": "^6.2.1"
+    "rxjs": "^6.2.1",
+    "typescript": "^3.4.2",
+    "ts-expect": "^1.1.0"
   },
   "dependencies": {
     "funcadelic": "^0.5.0",
