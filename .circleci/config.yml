@@ -35,12 +35,12 @@ jobs:
       - yarn
       - run: yarn lint
   
-  check-types:
+  test-types:
     executor: node
     steps:
       - checkout
       - yarn
-      - run: yarn check-types
+      - run: yarn test-types
 
   coverage:
     executor: node
@@ -56,7 +56,7 @@ workflows:
     jobs:
       - test
       - lint
-      - check-types
+      - test-types
       - coverage
 
 
