@@ -244,6 +244,15 @@ describe('from', () => {
     });
     expectType<ObjectType<ArrayType<BooleanType | StringType | NumberType>>>(o);
   });
+
+  // NOTE: I'm not sure if this is possible
+  // it('returns an ArrayType<ObjectType<NumberType>> when passed an array of objects with number values', () => {
+  //   let a = from([
+  //     { a: 42 }, { b: 2 }
+  //   ]);
+  //   expectType<ArrayType<ObjectType<NumberType>>>(a);
+  // });
+
   // NOTE: this is not possible because TypeScript doesn't support recursive types
   // it('returns an ObjectType<ObjectType<Number>> when passed an object containing numbers', () => {
   //   let o = from({

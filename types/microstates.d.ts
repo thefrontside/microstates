@@ -1,10 +1,4 @@
 declare module 'microstates' {
-  interface Base {}
-
-  interface Constructor<T> {
-    new (...args: any[]): T;
-  }
-
   export const Any: Constructor<Any>;
   export interface Any {
     set(value: any): Any;
@@ -97,6 +91,10 @@ declare module 'microstates' {
     : T extends { [key: string]: infer U }
     ? ObjectDSL<T>
     : PrimitiveDSL<T>;
+
+  interface Constructor<T> {
+    new (...args: any[]): T;
+  }
 
   export function from<T>(value?: T): DSL<T> & Any;
 
