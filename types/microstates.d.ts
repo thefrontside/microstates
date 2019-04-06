@@ -39,8 +39,12 @@ declare module "microstates" {
   export const ObjectType: ObjectTypeConstructor & Constructor<ObjectType<Any>>;
   interface ObjectType<T> extends Iterable<Entry<T>> {
     entries: { [key: string]: T };
+    initialize(value: any): ObjectType<T>
     put(key: string, value: any): any;
     delete(key: string): any;
+    assign(o: {[key: string]: any}): ObjectType<T>
+    map(fn: (item: T) => any): ObjectType<T>
+    filter(fn: (item: T) => boolean): ObjectType<T>
   }
   interface ObjectTypeConstructor {
     of<T>(constructor: Constructor<T>): Constructor<ObjectType<T>>;

@@ -5,7 +5,8 @@ import {
   BooleanType,
   Any,
   NumberType,
-  ArrayType
+  ArrayType,
+  ObjectType
 } from 'microstates';
 
 describe('Any', () => {
@@ -108,38 +109,53 @@ describe('ArrayType', () => {
     expectType<ArrayType<StringType>>(a.slice());
   });
   it('has sort transition that returns ArrayType', () => {
-    expectType<ArrayType<StringType>>(
-      a.sort((a, b) => (a > b ? 1 : 0))
-    );
+    expectType<ArrayType<StringType>>(a.sort((a, b) => (a > b ? 1 : 0)));
   });
   it('has filter transition that returns ArrayType', () => {
     expectType<ArrayType<StringType>>(
-      a.filter((item) => (item.state + '!!!') === 'hello!!!')
-    )
+      a.filter(item => item.state + '!!!' === 'hello!!!')
+    );
   });
   it('has map transition that returns ArrayType', () => {
-    expectType<ArrayType<StringType>>(
-      a.map(item => item.concat('!!!'))
-    )
+    expectType<ArrayType<StringType>>(a.map(item => item.concat('!!!')));
   });
   it('has remove transition that returns ArrayType', () => {
-    expectType<ArrayType<StringType>>(
-      a.remove('hello')
-    )
+    expectType<ArrayType<StringType>>(a.remove('hello'));
   });
   it('has clear transition that returns ArrayType', () => {
-    expectType<ArrayType<StringType>>(
-      a.clear()
-    )
+    expectType<ArrayType<StringType>>(a.clear());
   });
   it('has initialize transition that returns ArrayType', () => {
-    expectType<ArrayType<StringType>>(
-      a.initialize('foo')
-    )
+    expectType<ArrayType<StringType>>(a.initialize('foo'));
   });
   it('has set transition that returns ArrayType', () => {
-    expectType<ArrayType<StringType>>(
-      a.set(['bye', 'world'])
-    )
+    expectType<ArrayType<StringType>>(a.set(['bye', 'world']));
+  });
+});
+
+describe('ObjectType', () => {
+  let o = create(ObjectType.of(NumberType), { a: 42, b: 2 });
+  it('has entries', () => {
+    expectType<{
+    [key: string]: NumberType;
+    }>(o.entries);
+  });
+  it('has a put transition that returns an ObjectType', () => {
+    expectType<ObjectType<NumberType>>(o.put('c', 'foo'));
+  });
+  it('has a delete transition that returns an ObjectType', () => {
+    expectType<ObjectType<NumberType>>(o.delete('a'));
+  });
+  it('has an assign transition that returns an ObjectType', () => {
+    expectType<ObjectType<NumberType>>(o.assign({ d: 'DDDD' }));
+  });
+  it('has a map transition that returns an ObjectType', () => {
+    expectType<ObjectType<NumberType>>(o.map(item => item.increment()));
+  });
+  it('has a filter transition that returns an ArrayType', () => {
+    expectType<ObjectType<NumberType>>(o.filter(item => item.state > 10));
+  });
+  it('has initialize transition that returns an ArrayType', () => {
+    expectType<ObjectType<NumberType>>(o.initialize({ hello: 'world'}))
   });
 });
