@@ -46,6 +46,22 @@ declare module "microstates" {
     of<T>(constructor: Constructor<T>): Constructor<ObjectType<T>>;
   }
 
+  export const ArrayType: ArrayTypeConstructor & Constructor<ArrayType<Any>>
+  interface ArrayType<T> extends Iterable<T> {
+    length: number;
+    push(value: any): ArrayType<T>
+    pop(): ArrayType<T>
+    shift(): ArrayType<T>
+    unshift(value: any): ArrayType<T>
+    slice(start?: number, end?: number): ArrayType<T>
+    sort(fn: (a: T, b: T) => number): ArrayType<T>
+    filter(fn: (member: T) => boolean): ArrayType<T>
+  }
+
+  interface ArrayTypeConstructor {
+    of<T>(constructor: Constructor<T>): Constructor<ArrayType<T>>
+  }
+
   export interface Entry<T> {
     key: string;
     value: T;
