@@ -357,10 +357,10 @@ let blog = create(Blog, {
   }
 });
 
-blog.posts['1'];
+blog.posts.entries['1'];
 //> Microstate<Post>{ id: 1, title: 'Hello World' }
 
-blog.posts['2'];
+blog.posts.entries['2'];
 //> Microstate<Post>{ id: 2, title: 'Most fascinating blog in the world' }
 ```
 
@@ -369,7 +369,7 @@ Object type microstates have `Object` transitions, such as `assign`, `put` and `
 ```js
 let blog2 = blog.posts.put('3', { id: 3, title: 'It is only getter better' });
 
-blog2.posts['3'];
+blog2.posts.entries['3'];
 //> Microstate<Post>{ id: 3, title: 'It is only getter better' }
 ```
 
