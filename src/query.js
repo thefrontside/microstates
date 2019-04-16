@@ -14,6 +14,10 @@ export function reduce(iterable, fn, initial) {
   return query(iterable).reduce(fn, initial);
 }
 
+export function find(iterable, fn){
+  return query(iterable).find(fn)
+}
+
 class Query {
   constructor(iterable) {
     if (typeof iterable[Symbol.iterator] === 'function') {
@@ -73,6 +77,17 @@ class Query {
     let result = initial;
     for (let next = iterator.next(); !next.done; next = iterator.next()) {
       result = fn(result, next.value);
+    }
+    return result;
+  }
+
+  find(fn) {
+    let iterator = this.generator();
+    let result;
+    for (let next = iterator.next(); !next.done; next = iterator.next()) {
+      if (fn(next.value)) {
+        return result = next.value
+      }
     }
     return result;
   }
