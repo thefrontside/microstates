@@ -82,10 +82,9 @@ class Query {
   }
 
   find(fn) {
-    let iterator = this.generator();
-    for (let next = iterator.next(); !next.done; next = iterator.next()) {
-      if (fn(next.value)) {
-        return next.value
+    for (let item of this){
+      if (fn(item)){
+        return item;
       }
     }
   }
