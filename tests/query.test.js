@@ -8,17 +8,16 @@ import { TodoMVC } from './todomvc';
 
 describe('A Microstate with queries', function() {
   let todomvc;
-  beforeEach(function() {
-    let start = create(TodoMVC)
-      .todos.push({title: "Take out The Milk"})
-      .todos.push({title: "Convince People Microstates is awesome"})
-      .todos.push({title: "Take out the Trash"})
-      .todos.push({title: "profit $$"});
+  let start = create(TodoMVC)
+    .todos.push({title: "Take out The Milk"})
+    .todos.push({title: "Convince People Microstates is awesome"})
+    .todos.push({title: "Take out the Trash"})
+    .todos.push({title: "profit $$"});
 
+  beforeEach(function() {
     let [ first ] = start.todos;
     let [,, third ] = first.toggle().todos;
     todomvc = third.toggle();
-
   });
 
   it('can partition an array microstate using filter', function() {
@@ -48,6 +47,23 @@ describe('A Microstate with queries', function() {
       expect(next.active).toHaveLength(1);
       expect(next.completed).toHaveLength(3);
     });
+  });
+
+  describe('testing find function with microstates', function () {
+    let todos, first, third;
+    beforeEach(function(){
+      todos = start.todos;
+      [first, , third] = start.todos;
+    })
+
+    it('finds a microstate from an iterable', function () {
+       expect(valueOf(find(todos, x => x.title.state == "Take out the Trash"))).toBe(valueOf(third))
+    })
+
+    it('returns only the first result from find', function () {
+      expect(valueOf(find(todos, x => x.title.state.includes("out")))).toBe(valueOf(first))
+      expect(valueOf(find(todos, x => x.title.state.includes("out")))).not.toBe(valueOf(third))
+    })
   });
 });
 

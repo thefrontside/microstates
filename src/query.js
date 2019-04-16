@@ -83,13 +83,11 @@ class Query {
 
   find(fn) {
     let iterator = this.generator();
-    let result;
     for (let next = iterator.next(); !next.done; next = iterator.next()) {
       if (fn(next.value)) {
-        return result = next.value
+        return next.value
       }
     }
-    return result;
   }
 
   [Symbol.iterator]() {
