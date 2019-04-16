@@ -2,7 +2,7 @@
 import expect from 'expect';
 import { create } from '../src/microstates';
 import { valueOf } from '../src/meta';
-import { map, filter, reduce } from '..';
+import { map, filter, reduce, find } from '..';
 
 import { TodoMVC } from './todomvc';
 
@@ -64,5 +64,9 @@ describe('Query Array', () => {
 
   it('can filter a regular array', () => {
     expect([...filter(array, Boolean)]).toEqual([true, true]);
+  });
+
+  it('can find a regular array', ()=>{
+    expect(find(array, bool => bool == false)).toBe(false)
   });
 });
