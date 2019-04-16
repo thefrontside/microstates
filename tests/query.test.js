@@ -7,14 +7,14 @@ import { map, filter, reduce, find } from '..';
 import { TodoMVC } from './todomvc';
 
 describe('A Microstate with queries', function() {
-  let todomvc;
-  let start = create(TodoMVC)
-    .todos.push({title: "Take out The Milk"})
-    .todos.push({title: "Convince People Microstates is awesome"})
-    .todos.push({title: "Take out the Trash"})
-    .todos.push({title: "profit $$"});
-
+  let start, todomvc;
+  
   beforeEach(function() {
+    start = create(TodoMVC)
+      .todos.push({title: "Take out The Milk"})
+      .todos.push({title: "Convince People Microstates is awesome"})
+      .todos.push({title: "Take out the Trash"})
+      .todos.push({title: "profit $$"});
     let [ first ] = start.todos;
     let [,, third ] = first.toggle().todos;
     todomvc = third.toggle();
