@@ -277,3 +277,20 @@ describe("map/filter/reduce", () => {
     });
   });
 });
+
+describe('keys and values', function() {
+  let object;
+  beforeEach(() => {
+    object = create({Number}, {one: 1, two: 2, three: 3});
+  });
+  it('has an enumeration of keys', function() {
+    let [...keys] = object.keys;
+    expect(keys).toEqual(['one', 'two', 'three']);
+  });
+  it('has an enumeration of values', function() {
+    let [ one, two, three ] = object.values;
+    expect(one.state).toEqual(1);
+    expect(two.state).toEqual(2);
+    expect(three.state).toEqual(3);
+  });
+});

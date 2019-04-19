@@ -1,5 +1,5 @@
 import { append, filter, map } from 'funcadelic';
-import { reduce } from '../query';
+import { reduce, query } from '../query';
 import parameterized from '../parameterized';
 import { valueOf, mount } from '../meta';
 import { create } from '../microstates';
@@ -15,6 +15,14 @@ export default parameterized(T => class ObjectType {
     return reduce(this, (entries, entry) => Object.assign(entries, {
       [entry.key]: entry.value
     }), {});
+  }
+
+  get keys() {
+    return Object.keys(valueOf(this));
+  }
+
+  get values() {
+    return query(this).map(entry => entry.value);
   }
 
   initialize(value) {
