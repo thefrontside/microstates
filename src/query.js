@@ -73,10 +73,9 @@ class Query {
   }
 
   reduce(fn, initial) {
-    let iterator = this.generator();
     let result = initial;
-    for (let next = iterator.next(); !next.done; next = iterator.next()) {
-      result = fn(result, next.value);
+    for (let item of this) {
+      result = fn(result, item)
     }
     return result;
   }
