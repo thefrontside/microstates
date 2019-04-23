@@ -75,7 +75,7 @@ class Query {
   reduce(fn, initial) {
     let result = initial;
     for (let item of this) {
-      result = fn(result, item)
+      result = fn(result, item);
     }
     return result;
   }
