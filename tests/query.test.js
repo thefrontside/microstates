@@ -49,21 +49,21 @@ describe('A Microstate with queries', function() {
     });
   });
 
-  describe('finding an element within an iterable Microstate', function () {
+  describe('finding an element within an iterable Microstate', function() {
     let todos, first, third;
     beforeEach(function(){
       todos = start.todos;
       [first, , third] = start.todos;
-    })
+    });
 
-    it('can locate the desired item', function () {
-       expect(valueOf(find(todos, x => x.title.state == "Take out the Trash"))).toBe(valueOf(third))
-    })
+    it('can locate the desired item', function() {
+      expect(valueOf(find(todos, x => x.title.state == "Take out the Trash"))).toBe(valueOf(third));
+    });
 
-    it('returns only the first result', function () {
-      expect(valueOf(find(todos, x => x.title.state.includes("out")))).toBe(valueOf(first))
-      expect(valueOf(find(todos, x => x.title.state.includes("out")))).not.toBe(valueOf(third))
-    })
+    it('returns only the first result', function() {
+      expect(valueOf(find(todos, x => x.title.state.includes("out")))).toBe(valueOf(first));
+      expect(valueOf(find(todos, x => x.title.state.includes("out")))).not.toBe(valueOf(third));
+    });
   });
 });
 
@@ -83,6 +83,6 @@ describe('Query Array', () => {
   });
 
   it('can find specific items inside a normal array', ()=>{
-    expect(find(array, bool => bool == false)).toBe(false)
+    expect(find(array, bool => bool == false)).toBe(false);
   });
 });

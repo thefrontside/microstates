@@ -15,7 +15,7 @@ export function reduce(iterable, fn, initial) {
 }
 
 export function find(iterable, fn){
-  return query(iterable).find(fn)
+  return query(iterable).find(fn);
 }
 
 class Query {
