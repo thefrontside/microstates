@@ -1,9 +1,9 @@
 import { append, stable, map } from 'funcadelic';
-import { set, view, At } from './lens';
-import { Meta, mount, metaOf, valueOf, sourceOf } from './meta';
+import { set } from './lens';
+import { Meta, mount, metaOf, sourceOf, valueOf } from './meta';
 import { methodsOf } from './reflection';
 import dsl from './dsl';
-import { Relationship, relationship } from './relationship';
+import { Relationship, Edge, relationship } from './relationship';
 import Any from './types/any';
 import CachedProperty from './cached-property';
 import Observable from './observable';
@@ -33,8 +33,7 @@ const MicrostateType = stable(function MicrostateType(Type) {
         let relationship = slot instanceof Relationship ? slot : legacy(slot);
 
         return CachedProperty(key, self => {
-          let childValue = view(At(key), valueOf(self));
-          let { Type, value } = relationship.traverse(childValue, self);
+          let { Type, value } = relationship.traverse(new Edge(self, [key]));
           return mount(self, create(Type, value), key);
         });
       }, this));
