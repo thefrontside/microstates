@@ -3,21 +3,23 @@
 import expect from 'expect';
 
 import { Any } from '../src/types';
-import { relationship } from '../src/relationship';
+import { relationship, Edge } from '../src/relationship';
 
 describe('relationships', () => {
   let rel;
+  let e = (value) => new Edge(value, []);
+
   describe('with absolutely nothing specified', () => {
     beforeEach(() => {
       rel = relationship(10);
     });
 
     it('reifies to using Any for the type and the passed value, }', () => {
-      expect(rel.traverse(5)).toEqual({ Type: Any, value: 5 });
+      expect(rel.traverse(e(5))).toEqual({ Type: Any, value: 5 });
     });
 
     it('uses the supplied value if non is given', () => {
-      expect(rel.traverse()).toEqual({ Type: Any, value: 10 });
+      expect(rel.traverse(e())).toEqual({ Type: Any, value: 10 });
     });
   });
 
@@ -49,7 +51,23 @@ describe('relationships', () => {
     });
 
     it('executes the mapping as part of the traversal', () => {
-      expect(rel.traverse(3)).toEqual({Type: Number, value: 6});
+      expect(rel.traverse(e(3))).toEqual({Type: Number, value: 6});
+    });
+  });
+
+  describe('Edges', () => {
+    let edge;
+    beforeEach(() => {
+      edge = new Edge({one: {two: 2}}, ['one', 'two']);
+    });
+    it('knows its value', () => {
+      expect(edge.value).toEqual(2);
+    });
+    it('knows its parent value', () => {
+      expect(edge.parentValue).toEqual({one: {two: 2}});
+    });
+    it('has a name provided it is not anonymous', () => {
+      expect(edge.name).toEqual('two');
     });
   });
 });
