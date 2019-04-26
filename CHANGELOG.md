@@ -6,6 +6,14 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 
+## [0.15.0.alpha.0] - 2019-04-26
+
+## Added
+
+- Added find to query https://github.com/microstates/microstates.js/pull/352
+- Add keys, values properties to object. https://github.com/microstates/microstates.js/pull/353
+- Abstract relationships https://github.com/microstates/microstates.js/pull/358
+
 ## [0.14.0] - 2019-03-27
 
 ### Breaking
