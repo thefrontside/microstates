@@ -2,7 +2,7 @@
 import expect from 'expect';
 import { create } from '../src/microstates';
 import { valueOf } from '../src/meta';
-import { map, filter, reduce, find } from '..';
+import { map, filter, reduce, find } from '../src/query';
 
 import { TodoMVC } from './todomvc';
 
