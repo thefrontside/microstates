@@ -662,6 +662,13 @@
     "@types/istanbul-lib-coverage" "^1.1.0"
     "@types/yargs" "^12.0.9"
 
+"@microstates/lens@1.0.0-beta.1":
+  version "1.0.0-beta.1"
+  resolved "https://registry.yarnpkg.com/@microstates/lens/-/lens-1.0.0-beta.1.tgz#a94c2d7d0ac409840b70184a8372f9c9c6142655"
+  integrity sha512-qavPeVVnnvqoi6fdWZ7bIfL2eS3+sKAP0qMr/8/tqdYA2Pws6eF2+W9rChYWJa6NUh43tGx/kIAbYFBn3Ztm8A==
+  dependencies:
+    funcadelic "^0.5.7"
+
 "@types/estree@0.0.39":
   version "0.0.39"
   resolved "https://registry.yarnpkg.com/@types/estree/-/estree-0.0.39.tgz#e177e699ee1b8c22d23174caaa7422644389509f"
@@ -1814,7 +1821,7 @@ fs.realpath@^1.0.0:
   resolved "https://registry.yarnpkg.com/fs.realpath/-/fs.realpath-1.0.0.tgz#1504ad2523158caa40db4a2787cb01411994ea4f"
   integrity sha1-FQStJSMVjKpA20onh8sBQRmU6k8=
 
-funcadelic@^0.5.0:
+funcadelic@^0.5.0, funcadelic@^0.5.7:
   version "0.5.7"
   resolved "https://registry.yarnpkg.com/funcadelic/-/funcadelic-0.5.7.tgz#e76f6a9028985531924c1159dc1c930f5b00acb2"
   integrity sha512-kwKSJVAd2FNFmBgku81FC6VJCQdgcT/gtwG9z7H7FxL4NlDKsbdGqLwtjbDlYgR77t+NuT8phBLkmLSKsg1J5w==

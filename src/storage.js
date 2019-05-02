@@ -1,4 +1,4 @@
-import { view, set, Path } from './lens';
+import { view, set, Path } from '@microstates/lens';
 
 export default class Storage {
   constructor(value, observe = x => x) {

@@ -1,8 +1,7 @@
-import { At, set } from '../lens';
+import { At, set, Tree, childAt } from '@microstates/lens';
 import { mount, valueOf } from '../meta';
 import { create } from '../microstates';
 import parameterized from '../parameterized';
-import { Tree, childAt } from '../tree';
 
 export default parameterized(T => class ArrayType {
   static T = T;
