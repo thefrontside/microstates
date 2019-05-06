@@ -17,9 +17,7 @@ export class Relationship {
   }
 
   map(fn) {
-    return this.flatMap(cell => new Relationship(() => {
-      return fn(cell);
-    }));
+    return this.flatMap(cell => new Relationship(() => fn(cell)));
   }
 }
 
