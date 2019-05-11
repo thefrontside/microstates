@@ -1,10 +1,10 @@
 import { append, filter, map } from 'funcadelic';
+import { at, Context } from '@microstates/lens';
 import { reduce, query } from '../query';
 import parameterized from '../parameterized';
 import { valueOf, mount } from '../meta';
 import { create } from '../microstates';
-import { Tree, childAt } from '../tree';
-
+import { Tree } from '../tree';
 
 export default parameterized(T => class ObjectType {
   static T = T;
@@ -59,7 +59,7 @@ export default parameterized(T => class ObjectType {
           get done() { return next.done; },
           get value() {
             if (!next.done) {
-              return new Entry(next.value, childAt(next.value, object));
+              return new Entry(next.value, at(next.value, object));
             } else {
               return undefined;
             }
@@ -70,15 +70,19 @@ export default parameterized(T => class ObjectType {
   }
 
   static initialize() {
-    Tree.instance(this, {
-      childAt(key, object) {
+
+    Context.instance(this, {
+      at(key, object) {
         if (typeof key !== 'string') {
           return object[key];
         } else {
           let value = valueOf(object)[key];
           return mount(object, create(T, value), key);
         }
-      },
+      }
+    })
+
+    Tree.instance(this, {
       defineChildren(fn, object) {
         let generate = object[Symbol.iterator];
         return Object.defineProperty(object, Symbol.iterator, {

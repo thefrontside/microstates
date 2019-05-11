@@ -1,5 +1,5 @@
 import { append, stable, map } from 'funcadelic';
-import { set } from './lens';
+import { set } from '@microstates/lens';
 import { Meta, mount, metaOf, valueOf, sourceOf } from './meta';
 import { methodsOf } from './reflection';
 import dsl from './dsl';

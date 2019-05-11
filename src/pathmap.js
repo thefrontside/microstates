@@ -1,6 +1,6 @@
+import { view, Path } from '@microstates/lens';
 import { methodsOf } from './reflection';
 import { create } from './microstates';
-import { view, Path } from './lens';
 import { valueOf, Meta } from './meta';
 import { defineChildren } from './tree';
 import { stable } from 'funcadelic';

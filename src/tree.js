@@ -5,14 +5,6 @@ import CachedProperty from './cached-property';
 export const Tree = type(class {
   static name = 'Tree';
 
-  childAt(key, parent) {
-    if (parent[Tree.symbol]) {
-      return this(parent).childAt(key, parent);
-    } else {
-      return parent[key];
-    }
-  }
-
   defineChildren(fn, parent) {
     if (parent[Tree.symbol]) {
       return this(parent).defineChildren(fn, parent);
@@ -24,4 +16,4 @@ export const Tree = type(class {
   }
 });
 
-export const { childAt, defineChildren } = Tree.prototype;
+export const { defineChildren } = Tree.prototype;
