@@ -7,8 +7,7 @@ const replace = require('rollup-plugin-replace');
 
 const external = [
   "funcadelic",
-  "symbol-observable",
-  "@microstates/lens"
+  "symbol-observable"
 ];
 
 const babelPlugin = babel({

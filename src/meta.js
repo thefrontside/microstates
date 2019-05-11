@@ -1,4 +1,4 @@
-import { At, compose, transparent, over, view } from '@microstates/lens';
+import { At, compose, transparent, over, view } from './lens';
 
 export class Meta {
   static symbol = Symbol('Meta');

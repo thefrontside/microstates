@@ -1,9 +1,10 @@
 import { append, stable, map } from 'funcadelic';
-import { set, CachedProperty } from '@microstates/lens';
+import { set } from './lens';
 import { Meta, mount, metaOf, valueOf, sourceOf } from './meta';
 import { methodsOf } from './reflection';
 import dsl from './dsl';
 import Any from './types/any';
+import CachedProperty from './cached-property';
 import Observable from './observable';
 
 export function create(InputType = Any, value) {

@@ -1,9 +1,9 @@
 import { append, filter, map } from 'funcadelic';
-import { Tree, childAt } from '@microstates/lens';
 import { reduce, query } from '../query';
 import parameterized from '../parameterized';
 import { valueOf, mount } from '../meta';
 import { create } from '../microstates';
+import { Tree, childAt } from '../tree';
 
 
 export default parameterized(T => class ObjectType {
