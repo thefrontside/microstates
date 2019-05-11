@@ -1,4 +1,4 @@
-import { at, At, set, Context } from '@microstates/lens'
+import { at, At, set, Context } from '@microstates/lens';
 import { mount, valueOf } from '../meta';
 import { create } from '../microstates';
 import parameterized from '../parameterized';
@@ -109,7 +109,7 @@ export default parameterized(T => class ArrayType {
           return array[key];
         }
       }
-    })
+    });
 
     Tree.instance(this, {
       defineChildren(fn, array) {

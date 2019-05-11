@@ -80,7 +80,7 @@ export default parameterized(T => class ObjectType {
           return mount(object, create(T, value), key);
         }
       }
-    })
+    });
 
     Tree.instance(this, {
       defineChildren(fn, object) {
