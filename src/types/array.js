@@ -1,8 +1,8 @@
-import { At, set } from '../lens';
+import { at, At, set, Context } from '@microstates/lens';
 import { mount, valueOf } from '../meta';
 import { create } from '../microstates';
 import parameterized from '../parameterized';
-import { Tree, childAt } from '../tree';
+import { Tree } from '../tree';
 
 export default parameterized(T => class ArrayType {
   static T = T;
@@ -88,7 +88,7 @@ export default parameterized(T => class ArrayType {
           get done() { return next.done; },
           get value() {
             if (!next.done) {
-              return childAt(index, array);
+              return at(index, array);
             } else {
               return undefined;
             }
@@ -100,16 +100,18 @@ export default parameterized(T => class ArrayType {
 
   static initialize() {
 
-    Tree.instance(this, {
-      childAt(key, array) {
+    Context.instance(this, {
+      at(key, array) {
         if (typeof key === 'number') {
           let value = valueOf(array)[key];
           return mount(array, create(T, value), key);
         } else {
           return array[key];
         }
-      },
+      }
+    });
 
+    Tree.instance(this, {
       defineChildren(fn, array) {
         let generate = array[Symbol.iterator];
         return Object.defineProperty(array, Symbol.iterator, {
