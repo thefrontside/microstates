@@ -1,0 +1,82 @@
+name: TNP Merge/Commits
+
+on:
+  push:
+    branches:
+      # - release-*
+      - master
+
+jobs:
+  tests:
+    name: Run Tests
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@master
+    - name: yarn
+      run: npm install
+    - name: test
+      run: npm run test
+    - name: lint
+      run: npm run lint
+    - name: coverage
+      run: |
+        npm run coverage
+        # npm run coveralls # error
+        
+  publish:
+    name: Commit & Publish
+    runs-on: ubuntu-latest
+    needs: tests
+    steps:
+    - uses: actions/checkout@v1
+    - name: Commit & Publish
+      run: |
+        if [[ "$(git log -1 --pretty=%B)" =~ "[ci skip]" ]]
+        then 
+          echo Skipping because this commit is automated
+        else
+          # git setup
+          git remote set-url origin https://${GITHUB_TOKEN}:x-oauth-basic@github.com/${GITHUB_REPOSITORY}.git
+          git fetch origin +refs/heads/*:refs/heads/*
+          branch=$(printf "%s\n" "${GITHUB_REF#*refs\/heads\/}")
+          git checkout $branch
+          if [ "${#SEMVER_USER_NAME}" -ne "0" -a "${#SEMVER_USER_EMAIL}" -ne "0" ]
+          then
+            git_config_email=$SEMVER_USER_NAME
+            git_config_name=$SEMVER_USER_EMAIL
+          else
+            git_config_email="`node -e \"console.log(require('./package.json').author.email)\"`"
+            git_config_name="`node -e \"console.log(require('./package.json').author.name)\"`"
+          fi
+          git config user.email $git_config_email
+          git config user.name $git_config_name
+          # install hub
+          wget https://github.com/github/hub/releases/download/v2.12.3/hub-linux-amd64-2.12.3.tgz
+          tar -zxvf hub-linux-amd64-2.12.3.tgz
+          cd hub-linux-amd64-2.12.3
+          sudo ./install && cd ..
+          labels=$(hub pr list -s merged -L 1 -f %L)
+          # use labels to decide how to increment and publish
+          if [[ "$labels" =~ "major" ]]
+          then
+            echo Skipping because major release should be published manually
+          else 
+            if [[ "$labels" =~ "minor" ]]
+            then
+              npm version minor --no-git-tag-version 
+            else
+              npm version patch --no-git-tag-version
+            fi
+            git add package.json
+            current="`node -e \"console.log(require('./package.json').version)\"`"
+            git commit -m "Release version $current [ci skip]"
+            git push origin HEAD
+            echo "//registry.npmjs.org/:_authToken=$NPM_AUTH_TOKEN" > ~/.npmrc
+            npm publish --access=public
+          fi
+        fi
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} 
+        NPM_AUTH_TOKEN: ${{ secrets.NPM_AUTH_TOKEN }}
+        SEMVER_USER_NAME: ${{ secrets.SEMVER_USER_NAME }}
+        SEMVER_USER_EMAIL: ${{ secrets.SEMVER_USER_EMAIL }}
