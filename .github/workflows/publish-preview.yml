@@ -1,0 +1,45 @@
+name: Publish Preview
+
+on:
+  pull_request:
+    branches:
+      # - master
+      # - release-*
+        # uncomment when ready
+      - placeholder
+
+jobs:
+  filter:
+    name: Confirm NPM_AUTH_TOKEN Access
+    runs-on: ubuntu-latest
+    steps:
+    - name: Confirm NPM_AUTH_TOKEN Access
+      uses: thefrontside/actions/merge-and-fork-detector@master
+      with:
+        NPM_AUTH_TOKEN: ${{ secrets.NPM_AUTH_TOKEN }}
+
+  publish: 
+    name: Publish Commit Package
+    runs-on: ubuntu-latest
+    needs: filter
+    steps:
+    - uses: actions/checkout@v1
+    - name: Write NPM Snapshot Version
+      uses: thefrontside/actions/write-npm-snapshot-version@master
+    - name: NPM Publish Commit
+      uses: actions/npm@master
+      with: 
+        args: publish --access=public --tag dev
+      env:
+        NPM_AUTH_TOKEN: ${{ secrets.NPM_AUTH_TOKEN }}
+
+  comment: 
+    name: Post Instruction Comment
+    runs-on: ubuntu-latest
+    needs: publish
+    steps:
+    - uses: actions/checkout@v1
+    - name: Post Comment
+      uses: thefrontside/actions/post-npm-usage-instructions-comment@master
+      env: 
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
