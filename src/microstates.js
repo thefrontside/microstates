@@ -11,7 +11,7 @@ export function create(InputType = Any, value) {
   let { Type } = dsl.expand(InputType);
   let Microstate = MicrostateType(Type);
   let microstate = new Microstate(value);
-  if (Type.prototype.hasOwnProperty('initialize')) {
+  if (hasOwnProperty(Type.prototype, 'initialize')) {
     return microstate.initialize(value);
   } else {
     return microstate;
@@ -70,4 +70,8 @@ function expandProperty(property) {
     let { Type, value } = dsl.expand(property);
     return create(Type, value);
   }
+}
+
+function hasOwnProperty(target, propertyName) {
+  return Object.prototype.hasOwnProperty.call(target, propertyName);
 }
