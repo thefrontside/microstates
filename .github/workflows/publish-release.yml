@@ -3,11 +3,8 @@ name: Publish Release
 on:
   push:
     branches:
-      # - master
-      # - release-*
-        # uncomment when ready
-      - placeholder
-
+      - master
+      - release-*
 
 jobs:
   filter:

@@ -3,10 +3,8 @@ name: Publish Preview
 on:
   pull_request:
     branches:
-      # - master
-      # - release-*
-        # uncomment when ready
-      - placeholder
+      - master
+      - release-*
 
 jobs:
   filter:
