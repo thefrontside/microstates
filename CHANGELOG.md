@@ -6,6 +6,12 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 
+### Added
+
+- Fine grained control of how related Microstates are instantiated
+  via abstract relationships
+  https://github.com/microstates/microstates.js/pull/358
+
 ## [0.14.0] - 2019-03-27
 
 ### Breaking
