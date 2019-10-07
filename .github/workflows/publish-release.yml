@@ -7,48 +7,13 @@ on:
       - release-*
 
 jobs:
-  filter:
-    name: Filter for Merges and Forks
-    runs-on: ubuntu-latest
-    steps:
-    - uses: thefrontside/actions/merge-and-fork-detector@master
-      with:
-        NPM_AUTH_TOKEN: ${{ secrets.NPM_AUTH_TOKEN }}
-
-  commit-publish:
-    name: Commit and Publish
-    runs-on: ubuntu-latest
-    needs: filter
+  publish:
+    name: Synchronize with NPM
+    runs-on: ubuntu-16.04
     steps:
     - uses: actions/checkout@v1
-
-    - name: Fetch Pull Request Labels
-      uses: thefrontside/actions/fetch-pull-request-labels@master
-      id: pr-labels
-      with:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-    - name: Compute Major Minor or Patch
-      uses: thefrontside/actions/compute-major-minor-or-patch@master
-      with:
-        PR_LABELS: ${{ steps.pr-labels.outputs.PR_LABELS }}
-    
-    - name: NPM Version
-      uses: actions/npm@master
-      with:
-        args: version $MAJOR_OR_MINOR_OR_PATCH --no-git-tag-version 
-
-    - name: Commit Push and Tag Release
-      uses: thefrontside/actions/commit-push-and-tag-release@master
-      with:
-        add: package.json
+    - name: Tag and Publish
+      uses: thefrontside/actions/synchronize-with-npm@master
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-    - name: publish
-      uses: actions/npm@master
-      with:
-        args: publish --access=public
-      env:
         NPM_AUTH_TOKEN: ${{ secrets.NPM_AUTH_TOKEN }}
-      # Would be nice to put this in a separate workflow but github actions seems to not trigger workflows from commits that are triggered within another workflow.
