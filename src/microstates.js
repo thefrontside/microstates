@@ -1,8 +1,9 @@
 import { append, stable, map } from 'funcadelic';
 import { set } from './lens';
-import { Meta, mount, metaOf, valueOf, sourceOf } from './meta';
+import { Meta, mount, metaOf, sourceOf, valueOf } from './meta';
 import { methodsOf } from './reflection';
 import dsl from './dsl';
+import { Relationship, Edge, relationship } from './relationship';
 import Any from './types/any';
 import CachedProperty from './cached-property';
 import Observable from './observable';
@@ -29,12 +30,11 @@ const MicrostateType = stable(function MicrostateType(Type) {
     constructor(value) {
       super(value);
       Object.defineProperties(this, map((slot, key) => {
+        let relationship = slot instanceof Relationship ? slot : legacy(slot);
+
         return CachedProperty(key, self => {
-          let value = valueOf(self);
-          let expanded = expandProperty(slot);
-          let substate = value != null && value[key] != null ? expanded.set(value[key]) : expanded;
-          let mounted = mount(self, substate, key);
-          return mounted;
+          let { Type, value } = relationship.traverse(new Edge(self, [key]));
+          return mount(self, create(Type, value), key);
         });
       }, this));
 
@@ -62,14 +62,23 @@ const MicrostateType = stable(function MicrostateType(Type) {
   return Microstate;
 });
 
-function expandProperty(property) {
-  let meta = metaOf(property);
+/**
+ * Implement the legacy DSL as a relationship.
+ *
+ * Consider emitting a deprecation warning, as this will likely be
+ * removed before microstates 1.0
+ */
+
+function legacy(object) {
+  let cell;
+  let meta = metaOf(object);
   if (meta != null) {
-    return property;
+    cell = { Type: object.constructor.Type, value: valueOf(object) };
   } else {
-    let { Type, value } = dsl.expand(property);
-    return create(Type, value);
+    cell = dsl.expand(object);
   }
+  let { Type } = cell;
+  return relationship(cell.value).map(({ value }) => ({ Type, value }));
 }
 
 function hasOwnProperty(target, propertyName) {
