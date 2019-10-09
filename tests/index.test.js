@@ -23,4 +23,7 @@ describe('index of module exports', () => {
     expect(index.metaOf).toBeInstanceOf(Function);
     expect(index.valueOf).toBeInstanceOf(Function);
   });
+  it('has the relationship function', () => {
+    expect(index.relationship).toBeInstanceOf(Function);
+  });
 });
