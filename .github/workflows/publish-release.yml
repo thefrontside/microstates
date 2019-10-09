@@ -9,7 +9,7 @@ on:
 jobs:
   publish:
     name: Synchronize with NPM
-    runs-on: ubuntu-16.04
+    runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v1
     - name: Tag and Publish
