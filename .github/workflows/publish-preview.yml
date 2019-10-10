@@ -21,4 +21,4 @@ jobs:
     - name: Post Instructions Comment
       uses: thefrontside/actions/post-npm-usage-instructions-comment@master
       env:
-        GITHUB_TOKEN: ${{ secrets.POST_COMMENT_TOKEN }}
+        GITHUB_TOKEN: ${{ secrets.GITHUB_POST_COMMENT_TOKEN }}
