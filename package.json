@@ -34,7 +34,7 @@
     "coveralls": "nyc report --reporter=text-lcov | coveralls",
     "build": "rollup -c",
     "bench": "node -r ./tests/setup benchmarks/index.js",
-    "prepublishOnly": "npm run build"
+    "prepack": "npm run build"
   },
   "devDependencies": {
     "@babel/core": "^7.1.6",
