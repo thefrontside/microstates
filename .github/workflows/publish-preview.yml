@@ -7,7 +7,7 @@ on:
       - release-*
 
 jobs:
-  preview: 
+  preview:
     name: Publish Preview Package
     runs-on: ubuntu-latest
     steps:
@@ -15,7 +15,7 @@ jobs:
     - name: Write NPM Snapshot Version
       uses: thefrontside/actions/write-npm-snapshot-version@master
     - name: NPM Publish Commit
-      uses: thefrontside/actions/npm-publish-branch-preview@master
+      uses: thefrontside/actions/npm-publish-branch-preview@cowboyd-install-before-publish
       env:
         NPM_AUTH_TOKEN: ${{ secrets.NPM_AUTH_TOKEN }}
     - name: Post Instructions Comment
