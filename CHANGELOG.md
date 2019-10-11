@@ -6,6 +6,14 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 
+## [0.15.1] - 2019-10-11
+
+### Changed
+
+- This release is identical to 0.15.0 except that there was a
+  publishing error and the resulting package released to NPM was
+  malformed. This release is generated from the same source as v0.15.0
+
 ## [0.15.0] - 2019-10-08
 
 ### Added
