@@ -6,8 +6,6 @@
 [![Chat on Discord](https://img.shields.io/discord/556202291586269214.svg)](http://bit.ly/microstates-discord)
 [![Created by The Frontside](https://img.shields.io/badge/created%20by-frontside.io-blue.svg)](https://frontside.io) [![Greenkeeper badge](https://badges.greenkeeper.io/microstates/microstates.js.svg)](https://greenkeeper.io/)
 
-[**Microstates.js is built and maintained by Frontside. Contact us for expert JavaScript consulting and training.**](https://frontside.io/services/)
-
 <h1>
   <img src="README/microstates-logo.svg" alt="Microstates Logo" width="200" /><br>Microstates
 </h1>
