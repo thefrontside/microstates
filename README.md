@@ -1,6 +1,6 @@
 [![npm](https://img.shields.io/npm/v/microstates.svg)](https://www.npmjs.com/package/microstates)
 [![bundle size (minified + gzip)](https://badgen.net/bundlephobia/minzip/microstates)](https://bundlephobia.com/result?p=microstates)
-[![Build Status](https://travis-ci.org/microstates/microstates.js.svg?branch=master)](https://travis-ci.org/microstates/microstates.js)
+[![Build Status](https://circleci.com/gh/microstates/microstates.js/tree/master.svg?style=shield)](https://circleci.com/gh/microstates/microstates.js/tree/master)
 [![Coverage Status](https://coveralls.io/repos/github/microstates/microstates.js/badge.svg?branch=master)](https://coveralls.io/github/microstates/microstates.js?branch=master)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Chat on Discord](https://img.shields.io/discord/556202291586269214.svg)](http://bit.ly/microstates-discord)
