@@ -108,7 +108,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 - ArrayType#map is now stable. array.map(x => x) is no-op https://github.com/microstates/microstates.js/pull/239
 - ArrayType#filter is now stable. array.filter(x => true) is no-op https://github.com/microstates/microstates.js/pull/241
-- Identity/Store no longer calls observer on creation (behaviour of Observer.from remains unchanged) https://github.com/microstates/microstates.js/pull/255 
+- Identity/Store no longer calls observer on creation (behaviour of Observer.from remains unchanged) https://github.com/microstates/microstates.js/pull/255
 
 
 ## [0.11.0] - 2018-10-11
