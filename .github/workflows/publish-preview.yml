@@ -13,7 +13,7 @@ jobs:
     steps:
     - uses: actions/checkout@v1
     - name: NPM Publish Preview
-      uses: minkimcello/actions/publish-pr-preview@mk/resideo-zeus
+      uses: minkimcello/actions/publish-pr-preview@mk/resideo-zeus 
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_POST_COMMENT_TOKEN }}
         NPM_AUTH_TOKEN: ${{ secrets.NPM_AUTH_TOKEN }}
