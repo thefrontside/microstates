@@ -768,13 +768,22 @@ from({ hello: 'world' });
 //> Microstate<Object>
 ```
 
-`from` is lazy, so you can consume any deeply nested POJO and Microstates will allow you to perform transitions with it. The cost of building the objects inside of Microstates is paid whenever you reach for a Microstate inside. For example, `let o = from({ a: { b: { c: 42 }}})` doesn't do anything until you start to read the properties with dot notiation like `o.a.b.c`.
+`from` is lazy, so you can consume any deeply nested POJO and
+Microstates will allow you to perform transitions with it. The cost of
+building the objects inside of Microstates is paid whenever you reach
+for a Microstate inside. For example, `let o = from({ a: { b: { c: 42
+}}})` doesn't do anything until you start to read the properties with
+dot notiation like `o.entries` or with iteration / destructuring.
 
 ```js
-from({ a: { b: { c: 42 } } }).a.b.c.increment().state;
+let [[[[[[c]]]]]] = from({a: { b: {c: 42}}});
+valueOf(c.increment());
+
 // { a: { b: { c: 43 }}}
 
-from({ hello: ['world'] }).hello[0].concat('!!!').state;
+let greeting = from({ hello: ['world']});
+let [ world ] = greeting.entries.hello;
+valueOf(world.concat('!!!'));
 // { hello: [ 'world!!!' ]}
 ```
 
