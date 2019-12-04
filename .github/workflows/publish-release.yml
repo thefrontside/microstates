@@ -13,7 +13,7 @@ jobs:
     steps:
     - uses: actions/checkout@v1
     - name: Tag and Publish
-      uses: thefrontside/actions/synchronize-with-npm@master
+      uses: thefrontside/actions/synchronize-with-npm@v1.1
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         NPM_AUTH_TOKEN: ${{ secrets.NPM_AUTH_TOKEN }}

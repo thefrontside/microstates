@@ -13,7 +13,7 @@ jobs:
     steps:
     - uses: actions/checkout@v1
     - name: NPM Publish Preview
-      uses: thefrontside/actions/publish-pr-preview@master
+      uses: thefrontside/actions/publish-pr-preview@v1.1
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_POST_COMMENT_TOKEN }}
         NPM_AUTH_TOKEN: ${{ secrets.NPM_AUTH_TOKEN }}
