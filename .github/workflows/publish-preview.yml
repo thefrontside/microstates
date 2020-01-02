@@ -1,3 +1,4 @@
+
 name: Publish Preview
 
 on:
@@ -7,13 +8,13 @@ on:
       - release-*
 
 jobs:
-  preview: 
+  preview:
     name: Publish Preview Package
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v1
     - name: NPM Publish Preview
-      uses: thefrontside/actions/publish-pr-preview@v1.1
+      uses: thefrontside/actions/publish-pr-preview@v1.2
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_POST_COMMENT_TOKEN }}
-        NPM_AUTH_TOKEN: ${{ secrets.NPM_AUTH_TOKEN }}
+        NPM_TOKEN: ${{ secrets.NPM_AUTH_TOKEN }}
