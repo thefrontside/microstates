@@ -47,7 +47,7 @@
     "coveralls": "^3.0.2",
     "eslint": "^6.0.0",
     "eslint-plugin-prefer-let": "^1.0.1",
-    "expect": "^24.1.0",
+    "expect": "^25.1.0",
     "mocha": "^6.0.0",
     "nyc": "^14.0.0",
     "object.getownpropertydescriptors": "^2.0.3",
