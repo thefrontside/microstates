@@ -3,7 +3,7 @@
 [![Build Status](https://circleci.com/gh/microstates/microstates.js/tree/master.svg?style=shield)](https://circleci.com/gh/microstates/microstates.js/tree/master)
 [![Coverage Status](https://coveralls.io/repos/github/microstates/microstates.js/badge.svg?branch=master)](https://coveralls.io/github/microstates/microstates.js?branch=master)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![Chat on Discord](https://img.shields.io/discord/556202291586269214.svg)](http://bit.ly/microstates-discord)
+[![Chat on Discord](https://img.shields.io/discord/700803887132704931?Label=Discord)](https://discord.gg/GhREy5v)
 [![Created by The Frontside](https://img.shields.io/badge/created%20by-frontside.io-blue.svg)](https://frontside.io) [![Greenkeeper badge](https://badges.greenkeeper.io/microstates/microstates.js.svg)](https://greenkeeper.io/)
 
 <h1>
@@ -74,7 +74,7 @@ feel like working with the classic, mutable models we all know and love.
 <details>
   <summary>💬 <strong>Chat</strong></summary>
 
-  [Join our community on Discord](http://bit.ly/microstates-discord). Everyone is welcome. If you're a new to programming join our #beginner channel where extra care is taken to support those who're just getting started.
+  [Join our community on Discord](https://discord.gg/GhREy5v). Everyone is welcome. If you're a new to programming join our #beginner channel where extra care is taken to support those who're just getting started.
 
 </details>
 
