@@ -1,6 +1,3 @@
 node_modules
-.esm-cache
-/dist
-.nyc_output/
-coverage
-package-lock.json
+yarn-error.log
+/packages/*/dist
