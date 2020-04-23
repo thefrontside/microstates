@@ -26,22 +26,22 @@ jobs:
     steps:
       - checkout
       - yarn
-      - run: yarn test
+      - run: cd packages/microstates && yarn test
 
   lint:
     executor: node
     steps:
       - checkout
       - yarn
-      - run: yarn lint
+      - run: cd packages/microstates && yarn lint
 
   coverage:
     executor: node
     steps:
       - checkout
       - yarn
-      - run: yarn coverage
-      - run: yarn coveralls
+      - run: cd packages/microstates && yarn coverage
+      - run: cd packages/microstates && yarn coveralls
 
 workflows:
   version: 2.1
