@@ -8,5 +8,11 @@
     "packages": [
       "packages/*"
     ]
+  },
+  "scripts": {
+    "test": "yarn workspaces run test",
+    "lint": "yarn workspaces run lint",
+    "coverage": "yarn workspaces run coverage",
+    "coveralls": "yarn workspaces run coveralls"
   }
 }
