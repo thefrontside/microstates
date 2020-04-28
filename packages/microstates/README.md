@@ -1,10 +1,10 @@
 [![npm](https://img.shields.io/npm/v/microstates.svg)](https://www.npmjs.com/package/microstates)
 [![bundle size (minified + gzip)](https://badgen.net/bundlephobia/minzip/microstates)](https://bundlephobia.com/result?p=microstates)
-[![Build Status](https://circleci.com/gh/microstates/microstates.js/tree/master.svg?style=shield)](https://circleci.com/gh/microstates/microstates.js/tree/master)
-[![Coverage Status](https://coveralls.io/repos/github/microstates/microstates.js/badge.svg?branch=master)](https://coveralls.io/github/microstates/microstates.js?branch=master)
+[![Build Status](https://circleci.com/gh/thefrontside/microstates/tree/master.svg?style=shield)](https://circleci.com/gh/thefrontside/microstates/tree/master)
+[![Coverage Status](https://coveralls.io/repos/github/thefrontside/microstates/badge.svg?branch=master)](https://coveralls.io/github/thefrontside/microstates?branch=master)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Chat on Discord](https://img.shields.io/discord/700803887132704931?Label=Discord)](https://discord.gg/GhREy5v)
-[![Created by The Frontside](https://img.shields.io/badge/created%20by-frontside.io-blue.svg)](https://frontside.io) [![Greenkeeper badge](https://badges.greenkeeper.io/microstates/microstates.js.svg)](https://greenkeeper.io/)
+[![Created by The Frontside](https://img.shields.io/badge/created%20by-frontside.io-blue.svg)](https://frontside.io) [![Greenkeeper badge](https://badges.greenkeeper.io/thefrontside/microstates.svg)](https://greenkeeper.io/)
 
 <h1>
   <img src="README/microstates-logo.svg" alt="Microstates Logo" width="200" /><br>Microstates

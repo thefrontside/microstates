@@ -10,9 +10,9 @@
     "models",
     "state"
   ],
-  "homepage": "https://github.com/microstates/microstates.js#readme",
+  "homepage": "https://github.com/thefrontside/microstates#readme",
   "bugs": {
-    "url": "https://github.com/microstates/microstates.js/issues"
+    "url": "https://github.com/thefrontside/microstates/issues"
   },
   "license": "MIT",
   "author": "Charles Lowell <charles@frontside.io>, Taras Mankovski <taras@frontside.io>",
@@ -25,7 +25,7 @@
   "module": "dist/microstates.es.js",
   "unpkg": "dist/microstates.umd.js",
   "browser": "dist/microstates.umd.js",
-  "repository": "git+ssh://git@github.com/microstates/microstates.js.git",
+  "repository": "git+ssh://git@github.com/thefrontside/microstates.git",
   "scripts": {
     "start": "node repl.js",
     "lint": "eslint ./",
