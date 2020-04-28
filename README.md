@@ -7,7 +7,7 @@
 [![Created by The Frontside](https://img.shields.io/badge/created%20by-frontside.io-blue.svg)](https://frontside.io)
 
 <h1>
-  <img src="README/microstates-logo.svg" alt="Microstates Logo" width="200" /><br>Microstates
+  <img src="./packages/microstates/README/microstates-logo.svg" alt="Microstates Logo" width="200" /><br>Microstates
 </h1>
 
 Microstates makes working with pure functions over immutable data
