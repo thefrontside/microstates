@@ -2,7 +2,7 @@
   "name": "microstates-monorepo",
   "version": "0.0.0-monorepo",
   "description": "Composable State Primitives for JavaScript",
-  "author": "Frontside Engineering <engineering@frontside.io>",
+  "author": "Frontside Engineering <engineering@frontside.com>",
   "private": true,
   "workspaces": {
     "packages": [
