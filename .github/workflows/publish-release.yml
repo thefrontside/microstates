@@ -9,11 +9,11 @@ on:
 jobs:
   publish:
     name: Synchronize with NPM
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-20.04
     steps:
     - uses: actions/checkout@v1
     - name: Tag and Publish
-      uses: thefrontside/actions/synchronize-with-npm@v1.6
+      uses: thefrontside/actions/synchronize-with-npm@v1.9
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         NPM_TOKEN: ${{ secrets.NPM_AUTH_TOKEN }}
