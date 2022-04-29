@@ -11,4 +11,4 @@ jobs:
     - uses: actions/checkout@v1
     - uses: thefrontside/actions/synchronize-npm-tags@v1.1
       env:
-        NPM_AUTH_TOKEN: ${{ secrets.NPM_AUTH_TOKEN }}
+        NPM_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
